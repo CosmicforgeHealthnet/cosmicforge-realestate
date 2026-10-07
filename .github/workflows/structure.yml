@@ -1,0 +1,21 @@
+name: Repository structure
+
+on:
+  pull_request:
+  push:
+    branches: [development, staging, main]
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required roots
+        run: |
+          test -d apps
+          test -d services
+          test -d integrations/cf-meet
+          test -d infrastructure
+          test -d contracts
+          test -d docs
+          test -f README.md
