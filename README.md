@@ -31,15 +31,15 @@ There are **11 database-owning microservices + 1 API gateway = 12 deployable bac
 - Every service owns its own PostgreSQL database and credentials.
 - No service may read or write another service's database.
 - Each of the seven user-domain services owns its own account/authentication data.
-- Shared Go packages provide reusable auth/security primitives without creating a shared identity database.
-- Synchronous cross-service communication uses authenticated internal APIs.
+- Shared Go packages provide reusable auth/security primitives without creating shared identity persistence.
+- UUIDv7 is the canonical persistent entity ID.
+- Synchronous cross-service communication uses authenticated internal REST APIs.
 - Durable asynchronous propagation uses NATS JetStream and transactional outbox patterns.
-- Marketplace aggregates searchable/public projections from originating domains; it never becomes the source of truth for those originating records.
+- Marketplace aggregates searchable/public projections from originating domains; it never becomes the source of truth for those records.
 - CF Meet owns human-to-human messaging, voice, video, virtual viewing and privacy relay.
 - Paystack is reachable only through `payment-service`.
-- Firebase is used for FCM, Crashlytics, Analytics and App Distribution; it is not the primary business database or account authority.
+- Firebase is used for FCM, Crashlytics, Analytics and App Distribution.
 - Docker is used for deployment, not required for local development.
-- Staging and production Docker deployments are separated.
 - Terraform provisions infrastructure; Docker Compose deploys application containers initially.
 - Kubernetes is intentionally not part of the initial architecture.
 
@@ -58,6 +58,10 @@ There are **11 database-owning microservices + 1 API gateway = 12 deployable bac
 **Infrastructure:** Terraform, Cloudflare  
 **CI/CD:** GitHub Actions  
 **Observability:** OpenTelemetry, Prometheus, Grafana, Loki
+
+## Backend readiness
+
+The accepted pre-coding architecture and implementation rules are indexed in `docs/architecture/README.md`. The master baseline is `docs/architecture/BACKEND_FOUNDATION_BLUEPRINT.md`.
 
 ## Branch flow
 
