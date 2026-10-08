@@ -25,7 +25,7 @@ func main() {
 		}
 	}
 	if err := migrate.Run(context.Background(), os.Args[1:], url, migrations.FS, os.Stdout); err != nil {
-		fmt.Fprintln(os.Stderr, "migrate:", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

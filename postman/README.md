@@ -55,6 +55,17 @@ Common variables include:
 - listing_id
 - organization_id
 
+Foundation-block variables:
+- `verification_service_url`, `media_service_url`, `notification_service_url` — direct internal
+  service URLs for `_Internal` requests (local defaults `:8091`, `:8092`, `:8093`; empty for
+  development/staging, where internal APIs are reachable only inside the platform network)
+- `upload_url`, `checksum_sha256`, `owner_id` — signed media upload flow
+- `subject_id`, `client_reference`, `sandbox_signature` — verification (sandbox provider)
+- `endpoint_id`, `fcm_token`, `recipient_id` — push devices and notifications
+
+`_Internal` requests use `service_token` (a short-lived service JWT minted by a backend
+engineer); frontend requests use `access_token` through `base_url` (the API Gateway).
+
 The collection pre-request script generates a fresh `request_id` and `idempotency_key` for each request unless a request deliberately overrides them.
 
 ## Authentication

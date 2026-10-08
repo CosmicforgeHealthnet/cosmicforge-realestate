@@ -1,0 +1,60 @@
+name: Promote to production
+
+# Promotes the exact image digests currently certified on the `staging` tag.
+# Nothing is rebuilt: each digest is verified to exist and to be the one
+# staging runs, then tagged `production-<run>`. The emitted digest block is
+# the input for infrastructure/docker/production/.env.
+on:
+  workflow_dispatch:
+    inputs:
+      api_gateway_digest: {description: "api-gateway digest (sha256:...)", required: true}
+      verification_service_digest: {description: "verification-service digest", required: true}
+      media_document_service_digest: {description: "media-document-service digest", required: true}
+      notification_service_digest: {description: "notification-service digest", required: true}
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_PREFIX: ghcr.io/cosmicforgehealthnet/cosmicforge-realestate
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: production # requires reviewer approval
+    steps:
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify and tag certified digests
+        env:
+          D_API_GATEWAY: ${{ inputs.api_gateway_digest }}
+          D_VERIFICATION_SERVICE: ${{ inputs.verification_service_digest }}
+          D_MEDIA_DOCUMENT_SERVICE: ${{ inputs.media_document_service_digest }}
+          D_NOTIFICATION_SERVICE: ${{ inputs.notification_service_digest }}
+        run: |
+          set -euo pipefail
+          out=production-digests.env
+          echo "# promoted by run ${GITHUB_RUN_ID}" > "$out"
+          for c in api-gateway verification-service media-document-service notification-service; do
+            var="D_$(echo "$c" | tr 'a-z-' 'A-Z_')"
+            digest="${!var}"
+            [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "::error::$c: invalid digest"; exit 1; }
+            image="$IMAGE_PREFIX/$c"
+            docker buildx imagetools inspect "$image@$digest" > /dev/null
+            staging="$(docker buildx imagetools inspect "$image:staging" --format '{{json .Manifest}}' | python3 -c 'import json,sys; print(json.load(sys.stdin)["digest"])')"
+            if [ "$staging" != "$digest" ]; then
+              echo "::error::$c: $digest is not the digest certified on :staging ($staging)"; exit 1
+            fi
+            docker buildx imagetools create --tag "$image:production-${GITHUB_RUN_NUMBER}" "$image@$digest"
+            echo "$(echo "$c" | tr 'a-z-' 'A-Z_')_DIGEST=$digest" >> "$out"
+          done
+          { echo '```'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-digests
+          path: production-digests.env

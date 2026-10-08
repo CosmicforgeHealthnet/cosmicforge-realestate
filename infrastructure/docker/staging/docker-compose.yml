@@ -1,2 +1,230 @@
-# staging deployment composition.
-# Service definitions are added as deployable implementations land.
+# CosmicForge Real Estate — STAGING deployment (foundation block).
+#
+# Images are referenced ONLY by immutable digest from GHCR; CI publishes them
+# and records digests (see .github/workflows/images.yml). Production promotes
+# the exact digests certified here — it never rebuilds.
+#
+# Secrets are never committed. Each service reads its own env file from
+# ${SECRETS_DIR} (provisioned by secrets management with mode 0600), e.g.
+#   /etc/cosmicforge/verification-service.env
+# Templates: ../service-env/*.env.example (NATS_URL and REDIS_PASSWORD carry
+# the broker/cache credentials). Compose-level variables:
+# .env.example in this directory.
+#
+# External (provisioned by Terraform, not run here): one PostgreSQL database
+# per service (verification_db, media_document_db, notification_db) with its
+# own credentials, and S3-compatible object storage.
+#
+#   docker compose --env-file .env up -d
+name: cosmicforge-staging
+
+x-hardening: &hardening
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  restart: unless-stopped
+  stop_grace_period: 30s
+  networks: [backend]
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
+x-env: &env
+  APP_ENV: staging
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  NATS_SUBJECT_PREFIX: realestate
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+  OTEL_TRACES_SAMPLER_RATIO: ${OTEL_TRACES_SAMPLER_RATIO:-0.2}
+
+x-migrate: &migrate
+  <<: *hardening
+  restart: "no"
+  command: ["/app/migrate", "up"]
+  healthcheck: {disable: true}
+
+x-worker-health: &worker-health
+  test: ["CMD", "/app/worker", "healthcheck"]
+  interval: 15s
+  timeout: 5s
+  start_period: 20s
+  retries: 3
+
+services:
+  # ---------------------------------------------------------------- edge
+  api-gateway:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/api-gateway@${API_GATEWAY_DIGEST:?set API_GATEWAY_DIGEST (sha256:...)}
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8080"
+      REDIS_ADDR: redis:6379
+      GATEWAY_UPSTREAM_VERIFICATION_SERVICE_URL: http://verification-api:8080
+      GATEWAY_UPSTREAM_MEDIA_DOCUMENT_SERVICE_URL: http://media-api:8080
+      GATEWAY_UPSTREAM_NOTIFICATION_SERVICE_URL: http://notification-api:8080
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/api-gateway.env
+        required: true
+    ports:
+      # Bound to loopback: TLS terminates at the host reverse proxy / load balancer.
+      - "127.0.0.1:${GATEWAY_PUBLISH_PORT:-8080}:8080"
+    networks: [backend, edge]
+    depends_on:
+      redis: {condition: service_healthy}
+      verification-api: {condition: service_healthy}
+      media-api: {condition: service_healthy}
+      notification-api: {condition: service_healthy}
+
+  # ------------------------------------------------- verification-service
+  verification-migrate:
+    <<: *migrate
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/verification-service@${VERIFICATION_SERVICE_DIGEST:?set VERIFICATION_SERVICE_DIGEST}
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/verification-service.env
+        required: true
+  verification-api:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/verification-service@${VERIFICATION_SERVICE_DIGEST:?set VERIFICATION_SERVICE_DIGEST}
+    command: ["/app/api"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8080"
+      MEDIA_SERVICE_URL: http://media-api:8080
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/verification-service.env
+        required: true
+    depends_on:
+      verification-migrate: {condition: service_completed_successfully}
+  verification-worker:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/verification-service@${VERIFICATION_SERVICE_DIGEST:?set VERIFICATION_SERVICE_DIGEST}
+    command: ["/app/worker"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8081"
+      MEDIA_SERVICE_URL: http://media-api:8080
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/verification-service.env
+        required: true
+    healthcheck: *worker-health
+    depends_on:
+      verification-migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+
+  # ----------------------------------------------- media-document-service
+  media-migrate:
+    <<: *migrate
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/media-document-service@${MEDIA_DOCUMENT_SERVICE_DIGEST:?set MEDIA_DOCUMENT_SERVICE_DIGEST}
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/media-document-service.env
+        required: true
+  media-api:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/media-document-service@${MEDIA_DOCUMENT_SERVICE_DIGEST:?set MEDIA_DOCUMENT_SERVICE_DIGEST}
+    command: ["/app/api"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8080"
+      MEDIA_SCANNER: clamav
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/media-document-service.env
+        required: true
+    depends_on:
+      media-migrate: {condition: service_completed_successfully}
+  media-worker:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/media-document-service@${MEDIA_DOCUMENT_SERVICE_DIGEST:?set MEDIA_DOCUMENT_SERVICE_DIGEST}
+    command: ["/app/worker"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8081"
+      MEDIA_SCANNER: clamav
+      CLAMAV_ADDR: clamav:3310
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/media-document-service.env
+        required: true
+    healthcheck: *worker-health
+    depends_on:
+      media-migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+      clamav: {condition: service_healthy}
+
+  # ------------------------------------------------- notification-service
+  notification-migrate:
+    <<: *migrate
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/notification-service@${NOTIFICATION_SERVICE_DIGEST:?set NOTIFICATION_SERVICE_DIGEST}
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/notification-service.env
+        required: true
+  notification-api:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/notification-service@${NOTIFICATION_SERVICE_DIGEST:?set NOTIFICATION_SERVICE_DIGEST}
+    command: ["/app/api"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8080"
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/notification-service.env
+        required: true
+    depends_on:
+      notification-migrate: {condition: service_completed_successfully}
+  notification-worker:
+    <<: *hardening
+    image: ${IMAGE_REGISTRY:-ghcr.io/cosmicforgehealthnet/cosmicforge-realestate}/notification-service@${NOTIFICATION_SERVICE_DIGEST:?set NOTIFICATION_SERVICE_DIGEST}
+    command: ["/app/worker"]
+    environment:
+      <<: *env
+      HTTP_ADDR: ":8081"
+    env_file:
+      - path: ${SECRETS_DIR:-/etc/cosmicforge}/notification-service.env
+        required: true
+    healthcheck: *worker-health
+    depends_on:
+      notification-migrate: {condition: service_completed_successfully}
+      nats: {condition: service_healthy}
+
+  # ------------------------------------------------------ infrastructure
+  nats:
+    image: nats:${NATS_VERSION:-2.11}-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222", "--user", "${NATS_USER:?set NATS_USER}", "--pass", "${NATS_PASSWORD:?set NATS_PASSWORD}"]
+    volumes: [nats-data:/data]
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8222/healthz?js-enabled-only=true"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+  redis:
+    image: redis:${REDIS_VERSION:-7.4}-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}"]
+    volumes: [redis-data:/data]
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+  clamav:
+    image: clamav/clamav:${CLAMAV_VERSION:-1.4}
+    restart: unless-stopped
+    networks: [backend]
+    volumes: [clamav-db:/var/lib/clamav]
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      start_period: 300s
+      retries: 5
+
+networks:
+  backend: {}
+  edge: {}
+
+volumes:
+  nats-data: {}
+  redis-data: {}
+  clamav-db: {}

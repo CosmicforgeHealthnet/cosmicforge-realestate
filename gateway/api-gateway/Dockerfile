@@ -29,4 +29,5 @@ COPY --from=build /out/api /app/api
 USER nonroot:nonroot
 EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 CMD ["/app/api", "healthcheck"]
-ENTRYPOINT ["/app/api"]
+# CMD (not ENTRYPOINT) so the same image runs any binary: docker run IMAGE /app/worker
+CMD ["/app/api"]

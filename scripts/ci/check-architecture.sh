@@ -40,6 +40,9 @@ check() {
       continue
     fi
     while read -r dep; do
+      # Test variants: "pkg [pkg.test]" and synthesized "pkg.test" main packages.
+      dep="${dep%% \[*}"
+      dep="${dep%.test}"
       [[ "$dep" != "$PREFIX"/* ]] && continue
       [[ "$dep" == "$modpath" || "$dep" == "$modpath"/* ]] && continue
       if [[ "$modpath" != "$SHARED" && ( "$dep" == "$SHARED" || "$dep" == "$SHARED"/* ) ]]; then

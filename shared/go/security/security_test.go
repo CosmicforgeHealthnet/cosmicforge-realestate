@@ -16,7 +16,7 @@ import (
 )
 
 func TestSecretNeverPrints(t *testing.T) {
-	s := NewSecret("sk_live_supersecret")
+	s := NewSecret("test-only-supersecret-value")
 	outputs := []string{
 		fmt.Sprintf("%v %s %+v %#v %q", s, s, s, s, s),
 		s.String(),
@@ -31,7 +31,7 @@ func TestSecretNeverPrints(t *testing.T) {
 			t.Fatalf("secret leaked: %s", o)
 		}
 	}
-	if s.Reveal() != "sk_live_supersecret" {
+	if s.Reveal() != "test-only-supersecret-value" {
 		t.Fatal("reveal")
 	}
 }

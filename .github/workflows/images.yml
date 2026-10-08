@@ -1,0 +1,135 @@
+name: Images
+
+# Builds every deployable component image. Pull requests build (no push) to
+# prove the Dockerfiles; pushes to development/staging/main publish to GHCR,
+# scan the pushed digest and record it. Deployments reference digests only.
+on:
+  pull_request:
+  push:
+    branches: [development, staging, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/cosmicforgehealthnet/cosmicforge-realestate
+
+jobs:
+  build:
+    name: image (${{ matrix.component }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {component: api-gateway, dockerfile: gateway/api-gateway/Dockerfile}
+          - {component: verification-service, dockerfile: services/verification-service/Dockerfile}
+          - {component: media-document-service, dockerfile: services/media-document-service/Dockerfile}
+          - {component: notification-service, dockerfile: services/notification-service/Dockerfile}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/${{ matrix.component }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+      - id: time
+        run: echo "now=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ steps.time.outputs.now }}
+          provenance: ${{ github.event_name != 'pull_request' }}
+          sbom: ${{ github.event_name != 'pull_request' }}
+          cache-from: type=gha,scope=${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+      - name: Image reference to scan
+        id: ref
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "image=${{ env.IMAGE_PREFIX }}/${{ matrix.component }}:sha-${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image=${{ env.IMAGE_PREFIX }}/${{ matrix.component }}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Smoke test (runs as non-root, all binaries present)
+        if: github.event_name == 'pull_request'
+        run: |
+          img="${{ steps.ref.outputs.image }}"
+          test "$(docker inspect --format '{{.Config.User}}' "$img")" = "nonroot:nonroot"
+          docker run --rm "$img" /app/api healthcheck && exit 1 || true # no server running: probe must fail
+          if [ "${{ matrix.component }}" != "api-gateway" ]; then
+            docker run --rm "$img" /app/migrate version 2>&1 | grep -qi "database_url\|DATABASE_URL"
+          fi
+      - name: Vulnerability scan (Trivy)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ steps.ref.outputs.image }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Record digest
+        if: github.event_name != 'pull_request'
+        run: |
+          var="$(echo '${{ matrix.component }}' | tr 'a-z-' 'A-Z_')_DIGEST"
+          mkdir -p digests
+          echo "${var}=${{ steps.build.outputs.digest }}" > "digests/${{ matrix.component }}.env"
+          echo "\`${{ env.IMAGE_PREFIX }}/${{ matrix.component }}@${{ steps.build.outputs.digest }}\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: digest-${{ matrix.component }}
+          path: digests/${{ matrix.component }}.env
+
+  digests:
+    name: image digests (deployment input)
+    if: github.event_name != 'pull_request'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: digest-*
+          merge-multiple: true
+          path: digests
+      - name: Combine
+        run: |
+          {
+            echo "# ${{ github.ref_name }} @ ${{ github.sha }}"
+            cat digests/*.env | sort
+          } > image-digests.env
+          { echo '```'; cat image-digests.env; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-digests
+          path: image-digests.env

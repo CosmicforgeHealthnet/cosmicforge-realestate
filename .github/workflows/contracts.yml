@@ -1,0 +1,30 @@
+name: Contracts
+
+on:
+  pull_request:
+  push:
+    branches: [development, staging, main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install openapi-spec-validator==0.9.0 check-jsonschema==0.38.2
+      - name: OpenAPI documents are valid
+        run: |
+          set -euo pipefail
+          find contracts -name '*.yaml' -path '*openapi*' -o -name '*.yaml' -path '*webhooks*' | sort | while read -r f; do
+            openapi-spec-validator "$f"
+          done
+      - name: JSON Schemas are valid (draft 2020-12 metaschema)
+        run: find contracts -name '*.schema.json' -print0 | sort -z | xargs -0 check-jsonschema --check-metaschema
+      - name: Postman collection and environments are valid JSON
+        run: |
+          for f in postman/*.json postman/environments/*.json; do python -m json.tool "$f" > /dev/null; done

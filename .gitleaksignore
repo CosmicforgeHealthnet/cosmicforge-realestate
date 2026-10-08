@@ -1,0 +1,6 @@
+# Reviewed false positives (fake test fixtures, not credentials). Keep this
+# list minimal; every entry must reference a reviewed fixture.
+# shared/go/security/security_test.go used a fake Stripe-shaped value
+# to prove Secret never prints; replaced with a non-key-shaped value afterwards.
+4dca34447860c86d78467d9e9c5ca3d069c9a947:shared/go/security/security_test.go:stripe-access-token:19
+4dca34447860c86d78467d9e9c5ca3d069c9a947:shared/go/security/security_test.go:stripe-access-token:34

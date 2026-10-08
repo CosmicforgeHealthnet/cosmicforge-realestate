@@ -102,7 +102,7 @@ be added before production use — see Known limitations.
 
 ```bash
 DATABASE_URL=... go run ./cmd/migrate up        # or: down-to <v> | status | version
-# in deployment: docker run ... --entrypoint /app/migrate <image> up
+# in deployment: docker run ... <image> /app/migrate up
 sqlc generate -f sql/sqlc.yaml                    # regenerate internal/repositories/db
 ```
 
