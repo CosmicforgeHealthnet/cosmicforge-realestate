@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/johannesboyne/gofakes3"
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 
@@ -130,7 +132,11 @@ func TestRealS3ChecksumEnforcement(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := s.Ready(ctx); err != nil {
-		t.Fatalf("bucket not reachable: %v", err)
+		// Test infrastructure convenience: create the bucket (production
+		// buckets are provisioned by Terraform, never by the service).
+		if _, cerr := s.client.CreateBucket(ctx, &s3.CreateBucketInput{Bucket: aws.String(s.cfg.Bucket)}); cerr != nil {
+			t.Fatalf("bucket not reachable: %v / %v", err, cerr)
+		}
 	}
 	body := []byte("%PDF-1.7 genuine")
 	sum := sha256.Sum256(body)
