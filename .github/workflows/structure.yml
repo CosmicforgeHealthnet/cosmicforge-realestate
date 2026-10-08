@@ -14,7 +14,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for p in             gateway/api-gateway             services/marketplace-service             services/individual-owner-service             services/business-operations-service             services/property-manager-service             services/artisan-service             services/professional-services-service             services/admin-service             services/identity-service             services/verification-service             services/payment-service             services/notification-service             services/media-document-service             integrations/cf-meet             integrations/paystack             integrations/firebase             infrastructure/docker/staging             infrastructure/docker/production             infrastructure/terraform/environments/staging             infrastructure/terraform/environments/production
+          for p in \
+            gateway/api-gateway \
+            services/marketplace-service \
+            services/individual-owner-service \
+            services/business-operations-service \
+            services/property-manager-service \
+            services/artisan-service \
+            services/professional-services-service \
+            services/admin-service \
+            services/verification-service \
+            services/payment-service \
+            services/notification-service \
+            services/media-document-service \
+            integrations/cf-meet \
+            integrations/paystack \
+            integrations/firebase \
+            infrastructure/docker/staging \
+            infrastructure/docker/production \
+            infrastructure/terraform/environments/staging \
+            infrastructure/terraform/environments/production
           do
             test -d "$p"
           done
+
+          test ! -e services/identity-service

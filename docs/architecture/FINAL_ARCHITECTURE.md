@@ -3,10 +3,10 @@
 ## Count
 
 - 7 user-domain services
-- 5 shared platform services
+- 4 shared platform services
 - 1 API Gateway
-- 12 service-owned PostgreSQL databases
-- 13 deployable backend components
+- 11 service-owned PostgreSQL databases
+- 12 deployable backend components
 
 ## User-domain services
 
@@ -20,17 +20,20 @@
 
 Each maps to its own product/application domain. Individual owners are not merged with business property operators. Artisans are not merged with professional property-service providers.
 
+Each user-domain service owns the accounts, credentials, sessions, roles and permissions for its own product. There is no central Real Estate identity microservice.
+
 ## Shared services
 
-1. identity-service
-2. verification-service
-3. payment-service
-4. notification-service
-5. media-document-service
+1. verification-service
+2. payment-service
+3. notification-service
+4. media-document-service
 
 ## Edge
 
 api-gateway is an edge/routing component and owns no business database.
+
+The gateway trusts configured domain token issuers/signing keys and validates domain-issued authentication tokens. It is not an account authority.
 
 ## External/shared platforms
 
