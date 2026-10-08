@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/media/media.deleted.v1.schema.json",
+  "title": "media.deleted.v1",
+  "description": "The object was removed from storage. Producer: media-document-service. Subject: realestate.media.deleted.v1. Aggregate: media.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "media.deleted.v1"},
+    "producer": {"const": "media-document-service"},
+    "aggregate_type": {"const": "media"},
+    "payload": {
+      "allOf": [{"$ref": "media-payload.schema.json"}],
+      "properties": {"status": {"const": "DELETED"}},
+      "required": ["deleted_at"]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/media/media-payload.schema.json",
+  "title": "media.* payload",
+  "description": "Common payload of media-document-service events. Never contains file bytes, URLs or credentials. Consumers must ignore unknown fields.",
+  "type": "object",
+  "required": ["media_id", "owner", "media_class", "status", "mime_type", "size_bytes", "checksum_sha256", "access_classification", "scan_status"],
+  "properties": {
+    "media_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
+    "owner": {
+      "type": "object",
+      "required": ["owner_domain", "owner_type", "owner_id"],
+      "properties": {
+        "owner_domain": {"enum": ["marketplace", "individual-owner", "business-operations", "property-manager", "artisan", "professional-services", "admin"]},
+        "owner_type": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,39}$"},
+        "owner_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"}
+      }
+    },
+    "media_class": {"enum": ["IMAGE", "VIDEO", "DOCUMENT", "VERIFICATION_DOCUMENT"]},
+    "status": {"enum": ["UPLOADED", "SCANNING", "READY", "REJECTED", "DELETED"]},
+    "mime_type": {"type": "string"},
+    "size_bytes": {"type": "integer", "minimum": 1},
+    "checksum_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "access_classification": {"enum": ["PUBLIC", "PRIVATE", "DOMAIN_RESTRICTED", "ADMIN_RESTRICTED"]},
+    "scan_status": {"enum": ["NOT_SCANNED", "PENDING", "CLEAN", "INFECTED", "FAILED"]},
+    "rejection_reason": {"enum": ["INFECTED", "CHECKSUM_MISMATCH", "SIZE_MISMATCH", "MIME_MISMATCH", "EXECUTABLE_CONTENT", "OBJECT_MISSING", "SCAN_FAILED"]},
+    "uploaded_at": {"type": "string", "format": "date-time"},
+    "ready_at": {"type": "string", "format": "date-time"},
+    "deleted_at": {"type": "string", "format": "date-time"}
+  }
+}

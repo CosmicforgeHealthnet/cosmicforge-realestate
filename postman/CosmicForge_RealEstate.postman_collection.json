@@ -110,6 +110,26 @@
       "key": "sandbox_signature",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "media_service_url",
+      "value": "http://localhost:8092",
+      "type": "string"
+    },
+    {
+      "key": "upload_url",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "checksum_sha256",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "owner_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -2763,11 +2783,1784 @@
       "item": [
         {
           "name": "Frontend",
-          "item": []
+          "item": [
+            {
+              "name": "1. Initiate upload",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/media/uploads",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "media",
+                    "uploads"
+                  ]
+                },
+                "description": "Step 1 of the signed-upload flow. Returns the media record and a signed PUT URL. Send the bytes to upload.url with exactly upload.headers (Content-Type, Content-Length, X-Amz-Checksum-Sha256). Owner is the signed-in user.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"media_class\": \"IMAGE\",\n  \"filename\": \"portfolio.jpg\",\n  \"mime_type\": \"image/jpeg\",\n  \"size_bytes\": 248813,\n  \"checksum_sha256\": \"{{checksum_sha256}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/uploads",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_class\": \"IMAGE\",\n  \"filename\": \"portfolio.jpg\",\n  \"mime_type\": \"image/jpeg\",\n  \"size_bytes\": 248813,\n  \"checksum_sha256\": \"{{checksum_sha256}}\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media\": {\n      \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n      \"owner_domain\": \"artisan\",\n      \"owner_type\": \"USER\",\n      \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n      \"media_class\": \"IMAGE\",\n      \"filename\": \"portfolio.jpg\",\n      \"mime_type\": \"image/jpeg\",\n      \"size_bytes\": 248813,\n      \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"access_classification\": \"PRIVATE\",\n      \"scan_status\": \"NOT_SCANNED\",\n      \"status\": \"UPLOAD_PENDING\",\n      \"rejection_reason\": null,\n      \"retention_until\": null,\n      \"uploaded_at\": null,\n      \"ready_at\": null,\n      \"created_at\": \"2026-10-08T11:00:00Z\",\n      \"updated_at\": \"2026-10-08T11:00:00Z\"\n    },\n    \"upload\": {\n      \"url\": \"https://storage.example.com/cf-media/artisan/image/2026/10/019a1c2e-3333-7000-8000-000000000004?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=900&X-Amz-Signature=...\",\n      \"method\": \"PUT\",\n      \"headers\": {\n        \"Content-Type\": \"image/jpeg\",\n        \"Content-Length\": \"248813\",\n        \"X-Amz-Checksum-Sha256\": \"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\"\n      },\n      \"expires_at\": \"2026-10-08T11:15:00Z\"\n    }\n  }\n}"
+                },
+                {
+                  "name": "422 Type not allowed",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/uploads",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_class\": \"IMAGE\",\n  \"filename\": \"portfolio.jpg\",\n  \"mime_type\": \"image/jpeg\",\n  \"size_bytes\": 248813,\n  \"checksum_sha256\": \"{{checksum_sha256}}\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unprocessable Entity",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"MIME_TYPE_NOT_ALLOWED\",\n    \"message\": \"This file type is not allowed for this media class.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "422 Too large",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/uploads",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_class\": \"IMAGE\",\n  \"filename\": \"portfolio.jpg\",\n  \"mime_type\": \"image/jpeg\",\n  \"size_bytes\": 248813,\n  \"checksum_sha256\": \"{{checksum_sha256}}\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unprocessable Entity",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"FILE_TOO_LARGE\",\n    \"message\": \"The file exceeds the size limit for this media class.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "429 Rate limited",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/uploads",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_class\": \"IMAGE\",\n  \"filename\": \"portfolio.jpg\",\n  \"mime_type\": \"image/jpeg\",\n  \"size_bytes\": 248813,\n  \"checksum_sha256\": \"{{checksum_sha256}}\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Too Many Requests",
+                  "code": 429,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests. Please retry later.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "if (b.data && b.data.media) { pm.environment.set('media_id', b.data.media.media_id); pm.environment.set('upload_url', b.data.upload.url); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. Upload bytes to signed URL",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "image/jpeg"
+                  },
+                  {
+                    "key": "X-Amz-Checksum-Sha256",
+                    "value": "{{checksum_sha256_base64}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{upload_url}}"
+                },
+                "description": "Step 2. Upload the raw file to the signed URL from step 1 (object storage, not the API). No Authorization header. Headers must match upload.headers exactly.",
+                "body": {
+                  "mode": "file",
+                  "file": {}
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "image/jpeg"
+                      },
+                      {
+                        "key": "X-Amz-Checksum-Sha256",
+                        "value": "{{checksum_sha256_base64}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{upload_url}}"
+                    },
+                    "body": {
+                      "mode": "file",
+                      "file": {}
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{}"
+                }
+              ]
+            },
+            {
+              "name": "3. Complete upload",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/media/{{media_id}}/complete",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "complete"
+                  ]
+                },
+                "description": "Step 3. Confirms the object exists with the declared size and queues scanning. Safe to repeat. 409 UPLOAD_NOT_RECEIVED means step 2 has not finished; retry with the same Idempotency-Key."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/complete",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "complete"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"PENDING\",\n    \"status\": \"UPLOADED\",\n    \"rejection_reason\": null,\n    \"retention_until\": null,\n    \"uploaded_at\": \"2026-10-08T11:01:00Z\",\n    \"ready_at\": null,\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "409 Not uploaded yet",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/complete",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "complete"
+                      ]
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"UPLOAD_NOT_RECEIVED\",\n    \"message\": \"The file has not been uploaded yet.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 Session expired",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/complete",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "complete"
+                      ]
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"UPLOAD_SESSION_EXPIRED\",\n    \"message\": \"The upload session expired. Start a new upload.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "4. Get media",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/media/{{media_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "media",
+                    "{{media_id}}"
+                  ]
+                },
+                "description": "Step 4. Poll until status is READY (usable) or REJECTED (see rejection_reason)."
+              },
+              "response": [
+                {
+                  "name": "200 Ready",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"CLEAN\",\n    \"status\": \"READY\",\n    \"rejection_reason\": null,\n    \"retention_until\": null,\n    \"uploaded_at\": null,\n    \"ready_at\": \"2026-10-08T11:01:05Z\",\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "200 Rejected",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"CLEAN\",\n    \"status\": \"REJECTED\",\n    \"rejection_reason\": \"MIME_MISMATCH\",\n    \"retention_until\": null,\n    \"uploaded_at\": null,\n    \"ready_at\": null,\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "404 Not found",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"MEDIA_NOT_FOUND\",\n    \"message\": \"Media not found.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "5. Get download URL",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/media/{{media_id}}/download-url",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "download-url"
+                  ]
+                },
+                "description": "Step 5. Issues a short-lived (5 min) signed GET URL after an authorization check. Only READY files."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/download-url",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "download-url"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"url\": \"https://storage.example.com/...&X-Amz-Expires=300&X-Amz-Signature=...\",\n    \"method\": \"GET\",\n    \"expires_at\": \"2026-10-08T11:06:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "403 Not allowed",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/download-url",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "download-url"
+                      ]
+                    }
+                  },
+                  "status": "Forbidden",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"You are not allowed to download this file.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 Not ready",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/media/{{media_id}}/download-url",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "download-url"
+                      ]
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"MEDIA_NOT_READY\",\n    \"message\": \"The file is not available for download.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "_Internal",
-          "item": []
+          "item": [
+            {
+              "name": "Initiate upload (service)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/uploads",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "uploads"
+                  ]
+                },
+                "description": "Domain service creates media owned by its own domain (e.g. a PROPERTY).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"owner\": {\n    \"owner_domain\": \"individual-owner\",\n    \"owner_type\": \"PROPERTY\",\n    \"owner_id\": \"{{property_id}}\"\n  },\n  \"media_class\": \"DOCUMENT\",\n  \"filename\": \"title-deed.pdf\",\n  \"mime_type\": \"application/pdf\",\n  \"size_bytes\": 523000,\n  \"checksum_sha256\": \"{{checksum_sha256}}\",\n  \"access_classification\": \"DOMAIN_RESTRICTED\",\n  \"document_type\": \"TITLE_DEED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/uploads",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"owner\": {\n    \"owner_domain\": \"individual-owner\",\n    \"owner_type\": \"PROPERTY\",\n    \"owner_id\": \"{{property_id}}\"\n  },\n  \"media_class\": \"DOCUMENT\",\n  \"filename\": \"title-deed.pdf\",\n  \"mime_type\": \"application/pdf\",\n  \"size_bytes\": 523000,\n  \"checksum_sha256\": \"{{checksum_sha256}}\",\n  \"access_classification\": \"DOMAIN_RESTRICTED\",\n  \"document_type\": \"TITLE_DEED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media\": {\n      \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n      \"owner_domain\": \"individual-owner\",\n      \"owner_type\": \"PROPERTY\",\n      \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n      \"media_class\": \"DOCUMENT\",\n      \"filename\": \"portfolio.jpg\",\n      \"mime_type\": \"image/jpeg\",\n      \"size_bytes\": 248813,\n      \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"access_classification\": \"PRIVATE\",\n      \"scan_status\": \"NOT_SCANNED\",\n      \"status\": \"UPLOAD_PENDING\",\n      \"rejection_reason\": null,\n      \"retention_until\": null,\n      \"uploaded_at\": null,\n      \"ready_at\": null,\n      \"created_at\": \"2026-10-08T11:00:00Z\",\n      \"updated_at\": \"2026-10-08T11:00:00Z\"\n    },\n    \"upload\": {\n      \"url\": \"https://storage.example.com/cf-media/artisan/image/2026/10/019a1c2e-3333-7000-8000-000000000004?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=900&X-Amz-Signature=...\",\n      \"method\": \"PUT\",\n      \"headers\": {\n        \"Content-Type\": \"image/jpeg\",\n        \"Content-Length\": \"248813\",\n        \"X-Amz-Checksum-Sha256\": \"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\"\n      },\n      \"expires_at\": \"2026-10-08T11:15:00Z\"\n    }\n  }\n}"
+                },
+                {
+                  "name": "403 PERMISSION_DENIED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/uploads",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "uploads"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"owner\": {\n    \"owner_domain\": \"individual-owner\",\n    \"owner_type\": \"PROPERTY\",\n    \"owner_id\": \"{{property_id}}\"\n  },\n  \"media_class\": \"DOCUMENT\",\n  \"filename\": \"title-deed.pdf\",\n  \"mime_type\": \"application/pdf\",\n  \"size_bytes\": 523000,\n  \"checksum_sha256\": \"{{checksum_sha256}}\",\n  \"access_classification\": \"DOMAIN_RESTRICTED\",\n  \"document_type\": \"TITLE_DEED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"A service may only create media owned by its own domain.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Complete upload (service)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/complete",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "complete"
+                  ]
+                },
+                "description": "Finalize; repeat-safe."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/complete",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "complete"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"NOT_SCANNED\",\n    \"status\": \"UPLOADED\",\n    \"rejection_reason\": null,\n    \"retention_until\": null,\n    \"uploaded_at\": null,\n    \"ready_at\": null,\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get media (service)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}"
+                  ]
+                },
+                "description": "Metadata (owner domain, verification-service, admin, grantees)."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"NOT_SCANNED\",\n    \"status\": \"UPLOAD_PENDING\",\n    \"rejection_reason\": null,\n    \"retention_until\": null,\n    \"uploaded_at\": null,\n    \"ready_at\": null,\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get media status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/status",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "status"
+                  ]
+                },
+                "description": "Lifecycle status only."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/status",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "status"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"status\": \"READY\",\n    \"scan_status\": \"CLEAN\",\n    \"rejection_reason\": null,\n    \"updated_at\": \"2026-10-08T11:01:05Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "List media by owner",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media?owner_domain=individual-owner&owner_type=PROPERTY&owner_id={{property_id}}&limit=20",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media"
+                  ],
+                  "query": [
+                    {
+                      "key": "owner_domain",
+                      "value": "individual-owner",
+                      "description": ""
+                    },
+                    {
+                      "key": "owner_type",
+                      "value": "PROPERTY",
+                      "description": ""
+                    },
+                    {
+                      "key": "owner_id",
+                      "value": "{{property_id}}",
+                      "description": ""
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": ""
+                    }
+                  ]
+                },
+                "description": "Owner domain service only."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media?owner_domain=individual-owner&owner_type=PROPERTY&owner_id={{property_id}}&limit=20",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media"
+                      ],
+                      "query": [
+                        {
+                          "key": "owner_domain",
+                          "value": "individual-owner",
+                          "description": ""
+                        },
+                        {
+                          "key": "owner_type",
+                          "value": "PROPERTY",
+                          "description": ""
+                        },
+                        {
+                          "key": "owner_id",
+                          "value": "{{property_id}}",
+                          "description": ""
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": ""
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n      \"owner_domain\": \"artisan\",\n      \"owner_type\": \"USER\",\n      \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n      \"media_class\": \"IMAGE\",\n      \"filename\": \"portfolio.jpg\",\n      \"mime_type\": \"image/jpeg\",\n      \"size_bytes\": 248813,\n      \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n      \"access_classification\": \"PRIVATE\",\n      \"scan_status\": \"NOT_SCANNED\",\n      \"status\": \"UPLOAD_PENDING\",\n      \"rejection_reason\": null,\n      \"retention_until\": null,\n      \"uploaded_at\": null,\n      \"ready_at\": null,\n      \"created_at\": \"2026-10-08T11:00:00Z\",\n      \"updated_at\": \"2026-10-08T11:00:00Z\"\n    }\n  ]\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Request download URL (service)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/download-url",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "download-url"
+                  ]
+                },
+                "description": "Authorized, audited when privileged.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"purpose\": \"LISTING_RENDER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/download-url",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "download-url"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"purpose\": \"LISTING_RENDER\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"url\": \"https://storage.example.com/...\",\n    \"method\": \"GET\",\n    \"expires_at\": \"2026-10-08T11:06:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Replace access policy",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/access-policy",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "access-policy"
+                  ]
+                },
+                "description": "Owner domain service or admin; audited.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"access_classification\": \"PRIVATE\",\n  \"grants\": [\n    {\n      \"grantee_type\": \"SERVICE\",\n      \"service\": \"marketplace-service\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/access-policy",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "access-policy"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"access_classification\": \"PRIVATE\",\n  \"grants\": [\n    {\n      \"grantee_type\": \"SERVICE\",\n      \"service\": \"marketplace-service\"\n    }\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"access_classification\": \"PRIVATE\",\n    \"grants\": [\n      {\n        \"grantee_type\": \"SERVICE\",\n        \"service\": \"marketplace-service\"\n      }\n    ]\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Request deletion",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/deletion",
+                  "host": [
+                    "{{media_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "media",
+                    "{{media_id}}",
+                    "deletion"
+                  ]
+                },
+                "description": "READY/REJECTED → DELETE_PENDING; retention rules apply.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"LISTING_REMOVED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "202 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/deletion",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "deletion"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"reason\": \"LISTING_REMOVED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 202,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"media_id\": \"019a1c2e-3333-7000-8000-000000000004\",\n    \"owner_domain\": \"artisan\",\n    \"owner_type\": \"USER\",\n    \"owner_id\": \"019a1c2e-0000-7000-8000-000000000001\",\n    \"media_class\": \"IMAGE\",\n    \"filename\": \"portfolio.jpg\",\n    \"mime_type\": \"image/jpeg\",\n    \"size_bytes\": 248813,\n    \"checksum_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"access_classification\": \"PRIVATE\",\n    \"scan_status\": \"NOT_SCANNED\",\n    \"status\": \"DELETE_PENDING\",\n    \"rejection_reason\": null,\n    \"retention_until\": null,\n    \"uploaded_at\": null,\n    \"ready_at\": null,\n    \"created_at\": \"2026-10-08T11:00:00Z\",\n    \"updated_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "409 RETENTION_PERIOD_ACTIVE",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{media_service_url}}/internal/v1/media/{{media_id}}/deletion",
+                      "host": [
+                        "{{media_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "media",
+                        "{{media_id}}",
+                        "deletion"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"reason\": \"LISTING_REMOVED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RETENTION_PERIOD_ACTIVE\",\n    \"message\": \"The file is within its mandatory retention period.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 202', () => pm.response.to.have.status(202));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }

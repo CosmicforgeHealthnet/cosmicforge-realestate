@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/media/media.ready.v1.schema.json",
+  "title": "media.ready.v1",
+  "description": "The file passed scanning, checksum, size and content-type checks and may be used. Producer: media-document-service. Subject: realestate.media.ready.v1. Aggregate: media.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "media.ready.v1"},
+    "producer": {"const": "media-document-service"},
+    "aggregate_type": {"const": "media"},
+    "payload": {
+      "allOf": [{"$ref": "media-payload.schema.json"}],
+      "properties": {"status": {"const": "READY"}},
+      "required": ["ready_at"]
+    }
+  }
+}

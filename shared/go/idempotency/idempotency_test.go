@@ -270,3 +270,18 @@ func TestPrecheckRunsAfterClaimAndNeverPreemptsReplay(t *testing.T) {
 		t.Fatalf("failed precheck must replay its error: %+v", r)
 	}
 }
+
+func TestRetryableClientErrorIsNotReplayed(t *testing.T) {
+	s, db := newStore(t, 5*time.Second)
+	ctx := context.Background()
+	notYet := func(context.Context) error {
+		return apperrors.Conflict("UPLOAD_NOT_RECEIVED", "not yet").WithOutcome(apperrors.OutcomeRetryable)
+	}
+	if _, err := s.Run(ctx, key("r"), "h", notYet, create("a")); apperrors.CodeOf(err) != "UPLOAD_NOT_RECEIVED" {
+		t.Fatal(err)
+	}
+	r, err := s.Run(ctx, key("r"), "h", nil, create("a"))
+	if err != nil || r.Replayed || r.Status != 201 || countWidgets(t, db) != 1 {
+		t.Fatalf("retryable 4xx must allow a retry with the same key: %+v %v", r, err)
+	}
+}

@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: Media & Documents — client API
+  version: 1.0.0
+  description: |
+    Signed-upload flow for signed-in users, via the API Gateway:
+
+    1. `POST /api/v1/media/uploads` → media record + signed PUT URL (owner = the signed-in user);
+    2. `PUT` the bytes to `upload.url` with exactly the returned `upload.headers`;
+    3. `POST /api/v1/media/{media_id}/complete`;
+    4. poll `GET /api/v1/media/{media_id}` until `status` is READY or REJECTED;
+    5. `POST /api/v1/media/{media_id}/download-url` for a short-lived download link.
+
+    Files are never usable before scanning finishes (status READY).
+servers:
+  - url: https://api.realestate.cosmicforge.example
+security:
+  - UserBearer: []
+paths:
+  /api/v1/media/uploads:
+    post:
+      operationId: initiateMyUpload
+      parameters:
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../../internal/openapi/media-document-service.yaml#/components/schemas/InitiateBase"}
+      responses:
+        "201": {$ref: "../../internal/openapi/media-document-service.yaml#/components/responses/Upload"}
+        "400": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/media/{media_id}:
+    get:
+      operationId: getMyMedia
+      parameters: [{name: media_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        "200": {$ref: "../../internal/openapi/media-document-service.yaml#/components/responses/Media"}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/media/{media_id}/complete:
+    post:
+      operationId: completeMyUpload
+      parameters:
+        - {name: media_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string}}
+      responses:
+        "200": {$ref: "../../internal/openapi/media-document-service.yaml#/components/responses/Media"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /api/v1/media/{media_id}/download-url:
+    post:
+      operationId: requestMyDownloadUrl
+      parameters: [{name: media_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        "200": {$ref: "../../internal/openapi/media-document-service.yaml#/components/responses/Download"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    UserBearer: {type: http, scheme: bearer, bearerFormat: "at+jwt (EdDSA)"}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}

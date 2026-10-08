@@ -1,0 +1,284 @@
+openapi: 3.1.0
+info:
+  title: media-document-service — internal API
+  version: 1.0.0
+  description: |
+    Service-to-service API of media-document-service (owner of media_document_db).
+    Raw bytes live in S3-compatible object storage; clients upload/download with
+    short-lived signed URLs and never receive storage credentials.
+
+    Authentication: `Authorization: Bearer <service JWT>` (`aud: media-document-service`).
+    Capabilities: `media.write` (initiate, complete, access policy, deletion) — the seven
+    user-domain services; `media.read` (metadata, status, download URLs) — user-domain
+    services and verification-service. A service may only create or manage media owned by
+    its own domain; admin-service acts with a delegated admin actor.
+
+    Lifecycle: INITIATED → UPLOAD_PENDING → UPLOADED → SCANNING → READY | REJECTED;
+    READY | REJECTED → DELETE_PENDING → DELETED. Only READY files are downloadable.
+
+    Access classifications: PUBLIC, PRIVATE, DOMAIN_RESTRICTED, ADMIN_RESTRICTED.
+    Authorization is decided before a signed URL is issued; the URL itself grants nothing
+    beyond its short lifetime. Privileged downloads and denials are audited.
+servers:
+  - url: http://media-document-service:8080
+security:
+  - ServiceBearer: []
+paths:
+  /internal/v1/media/uploads:
+    post:
+      operationId: initiateUpload
+      summary: Create a media record and a signed upload URL
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf: [{$ref: "#/components/schemas/InitiateBase"}]
+              required: [owner]
+              properties:
+                owner: {$ref: "#/components/schemas/Owner"}
+      responses:
+        "201": {$ref: "#/components/responses/Upload"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/media:
+    get:
+      operationId: listMediaByOwner
+      parameters:
+        - {name: owner_domain, in: query, required: true, schema: {$ref: "#/components/schemas/Domain"}}
+        - {name: owner_type, in: query, required: true, schema: {type: string}}
+        - {name: owner_id, in: query, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100}}
+      responses:
+        "200":
+          description: Page of media.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/Media"}}
+                  page: {$ref: "../../schemas/pagination.schema.json"}
+  /internal/v1/media/{media_id}:
+    get:
+      operationId: getMedia
+      parameters: [{$ref: "#/components/parameters/MediaID"}]
+      responses:
+        "200": {$ref: "#/components/responses/Media"}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/media/{media_id}/status:
+    get:
+      operationId: getMediaStatus
+      parameters: [{$ref: "#/components/parameters/MediaID"}]
+      responses:
+        "200":
+          description: Lifecycle status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      media_id: {$ref: "#/components/schemas/UUIDv7"}
+                      status: {$ref: "#/components/schemas/Status"}
+                      scan_status: {$ref: "#/components/schemas/ScanStatus"}
+                      rejection_reason: {type: [string, "null"]}
+                      updated_at: {type: string, format: date-time}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/media/{media_id}/complete:
+    post:
+      operationId: completeUpload
+      summary: Finalize an upload (UPLOAD_PENDING → UPLOADED); repeated calls return current state
+      parameters: [{$ref: "#/components/parameters/MediaID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "200": {$ref: "#/components/responses/Media"}
+        "409": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /internal/v1/media/{media_id}/download-url:
+    post:
+      operationId: requestDownloadUrl
+      parameters: [{$ref: "#/components/parameters/MediaID"}]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                purpose: {type: string, maxLength: 100}
+      responses:
+        "200": {$ref: "#/components/responses/Download"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/media/{media_id}/access-policy:
+    put:
+      operationId: replaceAccessPolicy
+      summary: Replace classification and explicit grants (audited)
+      parameters: [{$ref: "#/components/parameters/MediaID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [access_classification]
+              properties:
+                access_classification: {$ref: "#/components/schemas/Classification"}
+                grants:
+                  type: array
+                  maxItems: 50
+                  items:
+                    type: object
+                    required: [grantee_type]
+                    properties:
+                      grantee_type: {enum: [SERVICE, ACTOR]}
+                      service: {type: string}
+                      domain: {$ref: "#/components/schemas/Domain"}
+                      actor_id: {$ref: "#/components/schemas/UUIDv7"}
+      responses:
+        "200":
+          description: Effective policy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      media_id: {$ref: "#/components/schemas/UUIDv7"}
+                      access_classification: {$ref: "#/components/schemas/Classification"}
+                      grants: {type: array, items: {type: object}}
+        "404": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/media/{media_id}/deletion:
+    post:
+      operationId: requestMediaDeletion
+      summary: READY | REJECTED → DELETE_PENDING (retention rules apply)
+      parameters: [{$ref: "#/components/parameters/MediaID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason]
+              properties:
+                reason: {type: string, maxLength: 64}
+      responses:
+        "202": {$ref: "#/components/responses/Media"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    ServiceBearer: {type: http, scheme: bearer, bearerFormat: "service+jwt (EdDSA)"}
+  parameters:
+    MediaID: {name: media_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}
+    Media:
+      description: Media metadata.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/Media"}
+    Upload:
+      description: Media record and signed upload instructions.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                required: [media, upload]
+                properties:
+                  media: {$ref: "#/components/schemas/Media"}
+                  upload: {$ref: "#/components/schemas/SignedURL"}
+    Download:
+      description: Signed download URL.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  media_id: {$ref: "#/components/schemas/UUIDv7"}
+                  url: {type: string, format: uri}
+                  method: {const: GET}
+                  expires_at: {type: string, format: date-time}
+  schemas:
+    UUIDv7: {type: string, format: uuid}
+    Domain: {enum: [marketplace, individual-owner, business-operations, property-manager, artisan, professional-services, admin]}
+    Classification: {enum: [PUBLIC, PRIVATE, DOMAIN_RESTRICTED, ADMIN_RESTRICTED]}
+    Status: {enum: [INITIATED, UPLOAD_PENDING, UPLOADED, SCANNING, READY, REJECTED, DELETE_PENDING, DELETED]}
+    ScanStatus: {enum: [NOT_SCANNED, PENDING, CLEAN, INFECTED, FAILED]}
+    Owner:
+      type: object
+      required: [owner_domain, owner_type, owner_id]
+      properties:
+        owner_domain: {$ref: "#/components/schemas/Domain"}
+        owner_type: {type: string, pattern: "^[A-Z][A-Z0-9_]{1,39}$", examples: [USER, PROPERTY, LISTING, ORGANIZATION]}
+        owner_id: {$ref: "#/components/schemas/UUIDv7"}
+    InitiateBase:
+      type: object
+      required: [media_class, filename, mime_type, size_bytes, checksum_sha256]
+      properties:
+        media_class: {enum: [IMAGE, VIDEO, DOCUMENT, VERIFICATION_DOCUMENT]}
+        filename: {type: string, maxLength: 255}
+        mime_type: {type: string, description: "IMAGE: image/jpeg|png|webp|heic (15 MiB); VIDEO: video/mp4 (200 MiB); DOCUMENT and VERIFICATION_DOCUMENT: application/pdf, image/jpeg, image/png (25/15 MiB)"}
+        size_bytes: {type: integer, minimum: 1}
+        checksum_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+        access_classification: {$ref: "#/components/schemas/Classification"}
+        document_type: {type: string, description: Required for DOCUMENT and VERIFICATION_DOCUMENT.}
+        title: {type: string, maxLength: 200}
+    SignedURL:
+      type: object
+      required: [url, method, expires_at]
+      properties:
+        url: {type: string, format: uri}
+        method: {const: PUT}
+        headers:
+          type: object
+          description: Headers the client MUST send unchanged (Content-Type, Content-Length, X-Amz-Checksum-Sha256).
+          additionalProperties: {type: string}
+        expires_at: {type: string, format: date-time}
+    Media:
+      type: object
+      required: [media_id, owner_domain, owner_type, owner_id, media_class, filename, mime_type, size_bytes, checksum_sha256, access_classification, scan_status, status, created_at, updated_at]
+      properties:
+        media_id: {$ref: "#/components/schemas/UUIDv7"}
+        owner_domain: {$ref: "#/components/schemas/Domain"}
+        owner_type: {type: string}
+        owner_id: {$ref: "#/components/schemas/UUIDv7"}
+        media_class: {enum: [IMAGE, VIDEO, DOCUMENT, VERIFICATION_DOCUMENT]}
+        filename: {type: string}
+        mime_type: {type: string}
+        size_bytes: {type: integer}
+        checksum_sha256: {type: string}
+        access_classification: {$ref: "#/components/schemas/Classification"}
+        scan_status: {$ref: "#/components/schemas/ScanStatus"}
+        status: {$ref: "#/components/schemas/Status"}
+        rejection_reason: {type: [string, "null"]}
+        retention_until: {type: [string, "null"], format: date-time}
+        uploaded_at: {type: [string, "null"], format: date-time}
+        ready_at: {type: [string, "null"], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}

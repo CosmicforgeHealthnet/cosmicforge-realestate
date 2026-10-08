@@ -376,7 +376,11 @@ func (s *Store) Run(ctx context.Context, k Key, requestHash string, pre func(ctx
 func (s *Store) recordFailure(ctx context.Context, claim *Claim, err error) error {
 	fctx := context.WithoutCancel(ctx)
 	ae := apperrors.From(err)
-	if ae.Status >= 400 && ae.Status < 500 && ae.Status != 408 && ae.Status != 429 && ae.Code != apperrors.CodeIdempotencyInProgress {
+	// Definite client-side failures are replayed. Errors explicitly marked
+	// retryable (e.g. "upload not received yet") let the client retry with
+	// the same key.
+	if ae.Status >= 400 && ae.Status < 500 && ae.Status != 408 && ae.Status != 429 &&
+		ae.Code != apperrors.CodeIdempotencyInProgress && ae.Outcome != apperrors.OutcomeRetryable {
 		body, _ := json.Marshal(apperrors.ToEnvelope(ae, requestcontext.RequestID(ctx)))
 		if ferr := s.Fail(fctx, claim, true, ae.Status, body); ferr != nil {
 			return errors.Join(err, ferr)

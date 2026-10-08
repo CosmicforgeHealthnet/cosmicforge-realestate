@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/media/media.scanning.v1.schema.json",
+  "title": "media.scanning.v1",
+  "description": "Content inspection and malware scanning started. Producer: media-document-service. Subject: realestate.media.scanning.v1. Aggregate: media.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "media.scanning.v1"},
+    "producer": {"const": "media-document-service"},
+    "aggregate_type": {"const": "media"},
+    "payload": {
+      "allOf": [{"$ref": "media-payload.schema.json"}],
+      "properties": {"status": {"const": "SCANNING"}},
+      "required": []
+    }
+  }
+}
