@@ -95,8 +95,238 @@
   "item": [
     {
       "name": "00 Platform",
-      "description": "Gateway/platform health, readiness and version endpoints. Add requests only when implemented.",
-      "item": []
+      "description": "Gateway/platform health, readiness and version endpoints. Edge behaviour common to all APIs: errors use the platform envelope (see examples), X-Request-ID is echoed, 401 AUTHENTICATION_REQUIRED / INVALID_TOKEN, 403 PERMISSION_DENIED for a token from another product, 429 RATE_LIMITED with Retry-After, 413 PAYLOAD_TOO_LARGE, 404 ROUTE_NOT_FOUND (including any /internal path).",
+      "item": [
+        {
+          "name": "Gateway health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-ID",
+                "value": "{{request_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Liveness of the API Gateway. No authentication."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"api-gateway\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Gateway readiness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-ID",
+                "value": "{{request_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ready",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ready"
+              ]
+            },
+            "description": "Readiness of the API Gateway; 503 while draining for shutdown."
+          },
+          "response": [
+            {
+              "name": "200 Ready",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/ready",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "ready"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"status\": \"ready\",\n  \"service\": \"api-gateway\",\n  \"checks\": []\n}"
+            },
+            {
+              "name": "503 Shutting down",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/ready",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "ready"
+                  ]
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"status\": \"shutting_down\",\n  \"service\": \"api-gateway\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Gateway version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-ID",
+                "value": "{{request_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/version",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "version"
+              ]
+            },
+            "description": "Build metadata of the deployed gateway image."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/version",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "version"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n  \"service\": \"api-gateway\",\n  \"version\": \"0.1.0\",\n  \"commit\": \"4dca34447860c86d78467d9e9c5ca3d069c9a947\",\n  \"build_time\": \"2026-10-08T20:43:53Z\",\n  \"go_version\": \"go1.26.9\",\n  \"environment\": \"development\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "01 Marketplace",

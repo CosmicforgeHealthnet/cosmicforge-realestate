@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/schemas/pagination.schema.json",
+  "title": "Cursor page metadata",
+  "type": "object",
+  "required": ["next_cursor", "has_more"],
+  "additionalProperties": false,
+  "properties": {
+    "next_cursor": {"type": ["string", "null"]},
+    "has_more": {"type": "boolean"}
+  }
+}

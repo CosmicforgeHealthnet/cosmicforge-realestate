@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/schemas/error-envelope.schema.json",
+  "title": "Platform error envelope",
+  "description": "ERROR_STANDARD.md. Every non-2xx HTTP response from every component.",
+  "type": "object",
+  "required": ["error"],
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "request_id"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"},
+        "message": {"type": "string"},
+        "request_id": {"type": "string"},
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code", "message"],
+            "additionalProperties": false,
+            "properties": {
+              "field": {"type": "string"},
+              "code": {"type": "string"},
+              "message": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

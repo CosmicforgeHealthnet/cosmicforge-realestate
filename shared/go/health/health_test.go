@@ -73,3 +73,17 @@ func TestReadyTimeoutAndShutdown(t *testing.T) {
 		t.Fatal("liveness unaffected by shutdown")
 	}
 }
+
+func TestProbe(t *testing.T) {
+	h := New("s", "test", 0)
+	srv := httptest.NewServer(http.HandlerFunc(h.Health))
+	defer srv.Close()
+	if err := Probe(srv.URL); err != nil {
+		t.Fatal(err)
+	}
+	bad := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(503) }))
+	defer bad.Close()
+	if Probe(bad.URL) == nil {
+		t.Fatal("expected failure")
+	}
+}

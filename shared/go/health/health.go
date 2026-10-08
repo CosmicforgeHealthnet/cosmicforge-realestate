@@ -12,7 +12,10 @@ package health
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -116,4 +119,39 @@ func (h *Handler) Version(w http.ResponseWriter, r *http.Request) {
 		Service: h.service, Version: bi.Version, Commit: bi.Commit, BuildTime: bi.BuildTime,
 		GoVersion: bi.GoVersion, Environment: h.environment,
 	})
+}
+
+// Probe performs a liveness/readiness GET against a local endpoint and
+// returns an error on any non-200 response. It lets minimal (distroless)
+// images implement container health checks without curl:
+//
+//	/app/api healthcheck
+func Probe(url string) error {
+	c := &http.Client{Timeout: 3 * time.Second}
+	resp, err := c.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("health probe %s: status %d", url, resp.StatusCode)
+	}
+	return nil
+}
+
+// RunProbeIfRequested handles the "healthcheck" sub-command. It returns true
+// (after exiting) only when the process was invoked as a probe.
+func RunProbeIfRequested(args []string, addr string) {
+	if len(args) < 2 || args[1] != "healthcheck" {
+		return
+	}
+	host := addr
+	if strings.HasPrefix(host, ":") {
+		host = "127.0.0.1" + host
+	}
+	if err := Probe("http://" + host + "/health"); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	os.Exit(0)
 }

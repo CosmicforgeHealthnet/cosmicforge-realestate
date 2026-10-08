@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/schemas/event-envelope.schema.json",
+  "title": "Platform event envelope",
+  "description": "EVENT_CATALOG.md. Delivery is at-least-once; consumers must be idempotent and ignore unknown optional fields.",
+  "type": "object",
+  "required": ["event_id", "event_type", "producer", "aggregate_type", "aggregate_id", "occurred_at", "payload"],
+  "properties": {
+    "event_id": {"$ref": "#/$defs/uuidv7"},
+    "event_type": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+\\.v[1-9][0-9]*$"},
+    "producer": {"type": "string"},
+    "aggregate_type": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "aggregate_id": {"$ref": "#/$defs/uuidv7"},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "trace_id": {"type": "string"},
+    "actor": {
+      "type": "object",
+      "required": ["domain", "id"],
+      "properties": {
+        "domain": {"enum": ["marketplace", "individual-owner", "business-operations", "property-manager", "artisan", "professional-services", "admin"]},
+        "id": {"$ref": "#/$defs/uuidv7"}
+      }
+    },
+    "metadata": {"type": "object", "additionalProperties": {"type": "string"}},
+    "payload": {"type": "object"}
+  },
+  "$defs": {
+    "uuidv7": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}
+  }
+}

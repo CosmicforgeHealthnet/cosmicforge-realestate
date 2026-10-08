@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/schemas/money.schema.json",
+  "title": "Money",
+  "description": "ADR-0008: integer minor units plus ISO 4217 code. Never floating point.",
+  "type": "object",
+  "required": ["amount_minor", "currency"],
+  "additionalProperties": false,
+  "properties": {
+    "amount_minor": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"}
+  }
+}

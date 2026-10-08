@@ -1,0 +1,105 @@
+openapi: 3.1.0
+info:
+  title: CosmicForge Real Estate — API Gateway (edge)
+  version: 1.0.0
+  description: |
+    Edge entry point. The gateway owns no business database and no accounts.
+
+    * Validates user access tokens (EdDSA JWT, typ `at+jwt`) from configured
+      trusted domain issuers, enforces audience/expiry, and normalizes the actor.
+    * Routes `/api/v1/verification/*`, `/api/v1/media/*` and
+      `/api/v1/notifications/*` to the shared platform services (their
+      operations are documented in their own contracts), and
+      `/webhooks/v1/<provider>/*` to the configured service.
+    * User-domain prefixes (`/api/v1/<domain>/*`) are reserved and routed only
+      once the domain service is deployed.
+    * `/internal/*` is never routable from the edge (404 ROUTE_NOT_FOUND).
+    * Distributed rate limiting (`RATE_LIMITED`, `Retry-After`), CORS, security
+      headers, request-size limits, request ID and W3C trace propagation.
+servers:
+  - url: https://api.realestate.cosmicforge.example
+paths:
+  /health:
+    get:
+      operationId: gatewayHealth
+      summary: Liveness
+      responses:
+        "200":
+          description: Process is alive.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Health"}
+  /ready:
+    get:
+      operationId: gatewayReady
+      summary: Readiness (503 while shutting down)
+      responses:
+        "200":
+          description: Ready.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Ready"}
+        "503":
+          description: Not ready.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Ready"}
+  /version:
+    get:
+      operationId: gatewayVersion
+      summary: Build metadata
+      responses:
+        "200":
+          description: Version.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Version"}
+components:
+  securitySchemes:
+    UserBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT (EdDSA, typ at+jwt, domain issuer, audience cosmicforge-realestate-api)
+  headers:
+    X-Request-ID:
+      schema: {type: string}
+    Retry-After:
+      schema: {type: integer}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status: {type: string, enum: [ok]}
+        service: {type: string}
+    Ready:
+      type: object
+      required: [status, service]
+      properties:
+        status: {type: string, enum: [ready, not_ready, shutting_down]}
+        service: {type: string}
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              name: {type: string}
+              status: {type: string, enum: [ok, fail]}
+    Version:
+      type: object
+      required: [service, version, commit, go_version, environment]
+      properties:
+        service: {type: string}
+        version: {type: string}
+        commit: {type: string}
+        build_time: {type: string}
+        go_version: {type: string}
+        environment: {type: string}
+    ErrorEnvelope:
+      $ref: "../../schemas/error-envelope.schema.json"
