@@ -1,0 +1,192 @@
+{
+  "info": {
+    "_postman_id": "1f7c3dd7-7287-4ed8-8ca0-0fca4b7f5b11",
+    "name": "CosmicForge Real Estate",
+    "description": "Official human-facing API handoff collection for CosmicForge Real Estate. OpenAPI remains the machine-readable contract. Requests are added only when the matching backend endpoint is implemented.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function uuidv4() {",
+          "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+          "    const r = Math.random() * 16 | 0;",
+          "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+          "    return v.toString(16);",
+          "  });",
+          "}",
+          "",
+          "pm.variables.set('request_id', uuidv4());",
+          "pm.variables.set('idempotency_key', uuidv4());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "request_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idempotency_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "verification_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "media_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "property_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "listing_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organization_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 Platform",
+      "description": "Gateway/platform health, readiness and version endpoints. Add requests only when implemented.",
+      "item": []
+    },
+    {
+      "name": "01 Marketplace",
+      "description": "Frontend-facing Marketplace APIs.",
+      "item": []
+    },
+    {
+      "name": "02 Individual Owner",
+      "description": "Frontend-facing Individual Property Owner APIs.",
+      "item": []
+    },
+    {
+      "name": "03 Business Operations",
+      "description": "Frontend-facing Business Property Operations APIs.",
+      "item": []
+    },
+    {
+      "name": "04 Property Manager",
+      "description": "Frontend-facing Property Manager APIs.",
+      "item": []
+    },
+    {
+      "name": "05 Artisan",
+      "description": "Frontend-facing Artisan & Property Service Provider APIs.",
+      "item": []
+    },
+    {
+      "name": "06 Professional Services",
+      "description": "Frontend-facing Professional Property Services APIs.",
+      "item": []
+    },
+    {
+      "name": "07 Admin",
+      "description": "Admin product APIs. Keep privileged/internal operations clearly separated.",
+      "item": []
+    },
+    {
+      "name": "08 Verification",
+      "description": "Verification client-facing APIs. Internal/admin/webhook operations must live in dedicated subfolders.",
+      "item": [
+        {
+          "name": "Frontend",
+          "item": []
+        },
+        {
+          "name": "_Admin",
+          "item": []
+        },
+        {
+          "name": "_Internal",
+          "item": []
+        },
+        {
+          "name": "_Webhooks",
+          "item": []
+        }
+      ]
+    },
+    {
+      "name": "09 Payment",
+      "description": "Payment APIs. Paystack remains reachable only through payment-service.",
+      "item": []
+    },
+    {
+      "name": "10 Notification",
+      "description": "Notification APIs. Human-to-human messaging remains CF Meet.",
+      "item": [
+        {
+          "name": "Frontend",
+          "item": []
+        },
+        {
+          "name": "_Internal",
+          "item": []
+        }
+      ]
+    },
+    {
+      "name": "11 Media & Documents",
+      "description": "Media/document APIs including signed upload/download flows.",
+      "item": [
+        {
+          "name": "Frontend",
+          "item": []
+        },
+        {
+          "name": "_Internal",
+          "item": []
+        }
+      ]
+    }
+  ]
+}

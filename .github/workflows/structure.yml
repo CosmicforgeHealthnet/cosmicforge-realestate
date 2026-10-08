@@ -33,9 +33,25 @@ jobs:
             infrastructure/docker/staging \
             infrastructure/docker/production \
             infrastructure/terraform/environments/staging \
-            infrastructure/terraform/environments/production
+            infrastructure/terraform/environments/production \
+            postman/environments
           do
             test -d "$p"
           done
 
           test ! -e services/identity-service
+
+      - name: Verify Postman handoff artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f postman/CosmicForge_RealEstate.postman_collection.json
+          test -f postman/environments/local.postman_environment.json
+          test -f postman/environments/development.postman_environment.json
+          test -f postman/environments/staging.postman_environment.json
+          test -f postman/README.md
+
+          python -m json.tool postman/CosmicForge_RealEstate.postman_collection.json >/dev/null
+          python -m json.tool postman/environments/local.postman_environment.json >/dev/null
+          python -m json.tool postman/environments/development.postman_environment.json >/dev/null
+          python -m json.tool postman/environments/staging.postman_environment.json >/dev/null
