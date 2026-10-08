@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Verification provider callbacks
+  version: 1.0.0
+  description: |
+    Provider → platform callbacks, routed by the API Gateway
+    (`/webhooks/v1/<provider>/*`, configured via GATEWAY_WEBHOOK_ROUTES) to
+    verification-service with the gateway's service assertion. Each provider
+    adapter authenticates its own callbacks (signature) before anything is
+    applied. Callbacks are idempotent per (provider, event_id): duplicates
+    return 200 with status DUPLICATE. Unknown references return 200 IGNORED
+    so providers do not retry indefinitely.
+
+    `sandbox-kyc` (development/test only; refused in production): HMAC-SHA256
+    hex of the raw body in `X-Sandbox-Signature` using
+    SANDBOX_KYC_CALLBACK_SECRET.
+paths:
+  /webhooks/v1/{provider}/callbacks:
+    post:
+      operationId: verificationProviderCallback
+      parameters:
+        - {name: provider, in: path, required: true, schema: {type: string, examples: [sandbox-kyc]}}
+        - {name: X-Sandbox-Signature, in: header, schema: {type: string}, description: sandbox-kyc only}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Provider-specific. sandbox-kyc shape shown.
+              type: object
+              required: [event_id, outcome]
+              properties:
+                event_id: {type: string}
+                client_reference: {type: string}
+                provider_reference: {type: string}
+                outcome: {enum: [VERIFIED, REJECTED, INCONCLUSIVE, PENDING, RESULT_AVAILABLE]}
+                reason_code: {type: string}
+      responses:
+        "200":
+          description: Callback handled.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status: {enum: [APPLIED, RECORDED, DUPLICATE, IGNORED]}
+        "401":
+          description: Signature invalid (INVALID_PROVIDER_CALLBACK).
+          content:
+            application/json:
+              schema: {$ref: "../schemas/error-envelope.schema.json"}

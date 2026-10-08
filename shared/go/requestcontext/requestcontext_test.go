@@ -141,3 +141,11 @@ func TestDetachKeepsValuesDropsCancel(t *testing.T) {
 		t.Fatal("detach failed")
 	}
 }
+
+func TestJobContext(t *testing.T) {
+	ctx := Job(context.Background(), "dispatch")
+	v := From(ctx)
+	if !strings.HasPrefix(v.RequestID, "dispatch-") || len(v.TraceID) != 32 {
+		t.Fatalf("%+v", v)
+	}
+}

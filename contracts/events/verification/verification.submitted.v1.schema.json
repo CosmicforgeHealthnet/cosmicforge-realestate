@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.submitted.v1.schema.json",
+  "title": "verification.submitted.v1",
+  "description": "A DRAFT case was submitted with its evidence. Producer: verification-service. Subject: realestate.verification.submitted.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.submitted.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "SUBMITTED"}},
+      "required": ["submitted_at"]
+    }
+  }
+}

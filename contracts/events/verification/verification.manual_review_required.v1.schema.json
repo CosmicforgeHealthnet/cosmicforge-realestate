@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.manual_review_required.v1.schema.json",
+  "title": "verification.manual_review_required.v1",
+  "description": "The case needs a human decision (inconclusive provider result or provider failure). Producer: verification-service. Subject: realestate.verification.manual_review_required.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.manual_review_required.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "MANUAL_REVIEW"}},
+      "required": ["review_reason"]
+    }
+  }
+}

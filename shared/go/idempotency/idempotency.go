@@ -66,7 +66,7 @@ CREATE TABLE idempotency_records (
     request_hash     text        NOT NULL,
     status           text        NOT NULL CHECK (status IN ('IN_PROGRESS','COMPLETED','FAILED_RETRYABLE','FAILED_FINAL')),
     response_code    integer,
-    response_body    jsonb,
+    response_body    bytea,
     resource_type    text,
     resource_id      text,
     attempts         integer     NOT NULL DEFAULT 1 CHECK (attempts > 0),
@@ -296,7 +296,7 @@ func jsonOrNull(b []byte) any {
 	if len(b) == 0 {
 		return nil
 	}
-	return string(b)
+	return b
 }
 
 // Purge deletes expired records; run periodically from a worker.
@@ -324,12 +324,27 @@ type Response struct {
 // to write. fn runs inside a transaction together with the completion
 // record; it must not perform external network calls.
 func (s *Store) Execute(ctx context.Context, k Key, requestHash string, fn func(ctx context.Context, tx pgx.Tx) (Result, error)) (Response, error) {
+	return s.Run(ctx, k, requestHash, nil, fn)
+}
+
+// Run is Execute with an optional precheck. pre runs only after the key is
+// claimed (so replays are never pre-empted by state that the original
+// request itself changed) and outside the transaction, which makes it the
+// place for read-only calls to other services. A pre failure is recorded
+// like a command failure (definite 4xx replayed; transient retryable).
+func (s *Store) Run(ctx context.Context, k Key, requestHash string, pre func(ctx context.Context) error,
+	fn func(ctx context.Context, tx pgx.Tx) (Result, error)) (Response, error) {
 	claim, rec, err := s.Begin(ctx, k, requestHash)
 	if err != nil {
 		return Response{}, err
 	}
 	if rec != nil {
 		return Response{Status: rec.ResponseCode, Body: rec.ResponseBody, Replayed: true}, nil
+	}
+	if pre != nil {
+		if err := pre(ctx); err != nil {
+			return Response{}, s.recordFailure(ctx, claim, err)
+		}
 	}
 	var resp Response
 	err = database.WithTx(ctx, s.db, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
@@ -353,17 +368,23 @@ func (s *Store) Execute(ctx context.Context, k Key, requestHash string, fn func(
 	if errors.Is(err, ErrLeaseLost) {
 		return Response{}, ErrInProgress
 	}
+	return Response{}, s.recordFailure(ctx, claim, err)
+}
+
+// recordFailure stores a failed outcome and returns err (joined with any
+// bookkeeping error).
+func (s *Store) recordFailure(ctx context.Context, claim *Claim, err error) error {
 	fctx := context.WithoutCancel(ctx)
 	ae := apperrors.From(err)
 	if ae.Status >= 400 && ae.Status < 500 && ae.Status != 408 && ae.Status != 429 && ae.Code != apperrors.CodeIdempotencyInProgress {
 		body, _ := json.Marshal(apperrors.ToEnvelope(ae, requestcontext.RequestID(ctx)))
 		if ferr := s.Fail(fctx, claim, true, ae.Status, body); ferr != nil {
-			return Response{}, errors.Join(err, ferr)
+			return errors.Join(err, ferr)
 		}
-		return Response{}, err
+		return err
 	}
 	if ferr := s.Fail(fctx, claim, false, 0, nil); ferr != nil {
-		return Response{}, errors.Join(err, ferr)
+		return errors.Join(err, ferr)
 	}
-	return Response{}, err
+	return err
 }

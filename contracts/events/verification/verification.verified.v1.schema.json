@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.verified.v1.schema.json",
+  "title": "verification.verified.v1",
+  "description": "The subject was verified. Valid until expires_at. Producer: verification-service. Subject: realestate.verification.verified.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.verified.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "VERIFIED"}},
+      "required": ["decision_source", "decided_at", "expires_at"]
+    }
+  }
+}

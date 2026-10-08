@@ -1,0 +1,73 @@
+openapi: 3.1.0
+info:
+  title: Verification — client API
+  version: 1.0.0
+  description: |
+    End-user read access to the caller's own verification cases. Reached only
+    through the API Gateway (`/api/v1/verification/*`) with a domain-issued
+    access token. A user sees only cases whose subject is themselves
+    (subject_type USER, same domain, same account ID). Verifications are
+    initiated by the user's domain service, not by clients directly.
+servers:
+  - url: https://api.realestate.cosmicforge.example
+security:
+  - UserBearer: []
+paths:
+  /api/v1/verification/cases:
+    get:
+      operationId: listMyVerifications
+      parameters:
+        - {name: verification_type, in: query, schema: {enum: [IDENTITY, BUSINESS, PROPERTY_AUTHORITY, PROFESSIONAL_CREDENTIAL]}}
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        "200":
+          description: Page of the caller's cases.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, page]
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/MyCase"}}
+                  page: {$ref: "../../schemas/pagination.schema.json"}
+        "401": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/verification/cases/{verification_id}:
+    get:
+      operationId: getMyVerification
+      parameters:
+        - {name: verification_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: The caller's case.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {$ref: "#/components/schemas/MyCase"}
+        "401": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    UserBearer: {type: http, scheme: bearer, bearerFormat: "at+jwt (EdDSA) issued by the user's domain"}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}
+  schemas:
+    MyCase:
+      type: object
+      required: [verification_id, verification_type, status, created_at, updated_at]
+      properties:
+        verification_id: {type: string, format: uuid}
+        verification_type: {enum: [IDENTITY, BUSINESS, PROPERTY_AUTHORITY, PROFESSIONAL_CREDENTIAL]}
+        status: {enum: [DRAFT, SUBMITTED, PROCESSING, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED]}
+        submitted_at: {type: [string, "null"], format: date-time}
+        decided_at: {type: [string, "null"], format: date-time}
+        expires_at: {type: [string, "null"], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}

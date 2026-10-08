@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.expired.v1.schema.json",
+  "title": "verification.expired.v1",
+  "description": "A previously VERIFIED decision expired (validity elapsed or administratively revoked). Re-verification is explicit. Producer: verification-service. Subject: realestate.verification.expired.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.expired.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "EXPIRED"}},
+      "required": ["expired_at"]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.rejected.v1.schema.json",
+  "title": "verification.rejected.v1",
+  "description": "The subject failed verification. Producer: verification-service. Subject: realestate.verification.rejected.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.rejected.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "REJECTED"}},
+      "required": ["decision_source", "decided_at"]
+    }
+  }
+}

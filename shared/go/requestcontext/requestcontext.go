@@ -205,3 +205,17 @@ func Detach(ctx context.Context) context.Context {
 	}
 	return out
 }
+
+// Job returns a context for background work (workers, schedulers) with a
+// fresh request ID and a trace ID taken from the active span, or generated
+// when none exists, so audit records and logs always correlate.
+func Job(ctx context.Context, name string) context.Context {
+	v := From(ctx)
+	v.RequestID = name + "-" + ids.New().String()
+	if sc := trace.SpanContextFromContext(ctx); sc.HasTraceID() {
+		v.TraceID = sc.TraceID().String()
+	} else {
+		v.TraceID = randomTraceID()
+	}
+	return With(ctx, v)
+}

@@ -241,3 +241,32 @@ func TestInvalidKeyAndPurge(t *testing.T) {
 		t.Fatalf("purge %d %v", n, err)
 	}
 }
+
+func TestPrecheckRunsAfterClaimAndNeverPreemptsReplay(t *testing.T) {
+	s, db := newStore(t, 5*time.Second)
+	ctx := context.Background()
+	done := false
+	pre := func(context.Context) error {
+		if done { // state the first execution changed
+			return apperrors.InvalidStateTransition("DONE", "DONE")
+		}
+		return nil
+	}
+	fn := func(ctx context.Context, tx pgx.Tx) (Result, error) { done = true; return create("a")(ctx, tx) }
+	if _, err := s.Run(ctx, key("pre"), "h", pre, fn); err != nil {
+		t.Fatal(err)
+	}
+	r, err := s.Run(ctx, key("pre"), "h", pre, fn)
+	if err != nil || !r.Replayed {
+		t.Fatalf("replay must not run the precheck: %+v %v", r, err)
+	}
+	// A failing precheck on a fresh key is recorded as a definite failure.
+	_, err = s.Run(ctx, key("pre2"), "h", pre, fn)
+	if apperrors.CodeOf(err) != apperrors.CodeInvalidStateTransition {
+		t.Fatal(err)
+	}
+	r, _ = s.Run(ctx, key("pre2"), "h", nil, fn)
+	if !r.Replayed || r.Status != 409 || countWidgets(t, db) != 1 {
+		t.Fatalf("failed precheck must replay its error: %+v", r)
+	}
+}

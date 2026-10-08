@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification-payload.schema.json",
+  "title": "verification.* payload",
+  "description": "Common payload of all verification-service events. Consumers must ignore unknown fields. No personal data or document content is ever included.",
+  "type": "object",
+  "required": ["verification_id", "verification_type", "subject", "status", "requested_by_service"],
+  "properties": {
+    "verification_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
+    "verification_type": {"enum": ["IDENTITY", "BUSINESS", "PROPERTY_AUTHORITY", "PROFESSIONAL_CREDENTIAL"]},
+    "subject": {
+      "type": "object",
+      "required": ["subject_type", "subject_domain", "subject_id"],
+      "properties": {
+        "subject_type": {"enum": ["USER", "BUSINESS", "PROPERTY", "PROFESSIONAL"]},
+        "subject_domain": {"enum": ["marketplace", "individual-owner", "business-operations", "property-manager", "artisan", "professional-services", "admin"]},
+        "subject_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"}
+      }
+    },
+    "status": {"enum": ["SUBMITTED", "PROCESSING", "MANUAL_REVIEW", "VERIFIED", "REJECTED", "EXPIRED"]},
+    "requested_by_service": {"type": "string"},
+    "provider": {"type": "string"},
+    "decision_source": {"enum": ["PROVIDER", "MANUAL_REVIEW", "SYSTEM_EXPIRY", "ADMIN"]},
+    "reason_code": {"type": "string"},
+    "review_reason": {"enum": ["PROVIDER_INCONCLUSIVE", "PROVIDER_FAILURE", "PROVIDER_REQUESTED"]},
+    "submitted_at": {"type": "string", "format": "date-time"},
+    "decided_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "expired_at": {"type": "string", "format": "date-time"},
+    "supersedes_verification_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"}
+  }
+}

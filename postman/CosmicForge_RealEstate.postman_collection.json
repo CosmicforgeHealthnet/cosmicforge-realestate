@@ -90,6 +90,26 @@
       "key": "organization_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "verification_service_url",
+      "value": "http://localhost:8091",
+      "type": "string"
+    },
+    {
+      "key": "subject_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "client_reference",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sandbox_signature",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -369,19 +389,2352 @@
       "item": [
         {
           "name": "Frontend",
-          "item": []
+          "item": [
+            {
+              "name": "List my verifications",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/verification/cases?limit=20&cursor=&verification_type=IDENTITY",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "verification",
+                    "cases"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Page size (1-100)"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "",
+                      "description": "next_cursor from the previous page"
+                    },
+                    {
+                      "key": "verification_type",
+                      "value": "IDENTITY",
+                      "description": "Optional filter"
+                    }
+                  ]
+                },
+                "description": "Lists the signed-in user's own verification cases (subject = the user in their domain). Via the API Gateway."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases?limit=20&cursor=&verification_type=IDENTITY",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases"
+                      ],
+                      "query": [
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": "Page size (1-100)"
+                        },
+                        {
+                          "key": "cursor",
+                          "value": "",
+                          "description": "next_cursor from the previous page"
+                        },
+                        {
+                          "key": "verification_type",
+                          "value": "IDENTITY",
+                          "description": "Optional filter"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n      \"verification_type\": \"IDENTITY\",\n      \"status\": \"PROCESSING\",\n      \"submitted_at\": \"2026-10-08T10:00:00Z\",\n      \"decided_at\": null,\n      \"expires_at\": null,\n      \"created_at\": \"2026-10-08T09:58:00Z\",\n      \"updated_at\": \"2026-10-08T10:00:01Z\"\n    }\n  ],\n  \"page\": {\n    \"next_cursor\": null,\n    \"has_more\": false\n  }\n}"
+                },
+                {
+                  "name": "401 Unauthenticated",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases?limit=20&cursor=&verification_type=IDENTITY",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases"
+                      ],
+                      "query": [
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": "Page size (1-100)"
+                        },
+                        {
+                          "key": "cursor",
+                          "value": "",
+                          "description": "next_cursor from the previous page"
+                        },
+                        {
+                          "key": "verification_type",
+                          "value": "IDENTITY",
+                          "description": "Optional filter"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication is required.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "429 Rate limited",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases?limit=20&cursor=&verification_type=IDENTITY",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases"
+                      ],
+                      "query": [
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": "Page size (1-100)"
+                        },
+                        {
+                          "key": "cursor",
+                          "value": "",
+                          "description": "next_cursor from the previous page"
+                        },
+                        {
+                          "key": "verification_type",
+                          "value": "IDENTITY",
+                          "description": "Optional filter"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Too Many Requests",
+                  "code": 429,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests. Please retry later.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get my verification",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/verification/cases/{{verification_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "verification",
+                    "cases",
+                    "{{verification_id}}"
+                  ]
+                },
+                "description": "Returns one of the user's own cases. Cases of other users (or the same ID in another product) return 404."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases/{{verification_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases",
+                        "{{verification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"status\": \"PROCESSING\",\n    \"submitted_at\": \"2026-10-08T10:00:00Z\",\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T10:00:01Z\"\n  }\n}"
+                },
+                {
+                  "name": "404 Not found",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases/{{verification_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases",
+                        "{{verification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERIFICATION_NOT_FOUND\",\n    \"message\": \"Verification not found.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "401 Invalid token",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/verification/cases/{{verification_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "verification",
+                        "cases",
+                        "{{verification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_TOKEN\",\n    \"message\": \"The access token is invalid or expired.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "_Admin",
-          "item": []
+          "item": [
+            {
+              "name": "List manual reviews",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/manual-reviews?status=OPEN&limit=20",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "manual-reviews"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "OPEN",
+                      "description": "OPEN | ASSIGNED | DECIDED"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": ""
+                    }
+                  ]
+                },
+                "description": "Manual-review queue. Caller: admin-service with a delegated admin actor in the service token."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/manual-reviews?status=OPEN&limit=20",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "manual-reviews"
+                      ],
+                      "query": [
+                        {
+                          "key": "status",
+                          "value": "OPEN",
+                          "description": "OPEN | ASSIGNED | DECIDED"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": ""
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"review_id\": \"019a1c2e-2222-7000-8000-000000000003\",\n      \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n      \"verification_type\": \"IDENTITY\",\n      \"status\": \"OPEN\",\n      \"reason\": \"PROVIDER_INCONCLUSIVE\",\n      \"assigned_admin_id\": null,\n      \"assigned_at\": null,\n      \"created_at\": \"2026-10-08T10:00:05Z\"\n    }\n  ]\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Assign manual review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/assign",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "manual-review",
+                    "assign"
+                  ]
+                },
+                "description": "Assign to the acting admin. Caller: admin-service with a delegated admin actor in the service token."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/assign",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "manual-review",
+                        "assign"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"review_id\": \"019a1c2e-2222-7000-8000-000000000003\",\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"status\": \"ASSIGNED\"\n  }\n}"
+                },
+                {
+                  "name": "409 MANUAL_REVIEW_ASSIGNED_TO_OTHER",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/assign",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "manual-review",
+                        "assign"
+                      ]
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"MANUAL_REVIEW_ASSIGNED_TO_OTHER\",\n    \"message\": \"The review is assigned to another administrator.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Decide manual review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/decision",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "manual-review",
+                    "decision"
+                  ]
+                },
+                "description": "MANUAL_REVIEW → VERIFIED | REJECTED. Caller: admin-service with a delegated admin actor in the service token.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"VERIFIED\",\n  \"reason_code\": \"DOCUMENTS_CONFIRMED\",\n  \"notes\": \"Checked against registry.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/decision",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "manual-review",
+                        "decision"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"decision\": \"VERIFIED\",\n  \"reason_code\": \"DOCUMENTS_CONFIRMED\",\n  \"notes\": \"Checked against registry.\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"VERIFIED\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "403 PERMISSION_DENIED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/manual-review/decision",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "manual-review",
+                        "decision"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"decision\": \"VERIFIED\",\n  \"reason_code\": \"DOCUMENTS_CONFIRMED\",\n  \"notes\": \"Checked against registry.\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"A delegated admin actor is required.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Expire verification",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/expire",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "expire"
+                  ]
+                },
+                "description": "VERIFIED → EXPIRED. Caller: admin-service with a delegated admin actor in the service token.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"DOCUMENT_REVOKED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/expire",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "expire"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"reason_code\": \"DOCUMENT_REVOKED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"EXPIRED\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "_Internal",
-          "item": []
+          "item": [
+            {
+              "name": "Create verification",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications"
+                  ]
+                },
+                "description": "Service-to-service. Creates a DRAFT case. Caller must be the subject domain's service and approved for the type.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"verification_type\": \"IDENTITY\",\n  \"subject\": {\n    \"subject_type\": \"USER\",\n    \"subject_domain\": \"individual-owner\",\n    \"subject_id\": \"{{subject_id}}\"\n  },\n  \"caller_reference\": \"onboarding-42\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"verification_type\": \"IDENTITY\",\n  \"subject\": {\n    \"subject_type\": \"USER\",\n    \"subject_domain\": \"individual-owner\",\n    \"subject_id\": \"{{subject_id}}\"\n  },\n  \"caller_reference\": \"onboarding-42\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"DRAFT\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "403 PERMISSION_DENIED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"verification_type\": \"IDENTITY\",\n  \"subject\": {\n    \"subject_type\": \"USER\",\n    \"subject_domain\": \"individual-owner\",\n    \"subject_id\": \"{{subject_id}}\"\n  },\n  \"caller_reference\": \"onboarding-42\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"A service may only initiate verification of subjects in its own domain.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 VERIFICATION_ALREADY_OPEN",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"verification_type\": \"IDENTITY\",\n  \"subject\": {\n    \"subject_type\": \"USER\",\n    \"subject_domain\": \"individual-owner\",\n    \"subject_id\": \"{{subject_id}}\"\n  },\n  \"caller_reference\": \"onboarding-42\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERIFICATION_ALREADY_OPEN\",\n    \"message\": \"An open verification already exists for this subject and type.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 IDEMPOTENCY_CONFLICT",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"verification_type\": \"IDENTITY\",\n  \"subject\": {\n    \"subject_type\": \"USER\",\n    \"subject_domain\": \"individual-owner\",\n    \"subject_id\": \"{{subject_id}}\"\n  },\n  \"caller_reference\": \"onboarding-42\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"IDEMPOTENCY_CONFLICT\",\n    \"message\": \"The Idempotency-Key was already used with a different request.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "if (b.data && b.data.verification_id) { pm.environment.set('verification_id', b.data.verification_id); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Attach evidence",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/evidence",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "evidence"
+                  ]
+                },
+                "description": "Attaches a media-document-service file (must belong to the subject's domain). DRAFT only.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"media_id\": \"{{media_id}}\",\n  \"evidence_type\": \"ID_DOCUMENT_FRONT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/evidence",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "evidence"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{media_id}}\",\n  \"evidence_type\": \"ID_DOCUMENT_FRONT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"evidence_id\": \"019a1c2e-1111-7000-8000-000000000002\",\n    \"media_id\": \"{{media_id}}\",\n    \"evidence_type\": \"ID_DOCUMENT_FRONT\",\n    \"created_at\": \"2026-10-08T09:59:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "422 EVIDENCE_OWNER_MISMATCH",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/evidence",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "evidence"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{media_id}}\",\n  \"evidence_type\": \"ID_DOCUMENT_FRONT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"EVIDENCE_OWNER_MISMATCH\",\n    \"message\": \"The evidence file does not belong to the subject's domain.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 EVIDENCE_LOCKED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/evidence",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "evidence"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{media_id}}\",\n  \"evidence_type\": \"ID_DOCUMENT_FRONT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"EVIDENCE_LOCKED\",\n    \"message\": \"Evidence can only be attached while the verification is DRAFT.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Submit verification",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/submit",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "submit"
+                  ]
+                },
+                "description": "DRAFT → SUBMITTED. All evidence must be READY. Emits verification.submitted.v1."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/submit",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "submit"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"SUBMITTED\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "422 EVIDENCE_NOT_READY",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/submit",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "submit"
+                      ]
+                    }
+                  },
+                  "status": "Error",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"EVIDENCE_NOT_READY\",\n    \"message\": \"Evidence files must finish scanning before submission.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "409 INVALID_STATE_TRANSITION",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/submit",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "submit"
+                      ]
+                    }
+                  },
+                  "status": "Error",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_STATE_TRANSITION\",\n    \"message\": \"Cannot transition from SUBMITTED to SUBMITTED.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Request provider processing",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/process",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "process"
+                  ]
+                },
+                "description": "SUBMITTED → PROCESSING. The provider is called asynchronously by the worker. Emits verification.processing.v1."
+              },
+              "response": [
+                {
+                  "name": "202 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/process",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "process"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 202,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"PROCESSING\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 202', () => pm.response.to.have.status(202));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get verification",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}"
+                  ]
+                },
+                "description": "Case status."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"DRAFT\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "404 VERIFICATION_NOT_FOUND",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Error",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERIFICATION_NOT_FOUND\",\n    \"message\": \"Verification not found.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get verification result",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/result",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "result"
+                  ]
+                },
+                "description": "Decision and evidence references."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/result",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "result"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"status\": \"VERIFIED\",\n    \"decision\": {\n      \"decision\": \"VERIFIED\",\n      \"decision_source\": \"PROVIDER\",\n      \"reason_code\": null,\n      \"decided_at\": \"2026-10-08T10:00:05Z\",\n      \"expires_at\": \"2027-10-08T10:00:05Z\"\n    },\n    \"evidence\": []\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "List verifications by subject",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications?subject_type=USER&subject_domain=individual-owner&subject_id={{subject_id}}&limit=20",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "subject_type",
+                      "value": "USER",
+                      "description": ""
+                    },
+                    {
+                      "key": "subject_domain",
+                      "value": "individual-owner",
+                      "description": ""
+                    },
+                    {
+                      "key": "subject_id",
+                      "value": "{{subject_id}}",
+                      "description": ""
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": ""
+                    }
+                  ]
+                },
+                "description": "Cases for a subject, latest first."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications?subject_type=USER&subject_domain=individual-owner&subject_id={{subject_id}}&limit=20",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications"
+                      ],
+                      "query": [
+                        {
+                          "key": "subject_type",
+                          "value": "USER",
+                          "description": ""
+                        },
+                        {
+                          "key": "subject_domain",
+                          "value": "individual-owner",
+                          "description": ""
+                        },
+                        {
+                          "key": "subject_id",
+                          "value": "{{subject_id}}",
+                          "description": ""
+                        },
+                        {
+                          "key": "limit",
+                          "value": "20",
+                          "description": ""
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n      \"verification_type\": \"IDENTITY\",\n      \"subject\": {\n        \"subject_type\": \"USER\",\n        \"subject_domain\": \"individual-owner\",\n        \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n      },\n      \"status\": \"DRAFT\",\n      \"provider\": \"sandbox-kyc\",\n      \"requested_by_service\": \"individual-owner-service\",\n      \"submitted_at\": null,\n      \"decided_at\": null,\n      \"expires_at\": null,\n      \"expired_at\": null,\n      \"created_at\": \"2026-10-08T09:58:00Z\",\n      \"updated_at\": \"2026-10-08T09:58:00Z\"\n    }\n  ]\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Re-verify",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/reverify",
+                  "host": [
+                    "{{verification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "verifications",
+                    "{{verification_id}}",
+                    "reverify"
+                  ]
+                },
+                "description": "Creates a new DRAFT superseding a VERIFIED, REJECTED or EXPIRED case.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{verification_service_url}}/internal/v1/verifications/{{verification_id}}/reverify",
+                      "host": [
+                        "{{verification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "verifications",
+                        "{{verification_id}}",
+                        "reverify"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\",\n    \"verification_type\": \"IDENTITY\",\n    \"subject\": {\n      \"subject_type\": \"USER\",\n      \"subject_domain\": \"individual-owner\",\n      \"subject_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"DRAFT\",\n    \"provider\": \"sandbox-kyc\",\n    \"requested_by_service\": \"individual-owner-service\",\n    \"submitted_at\": null,\n    \"decided_at\": null,\n    \"expires_at\": null,\n    \"expired_at\": null,\n    \"created_at\": \"2026-10-08T09:58:00Z\",\n    \"updated_at\": \"2026-10-08T09:58:00Z\",\n    \"supersedes_verification_id\": \"019a1c2e-7b3f-7c1a-9d2e-3f4a5b6c7d8e\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "_Webhooks",
-          "item": []
+          "item": [
+            {
+              "name": "Sandbox KYC callback",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Sandbox-Signature",
+                    "value": "{{sandbox_signature}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/webhooks/v1/sandbox-kyc/callbacks",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "webhooks",
+                    "v1",
+                    "sandbox-kyc",
+                    "callbacks"
+                  ]
+                },
+                "description": "Development/test provider callback via the API Gateway. X-Sandbox-Signature = hex HMAC-SHA256(raw body, SANDBOX_KYC_CALLBACK_SECRET). Duplicates return DUPLICATE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event_id\": \"sbx_evt_1\",\n  \"client_reference\": \"{{client_reference}}\",\n  \"outcome\": \"VERIFIED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 Applied",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Sandbox-Signature",
+                        "value": "{{sandbox_signature}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/webhooks/v1/sandbox-kyc/callbacks",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "webhooks",
+                        "v1",
+                        "sandbox-kyc",
+                        "callbacks"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"event_id\": \"sbx_evt_1\",\n  \"client_reference\": \"{{client_reference}}\",\n  \"outcome\": \"VERIFIED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"status\": \"APPLIED\"\n  }\n}"
+                },
+                {
+                  "name": "200 Duplicate",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Sandbox-Signature",
+                        "value": "{{sandbox_signature}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/webhooks/v1/sandbox-kyc/callbacks",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "webhooks",
+                        "v1",
+                        "sandbox-kyc",
+                        "callbacks"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"event_id\": \"sbx_evt_1\",\n  \"client_reference\": \"{{client_reference}}\",\n  \"outcome\": \"VERIFIED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"status\": \"DUPLICATE\"\n  }\n}"
+                },
+                {
+                  "name": "401 Bad signature",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Sandbox-Signature",
+                        "value": "{{sandbox_signature}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/webhooks/v1/sandbox-kyc/callbacks",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "webhooks",
+                        "v1",
+                        "sandbox-kyc",
+                        "callbacks"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"event_id\": \"sbx_evt_1\",\n  \"client_reference\": \"{{client_reference}}\",\n  \"outcome\": \"VERIFIED\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_PROVIDER_CALLBACK\",\n    \"message\": \"Callback could not be authenticated.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },

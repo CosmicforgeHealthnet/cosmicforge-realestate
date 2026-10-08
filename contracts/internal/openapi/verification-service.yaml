@@ -1,0 +1,336 @@
+openapi: 3.1.0
+info:
+  title: verification-service — internal API
+  version: 1.0.0
+  description: |
+    Service-to-service API of verification-service (owner of verification_db).
+
+    Authentication: `Authorization: Bearer <service JWT>` (EdDSA, `typ: service+jwt`,
+    `aud: verification-service`, lifetime <= 5 minutes). A valid token is not
+    sufficient: every operation checks a capability allow-list and the use-case
+    rules below.
+
+    | Capability | Callers |
+    |---|---|
+    | create / read / process | the seven user-domain services |
+    | review / expire | admin-service with a delegated admin actor (`actor_domain=admin`) |
+
+    A domain service may only initiate verification of subjects in its own
+    domain, for types approved for that domain. Cases not visible to the caller
+    return 404.
+
+    Commands require `Idempotency-Key`. Same key + same body replays the
+    stored response (`Idempotent-Replayed: true`); same key + different body
+    returns 409 `IDEMPOTENCY_CONFLICT`; a concurrent duplicate returns 409
+    `IDEMPOTENCY_IN_PROGRESS`.
+
+    State machine: DRAFT → SUBMITTED → PROCESSING → {VERIFIED, REJECTED,
+    MANUAL_REVIEW}; MANUAL_REVIEW → {VERIFIED, REJECTED}; VERIFIED → EXPIRED.
+    Ambiguous provider outcomes stay PROCESSING until read-back resolves them.
+servers:
+  - url: http://verification-service:8080
+security:
+  - ServiceBearer: []
+paths:
+  /internal/v1/verifications:
+    post:
+      operationId: createVerification
+      summary: Create a DRAFT verification case
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [verification_type, subject]
+              properties:
+                verification_type: {$ref: "#/components/schemas/VerificationType"}
+                subject: {$ref: "#/components/schemas/Subject"}
+                provider: {type: string, description: "Enabled provider name; default provider when omitted."}
+                caller_reference: {type: string, maxLength: 128}
+                provider_metadata:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties: {type: string, maxLength: 256}
+                  description: Non-sensitive provider options. Never personal data.
+      responses:
+        "201": {$ref: "#/components/responses/Case"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+    get:
+      operationId: listVerificationsBySubject
+      summary: List cases for a subject (latest first)
+      parameters:
+        - {name: subject_type, in: query, required: true, schema: {$ref: "#/components/schemas/SubjectType"}}
+        - {name: subject_domain, in: query, required: true, schema: {$ref: "#/components/schemas/Domain"}}
+        - {name: subject_id, in: query, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+        - {name: verification_type, in: query, schema: {$ref: "#/components/schemas/VerificationType"}}
+        - {$ref: "#/components/parameters/Cursor"}
+        - {$ref: "#/components/parameters/Limit"}
+      responses:
+        "200":
+          description: Page of cases.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, page]
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/Case"}}
+                  page: {$ref: "#/components/schemas/Page"}
+        "400": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}:
+    get:
+      operationId: getVerification
+      parameters: [{$ref: "#/components/parameters/VerificationID"}]
+      responses:
+        "200": {$ref: "#/components/responses/Case"}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/result:
+    get:
+      operationId: getVerificationResult
+      parameters: [{$ref: "#/components/parameters/VerificationID"}]
+      responses:
+        "200":
+          description: Decision and evidence references.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {$ref: "#/components/schemas/Result"}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/evidence:
+    post:
+      operationId: attachEvidence
+      summary: Attach a media-document-service file (DRAFT only)
+      description: The media must exist and be owned by the subject's domain. Bytes are never stored here.
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [media_id, evidence_type]
+              properties:
+                media_id: {$ref: "#/components/schemas/UUIDv7"}
+                evidence_type: {type: string, pattern: "^[A-Z][A-Z0-9_]{1,63}$", examples: [ID_DOCUMENT_FRONT]}
+      responses:
+        "201":
+          description: Evidence reference.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {$ref: "#/components/schemas/Evidence"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/submit:
+    post:
+      operationId: submitVerification
+      summary: DRAFT → SUBMITTED (all evidence must be READY)
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "200": {$ref: "#/components/responses/Case"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/process:
+    post:
+      operationId: requestVerificationProcessing
+      summary: SUBMITTED → PROCESSING; the provider is called asynchronously
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/Case"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/reverify:
+    post:
+      operationId: reverifyVerification
+      summary: Create a new DRAFT superseding a decided or expired case
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                provider: {type: string}
+                caller_reference: {type: string, maxLength: 128}
+                provider_metadata: {type: object, additionalProperties: {type: string}}
+      responses:
+        "201": {$ref: "#/components/responses/Case"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/expire:
+    post:
+      operationId: expireVerification
+      summary: VERIFIED → EXPIRED (admin-service with admin actor)
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason_code]
+              properties:
+                reason_code: {type: string, pattern: "^[A-Z0-9_]{1,64}$"}
+      responses:
+        "200": {$ref: "#/components/responses/Case"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/manual-reviews:
+    get:
+      operationId: listManualReviews
+      summary: Manual-review queue (admin-service with admin actor)
+      parameters:
+        - {name: status, in: query, schema: {enum: [OPEN, ASSIGNED, DECIDED]}}
+        - {$ref: "#/components/parameters/Cursor"}
+        - {$ref: "#/components/parameters/Limit"}
+      responses:
+        "200":
+          description: Queue page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/Review"}}
+                  page: {$ref: "#/components/schemas/Page"}
+        "403": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/manual-review/assign:
+    post:
+      operationId: assignManualReview
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "200":
+          description: Assigned review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {$ref: "#/components/schemas/Review"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/verifications/{verification_id}/manual-review/decision:
+    post:
+      operationId: decideManualReview
+      summary: MANUAL_REVIEW → VERIFIED | REJECTED (admin-service with admin actor)
+      parameters: [{$ref: "#/components/parameters/VerificationID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision]
+              properties:
+                decision: {enum: [VERIFIED, REJECTED]}
+                reason_code: {type: string, pattern: "^[A-Z0-9_]{1,64}$", description: Required for REJECTED.}
+                notes: {type: string, maxLength: 1000}
+      responses:
+        "200": {$ref: "#/components/responses/Case"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    ServiceBearer: {type: http, scheme: bearer, bearerFormat: "service+jwt (EdDSA)"}
+  parameters:
+    VerificationID: {name: verification_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+    Cursor: {name: cursor, in: query, schema: {type: string}}
+    Limit: {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+  responses:
+    Case:
+      description: Verification case.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: {$ref: "#/components/schemas/Case"}
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}
+  schemas:
+    UUIDv7: {type: string, format: uuid, pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}
+    Domain: {enum: [marketplace, individual-owner, business-operations, property-manager, artisan, professional-services, admin]}
+    SubjectType: {enum: [USER, BUSINESS, PROPERTY, PROFESSIONAL]}
+    VerificationType: {enum: [IDENTITY, BUSINESS, PROPERTY_AUTHORITY, PROFESSIONAL_CREDENTIAL]}
+    Status: {enum: [DRAFT, SUBMITTED, PROCESSING, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED]}
+    Subject:
+      type: object
+      required: [subject_type, subject_domain, subject_id]
+      properties:
+        subject_type: {$ref: "#/components/schemas/SubjectType"}
+        subject_domain: {$ref: "#/components/schemas/Domain"}
+        subject_id: {$ref: "#/components/schemas/UUIDv7"}
+    Page: {$ref: "../../schemas/pagination.schema.json"}
+    Case:
+      type: object
+      required: [verification_id, verification_type, subject, status, provider, requested_by_service, created_at, updated_at]
+      properties:
+        verification_id: {$ref: "#/components/schemas/UUIDv7"}
+        verification_type: {$ref: "#/components/schemas/VerificationType"}
+        subject: {$ref: "#/components/schemas/Subject"}
+        status: {$ref: "#/components/schemas/Status"}
+        provider: {type: string}
+        requested_by_service: {type: string}
+        organization_id: {$ref: "#/components/schemas/UUIDv7"}
+        caller_reference: {type: string}
+        supersedes_verification_id: {$ref: "#/components/schemas/UUIDv7"}
+        reason_code: {type: string}
+        submitted_at: {type: [string, "null"], format: date-time}
+        decided_at: {type: [string, "null"], format: date-time}
+        expires_at: {type: [string, "null"], format: date-time}
+        expired_at: {type: [string, "null"], format: date-time}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    Evidence:
+      type: object
+      properties:
+        evidence_id: {$ref: "#/components/schemas/UUIDv7"}
+        media_id: {$ref: "#/components/schemas/UUIDv7"}
+        evidence_type: {type: string}
+        created_at: {type: string, format: date-time}
+    Result:
+      type: object
+      properties:
+        verification_id: {$ref: "#/components/schemas/UUIDv7"}
+        status: {$ref: "#/components/schemas/Status"}
+        decision:
+          type: [object, "null"]
+          properties:
+            decision: {enum: [VERIFIED, REJECTED]}
+            decision_source: {enum: [PROVIDER, MANUAL_REVIEW]}
+            reason_code: {type: [string, "null"]}
+            decided_at: {type: string, format: date-time}
+            expires_at: {type: [string, "null"], format: date-time}
+        evidence: {type: array, items: {$ref: "#/components/schemas/Evidence"}}
+    Review:
+      type: object
+      properties:
+        review_id: {$ref: "#/components/schemas/UUIDv7"}
+        verification_id: {$ref: "#/components/schemas/UUIDv7"}
+        verification_type: {$ref: "#/components/schemas/VerificationType"}
+        subject: {$ref: "#/components/schemas/Subject"}
+        status: {enum: [OPEN, ASSIGNED, DECIDED]}
+        reason: {enum: [PROVIDER_INCONCLUSIVE, PROVIDER_FAILURE, PROVIDER_REQUESTED]}
+        assigned_admin_id: {type: [string, "null"]}
+        assigned_at: {type: [string, "null"], format: date-time}
+        created_at: {type: string, format: date-time}

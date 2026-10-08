@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -60,4 +61,38 @@ func decodeError(err error) error {
 	}
 	// Errors from custom UnmarshalJSON (ids, money) are safe validation messages.
 	return apperrors.New(http.StatusBadRequest, apperrors.CodeInvalidJSON, "Request body is invalid.")
+}
+
+// ReadBody reads a JSON command body (Content-Type checked, size-limited)
+// and returns the raw bytes, e.g. for idempotency fingerprinting.
+func ReadBody(w http.ResponseWriter, r *http.Request, maxBytes int64) ([]byte, error) {
+	mt, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || mt != "application/json" {
+		return nil, apperrors.UnsupportedMediaType()
+	}
+	if maxBytes <= 0 {
+		maxBytes = DefaultMaxBodyBytes
+	}
+	b, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBytes))
+	if err != nil {
+		var maxErr *http.MaxBytesError
+		if errors.As(err, &maxErr) {
+			return nil, apperrors.PayloadTooLarge()
+		}
+		return nil, apperrors.New(http.StatusBadRequest, apperrors.CodeInvalidJSON, "Request body could not be read.")
+	}
+	return b, nil
+}
+
+// DecodeJSONBytes strictly decodes one JSON object from b into dst.
+func DecodeJSONBytes(b []byte, dst any) error {
+	dec := json.NewDecoder(bytes.NewReader(b))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(dst); err != nil {
+		return decodeError(err)
+	}
+	if err := dec.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		return apperrors.New(http.StatusBadRequest, apperrors.CodeInvalidJSON, "Request body must contain a single JSON object.")
+	}
+	return nil
 }

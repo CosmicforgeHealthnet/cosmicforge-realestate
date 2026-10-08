@@ -4,5 +4,6 @@ toolchain go1.26.9
 
 use (
 	./gateway/api-gateway
+	./services/verification-service
 	./shared/go
 )

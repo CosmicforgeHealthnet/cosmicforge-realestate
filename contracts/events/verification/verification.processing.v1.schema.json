@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/verification/verification.processing.v1.schema.json",
+  "title": "verification.processing.v1",
+  "description": "Provider processing was requested. The provider is called asynchronously. Producer: verification-service. Subject: realestate.verification.processing.v1. Aggregate: verification.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "verification.processing.v1"},
+    "producer": {"const": "verification-service"},
+    "aggregate_type": {"const": "verification"},
+    "payload": {
+      "allOf": [{"$ref": "verification-payload.schema.json"}],
+      "properties": {"status": {"const": "PROCESSING"}},
+      "required": ["provider"]
+    }
+  }
+}
