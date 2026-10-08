@@ -13,6 +13,6 @@ Branch model: `development` → `staging` → `main`. Images are tagged by commi
 deployments (`infrastructure/docker/{staging,production}`) reference digests only.
 
 Toolchain pins: Go 1.26.9, staticcheck 2026.2.1, sqlc 1.31.1, govulncheck 1.8.0,
-gitleaks 8.28.0, Trivy action 0.28.0.
+gitleaks 8.28.0, Trivy 0.57.0 (container pinned by digest; no third-party scan action).
 
 Reviewed false positives for secret scanning are listed in `/.gitleaksignore`.

@@ -88,16 +88,16 @@ jobs:
           if [ "${{ matrix.component }}" != "api-gateway" ]; then
             docker run --rm "$img" /app/migrate version 2>&1 | grep -qi "database_url\|DATABASE_URL"
           fi
-      - name: Vulnerability scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: ${{ steps.ref.outputs.image }}
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+      - name: Vulnerability scan (Trivy, HIGH/CRITICAL with a fix available)
+        # Container pinned by digest (no third-party action dependency). PR
+        # images are read from the local daemon; pushed images from GHCR.
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e TRIVY_USERNAME -e TRIVY_PASSWORD \
+            aquasec/trivy:0.57.0@sha256:cad5cc4c273b98de4e84d19b481399fae19cd2ba09914239e9d0597fa227a8e4 \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "${{ steps.ref.outputs.image }}"
       - name: Record digest
         if: github.event_name != 'pull_request'
         run: |
