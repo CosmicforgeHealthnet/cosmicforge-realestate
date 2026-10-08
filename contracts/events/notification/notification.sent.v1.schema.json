@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/notification/notification.sent.v1.schema.json",
+  "title": "notification.sent.v1",
+  "description": "The provider accepted the delivery. This is not a delivery or read receipt. Producer: notification-service. Subject: realestate.notification.sent.v1. Aggregate: notification (aggregate_id = notification_id).",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "notification.sent.v1"},
+    "producer": {"const": "notification-service"},
+    "aggregate_type": {"const": "notification"},
+    "payload": {
+      "allOf": [{"$ref": "notification-payload.schema.json"}],
+      "properties": {"status": {"const": "SENT"}},
+      "required": ["sent_at"]
+    }
+  }
+}

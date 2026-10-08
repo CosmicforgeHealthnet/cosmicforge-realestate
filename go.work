@@ -5,6 +5,7 @@ toolchain go1.26.9
 use (
 	./gateway/api-gateway
 	./services/media-document-service
+	./services/notification-service
 	./services/verification-service
 	./shared/go
 )

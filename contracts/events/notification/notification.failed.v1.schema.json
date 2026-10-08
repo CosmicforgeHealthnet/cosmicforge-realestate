@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/notification/notification.failed.v1.schema.json",
+  "title": "notification.failed.v1",
+  "description": "The delivery failed finally (permanent provider error, invalid destination, retries exhausted, expired or outcome unknown after the attempt budget). Producer: notification-service. Subject: realestate.notification.failed.v1. Aggregate: notification (aggregate_id = notification_id).",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "notification.failed.v1"},
+    "producer": {"const": "notification-service"},
+    "aggregate_type": {"const": "notification"},
+    "payload": {
+      "allOf": [{"$ref": "notification-payload.schema.json"}],
+      "properties": {"status": {"const": "FAILED_FINAL"}},
+      "required": ["failed_at", "error_code"]
+    }
+  }
+}

@@ -1,0 +1,71 @@
+openapi: 3.1.0
+info:
+  title: CosmicForge Real Estate — Notifications (public, via API Gateway)
+  version: 1.0.0
+  description: |
+    End-user notification settings, served by notification-service behind the API Gateway.
+    Requires a user access token (`Authorization: Bearer <access token>`); the recipient is
+    always the signed-in user and cannot be supplied. The gateway forwards the request with
+    its own service credential and the verified actor; user tokens are not forwarded.
+
+    Push is delivered through Firebase Cloud Messaging; register the device's FCM registration
+    token after sign-in and revoke it on sign-out. SECURITY notifications are always delivered
+    and cannot be disabled; other categories can be switched per channel, and non-critical
+    PUSH/SMS are held during quiet hours.
+servers:
+  - url: https://api.cosmicforge.realestate
+security:
+  - UserBearer: []
+paths:
+  /api/v1/notifications/push-endpoints:
+    post:
+      operationId: registerMyPushEndpoint
+      parameters: [{name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../../internal/openapi/notification-service.yaml#/components/schemas/PushEndpointRequest"}
+      responses:
+        "201": {$ref: "../../internal/openapi/notification-service.yaml#/components/responses/PushEndpoint"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+    get:
+      operationId: listMyPushEndpoints
+      responses:
+        "200": {$ref: "../../internal/openapi/notification-service.yaml#/components/responses/PushEndpoints"}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/notifications/push-endpoints/{endpoint_id}:
+    delete:
+      operationId: revokeMyPushEndpoint
+      parameters: [{name: endpoint_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        "204": {description: Revoked (idempotent).}
+        "401": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/notifications/preferences:
+    get:
+      operationId: getMyPreferences
+      responses:
+        "200": {$ref: "../../internal/openapi/notification-service.yaml#/components/responses/Preferences"}
+        "401": {$ref: "#/components/responses/Error"}
+    put:
+      operationId: updateMyPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../../internal/openapi/notification-service.yaml#/components/schemas/PreferencesUpdate"}
+      responses:
+        "200": {$ref: "../../internal/openapi/notification-service.yaml#/components/responses/Preferences"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    UserBearer: {type: http, scheme: bearer, bearerFormat: "at+jwt (EdDSA)"}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}

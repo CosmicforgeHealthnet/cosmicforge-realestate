@@ -45,3 +45,6 @@ Thumbs.db
 logs/
 tmp/
 .cache/
+
+# Local Redis snapshots
+dump.rdb

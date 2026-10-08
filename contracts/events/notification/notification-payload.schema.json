@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/notification/notification-payload.schema.json",
+  "title": "notification.* payload",
+  "description": "Common payload of notification-service delivery events (one event per delivery). Never contains message content, destinations (email, phone, device token) or provider credentials. SENT means the provider accepted the message, not that the user received or read it. Consumers must ignore unknown fields.",
+  "type": "object",
+  "required": ["notification_id", "delivery_id", "recipient", "template_key", "category", "channel", "status", "attempts", "requested_by_service", "caller_reference"],
+  "properties": {
+    "notification_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
+    "delivery_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
+    "recipient": {
+      "type": "object",
+      "required": ["recipient_domain", "recipient_id"],
+      "properties": {
+        "recipient_domain": {"enum": ["marketplace", "individual-owner", "business-operations", "property-manager", "artisan", "professional-services", "admin"]},
+        "recipient_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"}
+      }
+    },
+    "template_key": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"},
+    "category": {"enum": ["SECURITY", "ACCOUNT", "TRANSACTIONAL", "ACTIVITY"]},
+    "channel": {"enum": ["PUSH", "EMAIL", "SMS"]},
+    "status": {"enum": ["QUEUED", "SENT", "FAILED_FINAL"]},
+    "attempts": {"type": "integer", "minimum": 0},
+    "requested_by_service": {"type": "string"},
+    "caller_reference": {"type": ["string", "null"], "maxLength": 128},
+    "error_code": {"type": "string"},
+    "sent_at": {"type": "string", "format": "date-time"},
+    "failed_at": {"type": "string", "format": "date-time"}
+  }
+}

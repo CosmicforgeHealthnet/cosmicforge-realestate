@@ -1,0 +1,346 @@
+openapi: 3.1.0
+info:
+  title: notification-service — internal API
+  version: 1.0.0
+  description: |
+    Service-to-service API of notification-service (owner of notification_db).
+    System-to-user notifications only (PUSH via Firebase Cloud Messaging, EMAIL, SMS);
+    human-to-human messaging, voice and video belong to CF Meet. Firebase is used only
+    as a push transport, never as a data store. Email and SMS are provider-neutral: adapters are
+    selected by configuration and no production email or SMS provider is implied by this API.
+
+    Authentication: `Authorization: Bearer <service JWT>` (`aud: notification-service`).
+    Capabilities:
+    * `notifications.send` / `notifications.templates.read` — the seven user-domain services,
+      verification-service and payment-service.
+    * `notifications.recipients.manage` (push endpoints, preferences) — the seven user-domain services.
+    * `notifications.templates.manage` — admin-service only.
+
+    Recipient isolation: a user-domain service may only address recipients in its own domain;
+    admin-service, payment-service and verification-service may address any domain.
+    notification-service never reads another domain's user data — callers supply contact
+    destinations (email, E.164 phone); push uses registered device endpoints.
+
+    Delivery: one delivery per channel destination (per active push endpoint for PUSH).
+    QUEUED → DISPATCHING → SENT | RETRY_SCHEDULED | FAILED_FINAL; RETRY_SCHEDULED → DISPATCHING.
+    Retries are bounded (PUSH 5, EMAIL 6, SMS 4 attempts) with exponential backoff honouring
+    provider Retry-After, and never beyond the template TTL. Delivery is at-least-once: a
+    worker crash after the provider accepted a message is recorded as an UNKNOWN attempt and
+    retried, so rare duplicates are possible. SENT means provider acceptance; receipts are
+    tracked separately (`receipt_status`).
+
+    Policy: SECURITY notifications ignore opt-outs and quiet hours. Other categories respect
+    per-channel preferences; non-critical PUSH and SMS are deferred during quiet hours.
+servers:
+  - url: http://notification-service:8080
+security:
+  - ServiceBearer: []
+paths:
+  /internal/v1/notifications:
+    post:
+      operationId: sendNotification
+      summary: Render a template and queue deliveries for one recipient
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SendRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/Notification"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/{notification_id}:
+    get:
+      operationId: getNotification
+      description: Visible to the requesting service and admin-service only.
+      parameters: [{name: notification_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}]
+      responses:
+        "200": {$ref: "#/components/responses/Notification"}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/push-endpoints:
+    post:
+      operationId: registerPushEndpoint
+      summary: Register or refresh a device token for a recipient of the caller's domain
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf: [{$ref: "#/components/schemas/PushEndpointRequest"}]
+              required: [recipient]
+              properties:
+                recipient: {$ref: "#/components/schemas/Recipient"}
+      responses:
+        "201": {$ref: "#/components/responses/PushEndpoint"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/push-endpoints/{endpoint_id}:
+    delete:
+      operationId: revokePushEndpoint
+      description: Idempotent. Returns 404 for endpoints the caller may not manage.
+      parameters: [{$ref: "#/components/parameters/EndpointID"}]
+      responses:
+        "204": {description: Revoked.}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/recipients/{recipient_domain}/{recipient_id}/push-endpoints:
+    get:
+      operationId: listPushEndpoints
+      parameters: [{$ref: "#/components/parameters/RecipientDomain"}, {$ref: "#/components/parameters/RecipientID"}]
+      responses:
+        "200": {$ref: "#/components/responses/PushEndpoints"}
+        "403": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/recipients/{recipient_domain}/{recipient_id}/preferences:
+    get:
+      operationId: getPreferences
+      parameters: [{$ref: "#/components/parameters/RecipientDomain"}, {$ref: "#/components/parameters/RecipientID"}]
+      responses:
+        "200": {$ref: "#/components/responses/Preferences"}
+        "403": {$ref: "#/components/responses/Error"}
+    put:
+      operationId: updatePreferences
+      description: Naturally idempotent; listed switches are set, others unchanged. `quiet_hours` set to null clears them; omitted leaves them unchanged.
+      parameters: [{$ref: "#/components/parameters/RecipientDomain"}, {$ref: "#/components/parameters/RecipientID"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PreferencesUpdate"}
+      responses:
+        "200": {$ref: "#/components/responses/Preferences"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/templates:
+    post:
+      operationId: createTemplateVersion
+      summary: Create the next immutable version of a template (admin-service only)
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TemplateInput"}
+      responses:
+        "201": {$ref: "#/components/responses/Template"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/notifications/templates/{template_key}:
+    get:
+      operationId: listTemplateVersions
+      parameters: [{name: template_key, in: path, required: true, schema: {type: string}}]
+      responses:
+        "200":
+          description: All versions (newest first per locale).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/Template"}}
+        "404": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    ServiceBearer: {type: http, scheme: bearer, bearerFormat: "service+jwt (EdDSA)"}
+  parameters:
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+    EndpointID: {name: endpoint_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+    RecipientDomain: {name: recipient_domain, in: path, required: true, schema: {$ref: "#/components/schemas/Domain"}}
+    RecipientID: {name: recipient_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content:
+        application/json:
+          schema: {$ref: "../../schemas/error-envelope.schema.json"}
+    Notification:
+      description: Notification request and its deliveries (no message content).
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/Notification"}
+    PushEndpoint:
+      description: Registered endpoint.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/PushEndpoint"}
+    PushEndpoints:
+      description: Active endpoints.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {type: array, items: {$ref: "#/components/schemas/PushEndpoint"}}
+    Preferences:
+      description: Full preference matrix including defaults.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/Preferences"}
+    Template:
+      description: Template version.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/Template"}
+  schemas:
+    UUIDv7: {type: string, format: uuid}
+    Domain: {enum: [marketplace, individual-owner, business-operations, property-manager, artisan, professional-services, admin]}
+    Channel: {enum: [PUSH, EMAIL, SMS]}
+    Category: {enum: [SECURITY, ACCOUNT, TRANSACTIONAL, ACTIVITY]}
+    Recipient:
+      type: object
+      required: [recipient_domain, recipient_id]
+      properties:
+        recipient_domain: {$ref: "#/components/schemas/Domain"}
+        recipient_id: {$ref: "#/components/schemas/UUIDv7"}
+    SendRequest:
+      type: object
+      required: [recipient, template_key]
+      properties:
+        recipient: {$ref: "#/components/schemas/Recipient"}
+        template_key: {type: string, pattern: "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$", examples: [account.security_alert]}
+        template_version: {type: integer, minimum: 0, description: "0/omitted = latest active version."}
+        locale: {type: string, default: en, pattern: "^[a-z]{2}(-[A-Z]{2})?$"}
+        channels: {type: array, items: {$ref: "#/components/schemas/Channel"}, uniqueItems: true, description: "Omitted = all channels the template supports."}
+        variables: {type: object, additionalProperties: {type: string, maxLength: 1000}, maxProperties: 30, description: "Exactly the template's required variables."}
+        destinations:
+          type: object
+          description: Contact details owned by the calling domain. Channels without a destination are suppressed (NO_DESTINATION).
+          properties:
+            email: {type: string, format: email, maxLength: 254}
+            phone: {type: string, pattern: "^\\+[1-9][0-9]{7,14}$"}
+        data: {type: object, maxProperties: 10, additionalProperties: {type: string, maxLength: 256}, description: "Opaque PUSH data (e.g. deep-link ids); keys are lowercase identifiers."}
+        caller_reference: {type: string, pattern: "^[A-Za-z0-9._:-]{1,128}$"}
+    Delivery:
+      type: object
+      required: [delivery_id, channel, provider, status, attempts, max_attempts, receipt_status, expires_at]
+      properties:
+        delivery_id: {$ref: "#/components/schemas/UUIDv7"}
+        channel: {$ref: "#/components/schemas/Channel"}
+        provider: {type: string, examples: [fcm, capture-email], description: "Name of the configured adapter that handled the delivery. Not a stable enum: email and SMS providers are configuration-driven and no production email/SMS provider is fixed by this contract."}
+        push_endpoint_id: {oneOf: [{$ref: "#/components/schemas/UUIDv7"}, {type: "null"}]}
+        status: {enum: [QUEUED, DISPATCHING, SENT, RETRY_SCHEDULED, FAILED_FINAL]}
+        attempts: {type: integer}
+        max_attempts: {type: integer}
+        next_attempt_at: {type: [string, "null"], format: date-time}
+        last_error_code: {type: [string, "null"]}
+        receipt_status: {enum: [NONE, DELIVERED, READ, BOUNCED]}
+        sent_at: {type: [string, "null"], format: date-time}
+        failed_at: {type: [string, "null"], format: date-time}
+        expires_at: {type: string, format: date-time}
+    Notification:
+      type: object
+      required: [notification_id, recipient, template_key, template_version, locale, category, critical, requested_by_service, deliveries, suppressed, expires_at, created_at]
+      properties:
+        notification_id: {$ref: "#/components/schemas/UUIDv7"}
+        recipient: {$ref: "#/components/schemas/Recipient"}
+        template_key: {type: string}
+        template_version: {type: integer}
+        locale: {type: string}
+        category: {$ref: "#/components/schemas/Category"}
+        critical: {type: boolean}
+        requested_by_service: {type: string}
+        caller_reference: {type: [string, "null"]}
+        deliveries: {type: array, items: {$ref: "#/components/schemas/Delivery"}}
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              channel: {$ref: "#/components/schemas/Channel"}
+              reason: {enum: [PREFERENCE_DISABLED, NO_DESTINATION, NO_ACTIVE_PUSH_ENDPOINT, CHANNEL_NOT_CONFIGURED]}
+        expires_at: {type: string, format: date-time}
+        created_at: {type: string, format: date-time}
+    PushEndpointRequest:
+      type: object
+      required: [token, platform]
+      properties:
+        token: {type: string, minLength: 16, maxLength: 4096, description: FCM registration token.}
+        platform: {enum: [ANDROID, IOS, WEB]}
+        device_id: {type: string, maxLength: 128}
+        app_version: {type: string, maxLength: 128}
+    PushEndpoint:
+      type: object
+      required: [endpoint_id, recipient, provider, platform, token_suffix, status, last_seen_at, created_at]
+      properties:
+        endpoint_id: {$ref: "#/components/schemas/UUIDv7"}
+        recipient: {$ref: "#/components/schemas/Recipient"}
+        provider: {const: FCM}
+        platform: {enum: [ANDROID, IOS, WEB]}
+        token_suffix: {type: string, description: Last 6 characters; the full token is never returned.}
+        device_id: {type: [string, "null"]}
+        app_version: {type: [string, "null"]}
+        status: {enum: [ACTIVE, INVALID, REVOKED]}
+        last_seen_at: {type: string, format: date-time}
+        created_at: {type: string, format: date-time}
+    Preference:
+      type: object
+      required: [category, channel, enabled]
+      properties:
+        category: {enum: [ACCOUNT, TRANSACTIONAL, ACTIVITY]}
+        channel: {$ref: "#/components/schemas/Channel"}
+        enabled: {type: boolean}
+    QuietHours:
+      type: object
+      required: [start, end, timezone]
+      properties:
+        start: {type: string, pattern: "^[0-2][0-9]:[0-5][0-9]$", examples: ["22:00"]}
+        end: {type: string, pattern: "^[0-2][0-9]:[0-5][0-9]$", examples: ["07:00"]}
+        timezone: {type: string, examples: [Africa/Lagos]}
+    Preferences:
+      type: object
+      required: [recipient, preferences, quiet_hours, always_on_categories]
+      properties:
+        recipient: {$ref: "#/components/schemas/Recipient"}
+        preferences: {type: array, items: {$ref: "#/components/schemas/Preference"}}
+        quiet_hours: {oneOf: [{$ref: "#/components/schemas/QuietHours"}, {type: "null"}]}
+        always_on_categories: {type: array, items: {const: SECURITY}}
+    PreferencesUpdate:
+      type: object
+      properties:
+        preferences: {type: array, maxItems: 9, items: {$ref: "#/components/schemas/Preference"}}
+        quiet_hours: {oneOf: [{$ref: "#/components/schemas/QuietHours"}, {type: "null"}]}
+    TemplateInput:
+      type: object
+      required: [template_key, locale, category, channels]
+      description: Only `{{variable}}` placeholders are allowed; every placeholder must be declared and every declared variable used. Values are HTML-escaped in email_html.
+      properties:
+        template_key: {type: string}
+        locale: {type: string}
+        category: {$ref: "#/components/schemas/Category"}
+        channels: {type: array, items: {$ref: "#/components/schemas/Channel"}, minItems: 1, uniqueItems: true}
+        required_variables: {type: array, items: {type: string, pattern: "^[a-z][a-z0-9_]{0,39}$"}}
+        push_title: {type: [string, "null"]}
+        push_body: {type: [string, "null"]}
+        email_subject: {type: [string, "null"]}
+        email_text: {type: [string, "null"]}
+        email_html: {type: [string, "null"]}
+        sms_text: {type: [string, "null"]}
+        ttl_seconds: {type: integer, minimum: 60, maximum: 604800, default: 86400}
+    Template:
+      allOf: [{$ref: "#/components/schemas/TemplateInput"}]
+      type: object
+      required: [template_id, version, status, created_by_service, created_at]
+      properties:
+        template_id: {$ref: "#/components/schemas/UUIDv7"}
+        version: {type: integer}
+        status: {enum: [ACTIVE, RETIRED]}
+        created_by_service: {type: string}
+        created_at: {type: string, format: date-time}

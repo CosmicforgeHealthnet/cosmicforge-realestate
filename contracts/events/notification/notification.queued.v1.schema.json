@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/notification/notification.queued.v1.schema.json",
+  "title": "notification.queued.v1",
+  "description": "A delivery was queued for one channel destination (after preference and quiet-hours policy). Producer: notification-service. Subject: realestate.notification.queued.v1. Aggregate: notification (aggregate_id = notification_id).",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "notification.queued.v1"},
+    "producer": {"const": "notification-service"},
+    "aggregate_type": {"const": "notification"},
+    "payload": {
+      "allOf": [{"$ref": "notification-payload.schema.json"}],
+      "properties": {"status": {"const": "QUEUED"}}
+    }
+  }
+}

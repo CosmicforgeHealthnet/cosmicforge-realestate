@@ -130,6 +130,26 @@
       "key": "owner_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "notification_service_url",
+      "value": "http://localhost:8093",
+      "type": "string"
+    },
+    {
+      "key": "endpoint_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fcm_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "recipient_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -2769,11 +2789,1854 @@
       "item": [
         {
           "name": "Frontend",
-          "item": []
+          "item": [
+            {
+              "name": "Register push device",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "push-endpoints"
+                  ]
+                },
+                "description": "Register (or refresh) this device's FCM registration token after sign-in and whenever Firebase rotates it. Safe to repeat: the same token returns the same endpoint. The full token is never returned.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"ANDROID\",\n  \"device_id\": \"pixel-8\",\n  \"app_version\": \"1.4.0\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"ANDROID\",\n  \"device_id\": \"pixel-8\",\n  \"app_version\": \"1.4.0\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"provider\": \"FCM\",\n    \"platform\": \"ANDROID\",\n    \"token_suffix\": \"Xk29aQ\",\n    \"device_id\": \"pixel-8\",\n    \"app_version\": \"1.4.0\",\n    \"status\": \"ACTIVE\",\n    \"last_seen_at\": \"2026-10-08T11:00:00Z\",\n    \"created_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "400 Invalid token",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"ANDROID\",\n  \"device_id\": \"pixel-8\",\n  \"app_version\": \"1.4.0\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_PUSH_TOKEN\",\n    \"message\": \"token must be an FCM registration token.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "401 Not signed in",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"ANDROID\",\n  \"device_id\": \"pixel-8\",\n  \"app_version\": \"1.4.0\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication is required.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));",
+                      "pm.environment.set('endpoint_id', pm.response.json().data.endpoint_id);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "List my push devices",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "push-endpoints"
+                  ]
+                },
+                "description": "Active devices registered for the signed-in user."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n      \"recipient\": {\n        \"recipient_domain\": \"individual-owner\",\n        \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n      },\n      \"provider\": \"FCM\",\n      \"platform\": \"ANDROID\",\n      \"token_suffix\": \"Xk29aQ\",\n      \"device_id\": \"pixel-8\",\n      \"app_version\": \"1.4.0\",\n      \"status\": \"ACTIVE\",\n      \"last_seen_at\": \"2026-10-08T11:00:00Z\",\n      \"created_at\": \"2026-10-08T11:00:00Z\"\n    }\n  ]\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Revoke push device",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/notifications/push-endpoints/{{endpoint_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "push-endpoints",
+                    "{{endpoint_id}}"
+                  ]
+                },
+                "description": "Call on sign-out so the device stops receiving this user's notifications. Idempotent."
+              },
+              "response": [
+                {
+                  "name": "204 No Content",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints/{{endpoint_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints",
+                        "{{endpoint_id}}"
+                      ]
+                    }
+                  },
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{}"
+                },
+                {
+                  "name": "404 Not found",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/push-endpoints/{{endpoint_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "push-endpoints",
+                        "{{endpoint_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PUSH_ENDPOINT_NOT_FOUND\",\n    \"message\": \"Push endpoint not found.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get notification preferences",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/notifications/preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "preferences"
+                  ]
+                },
+                "description": "Full matrix (defaults included). SECURITY notifications are always on and not listed as switches."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/preferences",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "preferences"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"preferences\": [\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": false\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      }\n    ],\n    \"quiet_hours\": {\n      \"start\": \"22:00\",\n      \"end\": \"07:00\",\n      \"timezone\": \"Africa/Lagos\"\n    },\n    \"always_on_categories\": [\n      \"SECURITY\"\n    ]\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Update notification preferences",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/notifications/preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notifications",
+                    "preferences"
+                  ]
+                },
+                "description": "Set any listed switches; omitted switches are unchanged. quiet_hours: object sets, null clears, omitted leaves unchanged. Non-critical PUSH/SMS are held during quiet hours.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferences\": [\n    {\n      \"category\": \"ACTIVITY\",\n      \"channel\": \"EMAIL\",\n      \"enabled\": false\n    }\n  ],\n  \"quiet_hours\": {\n    \"start\": \"22:00\",\n    \"end\": \"07:00\",\n    \"timezone\": \"Africa/Lagos\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/preferences",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "preferences"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"preferences\": [\n    {\n      \"category\": \"ACTIVITY\",\n      \"channel\": \"EMAIL\",\n      \"enabled\": false\n    }\n  ],\n  \"quiet_hours\": {\n    \"start\": \"22:00\",\n    \"end\": \"07:00\",\n    \"timezone\": \"Africa/Lagos\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"preferences\": [\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": false\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      }\n    ],\n    \"quiet_hours\": {\n      \"start\": \"22:00\",\n      \"end\": \"07:00\",\n      \"timezone\": \"Africa/Lagos\"\n    },\n    \"always_on_categories\": [\n      \"SECURITY\"\n    ]\n  }\n}"
+                },
+                {
+                  "name": "400 Invalid",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/notifications/preferences",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "notifications",
+                        "preferences"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"preferences\": [\n    {\n      \"category\": \"ACTIVITY\",\n      \"channel\": \"EMAIL\",\n      \"enabled\": false\n    }\n  ],\n  \"quiet_hours\": {\n    \"start\": \"22:00\",\n    \"end\": \"07:00\",\n    \"timezone\": \"Africa/Lagos\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_REQUEST\",\n    \"message\": \"quiet_hours needs distinct HH:MM start and end and an IANA timezone.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "_Internal",
-          "item": []
+          "item": [
+            {
+              "name": "Send notification",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications"
+                  ]
+                },
+                "description": "Render a template and queue deliveries for one recipient (202: queued, not yet sent). Domain services may only address their own domain; admin, payment and verification services may address any domain. Channels without a destination/endpoint or disabled by preference are reported in suppressed.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "202 Accepted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Accepted",
+                  "code": 202,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"notification_id\": \"019a1c2e-6666-7000-8000-000000000007\",\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"template_key\": \"account.security_alert\",\n    \"template_version\": 1,\n    \"locale\": \"en\",\n    \"category\": \"SECURITY\",\n    \"critical\": true,\n    \"requested_by_service\": \"individual-owner-service\",\n    \"caller_reference\": \"login-8841\",\n    \"deliveries\": [\n      {\n        \"delivery_id\": \"019a1c2e-6666-7000-8000-000000000008\",\n        \"channel\": \"PUSH\",\n        \"provider\": \"fcm\",\n        \"push_endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n        \"status\": \"QUEUED\",\n        \"attempts\": 0,\n        \"max_attempts\": 5,\n        \"next_attempt_at\": \"2026-10-08T11:00:00Z\",\n        \"last_error_code\": null,\n        \"receipt_status\": \"NONE\",\n        \"sent_at\": null,\n        \"failed_at\": null,\n        \"expires_at\": \"2026-10-08T12:00:00Z\"\n      },\n      {\n        \"delivery_id\": \"019a1c2e-6666-7000-8000-000000000009\",\n        \"channel\": \"EMAIL\",\n        \"provider\": \"capture-email\",\n        \"push_endpoint_id\": null,\n        \"status\": \"QUEUED\",\n        \"attempts\": 0,\n        \"max_attempts\": 6,\n        \"next_attempt_at\": \"2026-10-08T11:00:00Z\",\n        \"last_error_code\": null,\n        \"receipt_status\": \"NONE\",\n        \"sent_at\": null,\n        \"failed_at\": null,\n        \"expires_at\": \"2026-10-08T12:00:00Z\"\n      }\n    ],\n    \"suppressed\": [\n      {\n        \"channel\": \"SMS\",\n        \"reason\": \"NO_DESTINATION\"\n      }\n    ],\n    \"expires_at\": \"2026-10-08T12:00:00Z\",\n    \"created_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "403 PERMISSION_DENIED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"A domain service may only address recipients in its own domain.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "404 TEMPLATE_NOT_FOUND",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"TEMPLATE_NOT_FOUND\",\n    \"message\": \"No template exists for this key, locale and version.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "422 INVALID_TEMPLATE_VARIABLES",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_TEMPLATE_VARIABLES\",\n    \"message\": \"Template variables are invalid: variable \\\"event\\\" is required.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                },
+                {
+                  "name": "422 CHANNEL_NOT_ALLOWED",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"template_key\": \"account.security_alert\",\n  \"channels\": [\n    \"PUSH\",\n    \"EMAIL\",\n    \"SMS\"\n  ],\n  \"variables\": {\n    \"event\": \"New sign-in from Lagos\"\n  },\n  \"destinations\": {\n    \"email\": \"owner@example.com\"\n  },\n  \"data\": {\n    \"screen\": \"security\"\n  },\n  \"caller_reference\": \"login-8841\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"CHANNEL_NOT_ALLOWED\",\n    \"message\": \"The template does not support channel PUSH.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 202', () => pm.response.to.have.status(202));",
+                      "pm.environment.set('notification_id', pm.response.json().data.notification_id);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get notification",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/{{notification_id}}",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "{{notification_id}}"
+                  ]
+                },
+                "description": "Delivery status per channel (requesting service or admin only). SENT = provider accepted."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/{{notification_id}}",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "{{notification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"notification_id\": \"019a1c2e-6666-7000-8000-000000000007\",\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"template_key\": \"account.security_alert\",\n    \"template_version\": 1,\n    \"locale\": \"en\",\n    \"category\": \"SECURITY\",\n    \"critical\": true,\n    \"requested_by_service\": \"individual-owner-service\",\n    \"caller_reference\": \"login-8841\",\n    \"deliveries\": [\n      {\n        \"delivery_id\": \"019a1c2e-6666-7000-8000-000000000008\",\n        \"channel\": \"PUSH\",\n        \"provider\": \"fcm\",\n        \"push_endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n        \"status\": \"SENT\",\n        \"attempts\": 1,\n        \"max_attempts\": 5,\n        \"next_attempt_at\": null,\n        \"last_error_code\": null,\n        \"receipt_status\": \"NONE\",\n        \"sent_at\": \"2026-10-08T11:00:02Z\",\n        \"failed_at\": null,\n        \"expires_at\": \"2026-10-08T12:00:00Z\"\n      },\n      {\n        \"delivery_id\": \"019a1c2e-6666-7000-8000-000000000009\",\n        \"channel\": \"EMAIL\",\n        \"provider\": \"capture-email\",\n        \"push_endpoint_id\": null,\n        \"status\": \"SENT\",\n        \"attempts\": 1,\n        \"max_attempts\": 6,\n        \"next_attempt_at\": null,\n        \"last_error_code\": null,\n        \"receipt_status\": \"NONE\",\n        \"sent_at\": \"2026-10-08T11:00:02Z\",\n        \"failed_at\": null,\n        \"expires_at\": \"2026-10-08T12:00:00Z\"\n      }\n    ],\n    \"suppressed\": [\n      {\n        \"channel\": \"SMS\",\n        \"reason\": \"NO_DESTINATION\"\n      }\n    ],\n    \"expires_at\": \"2026-10-08T12:00:00Z\",\n    \"created_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "404 NOTIFICATION_NOT_FOUND",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/{{notification_id}}",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "{{notification_id}}"
+                      ]
+                    }
+                  },
+                  "status": "Error",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"NOTIFICATION_NOT_FOUND\",\n    \"message\": \"Notification not found.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Register push endpoint (service)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/push-endpoints",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "push-endpoints"
+                  ]
+                },
+                "description": "Domain service registers a device for a user of its own domain.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"IOS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/push-endpoints",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "push-endpoints"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipient\": {\n    \"recipient_domain\": \"individual-owner\",\n    \"recipient_id\": \"{{recipient_id}}\"\n  },\n  \"token\": \"{{fcm_token}}\",\n  \"platform\": \"IOS\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"provider\": \"FCM\",\n    \"platform\": \"IOS\",\n    \"token_suffix\": \"Xk29aQ\",\n    \"device_id\": \"pixel-8\",\n    \"app_version\": \"1.4.0\",\n    \"status\": \"ACTIVE\",\n    \"last_seen_at\": \"2026-10-08T11:00:00Z\",\n    \"created_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Revoke push endpoint (service)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/push-endpoints/{{endpoint_id}}",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "push-endpoints",
+                    "{{endpoint_id}}"
+                  ]
+                },
+                "description": "Idempotent."
+              },
+              "response": [
+                {
+                  "name": "204 No Content",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/push-endpoints/{{endpoint_id}}",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "push-endpoints",
+                        "{{endpoint_id}}"
+                      ]
+                    }
+                  },
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "List push endpoints (service)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/push-endpoints",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "recipients",
+                    "individual-owner",
+                    "{{recipient_id}}",
+                    "push-endpoints"
+                  ]
+                },
+                "description": "Active endpoints."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/push-endpoints",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "recipients",
+                        "individual-owner",
+                        "{{recipient_id}}",
+                        "push-endpoints"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"endpoint_id\": \"019a1c2e-5555-7000-8000-000000000006\",\n      \"recipient\": {\n        \"recipient_domain\": \"individual-owner\",\n        \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n      },\n      \"provider\": \"FCM\",\n      \"platform\": \"ANDROID\",\n      \"token_suffix\": \"Xk29aQ\",\n      \"device_id\": \"pixel-8\",\n      \"app_version\": \"1.4.0\",\n      \"status\": \"ACTIVE\",\n      \"last_seen_at\": \"2026-10-08T11:00:00Z\",\n      \"created_at\": \"2026-10-08T11:00:00Z\"\n    }\n  ]\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get preferences (service)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/preferences",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "recipients",
+                    "individual-owner",
+                    "{{recipient_id}}",
+                    "preferences"
+                  ]
+                },
+                "description": "Preference matrix."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/preferences",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "recipients",
+                        "individual-owner",
+                        "{{recipient_id}}",
+                        "preferences"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"preferences\": [\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": false\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      }\n    ],\n    \"quiet_hours\": {\n      \"start\": \"22:00\",\n      \"end\": \"07:00\",\n      \"timezone\": \"Africa/Lagos\"\n    },\n    \"always_on_categories\": [\n      \"SECURITY\"\n    ]\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Update preferences (service)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/preferences",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "recipients",
+                    "individual-owner",
+                    "{{recipient_id}}",
+                    "preferences"
+                  ]
+                },
+                "description": "Same semantics as the public PUT.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferences\": [\n    {\n      \"category\": \"TRANSACTIONAL\",\n      \"channel\": \"SMS\",\n      \"enabled\": false\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/recipients/individual-owner/{{recipient_id}}/preferences",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "recipients",
+                        "individual-owner",
+                        "{{recipient_id}}",
+                        "preferences"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"preferences\": [\n    {\n      \"category\": \"TRANSACTIONAL\",\n      \"channel\": \"SMS\",\n      \"enabled\": false\n    }\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"recipient\": {\n      \"recipient_domain\": \"individual-owner\",\n      \"recipient_id\": \"019a1c2e-0000-7000-8000-000000000001\"\n    },\n    \"preferences\": [\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACCOUNT\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"TRANSACTIONAL\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"PUSH\",\n        \"enabled\": true\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"EMAIL\",\n        \"enabled\": false\n      },\n      {\n        \"category\": \"ACTIVITY\",\n        \"channel\": \"SMS\",\n        \"enabled\": true\n      }\n    ],\n    \"quiet_hours\": {\n      \"start\": \"22:00\",\n      \"end\": \"07:00\",\n      \"timezone\": \"Africa/Lagos\"\n    },\n    \"always_on_categories\": [\n      \"SECURITY\"\n    ]\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Create template version (admin)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/templates",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "templates"
+                  ]
+                },
+                "description": "admin-service only. Creates the next immutable version; only {{variable}} placeholders, all declared and used.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"template_key\": \"activity.generic_update\",\n  \"locale\": \"en\",\n  \"category\": \"ACTIVITY\",\n  \"channels\": [\n    \"EMAIL\",\n    \"PUSH\"\n  ],\n  \"required_variables\": [\n    \"title\",\n    \"message\"\n  ],\n  \"push_title\": \"{{title}}\",\n  \"push_body\": \"{{message}}\",\n  \"email_subject\": \"{{title}}\",\n  \"email_text\": \"{{message}}\",\n  \"email_html\": \"<p>{{message}}</p>\",\n  \"sms_text\": null,\n  \"ttl_seconds\": 86400\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "201 Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/templates",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "templates"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"template_key\": \"activity.generic_update\",\n  \"locale\": \"en\",\n  \"category\": \"ACTIVITY\",\n  \"channels\": [\n    \"EMAIL\",\n    \"PUSH\"\n  ],\n  \"required_variables\": [\n    \"title\",\n    \"message\"\n  ],\n  \"push_title\": \"{{title}}\",\n  \"push_body\": \"{{message}}\",\n  \"email_subject\": \"{{title}}\",\n  \"email_text\": \"{{message}}\",\n  \"email_html\": \"<p>{{message}}</p>\",\n  \"sms_text\": null,\n  \"ttl_seconds\": 86400\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"template_key\": \"activity.generic_update\",\n    \"locale\": \"en\",\n    \"category\": \"ACTIVITY\",\n    \"channels\": [\n      \"EMAIL\",\n      \"PUSH\"\n    ],\n    \"required_variables\": [\n      \"title\",\n      \"message\"\n    ],\n    \"push_title\": \"{{title}}\",\n    \"push_body\": \"{{message}}\",\n    \"email_subject\": \"{{title}}\",\n    \"email_text\": \"{{message}}\",\n    \"email_html\": \"<p>{{message}}</p>\",\n    \"sms_text\": null,\n    \"ttl_seconds\": 86400,\n    \"template_id\": \"019a1c2e-7777-7000-8000-00000000000a\",\n    \"version\": 2,\n    \"status\": \"ACTIVE\",\n    \"created_by_service\": \"admin-service\",\n    \"created_at\": \"2026-10-08T11:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "422 INVALID_TEMPLATE",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{idempotency_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/templates",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "templates"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"template_key\": \"activity.generic_update\",\n  \"locale\": \"en\",\n  \"category\": \"ACTIVITY\",\n  \"channels\": [\n    \"EMAIL\",\n    \"PUSH\"\n  ],\n  \"required_variables\": [\n    \"title\",\n    \"message\"\n  ],\n  \"push_title\": \"{{title}}\",\n  \"push_body\": \"{{message}}\",\n  \"email_subject\": \"{{title}}\",\n  \"email_text\": \"{{message}}\",\n  \"email_html\": \"<p>{{message}}</p>\",\n  \"sms_text\": null,\n  \"ttl_seconds\": 86400\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_TEMPLATE\",\n    \"message\": \"Placeholder {{x}} is not declared in required_variables.\",\n    \"request_id\": \"01a11d42-f033-74ef-885b-481be134b8cb\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "List template versions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{notification_service_url}}/internal/v1/notifications/templates/account.security_alert",
+                  "host": [
+                    "{{notification_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "notifications",
+                    "templates",
+                    "account.security_alert"
+                  ]
+                },
+                "description": "All versions of a template key."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{service_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{notification_service_url}}/internal/v1/notifications/templates/account.security_alert",
+                      "host": [
+                        "{{notification_service_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "notifications",
+                        "templates",
+                        "account.security_alert"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": []\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
