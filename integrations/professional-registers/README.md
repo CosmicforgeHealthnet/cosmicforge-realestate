@@ -1,3 +1,3 @@
-# professional-registers integration
+# professional-registers
 
-Shared integration boundary for professional-registers. Business-domain ownership remains in the calling service; this package contains reusable client/contracts only.
+Shared integration boundary. Domain/business authority remains in the calling service.

@@ -1,3 +1,2 @@
-# Add GitHub teams/users after repository ownership is finalized.
-# Example:
-# * @CosmicForge/platform-team
+# Replace with concrete teams/users when ownership is finalized.
+# Domain owners should be assigned per app/service before implementation.

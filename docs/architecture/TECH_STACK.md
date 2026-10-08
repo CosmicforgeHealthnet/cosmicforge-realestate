@@ -1,19 +1,51 @@
 # Technology Stack
 
 ## Backend
-Go is the primary backend language for all domain services and the API gateway.
+- Go
+- Chi
+- pgx
+- sqlc
+- Goose
+- OpenAPI 3.1
 
 ## Mobile
-Flutter and Dart are used for Android/iOS applications.
+- Flutter / Dart
+- Riverpod
+- GoRouter
+- Dio
+- Freezed / json_serializable where useful
 
 ## Web
-Next.js, React and TypeScript are used for the public marketplace, business portals and admin backoffice.
+- Next.js
+- React
+- TypeScript
+- TanStack Query
+- React Hook Form
+- Zod
+- Tailwind CSS
 
-## Data
-PostgreSQL is the primary transactional database. Redis is used for cache, rate limiting, short-lived coordination and other explicitly justified ephemeral workloads.
+## Platform
+- PostgreSQL: authoritative transactional databases
+- Redis: cache, rate limiting, ephemeral coordination where justified
+- NATS JetStream: durable asynchronous events/jobs
+- Firebase: FCM, Crashlytics, Analytics, App Distribution
+- CF Meet: messaging, calling, video, privacy relay
+- Paystack: payment rail via payment-service only
+- S3-compatible object storage: files/media
 
-## Communication
-CF Meet APIs provide messaging, voice calls and video calls. This repository must not duplicate CF Meet's RTC/communications platform.
+## Deployment
+- Docker
+- Docker Compose
+- GitHub Container Registry
+- Nginx
+- Terraform
+- Cloudflare
+- GitHub Actions
 
-## Payments
-Paystack is an external payment provider. The platform payment service remains the authoritative business/payment state machine and reconciliation layer.
+Docker is for deployment; local development does not require Docker.
+
+## Observability
+- OpenTelemetry
+- Prometheus
+- Grafana
+- Loki

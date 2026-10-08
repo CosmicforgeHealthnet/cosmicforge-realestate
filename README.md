@@ -1,79 +1,61 @@
 # CosmicForge Real Estate
 
-CosmicForge Real Estate is a Nigeria-first, microservice-based real-estate platform designed to support verified property discovery, ownership and authority verification, rentals, sales, property operations, maintenance, professional services, hospitality, protected payments, and internal trust operations.
+CosmicForge Real Estate is a microservice-based real-estate platform built around seven distinct product domains and five shared platform services.
+
+## Locked backend architecture
+
+### Seven user-domain services
+1. `marketplace-service`
+2. `individual-owner-service`
+3. `business-operations-service`
+4. `property-manager-service`
+5. `artisan-service`
+6. `professional-services-service`
+7. `admin-service`
+
+### Five shared platform services
+8. `identity-service`
+9. `verification-service`
+10. `payment-service`
+11. `notification-service`
+12. `media-document-service`
+
+### Edge
+- `api-gateway` — no business database.
+
+There are **12 database-owning microservices + 1 API gateway**.
+
+## Core rules
+
+- Every service owns its own PostgreSQL database and credentials.
+- No service may read or write another service's database.
+- Synchronous cross-service communication uses authenticated internal APIs.
+- Durable asynchronous propagation uses NATS JetStream and transactional outbox patterns.
+- Marketplace aggregates searchable/public projections from the originating domains; it never becomes the source of truth for those originating records.
+- CF Meet owns human-to-human messaging, voice, video, virtual viewing and privacy relay.
+- Paystack is reachable only through `payment-service`.
+- Firebase is used for FCM, Crashlytics, Analytics and App Distribution; it is not the primary business database.
+- Docker is used for deployment, not required for local development.
+- Staging and production Docker deployments are separated.
+- Terraform provisions infrastructure; Docker Compose deploys application containers initially.
+- Kubernetes is intentionally not part of the initial architecture.
 
 ## Technology stack
 
-- **Backend:** Go
-- **Mobile:** Flutter / Dart
-- **Web:** Next.js / React / TypeScript
-- **Primary data store:** PostgreSQL
-- **Cache / coordination:** Redis
-- **Containers:** Docker
-- **Infrastructure as code:** Terraform
-- **CI/CD:** GitHub Actions
-- **API contracts:** OpenAPI + versioned event schemas
-- **Communications:** CF Meet APIs for messaging, voice and video
-- **Payments:** Paystack behind the platform payment service, with platform-owned transaction/ledger/reconciliation logic
-
-## Repository model
-
-This repository is a monorepo. Microservices are separated by business-domain ownership rather than by individual features.
-
-### Mobile apps
-
-- Marketplace
-- Individual Property Owner
-- Business Property Operations
-- Property Manager
-- Service Provider
-- Professional Services
-
-### Web apps
-
-- Public Marketplace
-- Owner Portal
-- Business Operations Portal
-- Property Manager Portal
-- Admin Backoffice
-
-### Backend services
-
-- API Gateway
-- Identity
-- Property
-- Verification
-- Marketplace
-- Transaction
-- Agreement
-- Payment
-- Property Operations
-- Maintenance
-- Professional Services
-- Hospitality
-- Notification
-- Trust & Safety
-- Admin
-- Analytics
-
-## Communications
-
-Do not build separate messaging, calling, video, or RTC microservices in this repository. CF Meet is the communications authority for chat, voice calls, video calls, and live video sessions. Real-estate services store only real-estate context, authorization and CF Meet session references where needed.
-
-## Data ownership
-
-Each service owns its own persistence boundary. One service must never query another service's tables directly. Cross-service behavior must use versioned APIs or durable events.
-
-## Environments
-
-- development
-- staging
-- production
-
-Production data and secrets must never be shared with development or staging.
+**Backend:** Go, Chi, pgx, sqlc, Goose, OpenAPI 3.1  
+**Mobile:** Flutter/Dart, Riverpod, GoRouter, Dio  
+**Web:** Next.js/React/TypeScript, TanStack Query, React Hook Form, Zod, Tailwind CSS  
+**Data:** PostgreSQL, Redis  
+**Events:** NATS JetStream + transactional outbox  
+**Communications:** CF Meet  
+**Payments:** Paystack through Payment Service  
+**Notifications/mobile platform:** Firebase  
+**Files:** S3-compatible object storage through Media & Document Service  
+**Deployment:** Docker, Docker Compose, GHCR, Nginx  
+**Infrastructure:** Terraform, Cloudflare  
+**CI/CD:** GitHub Actions  
+**Observability:** OpenTelemetry, Prometheus, Grafana, Loki
 
 ## Branch flow
 
 `feature/* -> development -> staging -> main`
-
-The exact branch protection policy will be added when the GitHub repository is provisioned.

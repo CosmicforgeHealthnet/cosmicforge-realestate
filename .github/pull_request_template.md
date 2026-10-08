@@ -1,11 +1,15 @@
 ## Summary
 
-## Domain/service affected
+## Product/domain affected
 
-## Contract or migration changes
+## Service(s) affected
 
-## Money/security impact
+## API or event contract changes
+
+## Database / migration changes
+
+## Payment / security impact
 
 ## Tests
 
-## Rollback considerations
+## Deployment / rollback considerations

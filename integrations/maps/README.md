@@ -1,3 +1,3 @@
-# maps integration
+# maps
 
-Shared integration boundary for maps. Business-domain ownership remains in the calling service; this package contains reusable client/contracts only.
+Shared integration boundary. Domain/business authority remains in the calling service.

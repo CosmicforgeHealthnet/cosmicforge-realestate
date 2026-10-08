@@ -1,4 +1,4 @@
-name: Repository structure
+name: Architecture structure
 
 on:
   pull_request:
@@ -10,12 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify required roots
+      - name: Verify locked service roots
+        shell: bash
         run: |
-          test -d apps
-          test -d services
-          test -d integrations/cf-meet
-          test -d infrastructure
-          test -d contracts
-          test -d docs
-          test -f README.md
+          set -euo pipefail
+          for p in             gateway/api-gateway             services/marketplace-service             services/individual-owner-service             services/business-operations-service             services/property-manager-service             services/artisan-service             services/professional-services-service             services/admin-service             services/identity-service             services/verification-service             services/payment-service             services/notification-service             services/media-document-service             integrations/cf-meet             integrations/paystack             integrations/firebase             infrastructure/docker/staging             infrastructure/docker/production             infrastructure/terraform/environments/staging             infrastructure/terraform/environments/production
+          do
+            test -d "$p"
+          done

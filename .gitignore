@@ -27,21 +27,21 @@ out/
 dist/
 .turbo/
 
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
 # IDE / OS
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
 
-# Terraform
-**/.terraform/
-*.tfstate
-*.tfstate.*
-crash.log
-*.tfvars
-!*.tfvars.example
-
-# Local runtime
+# Runtime
 logs/
 tmp/
 .cache/
