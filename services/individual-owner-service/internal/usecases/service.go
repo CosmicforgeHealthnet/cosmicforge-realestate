@@ -120,6 +120,11 @@ type DomainPolicy struct {
 	DefaultCurrency     string        // currency of owner-originated amounts without one (budgets, preventive tasks)
 	MaxReworkRounds     int32         // completion rework requests before the job must be disputed
 	MaintenanceQuoteTTL time.Duration // default validity of owner-recorded quotes
+	// Short-let operational timers used when the jurisdiction has no approved
+	// legal policy (LegalRules overrides them once one is approved).
+	ShortletApprovalTTL  time.Duration
+	ShortletPaymentHold  time.Duration
+	DamageResponseWindow time.Duration
 	// Privacy retention (§11 privacy retention worker).
 	GuestDataRetention time.Duration // short-let guest details are anonymized this long after the stay ends
 }
@@ -149,7 +154,8 @@ func DefaultDomainPolicy() DomainPolicy {
 		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour,
 		RentIntentLead: 7 * 24 * time.Hour, RentScheduleHorizon: 90 * 24 * time.Hour, MaxLateFeeBps: 1000, DepositReleaseDays: 30,
 		DepositResponseWindow: 14 * 24 * time.Hour, RenewalResponseTTL: 14 * 24 * time.Hour, RenewalReminderLead: 60 * 24 * time.Hour,
-		NoticeTemplateRequired: []string{"TERMINATION", "RENT_REVIEW", "ARREARS", "BREACH", "ENTRY"}, PaymentReconcileAfter: 15 * time.Minute}
+		NoticeTemplateRequired: []string{"TERMINATION", "RENT_REVIEW", "ARREARS", "BREACH", "ENTRY"}, PaymentReconcileAfter: 15 * time.Minute,
+		ShortletApprovalTTL: 24 * time.Hour, ShortletPaymentHold: 30 * time.Minute, DamageResponseWindow: 72 * time.Hour}
 }
 
 // DefaultPolicy is the baseline (policy version 2026-10-01).

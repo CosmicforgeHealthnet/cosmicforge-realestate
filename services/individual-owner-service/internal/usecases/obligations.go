@@ -376,7 +376,11 @@ func (s *Service) ProposeDepositSettlement(ctx context.Context, subj authz.Subje
 		if items == nil {
 			items = []DeductionItem{}
 		}
-		due := now.Add(s.Policy.Domain.DepositResponseWindow)
+		lp, err := s.legalPolicy(ctx, t.PropertyID)
+		if err != nil {
+			return err
+		}
+		due := now.AddDate(0, 0, int(lp.Rules.DepositResponseDays))
 		if err := s.q.SetDepositDeductions(ctx, tx, db.SetDepositDeductionsParams{ID: d.ID, Deductions: jsonb(items), DeductionTotalMinor: total,
 			ProposedAt: &now, ResponseDueAt: &due}); err != nil {
 			return err
@@ -384,7 +388,7 @@ func (s *Service) ProposeDepositSettlement(ctx context.Context, subj authz.Subje
 		if _, _, err := s.transition(ctx, domain.MoveOut, mo.ID, lifecycle.Change{To: "SETTLEMENT_PENDING", Command: "deposit_proposed"}); err != nil {
 			return err
 		}
-		if err := s.record(ctx, "deposit.propose", AggDeposit, d.ID, map[string]any{"deduction_total_minor": total, "items": len(items)}, nil); err != nil {
+		if err := s.record(ctx, "deposit.propose", AggDeposit, d.ID, map[string]any{"deduction_total_minor": total, "items": len(items)}, lp.auditRef()); err != nil {
 			return err
 		}
 		n, err := s.q.GetDepositByTenancy(ctx, tx, t.ID)
@@ -723,14 +727,25 @@ func (s *Service) markOverdue(ctx context.Context, id ids.ID) error {
 		return err
 	}
 	if o.Kind == "RENT" && t.LateFeeMinor > 0 {
-		lf, err := s.q.InsertRentObligation(ctx, tx, db.InsertRentObligationParams{ID: ids.New(), TenancyID: t.ID, PropertyID: t.PropertyID, Kind: "LATE_FEE",
-			PeriodStart: o.PeriodStart, PeriodEnd: o.PeriodEnd, DueDate: dayOf(s.now()), AmountMinor: t.LateFeeMinor, Currency: t.Currency, CreatedAt: s.now()})
-		if err == nil {
-			if err := domain.RentObligation.RecordCreation(ctx, tx, lf.ID, &lf.PropertyID, "SCHEDULED", s.now()); err != nil {
+		// The agreed late fee is charged automatically only under an approved
+		// jurisdiction policy that allows it; otherwise the owner decides.
+		lp, err := s.legalPolicy(ctx, t.PropertyID)
+		if err != nil {
+			return err
+		}
+		if lp.Approved && lp.Rules.AutomaticLateFees && lateFeeWithin(t, lp.Rules) {
+			if _, err := s.insertLateFee(ctx, t, o); err != nil {
 				return err
 			}
-		} else if !isNoRows(err) {
-			return err
+			if err := s.record(ctx, "rent.late_fee.assessed", AggRentObligation, o.ID, map[string]any{"amount_minor": t.LateFeeMinor, "by": "POLICY"}, lp.auditRef()); err != nil {
+				return err
+			}
+		} else {
+			md := lp.auditRef()
+			md["review"] = "MANUAL"
+			if err := s.record(ctx, "rent.late_fee.manual_review", AggRentObligation, o.ID, map[string]any{"agreed_minor": t.LateFeeMinor}, md); err != nil {
+				return err
+			}
 		}
 	}
 	p, err := s.q.GetProperty(ctx, tx, o.PropertyID)
@@ -738,6 +753,69 @@ func (s *Service) markOverdue(ctx context.Context, id ids.ID) error {
 		return err
 	}
 	return s.notifyOwner(ctx, p.OwnerAccountID, TemplateRentOverdue, map[string]string{"property_title": p.Title, "due_date": o.DueDate.Format(time.DateOnly)})
+}
+
+func lateFeeWithin(t db.Tenancy, r LegalRules) bool {
+	return t.LateFeeMinor <= t.RentMinor*r.MaxLateFeeBps/10000
+}
+
+// insertLateFee adds the period's LATE_FEE obligation (at most one).
+func (s *Service) insertLateFee(ctx context.Context, t db.Tenancy, o db.RentObligation) (*db.RentObligation, error) {
+	tx, now := mustTx(ctx), s.now()
+	lf, err := s.q.InsertRentObligation(ctx, tx, db.InsertRentObligationParams{ID: ids.New(), TenancyID: t.ID, PropertyID: t.PropertyID, Kind: "LATE_FEE",
+		PeriodStart: o.PeriodStart, PeriodEnd: o.PeriodEnd, DueDate: dayOf(now), AmountMinor: t.LateFeeMinor, Currency: t.Currency, CreatedAt: now})
+	if isNoRows(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &lf, domain.RentObligation.RecordCreation(ctx, tx, lf.ID, &lf.PropertyID, "SCHEDULED", now)
+}
+
+// AssessLateFee is the owner's explicit decision to charge the agreed late
+// fee on an overdue rent obligation (the manual path where no approved
+// jurisdiction policy charges it automatically). The fee must be within the
+// policy cap and is charged at most once per period.
+func (s *Service) AssessLateFee(ctx context.Context, subj authz.Subject, id ids.ID) (RentObligationView, error) {
+	var out RentObligationView
+	err := s.InTx(ctx, func(ctx context.Context) error {
+		o, err := s.obligationFor(ctx, subj, id)
+		if err != nil {
+			return err
+		}
+		tx := mustTx(ctx)
+		if o.Kind != "RENT" || o.Status != "OVERDUE" {
+			return conflict("LATE_FEE_NOT_APPLICABLE", "Late fees apply only to overdue rent.")
+		}
+		t, err := s.q.GetTenancy(ctx, tx, o.TenancyID)
+		if err != nil {
+			return err
+		}
+		if t.LateFeeMinor == 0 {
+			return precondition("NO_AGREED_LATE_FEE", "The tenancy agreement has no late fee.")
+		}
+		lp, err := s.legalPolicy(ctx, t.PropertyID)
+		if err != nil {
+			return err
+		}
+		if !lateFeeWithin(t, lp.Rules) {
+			return precondition("LATE_FEE_ABOVE_POLICY", "The agreed late fee exceeds the jurisdiction's late fee cap.")
+		}
+		lf, err := s.insertLateFee(ctx, t, o)
+		if err != nil {
+			return err
+		}
+		if lf == nil {
+			return conflict("LATE_FEE_ALREADY_ASSESSED", "The late fee for this period was already assessed.")
+		}
+		if err := s.record(ctx, "rent.late_fee.assessed", AggRentObligation, o.ID, map[string]any{"amount_minor": t.LateFeeMinor, "by": "OWNER"}, lp.auditRef()); err != nil {
+			return err
+		}
+		out = obligationView(*lf)
+		return nil
+	})
+	return out, err
 }
 
 func (s *Service) requestRentIntent(ctx context.Context, id ids.ID) error {
@@ -795,7 +873,10 @@ func (s *Service) reconcileRent(ctx context.Context, id ids.ID) error {
 }
 
 // RunDeposits requests escrow intents, reconciles funding and releases, and
-// moves deductions to release when the tenant's response window lapses.
+// applies the tenant's lapsed response window: deductions proceed only where
+// an approved jurisdiction policy makes silence acceptance; otherwise the
+// deductions are frozen for manual review (owner concession or operator
+// decision) while the undisputed refund proceeds.
 func (s *Service) RunDeposits(ctx context.Context, batch int32) error {
 	now := s.now()
 	lapsed, err := s.q.DepositsAwaitingResponse(ctx, s.Pool, db.DepositsAwaitingResponseParams{ResponseDueAt: &now, Limit: batch})
@@ -804,15 +885,32 @@ func (s *Service) RunDeposits(ctx context.Context, batch int32) error {
 	}
 	for _, id := range lapsed {
 		if err := s.InTx(ctx, func(ctx context.Context) error {
-			d, err := s.q.GetDepositForUpdate(ctx, mustTx(ctx), id)
+			tx := mustTx(ctx)
+			d, err := s.q.GetDepositForUpdate(ctx, tx, id)
 			if err != nil || d.Status != "DEDUCTION_PROPOSED" || d.TenantResponse != nil {
 				return err
 			}
-			resp := "ACCEPTED"
-			if err := s.q.SetDepositTenantResponse(ctx, mustTx(ctx), db.SetDepositTenantResponseParams{ID: id, TenantResponse: &resp, UpdatedAt: now}); err != nil {
+			lp, err := s.legalPolicy(ctx, d.PropertyID)
+			if err != nil {
 				return err
 			}
-			return s.record(ctx, "deposit.response_window_lapsed", AggDeposit, id, nil, map[string]any{"policy": "no response by deadline proceeds with the proposal"})
+			if lp.Approved && lp.Rules.DepositSilenceAcceptance {
+				resp := "ACCEPTED"
+				if err := s.q.SetDepositTenantResponse(ctx, tx, db.SetDepositTenantResponseParams{ID: id, TenantResponse: &resp, UpdatedAt: now}); err != nil {
+					return err
+				}
+				return s.record(ctx, "deposit.response_window_lapsed", AggDeposit, id, map[string]any{"outcome": "ACCEPTED_BY_POLICY"}, lp.auditRef())
+			}
+			resp := "NO_RESPONSE"
+			if err := s.depositTo(ctx, id, "DISPUTED", "no_response_manual_review", "NO_RESPONSE"); err != nil {
+				return err
+			}
+			if err := s.q.SetDepositTenantResponse(ctx, tx, db.SetDepositTenantResponseParams{ID: id, TenantResponse: &resp, DisputedMinor: d.DeductionTotalMinor, UpdatedAt: now}); err != nil {
+				return err
+			}
+			md := lp.auditRef()
+			md["review"] = "MANUAL"
+			return s.record(ctx, "deposit.response_window_lapsed", AggDeposit, id, map[string]any{"outcome": "MANUAL_REVIEW", "frozen_minor": d.DeductionTotalMinor}, md)
 		}); err != nil {
 			return err
 		}

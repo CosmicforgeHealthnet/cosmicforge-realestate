@@ -122,7 +122,7 @@ UPDATE shortlet_guests g SET display_name = 'Guest', verification_ref = NULL, cu
   FROM shortlet_bookings b
  WHERE b.id = g.booking_id AND g.display_name <> 'Guest'
    AND b.status IN ('COMPLETED','CANCELLED','NO_SHOW') AND b.check_out < sqlc.arg(before)::date
-   AND NOT EXISTS (SELECT 1 FROM damage_claims c WHERE c.booking_id = b.id AND c.status IN ('OPEN','GUEST_ACCEPTED','DISPUTED','RESOLVED'))
+   AND NOT EXISTS (SELECT 1 FROM damage_claims c WHERE c.booking_id = b.id AND c.status IN ('OPEN','GUEST_ACCEPTED','DISPUTED','RESPONSE_OVERDUE','RESOLVED'))
    AND NOT EXISTS (SELECT 1 FROM domain_disputes d WHERE d.target_type = 'shortlet_booking' AND d.target_id = b.id
                      AND d.status IN ('OPEN','UNDER_REVIEW','AWAITING_INFORMATION'));
 

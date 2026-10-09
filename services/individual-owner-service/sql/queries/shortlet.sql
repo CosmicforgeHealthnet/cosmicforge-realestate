@@ -120,7 +120,7 @@ SELECT id FROM shortlet_bookings WHERE status = 'CANCELLED' AND refund_due_minor
 -- name: BookingsToComplete :many
 SELECT b.id FROM shortlet_bookings b JOIN shortlet_settings s ON s.listing_id = b.listing_id
  WHERE b.status = 'CHECKED_OUT' AND b.checked_out_at + make_interval(hours => s.damage_claim_window_hours) <= sqlc.arg(now)::timestamptz
-   AND NOT EXISTS (SELECT 1 FROM damage_claims c WHERE c.booking_id = b.id AND c.status IN ('OPEN','GUEST_ACCEPTED','DISPUTED','RESOLVED'))
+   AND NOT EXISTS (SELECT 1 FROM damage_claims c WHERE c.booking_id = b.id AND c.status IN ('OPEN','GUEST_ACCEPTED','DISPUTED','RESPONSE_OVERDUE','RESOLVED'))
  ORDER BY b.checked_out_at LIMIT sqlc.arg(max_rows);
 
 -- name: CustomerBookings :many

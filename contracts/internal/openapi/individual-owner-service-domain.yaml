@@ -3097,6 +3097,72 @@ components:
         - rework_count
         - events
       type: object
+    JurisdictionPolicyInputInput:
+      additionalProperties: false
+      properties:
+        country:
+          pattern: ^[A-Z]{2}$
+          type: string
+        region:
+          description: State or region as recorded on property addresses; omit for the whole country
+          maxLength: 100
+          minLength: 1
+          type: string
+        rules:
+          $ref: '#/components/schemas/LegalRulesInput'
+        summary:
+          maxLength: 500
+          minLength: 3
+          type: string
+      required:
+        - country
+        - summary
+      type: object
+    JurisdictionPolicyView:
+      properties:
+        approved_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        country:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        legal_approval_ref:
+          type:
+            - string
+            - "null"
+        region:
+          type:
+            - string
+            - "null"
+        retired_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        rules:
+          $ref: '#/components/schemas/LegalRules'
+        status:
+          type: string
+        summary:
+          type: string
+        version_no:
+          type: integer
+      required:
+        - id
+        - country
+        - version_no
+        - status
+        - rules
+        - summary
+        - created_at
+      type: object
     LOIResponseInput:
       additionalProperties: false
       properties:
@@ -3333,6 +3399,100 @@ components:
         - id
         - activity_type
         - occurred_at
+      type: object
+    LegalRules:
+      properties:
+        automatic_late_fees:
+          description: Agreed late fees are charged automatically when rent becomes overdue (otherwise the owner assesses them)
+          type: boolean
+        damage_claim_response_hours:
+          description: Guest response window for a damage claim; silence never accepts a claim
+          maximum: 720
+          minimum: 24
+          type: integer
+        deposit_release_days_max:
+          description: Latest deposit settlement deadline after move-out an agreement may set
+          maximum: 180
+          minimum: 1
+          type: integer
+        deposit_response_days:
+          description: Tenant response window for proposed deposit deductions
+          maximum: 90
+          minimum: 1
+          type: integer
+        deposit_silence_acceptance:
+          description: Tenant silence by the deadline accepts the proposed deductions (otherwise they go to manual review)
+          type: boolean
+        max_late_fee_bps:
+          description: Late fee cap as basis points of the periodic rent; 0 forbids late fees
+          maximum: 5000
+          minimum: 0
+          type: integer
+        shortlet_approval_hours:
+          description: How long a booking request waits for the owner's approval
+          maximum: 72
+          minimum: 1
+          type: integer
+        shortlet_payment_hold_minutes:
+          description: How long dates are held for the guest's payment
+          maximum: 1440
+          minimum: 5
+          type: integer
+      required:
+        - damage_claim_response_hours
+        - deposit_response_days
+        - deposit_release_days_max
+        - deposit_silence_acceptance
+        - automatic_late_fees
+        - max_late_fee_bps
+        - shortlet_approval_hours
+        - shortlet_payment_hold_minutes
+      type: object
+    LegalRulesInput:
+      additionalProperties: false
+      properties:
+        automatic_late_fees:
+          description: Agreed late fees are charged automatically when rent becomes overdue (otherwise the owner assesses them)
+          type: boolean
+        damage_claim_response_hours:
+          description: Guest response window for a damage claim; silence never accepts a claim
+          maximum: 720
+          minimum: 24
+          type: integer
+        deposit_release_days_max:
+          description: Latest deposit settlement deadline after move-out an agreement may set
+          maximum: 180
+          minimum: 1
+          type: integer
+        deposit_response_days:
+          description: Tenant response window for proposed deposit deductions
+          maximum: 90
+          minimum: 1
+          type: integer
+        deposit_silence_acceptance:
+          description: Tenant silence by the deadline accepts the proposed deductions (otherwise they go to manual review)
+          type: boolean
+        max_late_fee_bps:
+          description: Late fee cap as basis points of the periodic rent; 0 forbids late fees
+          maximum: 5000
+          minimum: 0
+          type: integer
+        shortlet_approval_hours:
+          description: How long a booking request waits for the owner's approval
+          maximum: 72
+          minimum: 1
+          type: integer
+        shortlet_payment_hold_minutes:
+          description: How long dates are held for the guest's payment
+          maximum: 1440
+          minimum: 5
+          type: integer
+      required:
+        - damage_claim_response_hours
+        - deposit_response_days
+        - deposit_release_days_max
+        - shortlet_approval_hours
+        - shortlet_payment_hold_minutes
       type: object
     LineItem:
       properties:
@@ -4312,6 +4472,17 @@ components:
         - currency
         - emergency_rule
         - created_at
+      type: object
+    PolicyApprovalInputInput:
+      additionalProperties: false
+      properties:
+        legal_approval_ref:
+          description: Reference of the legal sign-off (opinion, memo or ticket) this approval rests on
+          maxLength: 200
+          minLength: 3
+          type: string
+      required:
+        - legal_approval_ref
       type: object
     PricingView:
       properties:
@@ -5967,6 +6138,194 @@ paths:
       security:
         - ServiceBearer: []
       summary: Review, request information, resolve or reject
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/jurisdiction-policies:
+    get:
+      operationId: adminListJurisdictionPolicies
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/JurisdictionPolicyView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Jurisdiction legal policy versions
+      tags:
+        - _Admin
+    post:
+      description: Drafts have no effect until approved.
+      operationId: adminDraftJurisdictionPolicy
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JurisdictionPolicyInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/JurisdictionPolicyView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Draft the next jurisdiction legal policy version
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/jurisdiction-policies/{policy_id}/approval:
+    post:
+      description: A second operator (not the drafter) approves; the superseded version is retired and approved rules are immutable.
+      operationId: adminApproveJurisdictionPolicy
+      parameters:
+        - in: path
+          name: policy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyApprovalInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/JurisdictionPolicyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Approve a draft against a recorded legal sign-off
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/jurisdiction-policies/{policy_id}/retire:
+    post:
+      operationId: adminRetireJurisdictionPolicy
+      parameters:
+        - in: path
+          name: policy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/JurisdictionPolicyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Retire an approved policy version
       tags:
         - _Admin
   /internal/v1/owner/admin/maintenance/{request_id}/resolution:

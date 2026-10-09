@@ -5706,6 +5706,80 @@ components:
         - responsible
         - first_due
       type: object
+    LegalPolicy:
+      properties:
+        approved:
+          description: 'false: no legally approved policy for the jurisdiction; consequential automatic decisions are disabled'
+          type: boolean
+        country:
+          type: string
+        id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        region:
+          type:
+            - string
+            - "null"
+        rules:
+          $ref: '#/components/schemas/LegalRules'
+        version_no:
+          type: integer
+      required:
+        - country
+        - version_no
+        - approved
+        - rules
+      type: object
+    LegalRules:
+      properties:
+        automatic_late_fees:
+          description: Agreed late fees are charged automatically when rent becomes overdue (otherwise the owner assesses them)
+          type: boolean
+        damage_claim_response_hours:
+          description: Guest response window for a damage claim; silence never accepts a claim
+          maximum: 720
+          minimum: 24
+          type: integer
+        deposit_release_days_max:
+          description: Latest deposit settlement deadline after move-out an agreement may set
+          maximum: 180
+          minimum: 1
+          type: integer
+        deposit_response_days:
+          description: Tenant response window for proposed deposit deductions
+          maximum: 90
+          minimum: 1
+          type: integer
+        deposit_silence_acceptance:
+          description: Tenant silence by the deadline accepts the proposed deductions (otherwise they go to manual review)
+          type: boolean
+        max_late_fee_bps:
+          description: Late fee cap as basis points of the periodic rent; 0 forbids late fees
+          maximum: 5000
+          minimum: 0
+          type: integer
+        shortlet_approval_hours:
+          description: How long a booking request waits for the owner's approval
+          maximum: 72
+          minimum: 1
+          type: integer
+        shortlet_payment_hold_minutes:
+          description: How long dates are held for the guest's payment
+          maximum: 1440
+          minimum: 5
+          type: integer
+      required:
+        - damage_claim_response_hours
+        - deposit_response_days
+        - deposit_release_days_max
+        - deposit_silence_acceptance
+        - automatic_late_fees
+        - max_late_fee_bps
+        - shortlet_approval_hours
+        - shortlet_payment_hold_minutes
+      type: object
     LineItem:
       properties:
         amount_minor:
@@ -19148,6 +19222,42 @@ paths:
       summary: Record a new land-terms version (If-Match; "0" for the first)
       tags:
         - Commercial & Land
+  /api/v1/owner/properties/{property_id}/legal-policy:
+    get:
+      description: 'approved=false means no legally approved policy exists for the jurisdiction: timers use operational defaults and consequential automatic decisions (deposit deductions on tenant silence, automatic late fees) are disabled in favour of manual review.'
+      operationId: getLegalPolicy
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LegalPolicy'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Jurisdiction legal policy in force for the property
+      tags:
+        - Agreements
   /api/v1/owner/properties/{property_id}/media:
     get:
       operationId: listPropertyMedia
@@ -21206,6 +21316,53 @@ paths:
       security:
         - OwnerBearer: []
       summary: Waive, dispute or reinstate an obligation
+      tags:
+        - Tenancy
+  /api/v1/owner/rent-obligations/{obligation_id}/late-fee:
+    post:
+      description: The owner's explicit decision where no approved jurisdiction policy charges late fees automatically. The agreed fee must be within the jurisdiction cap and is charged at most once per period.
+      operationId: assessLateFee
+      parameters:
+        - in: path
+          name: obligation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RentObligationView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Charge the agreed late fee on overdue rent
       tags:
         - Tenancy
   /api/v1/owner/reports:

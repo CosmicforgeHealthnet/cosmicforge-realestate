@@ -589,9 +589,21 @@ func TestRentArrearsLateFeesAndWaivers(t *testing.T) {
 	o.apply(ar)
 	var obl []usecases.RentObligationView
 	h.get(o, tpath+"/rent-obligations").data(t, &obl)
+	// No approved jurisdiction policy: the agreed late fee is never charged
+	// automatically; the case is recorded for the owner's decision.
+	if len(obl) != 1 || obl[0].Status != "OVERDUE" {
+		t.Fatalf("arrears without policy %+v", obl)
+	}
+	if n := h.count(`SELECT count(*) FROM audit_events WHERE target_id=$1 AND action='rent.late_fee.manual_review' AND metadata->>'legal_policy'='NONE_APPROVED'`, obl[0].ID); n != 1 {
+		t.Fatalf("manual review audit %d", n)
+	}
+	h.expect(h.post(o, "/rent-obligations/"+obl[0].ID.String()+"/late-fee", nil), 201, "")
+	h.expect(h.post(o, "/rent-obligations/"+obl[0].ID.String()+"/late-fee", nil), 409, "LATE_FEE_ALREADY_ASSESSED")
+	h.get(o, tpath+"/rent-obligations").data(t, &obl)
 	if len(obl) != 2 || obl[0].Status != "OVERDUE" || obl[1].Kind != "LATE_FEE" || obl[1].AmountMinor != 5000000 {
 		t.Fatalf("arrears %+v", obl)
 	}
+	h.expect(h.post(o, "/rent-obligations/"+obl[1].ID.String()+"/late-fee", nil), 409, "LATE_FEE_NOT_APPLICABLE")
 	if n := h.count(`SELECT count(*) FROM notification_dispatches WHERE template_key=$1`, usecases.TemplateRentOverdue); n != 1 {
 		t.Fatalf("overdue notifications %d", n)
 	}

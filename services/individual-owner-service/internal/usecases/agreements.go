@@ -738,6 +738,23 @@ func (s *Service) requirePropertyPrincipal(ctx context.Context, propertyID, acco
 	return err
 }
 
+// checkJurisdictionTerms applies the approved jurisdiction policy to terms
+// before they go out for signature: late fee cap and deposit settlement
+// deadline.
+func (s *Service) checkJurisdictionTerms(ctx context.Context, propertyID ids.ID, t AgreementTerms) error {
+	lp, err := s.legalPolicy(ctx, propertyID)
+	if err != nil || !lp.Approved {
+		return err
+	}
+	if max := t.RentMinor * lp.Rules.MaxLateFeeBps / 10000; t.LateFeeMinor > max {
+		return precondition("LATE_FEE_ABOVE_POLICY", fmt.Sprintf("The late fee may not exceed %d (jurisdiction cap of %d bps of the cycle rent).", max, lp.Rules.MaxLateFeeBps))
+	}
+	if t.DepositReleaseDays > lp.Rules.DepositReleaseDaysMax {
+		return precondition("DEPOSIT_RELEASE_ABOVE_POLICY", fmt.Sprintf("The deposit must be settled within %d days of move-out in this jurisdiction.", lp.Rules.DepositReleaseDaysMax))
+	}
+	return nil
+}
+
 // readyForReview checks the current version is complete.
 func (s *Service) readyForReview(ctx context.Context, a db.Agreement) error {
 	if a.CurrentVersionNo == 0 || a.TemplateID == nil {
@@ -753,6 +770,9 @@ func (s *Service) readyForReview(ctx context.Context, a db.Agreement) error {
 	}
 	t := parseTerms(v.Terms)
 	if err := s.validateTerms(t); err != nil {
+		return err
+	}
+	if err := s.checkJurisdictionTerms(ctx, a.PropertyID, t); err != nil {
 		return err
 	}
 	tpl, err := s.q.GetAgreementTemplate(ctx, q, *a.TemplateID)

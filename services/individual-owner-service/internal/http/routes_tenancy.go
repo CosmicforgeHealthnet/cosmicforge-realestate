@@ -152,6 +152,17 @@ func tenancyRoutes() []Route {
 			func(c *Call) (usecases.RentObligationView, error) {
 				return c.S.GetRentObligation(c.Ctx, c.Subj, c.ID("obligation_id"))
 			}),
+		Command("POST", "/rent-obligations/{obligation_id}/late-fee", "assessLateFee", tagTenancy, "Charge the agreed late fee on overdue rent", http.StatusCreated,
+			func(c *Call, _ *Empty) (usecases.RentObligationView, error) {
+				return c.S.AssessLateFee(c.Ctx, c.Subj, c.ID("obligation_id"))
+			}).Describe("The owner's explicit decision where no approved jurisdiction policy charges late fees automatically. "+
+			"The agreed fee must be within the jurisdiction cap and is charged at most once per period.").Errs(409, 422),
+		Get("/properties/{property_id}/legal-policy", "getLegalPolicy", tagAgreements, "Jurisdiction legal policy in force for the property",
+			func(c *Call) (usecases.LegalPolicy, error) {
+				return c.S.GetLegalPolicy(c.Ctx, c.Subj, c.ID("property_id"))
+			}).
+			Describe("approved=false means no legally approved policy exists for the jurisdiction: timers use operational defaults and consequential automatic " +
+				"decisions (deposit deductions on tenant silence, automatic late fees) are disabled in favour of manual review."),
 		Command("POST", "/rent-obligations/{obligation_id}/decision", "decideRentObligation", tagTenancy, "Waive, dispute or reinstate an obligation", http.StatusOK,
 			func(c *Call, in *usecases.ObligationDecisionInput) (usecases.RentObligationView, error) {
 				return c.S.DecideObligation(c.Ctx, c.Subj, c.ID("obligation_id"), *in)
@@ -399,6 +410,22 @@ func tenancyInternalRoutes() []Route {
 			func(c *Call, _ *Empty) (usecases.NoticeTemplateView, error) {
 				return c.S.AdminRetireNoticeTemplate(c.Ctx, c.Subj, c.ID("template_id"))
 			}).Internal(),
+		List("/admin/jurisdiction-policies", "adminListJurisdictionPolicies", tagAdmin, "Jurisdiction legal policy versions",
+			func(c *Call, _ Page) (pagination.Response[usecases.JurisdictionPolicyView], error) {
+				return slice(c.S.AdminListJurisdictionPolicies(c.Ctx, c.Subj, c.Query("country")))
+			}).Internal().Q(Param{Name: "country"}),
+		Command("POST", "/admin/jurisdiction-policies", "adminDraftJurisdictionPolicy", tagAdmin, "Draft the next jurisdiction legal policy version", http.StatusCreated,
+			func(c *Call, in *usecases.JurisdictionPolicyInput) (usecases.JurisdictionPolicyView, error) {
+				return c.S.AdminDraftJurisdictionPolicy(c.Ctx, c.Subj, *in)
+			}).Internal().Describe("Drafts have no effect until approved.").Capture("jurisdiction_policy_id", "data.id"),
+		Command("POST", "/admin/jurisdiction-policies/{policy_id}/approval", "adminApproveJurisdictionPolicy", tagAdmin, "Approve a draft against a recorded legal sign-off", http.StatusOK,
+			func(c *Call, in *usecases.PolicyApprovalInput) (usecases.JurisdictionPolicyView, error) {
+				return c.S.AdminApproveJurisdictionPolicy(c.Ctx, c.Subj, c.ID("policy_id"), *in)
+			}).Internal().Describe("A second operator (not the drafter) approves; the superseded version is retired and approved rules are immutable.").Errs(409),
+		Command("POST", "/admin/jurisdiction-policies/{policy_id}/retire", "adminRetireJurisdictionPolicy", tagAdmin, "Retire an approved policy version", http.StatusOK,
+			func(c *Call, _ *Empty) (usecases.JurisdictionPolicyView, error) {
+				return c.S.AdminRetireJurisdictionPolicy(c.Ctx, c.Subj, c.ID("policy_id"))
+			}).Internal().Errs(409),
 		Command("POST", "/admin/tenancies/{tenancy_id}/deposit/resolution", "adminResolveDepositDispute", tagAdmin, "Decide a deposit dispute", http.StatusOK,
 			func(c *Call, in *usecases.DepositResolutionInput) (usecases.DepositView, error) {
 				return c.S.AdminResolveDepositDispute(c.Ctx, c.Subj, c.ID("tenancy_id"), *in)

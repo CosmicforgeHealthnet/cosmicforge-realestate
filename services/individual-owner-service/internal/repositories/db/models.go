@@ -731,6 +731,22 @@ type InsurancePolicy struct {
 	UpdatedAt         time.Time
 }
 
+type JurisdictionPolicy struct {
+	ID                ids.ID
+	Country           string
+	Region            *string
+	VersionNo         int32
+	Status            string
+	Rules             []byte
+	Summary           string
+	LegalApprovalRef  *string
+	CreatedByActorID  ids.ID
+	ApprovedByActorID *ids.ID
+	ApprovedAt        *time.Time
+	RetiredAt         *time.Time
+	CreatedAt         time.Time
+}
+
 type KeyAccessInventory struct {
 	ID               ids.ID
 	TenancyID        ids.ID

@@ -31,12 +31,7 @@ import (
 // calendars are best-effort input that never overrides a booking.
 
 const (
-	AggBooking = "shortlet_booking"
-	// Short-let policy (engineering defaults; configuration in DomainPolicy
-	// would follow the same pattern).
-	shortletApprovalTTL    = 24 * time.Hour
-	shortletPaymentHold    = 30 * time.Minute
-	damageResponseWindow   = 72 * time.Hour
+	AggBooking             = "shortlet_booking"
 	externalCalendarWindow = 365
 )
 
@@ -621,11 +616,16 @@ func (s *Service) CustomerRequestBooking(ctx context.Context, subj authz.Subject
 		if err != nil {
 			return err
 		}
+		lp, err := s.legalPolicy(ctx, l.PropertyID)
+		if err != nil {
+			return err
+		}
+		paymentHold, approvalTTL := lp.Rules.paymentHold(), time.Duration(lp.Rules.ShortletApprovalHours)*time.Hour
 		raw, _ := json.Marshal(cost.Cost)
 		b, err := s.q.InsertBooking(ctx, tx, db.InsertBookingParams{ID: ids.New(), ListingID: l.ID, PropertyID: l.PropertyID, CustomerRefID: customer,
 			CheckIn: checkIn, CheckOut: checkOut, Guests: in.Guests, PricingVersionID: cost.PricingVersionID, CostSnapshot: raw,
 			TotalMinor: cost.Cost.UpfrontTotal, Currency: cost.Cost.Currency, PaymentCollection: st.PaymentCollection, CancellationPolicy: st.CancellationPolicy,
-			HoldExpiresAt: ptr(now.Add(shortletPaymentHold)), ConversationRef: in.ConversationRef, ExternalRef: in.ExternalRef, CreatedAt: now})
+			HoldExpiresAt: ptr(now.Add(paymentHold)), ConversationRef: in.ConversationRef, ExternalRef: in.ExternalRef, CreatedAt: now})
 		if isExclusion(err) {
 			return conflict("DATES_UNAVAILABLE", "Those dates are no longer available.")
 		}
@@ -652,9 +652,9 @@ func (s *Service) CustomerRequestBooking(ctx context.Context, subj authz.Subject
 				return err
 			}
 		}
-		next, hold := "PENDING_APPROVAL", now.Add(shortletApprovalTTL)
+		next, hold := "PENDING_APPROVAL", now.Add(approvalTTL)
 		if st.InstantBook && (verified || !st.GuestVerificationRequired) {
-			next, hold = "PENDING_PAYMENT", now.Add(shortletPaymentHold)
+			next, hold = "PENDING_PAYMENT", now.Add(paymentHold)
 		}
 		if err := s.q.SetBookingHold(ctx, tx, db.SetBookingHoldParams{ID: b.ID, HoldExpiresAt: &hold, UpdatedAt: now}); err != nil {
 			return err
@@ -836,8 +836,12 @@ func (s *Service) ActOnBooking(ctx context.Context, subj authz.Subject, id ids.I
 				}
 				err = s.confirmBooking(ctx, id)
 			} else {
-				if err = s.bookingTo(ctx, id, "PENDING_PAYMENT", "approve", ""); err == nil {
-					err = s.q.SetBookingHold(ctx, tx, db.SetBookingHoldParams{ID: id, HoldExpiresAt: ptr(now.Add(shortletPaymentHold)), UpdatedAt: now})
+				var lp LegalPolicy
+				if lp, err = s.legalPolicy(ctx, b.PropertyID); err == nil {
+					err = s.bookingTo(ctx, id, "PENDING_PAYMENT", "approve", "")
+				}
+				if err == nil {
+					err = s.q.SetBookingHold(ctx, tx, db.SetBookingHoldParams{ID: id, HoldExpiresAt: ptr(now.Add(lp.Rules.paymentHold())), UpdatedAt: now})
 				}
 			}
 		case "DECLINE":
@@ -1249,8 +1253,12 @@ func (s *Service) RaiseDamageClaim(ctx context.Context, subj authz.Subject, book
 		for _, i := range in.Items {
 			total += i.AmountMinor
 		}
+		lp, err := s.legalPolicy(ctx, b.PropertyID)
+		if err != nil {
+			return err
+		}
 		c, err := s.q.InsertDamageClaim(ctx, tx, db.InsertDamageClaimParams{ID: ids.New(), BookingID: b.ID, PropertyID: b.PropertyID, Items: jsonb(in.Items),
-			ClaimedMinor: total, Currency: b.Currency, RespondBy: now.Add(damageResponseWindow), CreatedAt: now})
+			ClaimedMinor: total, Currency: b.Currency, RespondBy: now.Add(time.Duration(lp.Rules.DamageClaimResponseHours) * time.Hour), CreatedAt: now})
 		if isUnique(err, "damage_claims_open_uniq") {
 			return conflict("CLAIM_ALREADY_OPEN", "A damage claim is already open for this booking.")
 		}
@@ -1258,7 +1266,7 @@ func (s *Service) RaiseDamageClaim(ctx context.Context, subj authz.Subject, book
 			return err
 		}
 		out = claimView(c)
-		return s.record(ctx, "shortlet.damage_claim", AggBooking, bookingID, map[string]any{"claimed_minor": total, "items": len(in.Items)}, nil)
+		return s.record(ctx, "shortlet.damage_claim", AggBooking, bookingID, map[string]any{"claimed_minor": total, "items": len(in.Items)}, lp.auditRef())
 	})
 	return out, err
 }
@@ -1327,7 +1335,7 @@ func (s *Service) CustomerRespondDamageClaim(ctx context.Context, subj authz.Sub
 		if err != nil {
 			return notFound("damage_claim")
 		}
-		if c.Status != "OPEN" {
+		if c.Status != "OPEN" && c.Status != "RESPONSE_OVERDUE" {
 			return conflict("CLAIM_NOT_OPEN", "The claim is "+c.Status+".")
 		}
 		if in.Decision == "ACCEPT" {
@@ -1390,7 +1398,7 @@ func (s *Service) ActOnDamageClaim(ctx context.Context, subj authz.Subject, clai
 			return err
 		}
 		switch {
-		case in.Action == "WITHDRAW" && slices.Contains([]string{"OPEN", "GUEST_ACCEPTED", "DISPUTED"}, c.Status):
+		case in.Action == "WITHDRAW" && slices.Contains([]string{"OPEN", "GUEST_ACCEPTED", "DISPUTED", "RESPONSE_OVERDUE"}, c.Status):
 			if c, err = s.updateClaim(ctx, c, "WITHDRAWN", nil, nil, c.AwardedMinor, c.Settlement, nil); err == nil && b.Status == "DISPUTED" {
 				err = s.bookingTo(ctx, b.ID, "COMPLETED", "claim_withdrawn", "")
 			}
@@ -1423,7 +1431,8 @@ type DamageClaimResolution struct {
 	Note         *string `json:"note,omitempty" v:"max=1000"`
 }
 
-// AdminResolveDamageClaim decides a disputed claim (admin dispute contract).
+// AdminResolveDamageClaim decides a disputed claim, or one whose guest did
+// not answer in time (admin dispute contract): silence is never acceptance.
 func (s *Service) AdminResolveDamageClaim(ctx context.Context, subj authz.Subject, claimID ids.ID, in DamageClaimResolution) (DamageClaimView, error) {
 	if err := schema.Validate(in); err != nil {
 		return DamageClaimView{}, err
@@ -1440,8 +1449,8 @@ func (s *Service) AdminResolveDamageClaim(ctx context.Context, subj authz.Subjec
 		if err != nil {
 			return err
 		}
-		if c.Status != "DISPUTED" {
-			return conflict("CLAIM_NOT_DISPUTED", "The claim is not disputed.")
+		if c.Status != "DISPUTED" && c.Status != "RESPONSE_OVERDUE" {
+			return conflict("CLAIM_NOT_DISPUTED", "The claim is not disputed or awaiting review.")
 		}
 		if in.AwardedMinor > c.ClaimedMinor {
 			return precondition("AWARD_EXCEEDS_CLAIM", "The award cannot exceed the claim.")
@@ -1449,8 +1458,14 @@ func (s *Service) AdminResolveDamageClaim(ctx context.Context, subj authz.Subjec
 		if c, err = s.agreeClaim(ctx, c, "RESOLVED", in.AwardedMinor, nil, in.Note); err != nil {
 			return err
 		}
-		if err := s.bookingTo(ctx, c.BookingID, "COMPLETED", "claim_resolved", ""); err != nil {
+		b, err := s.q.GetBooking(ctx, mustTx(ctx), c.BookingID)
+		if err != nil {
 			return err
+		}
+		if b.Status != "COMPLETED" {
+			if err := s.bookingTo(ctx, c.BookingID, "COMPLETED", "claim_resolved", ""); err != nil {
+				return err
+			}
 		}
 		out = claimView(c)
 		return s.record(ctx, "shortlet.damage_claim.resolve", AggBooking, c.BookingID, map[string]any{"awarded_minor": in.AwardedMinor}, nil)
@@ -1462,7 +1477,8 @@ func (s *Service) AdminResolveDamageClaim(ctx context.Context, subj authz.Subjec
 
 // RunShortletJobs expires holds, completes stays past the claim window,
 // requests and reconciles payments/refunds/claim settlements, applies the
-// guest-response deadline of claims and imports external calendars.
+// guest-response deadline of claims (overdue claims go to operator review)
+// and imports external calendars.
 func (s *Service) RunShortletJobs(ctx context.Context, batch int32) error {
 	now := s.now()
 	holds, err := s.q.ExpiredHolds(ctx, s.Pool, db.ExpiredHoldsParams{HoldExpiresAt: &now, Limit: batch})
@@ -1499,11 +1515,12 @@ func (s *Service) RunShortletJobs(ctx context.Context, batch int32) error {
 			if err != nil || c.Status != "OPEN" {
 				return err
 			}
-			if _, err := s.agreeClaim(ctx, c, "GUEST_ACCEPTED", c.ClaimedMinor, nil, nil); err != nil {
+			// Silence is never acceptance: the claim waits for operator review.
+			if _, err := s.updateClaim(ctx, c, "RESPONSE_OVERDUE", nil, nil, nil, nil, nil); err != nil {
 				return err
 			}
-			return s.record(ctx, "shortlet.damage_claim.response_window_lapsed", AggBooking, c.BookingID, nil,
-				map[string]any{"policy": "no response by the deadline accepts the claim"})
+			return s.record(ctx, "shortlet.damage_claim.response_overdue", AggBooking, c.BookingID, map[string]any{"claim_id": c.ID.String()},
+				map[string]any{"review": "MANUAL", "rule": "guest silence never accepts a damage claim"})
 		}); err != nil {
 			return err
 		}
