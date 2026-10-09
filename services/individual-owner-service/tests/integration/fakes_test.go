@@ -135,6 +135,9 @@ type fakeMedia struct {
 	files   map[ids.ID]media.Media
 	uploads map[ids.ID][]byte
 	byKey   map[string]ids.ID
+	// grants holds the last access-policy grants set per file; policyCalls counts calls.
+	grants      map[ids.ID][]media.Grant
+	policyCalls int
 }
 
 func newFakeMedia() *fakeMedia { return &fakeMedia{files: map[ids.ID]media.Media{}} }
@@ -162,7 +165,13 @@ func (f *fakeMedia) DownloadURL(_ context.Context, id ids.ID, _ string) (media.D
 	return media.Download{URL: "https://media.invalid/" + id.String(), ExpiresAt: time.Now().Add(time.Minute)}, nil
 }
 
-func (f *fakeMedia) ReplaceAccessPolicy(context.Context, ids.ID, string, []media.Grant, string) error {
+func (f *fakeMedia) ReplaceAccessPolicy(_ context.Context, id ids.ID, _ string, grants []media.Grant, _ string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.grants == nil {
+		f.grants = map[ids.ID][]media.Grant{}
+	}
+	f.grants[id], f.policyCalls = grants, f.policyCalls+1
 	return nil
 }
 

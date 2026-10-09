@@ -1077,6 +1077,12 @@ type MarketInsight struct {
 	ExpiresAt    time.Time
 }
 
+type MediaMarketplaceAccess struct {
+	MediaID  ids.ID
+	Granted  bool
+	SyncedAt time.Time
+}
+
 type MeterReading struct {
 	ID               ids.ID
 	UtilityAccountID ids.ID

@@ -9,6 +9,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/authz"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/domain"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/lifecycle"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/repositories/db"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/schema"
@@ -1171,5 +1172,59 @@ func init() {
 			}
 		}
 		return nil
+	})
+}
+
+// RunListingMediaAccess keeps marketplace read access in step with listing
+// state: media-document-service keeps listing photos PRIVATE to the owner
+// domain, so while a live (PUBLISHED or PAUSED) listing uses a file
+// marketplace-service is granted read access, and the grant is removed once
+// no live listing uses it. Media calls are made outside any transaction;
+// each outcome is recorded so the job is idempotent and retried on failure.
+func (s *Service) RunListingMediaAccess(ctx context.Context, batch int32) error {
+	if s.Media == nil {
+		return nil
+	}
+	grant, err := s.q.MediaNeedingMarketplaceGrant(ctx, s.Pool, batch)
+	if err != nil {
+		return err
+	}
+	revoke, err := s.q.MediaNeedingMarketplaceRevoke(ctx, s.Pool, batch)
+	if err != nil {
+		return err
+	}
+	for _, set := range []struct {
+		ids   []ids.ID
+		grant bool
+	}{{grant, true}, {revoke, false}} {
+		for _, id := range set.ids {
+			if err := s.syncMarketplaceAccess(ctx, id, set.grant); err != nil {
+				s.Logger.WarnContext(ctx, "listing media access deferred", "media_id", id, "grant", set.grant, "error", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (s *Service) syncMarketplaceAccess(ctx context.Context, id ids.ID, grant bool) error {
+	m, err := s.Media.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	grants := []media.Grant{}
+	if grant {
+		grants = append(grants, media.Grant{GranteeType: "SERVICE", Service: string(platform.MarketplaceService)})
+	}
+	// PUBLIC files are readable by any authenticated service already.
+	if m.AccessClassification != "PUBLIC" {
+		if err := s.Media.ReplaceAccessPolicy(ctx, id, m.AccessClassification, grants, "listing-media-access:"+ids.New().String()); err != nil {
+			return err
+		}
+	}
+	return s.InTx(ctx, func(ctx context.Context) error {
+		if err := s.q.SetMarketplaceAccess(ctx, mustTx(ctx), db.SetMarketplaceAccessParams{MediaID: id, Granted: grant, SyncedAt: s.now()}); err != nil {
+			return err
+		}
+		return s.record(ctx, "listing.media.marketplace_access", "media", id, map[string]any{"granted": grant, "classification": m.AccessClassification}, nil)
 	})
 }

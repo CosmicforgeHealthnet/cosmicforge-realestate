@@ -40,7 +40,8 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	var registry []map[string]any
 	services := []platform.Service{platform.APIGateway, platform.NotificationService, platform.IndividualOwnerService, platform.AdminService}
 	if withProducers {
-		services = append(services, platform.VerificationService, platform.MediaDocumentService)
+		// marketplace-service only signs test requests (it is not implemented).
+		services = append(services, platform.VerificationService, platform.MediaDocumentService, platform.MarketplaceService)
 	}
 	for _, s := range services {
 		k := newKey(string(s) + "-e2e")
@@ -62,7 +63,7 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	}
 	dbs := map[platform.Service]string{}
 	for _, s := range services[1:] {
-		if s == platform.AdminService {
+		if s == platform.AdminService || s == platform.MarketplaceService {
 			continue
 		}
 		db := testkit.NewDatabase(t, nil)
@@ -103,7 +104,8 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 			"MEDIA_SCANNER", "dev", "SCAN_POLL_INTERVAL", "100ms")
 		launch(platform.VerificationService, "MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService],
 			"SANDBOX_KYC_CALLBACK_SECRET", "e2e-sandbox-secret", "PROVIDER_POLL_INTERVAL", "200ms")
-		producerEnv = []string{"VERIFICATION_SERVICE_URL", p.internal[platform.VerificationService], "MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService]}
+		producerEnv = []string{"VERIFICATION_SERVICE_URL", p.internal[platform.VerificationService], "MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService],
+			"DOMAIN_WORKER_INTERVAL", "1s"}
 		gatewayUpstreams["GATEWAY_UPSTREAM_MEDIA_DOCUMENT_SERVICE_URL"] = p.internal[platform.MediaDocumentService]
 	}
 	userKey := newKey("io-at-e2e")

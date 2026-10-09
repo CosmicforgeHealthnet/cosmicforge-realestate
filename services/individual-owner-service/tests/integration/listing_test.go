@@ -458,3 +458,45 @@ func TestManagerMandateExpiryWorker(t *testing.T) {
 	step(10*24*time.Hour, "EXPIRED")
 	h.expect(h.do(call{method: "GET", path: "/internal/v1/owner/managed/properties/" + p.ID.String(), as: platform.PropertyManagerService, delegate: mgr}), 404, "")
 }
+
+// Marketplace may read a file while a live listing uses it, and only then.
+func TestListingMediaMarketplaceAccess(t *testing.T) {
+	h := newHarness(t)
+	o, l := h.liveListing("31 Gallery Road")
+	marketplace := func() map[ids.ID]bool {
+		h.media.mu.Lock()
+		defer h.media.mu.Unlock()
+		out := map[ids.ID]bool{}
+		for id, gs := range h.media.grants {
+			for _, g := range gs {
+				if g.GranteeType == "SERVICE" && g.Service == string(platform.MarketplaceService) {
+					out[id] = true
+				}
+			}
+		}
+		return out
+	}
+	h.runJobs("listing-media-access")
+	got := marketplace()
+	if len(got) != len(l.Media) {
+		t.Fatalf("granted %d of %d listing files", len(got), len(l.Media))
+	}
+	for _, m := range l.Media {
+		if !got[m.MediaID] {
+			t.Fatalf("listing file %s not granted", m.MediaID)
+		}
+	}
+	calls := h.media.policyCalls
+	h.runJobs("listing-media-access")
+	if h.media.policyCalls != calls {
+		t.Fatal("a second run repeated media calls")
+	}
+	h.expect(h.post(o, "/listings/"+l.ID.String()+"/withdraw", nil), 200, "")
+	h.runJobs("listing-media-access")
+	if got := marketplace(); len(got) != 0 {
+		t.Fatalf("withdrawn listing files still granted: %v", got)
+	}
+	if n := h.count(`SELECT count(*) FROM audit_events WHERE action='listing.media.marketplace_access'`); n != 2*len(l.Media) {
+		t.Fatalf("access audit %d", n)
+	}
+}

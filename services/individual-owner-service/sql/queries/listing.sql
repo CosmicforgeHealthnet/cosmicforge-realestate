@@ -176,3 +176,23 @@ SELECT * FROM availability_calendar WHERE listing_id = $1 AND day >= $2 AND day 
 
 -- name: ReleaseCalendarRef :exec
 UPDATE availability_calendar SET status = 'AVAILABLE', source = 'SYSTEM', ref_id = NULL, updated_at = $2 WHERE ref_id = $1;
+
+-- Marketplace access to live listing media ---------------------------------
+
+-- name: MediaNeedingMarketplaceGrant :many
+SELECT DISTINCT lm.media_id FROM listing_media_links lm JOIN listings l ON l.id = lm.listing_id
+ WHERE l.status IN ('PUBLISHED','PAUSED')
+   AND EXISTS (SELECT 1 FROM property_media_links pm WHERE pm.media_id = lm.media_id AND pm.media_status = 'READY')
+   AND NOT EXISTS (SELECT 1 FROM media_marketplace_access a WHERE a.media_id = lm.media_id AND a.granted)
+ LIMIT $1;
+
+-- name: MediaNeedingMarketplaceRevoke :many
+SELECT a.media_id FROM media_marketplace_access a
+ WHERE a.granted
+   AND NOT EXISTS (SELECT 1 FROM listing_media_links lm JOIN listings l ON l.id = lm.listing_id
+                    WHERE lm.media_id = a.media_id AND l.status IN ('PUBLISHED','PAUSED'))
+ LIMIT $1;
+
+-- name: SetMarketplaceAccess :exec
+INSERT INTO media_marketplace_access (media_id, granted, synced_at) VALUES ($1, $2, $3)
+ON CONFLICT (media_id) DO UPDATE SET granted = EXCLUDED.granted, synced_at = EXCLUDED.synced_at;

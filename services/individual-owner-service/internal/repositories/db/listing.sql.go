@@ -1169,6 +1169,64 @@ func (q *Queries) LiveListingsForProperty(ctx context.Context, db DBTX, property
 	return items, nil
 }
 
+const mediaNeedingMarketplaceGrant = `-- name: MediaNeedingMarketplaceGrant :many
+
+SELECT DISTINCT lm.media_id FROM listing_media_links lm JOIN listings l ON l.id = lm.listing_id
+ WHERE l.status IN ('PUBLISHED','PAUSED')
+   AND EXISTS (SELECT 1 FROM property_media_links pm WHERE pm.media_id = lm.media_id AND pm.media_status = 'READY')
+   AND NOT EXISTS (SELECT 1 FROM media_marketplace_access a WHERE a.media_id = lm.media_id AND a.granted)
+ LIMIT $1
+`
+
+// Marketplace access to live listing media ---------------------------------
+func (q *Queries) MediaNeedingMarketplaceGrant(ctx context.Context, db DBTX, limit int32) ([]ids.ID, error) {
+	rows, err := db.Query(ctx, mediaNeedingMarketplaceGrant, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ids.ID
+	for rows.Next() {
+		var media_id ids.ID
+		if err := rows.Scan(&media_id); err != nil {
+			return nil, err
+		}
+		items = append(items, media_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const mediaNeedingMarketplaceRevoke = `-- name: MediaNeedingMarketplaceRevoke :many
+SELECT a.media_id FROM media_marketplace_access a
+ WHERE a.granted
+   AND NOT EXISTS (SELECT 1 FROM listing_media_links lm JOIN listings l ON l.id = lm.listing_id
+                    WHERE lm.media_id = a.media_id AND l.status IN ('PUBLISHED','PAUSED'))
+ LIMIT $1
+`
+
+func (q *Queries) MediaNeedingMarketplaceRevoke(ctx context.Context, db DBTX, limit int32) ([]ids.ID, error) {
+	rows, err := db.Query(ctx, mediaNeedingMarketplaceRevoke, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ids.ID
+	for rows.Next() {
+		var media_id ids.ID
+		if err := rows.Scan(&media_id); err != nil {
+			return nil, err
+		}
+		items = append(items, media_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const nextPricingVersionNo = `-- name: NextPricingVersionNo :one
 SELECT coalesce(max(version_no), 0)::int + 1 FROM pricing_versions WHERE listing_id = $1
 `
@@ -1343,6 +1401,22 @@ func (q *Queries) SetListingPublication(ctx context.Context, db DBTX, arg SetLis
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const setMarketplaceAccess = `-- name: SetMarketplaceAccess :exec
+INSERT INTO media_marketplace_access (media_id, granted, synced_at) VALUES ($1, $2, $3)
+ON CONFLICT (media_id) DO UPDATE SET granted = EXCLUDED.granted, synced_at = EXCLUDED.synced_at
+`
+
+type SetMarketplaceAccessParams struct {
+	MediaID  ids.ID
+	Granted  bool
+	SyncedAt time.Time
+}
+
+func (q *Queries) SetMarketplaceAccess(ctx context.Context, db DBTX, arg SetMarketplaceAccessParams) error {
+	_, err := db.Exec(ctx, setMarketplaceAccess, arg.MediaID, arg.Granted, arg.SyncedAt)
+	return err
 }
 
 const updateListingContent = `-- name: UpdateListingContent :one

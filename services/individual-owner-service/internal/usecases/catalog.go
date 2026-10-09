@@ -154,6 +154,7 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		{Name: "report-generation", Run: func(ctx context.Context) error { return s.RunReportJobs(ctx, cfg.Batch) }},
 		{Name: "privacy-requests-and-retention", Run: func(ctx context.Context) error { return s.RunPrivacyJobs(ctx, cfg.Batch) }},
 		{Name: "shortlet-bookings-calendar-and-claims", Run: func(ctx context.Context) error { return s.RunShortletJobs(ctx, cfg.Batch) }},
+		{Name: "listing-media-access", Run: func(ctx context.Context) error { return s.RunListingMediaAccess(ctx, cfg.Batch) }},
 		{Name: "listing-freshness", Run: func(ctx context.Context) error {
 			_, _, err := s.RunFreshness(ctx, cfg.Batch)
 			return err
