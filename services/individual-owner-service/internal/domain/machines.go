@@ -98,7 +98,7 @@ var (
 		map[string][]string{
 			"DRAFT":        {"REVIEW", "CANCELLED"},
 			"REVIEW":       {"SIGNING", "DRAFT", "CANCELLED"},
-			"SIGNING":      {"FULLY_SIGNED", "CANCELLED"},
+			"SIGNING":      {"FULLY_SIGNED", "CANCELLED", "DRAFT"}, // DRAFT = eng: a declined/voided signing round; the signed-for version stays immutable
 			"FULLY_SIGNED": {"EFFECTIVE", "CANCELLED"},
 		})
 
@@ -228,6 +228,23 @@ var (
 		})
 
 	// Engineering-addition workflows for guarded cases referenced by §13.
+	RenewalCase = lifecycle.New("renewal_case", "renewal_cases",
+		[]string{"PROPOSED", "COUNTERED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED", "COMPLETED"},
+		map[string][]string{
+			"PROPOSED":  {"COUNTERED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED"},
+			"COUNTERED": {"PROPOSED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED"},
+			"ACCEPTED":  {"COMPLETED", "WITHDRAWN"}, // WITHDRAWN: addendum cancelled before signature
+		})
+
+	MoveOut = lifecycle.New("move_out_case", "move_out_cases",
+		[]string{"OPEN", "INSPECTION_SCHEDULED", "INSPECTED", "SETTLEMENT_PENDING", "COMPLETED"},
+		map[string][]string{
+			"OPEN":                 {"INSPECTION_SCHEDULED", "INSPECTED"},
+			"INSPECTION_SCHEDULED": {"INSPECTED"},
+			"INSPECTED":            {"SETTLEMENT_PENDING", "COMPLETED"},
+			"SETTLEMENT_PENDING":   {"COMPLETED"},
+		})
+
 	OwnershipChange = lifecycle.New("ownership_change_case", "ownership_change_cases",
 		[]string{"OPEN", "EVIDENCE_PENDING", "UNDER_REVIEW", "APPROVED", "COMPLETED", "REJECTED", "CANCELLED"},
 		map[string][]string{
@@ -242,5 +259,5 @@ var (
 func Machines() []*lifecycle.Machine {
 	return []*lifecycle.Machine{Ownership, Property, Listing, Availability, Inquiry, Viewing, Application, RentalOffer, Agreement,
 		Tenancy, RentObligation, Deposit, Notice, Sale, ShortletBooking, ManagerAssignment, Maintenance, ProfessionalAppointment,
-		DataSubjectRequest, AccessGrant, OwnershipChange}
+		DataSubjectRequest, AccessGrant, OwnershipChange, RenewalCase, MoveOut}
 }

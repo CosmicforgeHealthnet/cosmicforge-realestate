@@ -13,7 +13,7 @@ import (
 func DomainRoutes() []Route {
 	var rs []Route
 	for _, group := range [][]Route{accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), delegationRoutes(), listingRoutes(),
-		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(),
+		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(), agreementRoutes(), tenancyRoutes(), utilityRoutes(), tenancyInternalRoutes(),
 		propertyInternalRoutes(), listingInternalRoutes()} {
 		rs = append(rs, group...)
 	}

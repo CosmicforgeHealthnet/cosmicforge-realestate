@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -95,6 +97,7 @@ type harness struct {
 	verif   *fakeVerification
 	media   *fakeMedia
 	pay     *fakePayment
+	esign   *fakeESign
 	t       *testing.T
 	db      *testkit.Database
 	app     *app.App
@@ -112,6 +115,7 @@ var callers = []platform.Service{platform.APIGateway, platform.AdminService, pla
 func testConfig(t *testing.T, dbURL string, identity *serviceauth.Identity, userKey jwt.SigningKey) *config.Config {
 	p := usecases.DefaultPolicy()
 	p.CodeSendLimit = 20
+	p.Domain.PaymentReconcileAfter = 0
 	return &config.Config{
 		Environment: "test", DatabaseURL: security.NewSecret(dbURL), DBMaxConns: 20, Identity: identity,
 		TokenIssuer: string(platform.IndividualOwnerService), TokenAudience: sharedauth.DefaultAudience, AccessTokenTTL: 15 * time.Minute,
@@ -148,7 +152,14 @@ func newHarness(t *testing.T, opts ...func(*harness)) *harness {
 	if h.pay != nil {
 		ov.Payment = h.pay
 	}
-	h.app, err = app.Build(context.Background(), cfg, logging.Discard(), ov)
+	if h.esign != nil {
+		ov.ESign = h.esign
+	}
+	logger := logging.Discard()
+	if os.Getenv("CF_TEST_LOG") != "" {
+		logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
+	}
+	h.app, err = app.Build(context.Background(), cfg, logger, ov)
 	if err != nil {
 		t.Fatal(err)
 	}

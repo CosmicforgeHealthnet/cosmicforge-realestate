@@ -135,6 +135,11 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		}},
 		{Name: "viewing-reminders", Run: func(ctx context.Context) error { return s.RunViewingJobs(ctx, cfg.Batch) }},
 		{Name: "application-deadlines", Run: func(ctx context.Context) error { return s.RunApplicationDeadlines(ctx, cfg.Batch) }},
+		{Name: "signature-reconciliation", Run: func(ctx context.Context) error { return s.RunSignatureReconciliation(ctx, cfg.Batch) }},
+		{Name: "rent-schedule", Run: func(ctx context.Context) error { return s.RunRentSchedule(ctx, cfg.Batch) }},
+		{Name: "rent-obligations-arrears", Run: func(ctx context.Context) error { return s.RunRentObligations(ctx, cfg.Batch) }},
+		{Name: "deposits", Run: func(ctx context.Context) error { return s.RunDeposits(ctx, cfg.Batch) }},
+		{Name: "renewals-and-notices", Run: func(ctx context.Context) error { return s.RunRenewals(ctx, cfg.Batch) }},
 		{Name: "listing-freshness", Run: func(ctx context.Context) error {
 			_, _, err := s.RunFreshness(ctx, cfg.Batch)
 			return err

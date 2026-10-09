@@ -229,6 +229,503 @@ components:
         - visibility
         - geocode_source
       type: object
+    AgreementDraftInputInput:
+      additionalProperties: false
+      properties:
+        change_note:
+          maxLength: 1000
+          type: string
+        document_media_id:
+          description: Filled-in agreement document uploaded to media-document-service
+          format: uuid
+          type: string
+        template_id:
+          description: ACTIVE template for the property's jurisdiction and agreement kind
+          format: uuid
+          type: string
+        terms:
+          $ref: '#/components/schemas/AgreementTermsInput'
+      type: object
+    AgreementParticipantView:
+      properties:
+        display_name:
+          type: string
+        id:
+          format: uuid
+          type: string
+        party_domain:
+          type: string
+        party_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        role:
+          type: string
+        sign_required:
+          type: boolean
+        signing_email:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - role
+        - party_domain
+        - display_name
+        - sign_required
+      type: object
+    AgreementTemplateView:
+      properties:
+        agreement_kind:
+          type: string
+        clauses:
+          items:
+            $ref: '#/components/schemas/TemplateClause'
+          type: array
+        code:
+          type: string
+        country:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        document_media_id:
+          description: Template document in media-document-service
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        policy_version:
+          type: string
+        retired_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version_no:
+          type: integer
+      required:
+        - id
+        - code
+        - version_no
+        - country
+        - agreement_kind
+        - title
+        - document_media_id
+        - clauses
+        - status
+        - policy_version
+        - created_at
+      type: object
+    AgreementTerms:
+      properties:
+        clauses:
+          description: Template clause codes included (all required clauses must be present)
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_handling:
+          description: PLATFORM holds the deposit in payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+            - NONE
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        deposit_release_days:
+          maximum: 180
+          minimum: 1
+          type: integer
+        due_day:
+          maximum: 28
+          minimum: 1
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        house_rules:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        inventory_notes:
+          maxLength: 4000
+          type:
+            - string
+            - "null"
+        late_fee_grace_days:
+          maximum: 60
+          minimum: 0
+          type: integer
+        late_fee_minor:
+          description: Flat late fee per overdue period (capped by policy)
+          minimum: 0
+          type: integer
+        recurring_fees_minor:
+          description: Mandatory recurring fees per cycle
+          minimum: 0
+          type: integer
+        rent_collection:
+          description: PLATFORM collects through payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        rent_minor:
+          description: Rent per cycle at the start of the term
+          minimum: 1
+          type: integer
+        special_conditions:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+        - due_day
+        - rent_collection
+        - deposit_handling
+      type: object
+    AgreementTermsInput:
+      additionalProperties: false
+      properties:
+        clauses:
+          description: Template clause codes included (all required clauses must be present)
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_handling:
+          description: PLATFORM holds the deposit in payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+            - NONE
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        deposit_release_days:
+          maximum: 180
+          minimum: 1
+          type: integer
+        due_day:
+          maximum: 28
+          minimum: 1
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        house_rules:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        inventory_notes:
+          maxLength: 4000
+          type: string
+        late_fee_grace_days:
+          maximum: 60
+          minimum: 0
+          type: integer
+        late_fee_minor:
+          description: Flat late fee per overdue period (capped by policy)
+          minimum: 0
+          type: integer
+        recurring_fees_minor:
+          description: Mandatory recurring fees per cycle
+          minimum: 0
+          type: integer
+        rent_collection:
+          description: PLATFORM collects through payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        rent_minor:
+          description: Rent per cycle at the start of the term
+          minimum: 1
+          type: integer
+        special_conditions:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+        - due_day
+        - rent_collection
+        - deposit_handling
+      type: object
+    AgreementVersionView:
+      properties:
+        change_note:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        document_media_id:
+          description: Agreement document in media-document-service
+          format: uuid
+          type:
+            - string
+            - "null"
+        template_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        template_version_no:
+          type:
+            - integer
+            - "null"
+        terms:
+          $ref: '#/components/schemas/AgreementTerms'
+        version_no:
+          type: integer
+      required:
+        - version_no
+        - terms
+        - created_at
+      type: object
+    AgreementView:
+      properties:
+        agreement_kind:
+          type: string
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        cancelled_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        current_version:
+          oneOf:
+            - $ref: '#/components/schemas/AgreementVersionView'
+            - type: "null"
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        effective_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        fully_signed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        offer_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        parent_agreement_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        participants:
+          items:
+            $ref: '#/components/schemas/AgreementParticipantView'
+          type: array
+        pricing_version_id:
+          description: Frozen price snapshot accepted with the offer
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        renewal_case_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        signatures:
+          items:
+            $ref: '#/components/schemas/SignatureView'
+          type: array
+        signing_method:
+          type:
+            - string
+            - "null"
+        signing_started_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        signing_version_no:
+          type:
+            - integer
+            - "null"
+        source:
+          type: string
+        status:
+          type: string
+        template_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        tenancy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - agreement_kind
+        - source
+        - status
+        - participants
+        - signatures
+        - version
+        - created_at
+        - updated_at
+      type: object
+    Allocation:
+      properties:
+        amount_minor:
+          type: integer
+        party:
+          type: string
+      required:
+        - party
+        - amount_minor
+      type: object
+    AllocationRuleInputInput:
+      additionalProperties: false
+      properties:
+        method:
+          enum:
+            - EQUAL
+            - PERCENTAGE
+            - FIXED
+            - SUB_METER
+          type: string
+        shares:
+          items:
+            $ref: '#/components/schemas/ShareInput'
+          maxItems: 50
+          minItems: 1
+          type: array
+      required:
+        - method
+        - shares
+      type: object
+    AllocationRuleView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        method:
+          type: string
+        shares:
+          items:
+            $ref: '#/components/schemas/Share'
+          type: array
+        version_no:
+          type: integer
+      required:
+        - version_no
+        - method
+        - shares
+        - created_at
+      type: object
     ApplicationView:
       properties:
         allowed_next_statuses:
@@ -683,6 +1180,133 @@ components:
         - allowed_next_statuses
         - version
       type: object
+    BillActionInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          description: ALLOCATE/RESOLVE apply the account's current allocation rule version
+          enum:
+            - ALLOCATE
+            - DISPUTE
+            - RESOLVE
+          type: string
+        reason:
+          maxLength: 1000
+          type: string
+      required:
+        - action
+      type: object
+    BudgetCategoryInput:
+      additionalProperties: false
+      properties:
+        category:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        expected_minor:
+          minimum: 0
+          type: integer
+      required:
+        - category
+      type: object
+    BudgetInputInput:
+      additionalProperties: false
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/BudgetCategoryInput'
+          maxItems: 50
+          minItems: 1
+          type: array
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        period_end:
+          format: date
+          type: string
+        period_start:
+          format: date
+          type: string
+        status:
+          description: 'Updates: DRAFT → APPROVED → CLOSED'
+          enum:
+            - DRAFT
+            - APPROVED
+            - CLOSED
+          type: string
+      required:
+        - period_start
+        - period_end
+        - currency
+        - categories
+      type: object
+    BudgetLine:
+      properties:
+        actual_minor:
+          type: integer
+        adjusted_minor:
+          type: integer
+        billed_minor:
+          type: integer
+        category:
+          type: string
+        expected_minor:
+          type: integer
+        paid_minor:
+          description: Evidence-backed paid amounts (not the payment ledger)
+          type: integer
+      required:
+        - category
+        - expected_minor
+        - actual_minor
+        - billed_minor
+        - paid_minor
+        - adjusted_minor
+      type: object
+    BudgetView:
+      properties:
+        approved_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        closed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        currency:
+          type: string
+        id:
+          format: uuid
+          type: string
+        lines:
+          items:
+            $ref: '#/components/schemas/BudgetLine'
+          type: array
+        period_end:
+          type: string
+        period_start:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        total_expected_minor:
+          type: integer
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - period_start
+        - period_end
+        - currency
+        - status
+        - total_expected_minor
+        - lines
+        - version
+      type: object
     CancelViewingInputInput:
       additionalProperties: false
       properties:
@@ -704,6 +1328,67 @@ components:
         access_code:
           pattern: ^(?:[0-9]{6})$
           type: string
+      type: object
+    ChecklistSummary:
+      properties:
+        locked_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        phase:
+          type: string
+        status:
+          type: string
+      required:
+        - phase
+        - status
+      type: object
+    ChecklistView:
+      properties:
+        id:
+          format: uuid
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/ConditionItemView'
+          type: array
+        locked_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        owner_ack_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        phase:
+          type: string
+        status:
+          type: string
+        submitted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        tenancy_id:
+          format: uuid
+          type: string
+        tenant_ack_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - tenancy_id
+        - phase
+        - status
+        - items
+        - version
       type: object
     ClaimInputInput:
       additionalProperties: false
@@ -776,6 +1461,99 @@ components:
       required:
         - party_role
         - display_name
+      type: object
+    ConditionItemInputInput:
+      additionalProperties: false
+      properties:
+        condition:
+          enum:
+            - EXCELLENT
+            - GOOD
+            - FAIR
+            - POOR
+            - DAMAGED
+            - MISSING
+            - NOT_PRESENT
+          type: string
+        item:
+          maxLength: 120
+          type: string
+        media_ids:
+          description: Photos/videos uploaded to media-document-service
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        notes:
+          maxLength: 1000
+          type: string
+        room:
+          maxLength: 80
+          type: string
+        supersedes_id:
+          description: Earlier item this entry corrects (the earlier entry is kept)
+          format: uuid
+          type: string
+      required:
+        - room
+        - item
+        - condition
+      type: object
+    ConditionItemView:
+      properties:
+        addendum:
+          description: Recorded after both parties acknowledged (dispute addendum)
+          type: boolean
+        condition:
+          type: string
+        id:
+          format: uuid
+          type: string
+        item:
+          type: string
+        media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        notes:
+          type:
+            - string
+            - "null"
+        recorded_at:
+          format: date-time
+          type: string
+        recorded_by_party:
+          type: string
+        room:
+          type: string
+        supersedes_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - room
+        - item
+        - condition
+        - media_ids
+        - addendum
+        - recorded_by_party
+        - recorded_at
+      type: object
+    ConditionItemsInputInput:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ConditionItemInputInput'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+        - items
       type: object
     ConfirmAvailabilityInputInput:
       additionalProperties: false
@@ -1039,6 +1817,38 @@ components:
         - pricing_version_id
         - cost
       type: object
+    CreateAgreementInputInput:
+      additionalProperties: false
+      properties:
+        agreement_kind:
+          enum:
+            - RESIDENTIAL_LEASE
+            - COMMERCIAL_LEASE
+            - LAND_LEASE
+          type: string
+        document_media_id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        template_id:
+          format: uuid
+          type: string
+        tenant:
+          $ref: '#/components/schemas/TenantPartyInputInput'
+        terms:
+          $ref: '#/components/schemas/AgreementTermsInput'
+        unit_id:
+          format: uuid
+          type: string
+      required:
+        - property_id
+        - agreement_kind
+      type: object
     CreateListingInputInput:
       additionalProperties: false
       properties:
@@ -1264,6 +2074,126 @@ components:
         - policy_version
         - human_review
         - decided_at
+      type: object
+    DeductionItem:
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        description:
+          maxLength: 500
+          type: string
+        media_ids:
+          description: Evidence (photos, invoices) in media-document-service
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - code
+        - description
+        - amount_minor
+        - media_ids
+      type: object
+    DeductionItemInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        description:
+          maxLength: 500
+          type: string
+        media_ids:
+          description: Evidence (photos, invoices) in media-document-service
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - code
+        - description
+        - amount_minor
+        - media_ids
+      type: object
+    DepositSettlementInputInput:
+      additionalProperties: false
+      properties:
+        deductions:
+          description: Empty = release in full
+          items:
+            $ref: '#/components/schemas/DeductionItemInput'
+          maxItems: 50
+          type: array
+      type: object
+    DepositView:
+      properties:
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+        deduction_total_minor:
+          type: integer
+        deductions:
+          items:
+            $ref: '#/components/schemas/DeductionItem'
+          type: array
+        disputed_minor:
+          type: integer
+        funded_minor:
+          description: As reported by payment-service
+          type: integer
+        id:
+          format: uuid
+          type: string
+        proposed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        release_due_days:
+          type: integer
+        released_minor:
+          type: integer
+        resolution_owner_minor:
+          type:
+            - integer
+            - "null"
+        response_due_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        tenant_response:
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - amount_minor
+        - currency
+        - status
+        - funded_minor
+        - release_due_days
+        - deductions
+        - deduction_total_minor
+        - disputed_minor
+        - released_minor
+        - version
       type: object
     DocumentInputInput:
       additionalProperties: false
@@ -1882,6 +2812,103 @@ components:
         - capabilities
         - created_at
       type: object
+    InviteSignersInputInput:
+      additionalProperties: false
+      properties:
+        participants:
+          items:
+            $ref: '#/components/schemas/SignerInputInput'
+          maxItems: 20
+          minItems: 1
+          type: array
+      required:
+        - participants
+      type: object
+    KeyItemInputInput:
+      additionalProperties: false
+      properties:
+        access_grant_ref:
+          description: Smart-access grant reference (credentials are never stored)
+          format: uuid
+          type: string
+        issued_at:
+          format: date-time
+          type: string
+        item_type:
+          enum:
+            - KEY
+            - CARD
+            - FOB
+            - REMOTE
+            - LOCKBOX
+            - SMART_ACCESS
+            - OTHER
+          type: string
+        label:
+          maxLength: 120
+          type: string
+        notes:
+          maxLength: 500
+          type: string
+        quantity:
+          maximum: 100
+          minimum: 1
+          type: integer
+      required:
+        - item_type
+        - label
+        - quantity
+      type: object
+    KeyItemView:
+      properties:
+        access_grant_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        issued_at:
+          format: date-time
+          type: string
+        item_type:
+          type: string
+        label:
+          type: string
+        notes:
+          type:
+            - string
+            - "null"
+        quantity:
+          type: integer
+        returned_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        returned_quantity:
+          type:
+            - integer
+            - "null"
+      required:
+        - id
+        - item_type
+        - label
+        - quantity
+        - issued_at
+      type: object
+    KeyReturnInputInput:
+      additionalProperties: false
+      properties:
+        notes:
+          maxLength: 500
+          type: string
+        returned_quantity:
+          maximum: 100
+          minimum: 0
+          type: integer
+      type: object
     LeadActivityView:
       properties:
         activity_type:
@@ -2452,6 +3479,436 @@ components:
         - position
         - created_at
       type: object
+    MeterReadingInputInput:
+      additionalProperties: false
+      properties:
+        corrects_id:
+          description: 'CORRECTION: the reading being corrected (it is kept)'
+          format: uuid
+          type: string
+        media_id:
+          description: Photo of the meter (required for move-in and move-out readings)
+          format: uuid
+          type: string
+        read_at:
+          format: date-time
+          type: string
+        reading_type:
+          enum:
+            - MOVE_IN
+            - PERIODIC
+            - MOVE_OUT
+            - CORRECTION
+          type: string
+        tenancy_id:
+          format: uuid
+          type: string
+        unit:
+          enum:
+            - KWH
+            - M3
+            - LITRE
+            - UNIT
+            - OTHER
+          type: string
+        utility_account_id:
+          format: uuid
+          type: string
+        value:
+          minimum: 0
+          type: number
+      required:
+        - utility_account_id
+        - reading_type
+        - unit
+      type: object
+    MeterReadingView:
+      properties:
+        corrects_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        read_at:
+          format: date-time
+          type: string
+        reading_type:
+          type: string
+        recorded_by_party:
+          type: string
+        tenancy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        unit:
+          type: string
+        utility_account_id:
+          format: uuid
+          type: string
+        value:
+          type: number
+      required:
+        - id
+        - utility_account_id
+        - reading_type
+        - value
+        - unit
+        - read_at
+        - recorded_by_party
+        - created_at
+      type: object
+    MoveInInputInput:
+      additionalProperties: false
+      properties:
+        move_in_at:
+          description: Defaults to now
+          format: date-time
+          type: string
+      type: object
+    MoveOutInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - START
+            - SCHEDULE_INSPECTION
+            - COMPLETE_INSPECTION
+            - KEYS_RETURNED
+            - COMPLETE
+          type: string
+        inspection_at:
+          format: date-time
+          type: string
+        move_out_date:
+          description: 'START: the agreed move-out date'
+          format: date
+          type: string
+        notice_id:
+          format: uuid
+          type: string
+        return_to_market:
+          description: 'COMPLETE: the owner''s confirmation that the property may return to the market'
+          type: boolean
+      required:
+        - action
+      type: object
+    MoveOutView:
+      properties:
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        initiated_by:
+          type: string
+        inspected_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        inspection_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        keys_returned_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        move_out_date:
+          type: string
+        notice_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        owner_confirmed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        return_to_market:
+          type:
+            - boolean
+            - "null"
+        status:
+          type: string
+        tenancy_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - tenancy_id
+        - status
+        - initiated_by
+        - move_out_date
+        - version
+      type: object
+    NoticeDeliveryInputInput:
+      additionalProperties: false
+      properties:
+        delivery_ref:
+          maxLength: 200
+          type: string
+        evidence_media_id:
+          description: Proof of service (courier receipt, photo, signed copy)
+          format: uuid
+          type: string
+        failure_reason:
+          maxLength: 500
+          type: string
+        outcome:
+          enum:
+            - DELIVERED
+            - FAILED
+          type: string
+      required:
+        - outcome
+      type: object
+    NoticeInputInput:
+      additionalProperties: false
+      properties:
+        delivery_channel:
+          enum:
+            - PLATFORM
+            - EMAIL
+            - POST
+            - HAND_DELIVERY
+            - COURIER
+          type: string
+        document_media_id:
+          format: uuid
+          type: string
+        notice_type:
+          enum:
+            - RENT_REMINDER
+            - ARREARS
+            - RENT_REVIEW
+            - RENEWAL
+            - TERMINATION
+            - ENTRY
+            - BREACH
+            - GENERAL
+          type: string
+        requested_effective_date:
+          format: date
+          type: string
+        summary:
+          maxLength: 2000
+          type: string
+        template_id:
+          description: Required for notice types that policy reserves to legal templates
+          format: uuid
+          type: string
+      required:
+        - notice_type
+        - summary
+        - delivery_channel
+      type: object
+    NoticeTemplateView:
+      properties:
+        code:
+          type: string
+        country:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        document_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        min_notice_days:
+          description: Policy minimum between issue and legal effect
+          type: integer
+        notice_type:
+          type: string
+        policy_version:
+          type: string
+        retired_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version_no:
+          type: integer
+      required:
+        - id
+        - code
+        - version_no
+        - country
+        - notice_type
+        - title
+        - min_notice_days
+        - status
+        - policy_version
+        - created_at
+      type: object
+    NoticeView:
+      properties:
+        acknowledged_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        delivered_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        delivery_channel:
+          type: string
+        delivery_evidence_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        delivery_ref:
+          type:
+            - string
+            - "null"
+        dispute_reason:
+          type:
+            - string
+            - "null"
+        disputed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        document_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        effective_date:
+          description: Policy-computed legal effective date (not moved by acknowledgement)
+          type:
+            - string
+            - "null"
+        failure_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        issued_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        issued_by:
+          type: string
+        notice_type:
+          type: string
+        policy_version:
+          type:
+            - string
+            - "null"
+        requested_effective_date:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        summary:
+          type: string
+        template_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        tenancy_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - tenancy_id
+        - issued_by
+        - notice_type
+        - status
+        - summary
+        - delivery_channel
+        - version
+        - created_at
+      type: object
+    ObligationDecisionInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - WAIVE
+            - DISPUTE
+            - REINSTATE
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - action
+        - reason_code
+      type: object
+    ObligationStatusView:
+      properties:
+        from_status:
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+        paid_minor:
+          type:
+            - integer
+            - "null"
+        payment_ref:
+          type:
+            - string
+            - "null"
+        reason:
+          type:
+            - string
+            - "null"
+        source:
+          type: string
+        to_status:
+          type: string
+      required:
+        - from_status
+        - to_status
+        - source
+        - occurred_at
+      type: object
     OccupantConsentInputInput:
       additionalProperties: false
       properties:
@@ -2548,6 +4005,34 @@ components:
         - expires_at
         - version
         - created_at
+      type: object
+    OfflineSignatureInputInput:
+      additionalProperties: false
+      properties:
+        evidence_media_id:
+          description: Signed page/scan uploaded to media-document-service
+          format: uuid
+          type: string
+        participant_id:
+          format: uuid
+          type: string
+        signed_at:
+          format: date-time
+          type: string
+      required:
+        - participant_id
+        - evidence_media_id
+        - signed_at
+      type: object
+    OutstandingView:
+      properties:
+        open_obligations:
+          type: integer
+        outstanding_minor:
+          type: integer
+      required:
+        - open_obligations
+        - outstanding_minor
       type: object
     OwnershipSummary:
       properties:
@@ -3635,6 +5120,177 @@ components:
         - id
         - removed
       type: object
+    RenewalResponseInput:
+      additionalProperties: false
+      properties:
+        counter:
+          $ref: '#/components/schemas/RenewalTermsInputInput'
+        decision:
+          description: 'WITHDRAW: owner only'
+          enum:
+            - ACCEPT
+            - COUNTER
+            - DECLINE
+            - WITHDRAW
+          type: string
+      required:
+        - decision
+      type: object
+    RenewalTermsInputInput:
+      additionalProperties: false
+      properties:
+        change_explanation:
+          description: Required when the rent changes
+          maxLength: 2000
+          type: string
+        market_context:
+          description: Advisory market context shown to the tenant (e.g. a market-insight snapshot)
+        rent_minor:
+          description: Cycle rent for the renewed term
+          minimum: 1
+          type: integer
+        start_date:
+          description: Must be the day after the current end date (the default)
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - rent_minor
+        - term_months
+      type: object
+    RenewalTermsView:
+      properties:
+        change_explanation:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        market_context:
+          description: Embedded JSON document
+        proposed_by:
+          type: string
+        rent_minor:
+          type: integer
+        round_no:
+          type: integer
+        start_date:
+          type: string
+        term_months:
+          type: integer
+      required:
+        - round_no
+        - proposed_by
+        - rent_minor
+        - currency
+        - term_months
+        - start_date
+        - created_at
+      type: object
+    RenewalView:
+      properties:
+        addendum_agreement_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        current_round:
+          type: integer
+        id:
+          format: uuid
+          type: string
+        respond_by:
+          format: date-time
+          type: string
+        rounds:
+          items:
+            $ref: '#/components/schemas/RenewalTermsView'
+          type: array
+        status:
+          type: string
+        tenancy_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - tenancy_id
+        - status
+        - current_round
+        - respond_by
+        - rounds
+        - version
+        - created_at
+      type: object
+    RentObligationView:
+      properties:
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+        due_date:
+          type: string
+        history:
+          items:
+            $ref: '#/components/schemas/ObligationStatusView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        kind:
+          type: string
+        last_payment_status:
+          type:
+            - string
+            - "null"
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        payment_intent_ref:
+          type:
+            - string
+            - "null"
+        period_end:
+          type: string
+        period_start:
+          type: string
+        refunded_minor:
+          type: integer
+        status:
+          type: string
+        status_reason:
+          type:
+            - string
+            - "null"
+        tenancy_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - tenancy_id
+        - kind
+        - period_start
+        - period_end
+        - due_date
+        - amount_minor
+        - currency
+        - status
+        - paid_minor
+        - refunded_minor
+        - version
+      type: object
     RepresentativeInputInput:
       additionalProperties: false
       properties:
@@ -3942,6 +5598,199 @@ components:
         - source
         - recorded_at
       type: object
+    SendForSignatureInputInput:
+      additionalProperties: false
+      properties:
+        method:
+          description: ESIGN needs a configured e-sign provider; OFFLINE uses signed scans + counterparty confirmation
+          enum:
+            - ESIGN
+            - OFFLINE
+          type: string
+      required:
+        - method
+      type: object
+    ServiceChargeItemInputInput:
+      additionalProperties: false
+      properties:
+        adjusts_id:
+          description: 'ADJUSTMENT: the item being corrected (it is kept)'
+          format: uuid
+          type: string
+        amount_minor:
+          description: Positive; ADJUSTMENT may be negative
+          type: integer
+        category:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        description:
+          maxLength: 500
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        incurred_on:
+          format: date
+          type: string
+        item_type:
+          enum:
+            - ACTUAL
+            - BILLED
+            - PAID
+            - ADJUSTMENT
+          type: string
+      required:
+        - category
+        - item_type
+        - description
+        - incurred_on
+      type: object
+    ServiceChargeItemView:
+      properties:
+        adjusts_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        amount_minor:
+          type: integer
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        incurred_on:
+          type: string
+        item_type:
+          type: string
+      required:
+        - id
+        - category
+        - item_type
+        - amount_minor
+        - description
+        - evidence_media_ids
+        - incurred_on
+        - created_at
+      type: object
+    Share:
+      properties:
+        party:
+          maxLength: 64
+          type: string
+        value:
+          description: 'PERCENTAGE: basis points; FIXED: minor units; SUB_METER: consumption units; EQUAL: ignored'
+          minimum: 0
+          type: integer
+      required:
+        - party
+        - value
+      type: object
+    ShareInput:
+      additionalProperties: false
+      properties:
+        party:
+          maxLength: 64
+          type: string
+        value:
+          description: 'PERCENTAGE: basis points; FIXED: minor units; SUB_METER: consumption units; EQUAL: ignored'
+          minimum: 0
+          type: integer
+      required:
+        - party
+      type: object
+    SignatureView:
+      properties:
+        attested_by:
+          description: PROVIDER (e-sign), SIGNER (counterparty confirmed) or OWNER (off-platform party, evidence attached)
+          type:
+            - string
+            - "null"
+        certificate_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        declined_reason:
+          type:
+            - string
+            - "null"
+        evidence_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        method:
+          type: string
+        participant_id:
+          format: uuid
+          type: string
+        signed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+      required:
+        - participant_id
+        - method
+        - status
+      type: object
+    SignerInputInput:
+      additionalProperties: false
+      properties:
+        display_name:
+          maxLength: 120
+          type: string
+        participant_id:
+          description: Existing participant to keep (omit to add)
+          format: uuid
+          type: string
+        party_domain:
+          enum:
+            - individual-owner
+            - marketplace
+            - external
+          type: string
+        party_ref_id:
+          description: Owner account or marketplace customer reference (not for external parties)
+          format: uuid
+          type: string
+        role:
+          enum:
+            - OWNER
+            - CO_OWNER
+            - REPRESENTATIVE
+            - TENANT
+            - CO_TENANT
+            - GUARANTOR
+            - WITNESS
+          type: string
+        sign_required:
+          description: Default true
+          type: boolean
+        signing_email:
+          format: email
+          type: string
+      required:
+        - role
+        - display_name
+        - party_domain
+      type: object
     SlotInputInput:
       additionalProperties: false
       properties:
@@ -4035,6 +5884,14 @@ components:
         - currency
         - download_ref
       type: object
+    SubmitChecklistInputInput:
+      additionalProperties: false
+      properties:
+        tenant_ack_evidence_media_id:
+          description: 'Off-platform tenants only: the checklist signed by the tenant (media-document-service)'
+          format: uuid
+          type: string
+      type: object
     TaxProfileInputInput:
       additionalProperties: false
       properties:
@@ -4093,6 +5950,144 @@ components:
         - reporting_preferences
         - version
         - updated_at
+      type: object
+    TemplateClause:
+      properties:
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        required:
+          type: boolean
+        title:
+          maxLength: 200
+          type: string
+      required:
+        - code
+        - title
+        - required
+      type: object
+    TenancyView:
+      properties:
+        agreement_id:
+          format: uuid
+          type: string
+        checklists:
+          items:
+            $ref: '#/components/schemas/ChecklistSummary'
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        deposit:
+          oneOf:
+            - $ref: '#/components/schemas/DepositView'
+            - type: "null"
+        deposit_handling:
+          type: string
+        dispute_flag:
+          description: A dispute is open; the lifecycle is unchanged
+          type: boolean
+        due_day:
+          type: integer
+        end_date:
+          type:
+            - string
+            - "null"
+        end_reason:
+          type:
+            - string
+            - "null"
+        ended_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        frequency:
+          type: string
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        move_in_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        outstanding:
+          oneOf:
+            - $ref: '#/components/schemas/OutstandingView'
+            - type: "null"
+        property_id:
+          format: uuid
+          type: string
+        recurring_fees_minor:
+          type: integer
+        rent_collection:
+          type: string
+        rent_minor:
+          type: integer
+        start_date:
+          type: string
+        status:
+          type: string
+        tenant_display_name:
+          type: string
+        termination_effective_date:
+          type:
+            - string
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - agreement_id
+        - tenant_display_name
+        - status
+        - start_date
+        - rent_minor
+        - recurring_fees_minor
+        - currency
+        - frequency
+        - due_day
+        - rent_collection
+        - deposit_handling
+        - dispute_flag
+        - checklists
+        - version
+        - created_at
+      type: object
+    TenantPartyInputInput:
+      additionalProperties: false
+      properties:
+        customer_ref_id:
+          description: Marketplace customer reference when the tenant is on the platform
+          format: uuid
+          type: string
+        display_name:
+          maxLength: 120
+          type: string
+        signing_email:
+          format: email
+          type: string
+      required:
+        - display_name
       type: object
     TransferInputInput:
       additionalProperties: false
@@ -4345,6 +6340,191 @@ components:
           minimum: 1600
           type: integer
       type: object
+    UtilityAccountInputInput:
+      additionalProperties: false
+      properties:
+        account_ref_last4:
+          description: Never send the full provider account number
+          pattern: ^(?:[A-Za-z0-9]{1,4})$
+          type: string
+        meter_number:
+          maxLength: 64
+          type: string
+        meter_type:
+          enum:
+            - PREPAID
+            - POSTPAID
+            - SHARED
+            - NONE
+          type: string
+        provider_name:
+          maxLength: 120
+          type: string
+        responsibility:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        status:
+          description: Updates only
+          enum:
+            - ACTIVE
+            - CLOSED
+          type: string
+        unit_id:
+          format: uuid
+          type: string
+        utility_type:
+          enum:
+            - ELECTRICITY
+            - WATER
+            - GAS
+            - INTERNET
+            - WASTE
+            - SECURITY
+            - DIESEL_GENERATOR
+            - OTHER
+          type: string
+      required:
+        - utility_type
+        - provider_name
+        - meter_type
+        - responsibility
+      type: object
+    UtilityAccountView:
+      properties:
+        account_ref_last4:
+          description: Only the last 4 characters of the provider account reference are stored
+          type:
+            - string
+            - "null"
+        allocation_rule_version:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        meter_number:
+          type:
+            - string
+            - "null"
+        meter_type:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        provider_name:
+          type: string
+        responsibility:
+          type: string
+        status:
+          type: string
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        utility_type:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - utility_type
+        - provider_name
+        - meter_type
+        - responsibility
+        - allocation_rule_version
+        - status
+        - version
+        - created_at
+      type: object
+    UtilityBillInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 0
+          type: integer
+        bill_media_id:
+          description: Bill/receipt document in media-document-service
+          format: uuid
+          type: string
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        period_end:
+          format: date
+          type: string
+        period_start:
+          format: date
+          type: string
+        utility_account_id:
+          format: uuid
+          type: string
+      required:
+        - utility_account_id
+        - period_start
+        - period_end
+        - currency
+      type: object
+    UtilityBillView:
+      properties:
+        allocation:
+          items:
+            $ref: '#/components/schemas/Allocation'
+          type: array
+        allocation_rule_version:
+          type:
+            - integer
+            - "null"
+        amount_minor:
+          type: integer
+        bill_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        currency:
+          type: string
+        dispute_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        original_allocation:
+          description: Preserved when the allocation is disputed
+          items:
+            $ref: '#/components/schemas/Allocation'
+          type: array
+        period_end:
+          type: string
+        period_start:
+          type: string
+        status:
+          type: string
+        utility_account_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - utility_account_id
+        - period_start
+        - period_end
+        - amount_minor
+        - currency
+        - status
+        - allocation
+        - original_allocation
+        - version
+      type: object
     VerificationLinkView:
       properties:
         created_at:
@@ -4574,6 +6754,659 @@ paths:
       summary: Account status, activation rule and sensitive-action gates
       tags:
         - Account & Profile
+  /api/v1/owner/agreement-templates:
+    get:
+      operationId: listAgreementTemplates
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: agreement_kind
+          schema:
+            enum:
+              - RESIDENTIAL_LEASE
+              - COMMERCIAL_LEASE
+              - LAND_LEASE
+              - RENEWAL_ADDENDUM
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AgreementTemplateView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Legal agreement templates (controlled configuration)
+      tags:
+        - Agreements
+  /api/v1/owner/agreements:
+    get:
+      operationId: listAgreements
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - DRAFT
+              - REVIEW
+              - SIGNING
+              - FULLY_SIGNED
+              - EFFECTIVE
+              - CANCELLED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AgreementView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Agreements across my properties
+      tags:
+        - Agreements
+    post:
+      description: Agreements for accepted rental offers are prepared automatically. PLATFORM rent/deposit collection needs payment-service (503 until configured).
+      operationId: createAgreement
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgreementInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Draft a direct agreement (e.g. an existing tenant)
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}:
+    get:
+      operationId: getAgreement
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Agreement with current version, parties and signatures
+      tags:
+        - Agreements
+    patch:
+      description: 'Versions are immutable: every change is a new version; impossible once under review or signing.'
+      operationId: updateAgreementDraft
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgreementDraftInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record the next draft version (If-Match)
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/activate:
+    post:
+      description: A lease creates the tenancy (PENDING_MOVE_IN) with its rent schedule and deposit obligation; a renewal addendum updates the tenancy.
+      operationId: activateAgreement
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Make a fully signed agreement effective
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/cancel:
+    post:
+      operationId: cancelAgreement
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonCodeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel a pre-effective agreement
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/invite-signers:
+    post:
+      operationId: inviteAgreementSigners
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteSignersInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Set the agreement's parties and signers
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/reopen:
+    post:
+      operationId: reopenAgreementDraft
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Return a reviewed agreement to draft
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/send-for-signature:
+    post:
+      description: Requires verified ownership authority and co-owner consent (LEASE). ESIGN answers 503 until an e-sign provider is configured; envelopes are created and read back by the signature-reconciliation worker.
+      operationId: sendAgreementForSignature
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendForSignatureInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Invite signatures on the current version
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/signatures:
+    post:
+      description: Owner-side and off-platform parties are signed on owner attestation with the scan; marketplace customers must confirm.
+      operationId: recordOfflineSignature
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfflineSignatureInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Attach a signature collected offline
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/submit-review:
+    post:
+      description: Needs an ACTIVE template, the filled-in document, valid terms with every required clause, and owner-side + tenant signers.
+      operationId: submitAgreementReview
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AgreementView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Share the draft with the counterparty
+      tags:
+        - Agreements
+  /api/v1/owner/agreements/{agreement_id}/versions:
+    get:
+      operationId: listAgreementVersions
+      parameters:
+        - in: path
+          name: agreement_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AgreementVersionView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Immutable version history
+      tags:
+        - Agreements
   /api/v1/owner/applications:
     get:
       operationId: listApplications
@@ -6960,6 +9793,202 @@ paths:
       summary: Search managers (property-manager-service)
       tags:
         - Delegation
+  /api/v1/owner/notice-templates:
+    get:
+      operationId: listNoticeTemplates
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: notice_type
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/NoticeTemplateView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Legal notice templates (controlled configuration)
+      tags:
+        - Agreements
+  /api/v1/owner/notices/{notice_id}/acknowledge:
+    post:
+      operationId: acknowledgeTenantNotice
+      parameters:
+        - in: path
+          name: notice_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NoticeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Acknowledge a notice given by the tenant
+      tags:
+        - Tenancy
+  /api/v1/owner/notices/{notice_id}/delivery:
+    post:
+      operationId: recordNoticeDelivery
+      parameters:
+        - in: path
+          name: notice_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoticeDeliveryInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NoticeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record service of an off-platform notice
+      tags:
+        - Tenancy
+  /api/v1/owner/notices/{notice_id}/issue:
+    post:
+      description: Effective date = later of the requested date and issue date + the template's minimum notice; acknowledgement never moves it. A TERMINATION notice moves the tenancy to TERMINATION_PENDING.
+      operationId: issueNotice
+      parameters:
+        - in: path
+          name: notice_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NoticeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Serve a notice (fixes the legal effective date)
+      tags:
+        - Tenancy
   /api/v1/owner/offers/{offer_id}:
     get:
       operationId: getRentalOffer
@@ -8604,6 +11633,113 @@ paths:
       summary: Unlink media
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/meter-readings:
+    get:
+      operationId: listMeterReadings
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: utility_account_id
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/MeterReadingView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Meter readings
+      tags:
+        - Utilities & Service Charges
+    post:
+      description: Readings are append-only and attributed; corrections reference the corrected reading.
+      operationId: recordMeterReading
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeterReadingInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MeterReadingView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a meter reading
+      tags:
+        - Utilities & Service Charges
   /api/v1/owner/properties/{property_id}/ownership:
     get:
       operationId: getOwnership
@@ -9135,6 +12271,106 @@ paths:
       summary: New screening policy version (configured criteria only)
       tags:
         - Applications
+  /api/v1/owner/properties/{property_id}/service-charge-budgets:
+    get:
+      operationId: listServiceChargeBudgets
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/BudgetView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Service-charge budgets
+      tags:
+        - Utilities & Service Charges
+    post:
+      operationId: createServiceChargeBudget
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BudgetView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Draft a service-charge budget
+      tags:
+        - Utilities & Service Charges
   /api/v1/owner/properties/{property_id}/units:
     get:
       operationId: listUnits
@@ -9299,6 +12535,210 @@ paths:
       summary: Update or archive a unit (If-Match)
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/utilities:
+    get:
+      operationId: listUtilityAccounts
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/UtilityAccountView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Utility accounts
+      tags:
+        - Utilities & Service Charges
+    post:
+      operationId: createUtilityAccount
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UtilityAccountInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UtilityAccountView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a utility account
+      tags:
+        - Utilities & Service Charges
+  /api/v1/owner/properties/{property_id}/utility-bills:
+    get:
+      operationId: listUtilityBills
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: utility_account_id
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/UtilityBillView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Utility bills
+      tags:
+        - Utilities & Service Charges
+    post:
+      operationId: recordUtilityBill
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UtilityBillInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UtilityBillView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a utility bill
+      tags:
+        - Utilities & Service Charges
   /api/v1/owner/properties/{property_id}/verification:
     get:
       operationId: listPropertyVerifications
@@ -9513,6 +12953,331 @@ paths:
       summary: Get an import job and its error report
       tags:
         - Properties
+  /api/v1/owner/renewals/{renewal_id}/response:
+    post:
+      description: Accepted terms generate a RENEWAL_ADDENDUM agreement to sign.
+      operationId: respondRenewal
+      parameters:
+        - in: path
+          name: renewal_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenewalResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RenewalView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept, counter, decline or withdraw
+      tags:
+        - Tenancy
+  /api/v1/owner/rent-obligations/{obligation_id}:
+    get:
+      operationId: getRentObligation
+      parameters:
+        - in: path
+          name: obligation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RentObligationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Obligation with its projected status history
+      tags:
+        - Tenancy
+  /api/v1/owner/rent-obligations/{obligation_id}/decision:
+    post:
+      description: 'Owners never mark money as received: payment states come only from payment-service.'
+      operationId: decideRentObligation
+      parameters:
+        - in: path
+          name: obligation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObligationDecisionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RentObligationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Waive, dispute or reinstate an obligation
+      tags:
+        - Tenancy
+  /api/v1/owner/service-charge-budgets/{budget_id}:
+    get:
+      operationId: getServiceChargeBudget
+      parameters:
+        - in: path
+          name: budget_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BudgetView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Budget with expected vs recorded amounts
+      tags:
+        - Utilities & Service Charges
+    patch:
+      operationId: updateServiceChargeBudget
+      parameters:
+        - in: path
+          name: budget_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BudgetView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Edit a draft or approve/close a budget (If-Match)
+      tags:
+        - Utilities & Service Charges
+  /api/v1/owner/service-charge-budgets/{budget_id}/items:
+    get:
+      operationId: listServiceChargeItems
+      parameters:
+        - in: path
+          name: budget_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ServiceChargeItemView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Service-charge items
+      tags:
+        - Utilities & Service Charges
+    post:
+      description: Items are append-only; corrections are ADJUSTMENT items referencing the corrected item. Not a payment ledger.
+      operationId: addServiceChargeItem
+      parameters:
+        - in: path
+          name: budget_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceChargeItemInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ServiceChargeItemView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record an actual, billed, paid or adjustment item
+      tags:
+        - Utilities & Service Charges
   /api/v1/owner/statements:
     get:
       description: payment-service is the financial authority. 503 FEATURE_UNAVAILABLE while it is not configured.
@@ -9634,6 +13399,1272 @@ paths:
       summary: Replace the tax profile (If-Match; "0" creates)
       tags:
         - Banking & Tax
+  /api/v1/owner/tenancies:
+    get:
+      operationId: listTenancies
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - PENDING_MOVE_IN
+              - ACTIVE
+              - RENEWAL_PENDING
+              - TERMINATION_PENDING
+              - MOVE_OUT_PENDING
+              - ENDED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/TenancyView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Tenancies across my properties
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}:
+    get:
+      operationId: getTenancy
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TenancyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Tenancy with outstanding balance, deposit and checklists
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/cancel:
+    post:
+      operationId: cancelTenancy
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonCodeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TenancyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel a tenancy before move-in (no money received)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/deposit:
+    get:
+      operationId: getDeposit
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DepositView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Deposit obligation
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/deposit/concede:
+    post:
+      operationId: concedeDepositDispute
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DepositView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Give up the disputed deductions
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/deposit/settlement:
+    post:
+      description: 'After the move-out inspection: full release, or itemized deductions with evidence for the tenant to accept or dispute.'
+      operationId: proposeDepositSettlement
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositSettlementInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DepositView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Propose the deposit settlement
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/keys:
+    get:
+      operationId: listKeyItems
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/KeyItemView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Key and access inventory
+      tags:
+        - Tenancy
+    post:
+      description: Codes and smart-access credentials are never stored, only references.
+      operationId: addKeyItem
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyItemInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/KeyItemView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record keys/cards/codes handed over
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/keys/{key_item_id}/return:
+    post:
+      operationId: returnKeyItem
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: key_item_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyReturnInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/KeyItemView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a key/access item return
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-in:
+    post:
+      description: 'PLATFORM collection: the first rent and the deposit must be confirmed by payment-service. Emits tenancy.started.v1; the listing becomes OCCUPIED.'
+      operationId: moveIn
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveInInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TenancyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Confirm move-in (tenancy becomes ACTIVE)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-in-checklist:
+    get:
+      operationId: getMoveInChecklist
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Condition checklist (MOVE_IN)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-in-checklist/items:
+    post:
+      description: Entries are append-only; after both acknowledgements new entries are addenda.
+      operationId: addMoveInConditionItems
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionItemsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record condition entries (MOVE_IN)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-in-checklist/submit:
+    post:
+      operationId: submitMoveInChecklist
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitChecklistInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Owner acknowledgement (MOVE_IN)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-out:
+    get:
+      operationId: getMoveOut
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MoveOutView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Move-out case
+      tags:
+        - Tenancy
+    post:
+      description: COMPLETE needs the inspection, the deposit settled by payment-service (a dispute only freezes the disputed amount) and the owner's return-to-market confirmation. Emits tenancy.ended.v1.
+      operationId: moveOut
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveOutInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MoveOutView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Start or advance the move-out
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-out-checklist:
+    get:
+      operationId: getMoveOutChecklist
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Condition checklist (MOVE_OUT)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-out-checklist/items:
+    post:
+      description: Entries are append-only; after both acknowledgements new entries are addenda.
+      operationId: addMoveOutConditionItems
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConditionItemsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record condition entries (MOVE_OUT)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/move-out-checklist/submit:
+    post:
+      operationId: submitMoveOutChecklist
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitChecklistInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChecklistView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Owner acknowledgement (MOVE_OUT)
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/notices:
+    get:
+      operationId: listNotices
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/NoticeView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Notices
+      tags:
+        - Tenancy
+    post:
+      operationId: createNotice
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoticeInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NoticeView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Draft a notice
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/renewal:
+    post:
+      description: Rent changes need an explanation; optional advisory market context is shown to the tenant.
+      operationId: proposeRenewal
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenewalTermsInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RenewalView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Propose a renewal
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/renewals:
+    get:
+      operationId: listRenewals
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RenewalView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Renewal cases
+      tags:
+        - Tenancy
+  /api/v1/owner/tenancies/{tenancy_id}/rent-obligations:
+    get:
+      operationId: listRentObligations
+      parameters:
+        - in: path
+          name: tenancy_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RentObligationView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Rent obligations (payment-service truth)
+      tags:
+        - Tenancy
+  /api/v1/owner/utilities/{utility_account_id}:
+    patch:
+      operationId: updateUtilityAccount
+      parameters:
+        - in: path
+          name: utility_account_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UtilityAccountInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UtilityAccountView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Update a utility account (If-Match)
+      tags:
+        - Utilities & Service Charges
+  /api/v1/owner/utilities/{utility_account_id}/allocation-rule:
+    post:
+      operationId: setAllocationRule
+      parameters:
+        - in: path
+          name: utility_account_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllocationRuleInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AllocationRuleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Version a shared-utility allocation rule
+      tags:
+        - Utilities & Service Charges
+  /api/v1/owner/utility-bills/{utility_bill_id}/action:
+    post:
+      description: A disputed allocation keeps its original calculation; resolution re-allocates with the current rule version.
+      operationId: actOnUtilityBill
+      parameters:
+        - in: path
+          name: utility_bill_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillActionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UtilityBillView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Allocate, dispute or resolve a bill (If-Match)
+      tags:
+        - Utilities & Service Charges
   /api/v1/owner/verification:
     get:
       operationId: listIdentityVerifications

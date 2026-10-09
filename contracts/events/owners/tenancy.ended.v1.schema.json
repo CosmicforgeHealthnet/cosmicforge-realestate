@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "TenancyEvent": {
+      "properties": {
+        "agreement_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "customer_ref_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "end_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "end_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "rent_collection": {
+          "type": "string"
+        },
+        "return_to_market": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "start_date": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "tenancy_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "tenancy_version": {
+          "type": "integer"
+        },
+        "unit_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "tenancy_id",
+        "property_id",
+        "agreement_id",
+        "status",
+        "start_date",
+        "rent_collection",
+        "currency",
+        "frequency",
+        "tenancy_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/tenancy.ended.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Occupancy ended after move-out completion and owner confirmation. Producer: individual-owner-service. Consumers: Marketplace, Payment, Notification. Aggregate: tenancy. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "tenancy"
+    },
+    "event_type": {
+      "const": "tenancy.ended.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/TenancyEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "tenancy.ended.v1"
+}

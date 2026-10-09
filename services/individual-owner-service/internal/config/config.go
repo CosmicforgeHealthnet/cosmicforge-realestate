@@ -146,6 +146,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.ImportLease = l.Duration("PROPERTY_IMPORT_LEASE", 2*time.Minute)
 	c.WorkerInterval = l.Duration("DOMAIN_WORKER_INTERVAL", 30*time.Second)
 	paymentURL := l.String("PAYMENT_SERVICE_URL", "")
+	esignProvider := l.String("ESIGN_PROVIDER", "")
 
 	oauthProviders := l.List("OWNER_OAUTH_PROVIDERS", nil)
 	c.NotificationServiceURL = l.Required("NOTIFICATION_SERVICE_URL")
@@ -218,6 +219,11 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		// payment-service exposes no implemented contract yet; refusing the
 		// setting prevents believing payouts are live.
 		problems = append(problems, "PAYMENT_SERVICE_URL must be empty: payment-service has no implemented contract (Appendix D)")
+	}
+	if esignProvider != "" {
+		// No electronic-signature provider adapter is implemented; owners
+		// sign OFFLINE until one is selected and built (spec §12).
+		problems = append(problems, "ESIGN_PROVIDER must be empty: no e-sign provider adapter is implemented")
 	}
 	for _, g := range d.IdentityRequiredFor {
 		switch g {

@@ -108,6 +108,8 @@ const (
 	ActSystemProperty          Action = "system.property"
 	ActTransferCancel          Action = "ownership.transfer.cancel"
 	ActInternalListingReport   Action = "internal.listing.report"
+	ActInternalAdminTemplates  Action = "internal.admin.legal_templates" // agreement/notice templates (controlled legal configuration)
+	ActLegalTemplatesRead      Action = "owner.legal_templates.read"
 )
 
 var (
@@ -181,6 +183,8 @@ func PropertyRules() []Rule {
 		Rule{Action: ActInternalAdminDispute, Services: adminActor},
 		Rule{Action: ActInternalAdminPrivacy, Services: adminActor},
 		Rule{Action: ActInternalAdminVerify, Services: adminActor},
+		Rule{Action: ActInternalAdminTemplates, Services: adminActor},
+		Rule{Action: ActLegalTemplatesRead, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActSystemProperty, System: true},
 	)
 	return rules

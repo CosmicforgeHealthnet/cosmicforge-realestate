@@ -23,6 +23,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/authz"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/credentials"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/esign"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/oauth"
@@ -100,6 +101,16 @@ type DomainPolicy struct {
 	ApplicationTTL   time.Duration
 	EvidenceGrantTTL time.Duration
 	OfferTTL         time.Duration
+	// Tenancy policy (§13.13–§13.15).
+	RentIntentLead         time.Duration // obligation becomes DUE (payment requested) this long before the due date
+	RentScheduleHorizon    time.Duration // obligations are materialized this far ahead
+	MaxLateFeeBps          int64         // late fee cap as basis points of the periodic rent
+	DepositReleaseDays     int32         // default deposit settlement deadline after move-out
+	DepositResponseWindow  time.Duration // tenant response window for proposed deductions
+	RenewalResponseTTL     time.Duration
+	RenewalReminderLead    time.Duration
+	NoticeTemplateRequired []string // notice types that must use a configured legal template
+	PaymentReconcileAfter  time.Duration
 }
 
 // Identity-gated actions.
@@ -123,7 +134,10 @@ func DefaultDomainPolicy() DomainPolicy {
 			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"},
 		DeclineReasons: []string{"INCOME_BELOW_POLICY", "INCOMPLETE_APPLICATION", "REFERENCES_UNSATISFACTORY", "OCCUPANCY_LIMIT",
 			"MOVE_IN_DATE_MISMATCH", "PROPERTY_NO_LONGER_AVAILABLE", "OTHER_LAWFUL_REASON"},
-		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour}
+		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour,
+		RentIntentLead: 7 * 24 * time.Hour, RentScheduleHorizon: 90 * 24 * time.Hour, MaxLateFeeBps: 1000, DepositReleaseDays: 30,
+		DepositResponseWindow: 14 * 24 * time.Hour, RenewalResponseTTL: 14 * 24 * time.Hour, RenewalReminderLead: 60 * 24 * time.Hour,
+		NoticeTemplateRequired: []string{"TERMINATION", "RENT_REVIEW", "ARREARS", "BREACH", "ENTRY"}, PaymentReconcileAfter: 15 * time.Minute}
 }
 
 // DefaultPolicy is the baseline (policy version 2026-10-01).
@@ -161,6 +175,7 @@ type Deps struct {
 	Verification verification.API
 	Media        media.API
 	Payment      payment.API
+	ESign        esign.API
 }
 
 // Service implements owner account use cases.
@@ -179,9 +194,26 @@ type ClosureHoldChecker interface {
 	Holds(ctx context.Context, tx pgx.Tx, accountID ids.ID) ([]string, error)
 }
 
-type noHolds struct{}
+// closureHoldChecks are registered by the business contexts that keep an
+// account from closing; each query takes the account ID and reports a hold.
+var closureHoldChecks []struct{ code, sql string }
 
-func (noHolds) Holds(context.Context, pgx.Tx, ids.ID) ([]string, error) { return nil, nil }
+// domainHolds evaluates the registered hold checks.
+type domainHolds struct{}
+
+func (domainHolds) Holds(ctx context.Context, tx pgx.Tx, accountID ids.ID) ([]string, error) {
+	var out []string
+	for _, c := range closureHoldChecks {
+		var held bool
+		if err := tx.QueryRow(ctx, c.sql, accountID).Scan(&held); err != nil {
+			return nil, err
+		}
+		if held {
+			out = append(out, c.code)
+		}
+	}
+	return out, nil
+}
 
 // New builds the service.
 func New(d Deps) (*Service, error) {
@@ -192,7 +224,7 @@ func New(d Deps) (*Service, error) {
 		d.Logger = slog.Default()
 	}
 	if d.ClosureHolds == nil {
-		d.ClosureHolds = noHolds{}
+		d.ClosureHolds = domainHolds{}
 	}
 	if d.OAuth == nil {
 		d.OAuth = oauth.NewRegistry()

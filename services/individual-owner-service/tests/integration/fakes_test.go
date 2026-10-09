@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/esign"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/verification"
@@ -174,10 +175,163 @@ func mediaEvent(t *testing.T, m media.Media, status string) events.Envelope {
 // contract so the owner-side logic can be exercised. It is never used
 // outside tests and never certifies payment behaviour.
 type fakePayment struct {
-	mu     sync.Mutex
-	status string
-	match  string
-	refs   map[string]payment.Beneficiary
+	mu       sync.Mutex
+	status   string
+	match    string
+	refs     map[string]payment.Beneficiary
+	intents  map[string]*payment.Intent // by ref
+	byKey    map[string]string          // idempotency key → ref
+	requests map[string]payment.IntentRequest
+	releases map[string]*payment.Release
+	relReqs  map[string]payment.DepositReleaseRequest
+	creates  int
+}
+
+func (f *fakePayment) init() {
+	if f.intents == nil {
+		f.intents, f.byKey, f.requests = map[string]*payment.Intent{}, map[string]string{}, map[string]payment.IntentRequest{}
+		f.releases, f.relReqs = map[string]*payment.Release{}, map[string]payment.DepositReleaseRequest{}
+	}
+}
+
+func (f *fakePayment) CreateIntent(_ context.Context, req payment.IntentRequest, key string) (payment.Intent, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	if ref, ok := f.byKey[key]; ok {
+		return *f.intents[ref], nil
+	}
+	f.creates++
+	in := &payment.Intent{Ref: "pi_" + ids.New().String()[24:], Status: payment.IntentRequiresPayment, AmountMinor: req.AmountMinor}
+	f.intents[in.Ref], f.byKey[key], f.requests[in.Ref] = in, in.Ref, req
+	return *in, nil
+}
+
+func (f *fakePayment) GetIntent(_ context.Context, ref string) (payment.Intent, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	in, ok := f.intents[ref]
+	if !ok {
+		return payment.Intent{}, &httpx.RemoteError{Service: "payment-service", Status: 404, Code: "NOT_FOUND"}
+	}
+	return *in, nil
+}
+
+func (f *fakePayment) CancelIntent(_ context.Context, ref, _ string) (payment.Intent, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	in := f.intents[ref]
+	if in.PaidMinor == 0 {
+		in.Status = payment.IntentCancelled
+	}
+	return *in, nil
+}
+
+// settle simulates payment-service collecting money for the intent of reference.
+func (f *fakePayment) settle(reference ids.ID, paid int64, status string) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	for ref, r := range f.requests {
+		if r.ReferenceID == reference {
+			f.intents[ref].PaidMinor, f.intents[ref].Status = paid, status
+			return ref
+		}
+	}
+	return ""
+}
+
+func (f *fakePayment) RequestDepositRelease(_ context.Context, req payment.DepositReleaseRequest, key string) (payment.Release, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	if r, ok := f.releases[key]; ok {
+		return *r, nil
+	}
+	r := &payment.Release{Ref: "rel_" + ids.New().String()[24:], Status: payment.ReleasePending}
+	f.releases[key], f.releases[r.Ref], f.relReqs[r.Ref] = r, r, req
+	return *r, nil
+}
+
+func (f *fakePayment) GetRelease(_ context.Context, ref string) (payment.Release, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	return *f.releases[ref], nil
+}
+
+// completeReleases marks every pending release as executed.
+func (f *fakePayment) completeReleases() []payment.DepositReleaseRequest {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var done []payment.DepositReleaseRequest
+	for ref, req := range f.relReqs {
+		r := f.releases[ref]
+		if r.Status != payment.ReleasePending {
+			continue
+		}
+		r.Status, r.ReleasedMinor = payment.ReleaseCompleted, req.RefundMinor+req.DeductionMinor
+		if req.WithheldMinor > 0 {
+			r.Status = payment.ReleasePartial
+		}
+		done = append(done, req)
+	}
+	return done
+}
+
+// fakeESign stands in for an e-sign provider adapter (none is selected).
+type fakeESign struct {
+	mu        sync.Mutex
+	envelopes map[string]*esign.Envelope
+	byKey     map[string]string
+	creates   int
+}
+
+func newFakeESign() *fakeESign {
+	return &fakeESign{envelopes: map[string]*esign.Envelope{}, byKey: map[string]string{}}
+}
+
+func (f *fakeESign) CreateEnvelope(_ context.Context, req esign.EnvelopeRequest, key string) (esign.Envelope, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if ref, ok := f.byKey[key]; ok {
+		return *f.envelopes[ref], nil
+	}
+	f.creates++
+	env := &esign.Envelope{Ref: "env_" + ids.New().String()[24:], Status: "SENT"}
+	for _, s := range req.Signers {
+		env.Signers = append(env.Signers, esign.SignerStatus{ParticipantID: s.ParticipantID, SignerRef: "sgn_" + ids.New().String()[28:], Status: esign.SignerSent})
+	}
+	f.envelopes[env.Ref], f.byKey[key] = env, env.Ref
+	return *env, nil
+}
+
+func (f *fakeESign) GetEnvelope(_ context.Context, ref string) (esign.Envelope, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return *f.envelopes[ref], nil
+}
+
+func (f *fakeESign) VoidEnvelope(_ context.Context, ref, _ string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.envelopes[ref].Status = "VOIDED"
+	return nil
+}
+
+// signAll completes every envelope with a certificate.
+func (f *fakeESign) signAll(cert ids.ID) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	now := time.Now().UTC()
+	for _, e := range f.envelopes {
+		for i := range e.Signers {
+			e.Signers[i].Status, e.Signers[i].SignedAt = esign.SignerSigned, &now
+		}
+		e.Status, e.CertificateMediaID = "COMPLETED", &cert
+	}
 }
 
 func (f *fakePayment) RegisterBeneficiary(_ context.Context, req payment.BeneficiaryRequest, key string) (payment.Beneficiary, error) {

@@ -16,6 +16,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/credentials"
 	ohttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/esign"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/oauth"
@@ -60,6 +61,7 @@ type Overrides struct {
 	Verification verification.API
 	Media        media.API
 	Payment      payment.API
+	ESign        esign.API
 }
 
 // Build wires the shared components (database, use cases, HTTP router).
@@ -136,7 +138,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 		Sessions: sessions.Config{MaxSessionLifetime: cfg.SessionLifetime, TokenIdleTTL: cfg.RefreshIdleTTL},
 		Hasher:   hasher, Sealer: sealer, TOTP: credentials.TOTP{Issuer: cfg.TOTPIssuer}, Notify: notify, OAuth: oauth.NewRegistry(),
 		Authz: engine, Policy: cfg.Policy, Logger: log, Now: now, ClosureHolds: ov.ClosureHolds,
-		Verification: verif, Media: med, Payment: ov.Payment,
+		Verification: verif, Media: med, Payment: ov.Payment, ESign: ov.ESign,
 	})
 	if err != nil {
 		return fail(err)
