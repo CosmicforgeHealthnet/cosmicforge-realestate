@@ -489,7 +489,7 @@ func (q *Queries) GetAsset(ctx context.Context, db DBTX, arg GetAssetParams) (Pr
 }
 
 const getChangeCase = `-- name: GetChangeCase :one
-SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at FROM ownership_change_cases WHERE id = $1
+SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id FROM ownership_change_cases WHERE id = $1
 `
 
 func (q *Queries) GetChangeCase(ctx context.Context, db DBTX, id ids.ID) (OwnershipChangeCase, error) {
@@ -510,6 +510,7 @@ func (q *Queries) GetChangeCase(ctx context.Context, db DBTX, id ids.ID) (Owners
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SaleID,
 	)
 	return i, err
 }
@@ -531,7 +532,7 @@ func (q *Queries) GetDashboardPreferences(ctx context.Context, db DBTX, accountI
 }
 
 const getLatestChangeCase = `-- name: GetLatestChangeCase :one
-SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at FROM ownership_change_cases WHERE property_id = $1 ORDER BY created_at DESC, id DESC LIMIT 1
+SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id FROM ownership_change_cases WHERE property_id = $1 ORDER BY created_at DESC, id DESC LIMIT 1
 `
 
 func (q *Queries) GetLatestChangeCase(ctx context.Context, db DBTX, propertyID ids.ID) (OwnershipChangeCase, error) {
@@ -552,12 +553,40 @@ func (q *Queries) GetLatestChangeCase(ctx context.Context, db DBTX, propertyID i
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SaleID,
+	)
+	return i, err
+}
+
+const getLiveSaleChangeCase = `-- name: GetLiveSaleChangeCase :one
+SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id FROM ownership_change_cases WHERE sale_id = $1 AND status NOT IN ('REJECTED','CANCELLED')
+`
+
+func (q *Queries) GetLiveSaleChangeCase(ctx context.Context, db DBTX, saleID *ids.ID) (OwnershipChangeCase, error) {
+	row := db.QueryRow(ctx, getLiveSaleChangeCase, saleID)
+	var i OwnershipChangeCase
+	err := row.Scan(
+		&i.ID,
+		&i.PropertyID,
+		&i.CaseType,
+		&i.FromRecordID,
+		&i.ToAccountID,
+		&i.ToEmail,
+		&i.ToRecordID,
+		&i.Status,
+		&i.RequestedByAccount,
+		&i.Reason,
+		&i.DecisionNote,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SaleID,
 	)
 	return i, err
 }
 
 const getOpenChangeCase = `-- name: GetOpenChangeCase :one
-SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at FROM ownership_change_cases WHERE property_id = $1 AND status IN ('OPEN','EVIDENCE_PENDING','UNDER_REVIEW','APPROVED')
+SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id FROM ownership_change_cases WHERE property_id = $1 AND status IN ('OPEN','EVIDENCE_PENDING','UNDER_REVIEW','APPROVED')
 `
 
 func (q *Queries) GetOpenChangeCase(ctx context.Context, db DBTX, propertyID ids.ID) (OwnershipChangeCase, error) {
@@ -578,6 +607,7 @@ func (q *Queries) GetOpenChangeCase(ctx context.Context, db DBTX, propertyID ids
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SaleID,
 	)
 	return i, err
 }
@@ -1238,7 +1268,7 @@ const insertChangeCase = `-- name: InsertChangeCase :one
 INSERT INTO ownership_change_cases (id, property_id, case_type, from_record_id, to_account_id, to_email, status,
     requested_by_account, reason, version, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, 'OPEN', $7, $8, 1, $9, $9)
-RETURNING id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at
+RETURNING id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id
 `
 
 type InsertChangeCaseParams struct {
@@ -1281,6 +1311,7 @@ func (q *Queries) InsertChangeCase(ctx context.Context, db DBTX, arg InsertChang
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SaleID,
 	)
 	return i, err
 }
@@ -1681,6 +1712,56 @@ func (q *Queries) InsertPropertyMedia(ctx context.Context, db DBTX, arg InsertPr
 		&i.CapturedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const insertSaleChangeCase = `-- name: InsertSaleChangeCase :one
+INSERT INTO ownership_change_cases (id, property_id, case_type, from_record_id, to_email, status, requested_by_account, reason, sale_id,
+    version, created_at, updated_at)
+VALUES ($1, $2, 'SALE', $3, $4, 'OPEN', $5, $6, $7, 1, $8, $8)
+RETURNING id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id
+`
+
+type InsertSaleChangeCaseParams struct {
+	ID                 ids.ID
+	PropertyID         ids.ID
+	FromRecordID       ids.ID
+	ToEmail            *string
+	RequestedByAccount ids.ID
+	Reason             *string
+	SaleID             *ids.ID
+	CreatedAt          time.Time
+}
+
+func (q *Queries) InsertSaleChangeCase(ctx context.Context, db DBTX, arg InsertSaleChangeCaseParams) (OwnershipChangeCase, error) {
+	row := db.QueryRow(ctx, insertSaleChangeCase,
+		arg.ID,
+		arg.PropertyID,
+		arg.FromRecordID,
+		arg.ToEmail,
+		arg.RequestedByAccount,
+		arg.Reason,
+		arg.SaleID,
+		arg.CreatedAt,
+	)
+	var i OwnershipChangeCase
+	err := row.Scan(
+		&i.ID,
+		&i.PropertyID,
+		&i.CaseType,
+		&i.FromRecordID,
+		&i.ToAccountID,
+		&i.ToEmail,
+		&i.ToRecordID,
+		&i.Status,
+		&i.RequestedByAccount,
+		&i.Reason,
+		&i.DecisionNote,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SaleID,
 	)
 	return i, err
 }
@@ -2572,7 +2653,7 @@ func (q *Queries) ListPropertyMedia(ctx context.Context, db DBTX, propertyID ids
 }
 
 const listTransfersForEmail = `-- name: ListTransfersForEmail :many
-SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at FROM ownership_change_cases WHERE to_email = $1 AND status = 'OPEN' ORDER BY created_at
+SELECT id, property_id, case_type, from_record_id, to_account_id, to_email, to_record_id, status, requested_by_account, reason, decision_note, version, created_at, updated_at, sale_id FROM ownership_change_cases WHERE to_email = $1 AND status = 'OPEN' ORDER BY created_at
 `
 
 func (q *Queries) ListTransfersForEmail(ctx context.Context, db DBTX, toEmail *string) ([]OwnershipChangeCase, error) {
@@ -2599,6 +2680,7 @@ func (q *Queries) ListTransfersForEmail(ctx context.Context, db DBTX, toEmail *s
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SaleID,
 		); err != nil {
 			return nil, err
 		}

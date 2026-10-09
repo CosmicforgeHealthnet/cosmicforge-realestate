@@ -273,6 +273,7 @@ type TransferView struct {
 	ToEmail      *string   `json:"to_email"`
 	RecipientSet bool      `json:"recipient_accepted"`
 	Reason       *string   `json:"reason"`
+	SaleID       *ids.ID   `json:"sale_id" doc:"Completed sale this transfer follows (SALE cases)"`
 	DecisionNote *string   `json:"decision_note"`
 	Version      int64     `json:"version"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -281,7 +282,7 @@ type TransferView struct {
 
 func transferView(c db.OwnershipChangeCase) TransferView {
 	return TransferView{ID: c.ID, PropertyID: c.PropertyID, CaseType: c.CaseType, Status: c.Status, ToEmail: c.ToEmail, RecipientSet: c.ToAccountID != nil,
-		Reason: c.Reason, DecisionNote: c.DecisionNote, Version: c.Version, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt}
+		Reason: c.Reason, SaleID: c.SaleID, DecisionNote: c.DecisionNote, Version: c.Version, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt}
 }
 
 // TransferInput opens a guarded ownership change.
@@ -299,69 +300,138 @@ func (s *Service) OpenTransfer(ctx context.Context, subj authz.Subject, property
 	}
 	var out TransferView
 	err := s.InTx(ctx, func(ctx context.Context) error {
-		d, err := s.authorize(ctx, subj, authz.Do(authz.CapOwnershipTransfer), propertyID)
-		if err != nil {
-			return err
-		}
-		acc := accountOf(subj)
-		if err := s.requireIdentity(ctx, acc, GateTransfer); err != nil {
-			return err
-		}
-		if err := s.requireConsent(ctx, d, propertyID, ConsentOwnershipTransfer, propertyID, acc); err != nil {
-			return err
-		}
-		tx, now := mustTx(ctx), s.now()
-		p, err := s.q.GetPropertyForUpdate(ctx, tx, propertyID)
-		if err != nil {
-			return err
-		}
-		if p.Status != "ACTIVE" {
-			return conflict("PROPERTY_NOT_TRANSFERABLE", "Only ACTIVE properties can be transferred.")
-		}
-		rec, err := s.q.GetPrimaryOwnershipRecordForUpdate(ctx, tx, propertyID)
-		if err != nil {
-			return err
-		}
-		to := strings.ToLower(strings.TrimSpace(in.ToEmail))
-		if me, err := s.q.GetAccount(ctx, tx, acc); err == nil && me.Email == to {
-			return precondition("CANNOT_TRANSFER_TO_SELF", "The recipient must be another person.")
-		}
-		c, err := s.q.InsertChangeCase(ctx, tx, db.InsertChangeCaseParams{ID: ids.New(), PropertyID: propertyID, CaseType: in.CaseType, FromRecordID: rec.ID,
-			ToEmail: &to, RequestedByAccount: acc, Reason: in.Reason, CreatedAt: now})
-		if isUnique(err, "ownership_change_cases_open_uniq") {
-			return conflict("TRANSFER_ALREADY_OPEN", "An ownership change is already in progress.")
-		}
-		if err != nil {
-			return err
-		}
-		if err := domain.OwnershipChange.RecordCreation(ctx, tx, c.ID, &propertyID, "OPEN", now); err != nil {
-			return err
-		}
-		if _, _, err := s.transition(ctx, domain.Ownership, rec.ID, lifecycle.Change{To: "TRANSFER_PENDING", Command: "open_transfer"}); err != nil {
-			return err
-		}
-		if _, _, err := s.transition(ctx, domain.Property, propertyID, lifecycle.Change{To: "TRANSFER_PENDING", Command: "open_transfer"}); err != nil {
-			return err
-		}
-		if err := s.afterTransferLock(ctx, propertyID); err != nil {
-			return err
-		}
-		if err := s.propertyHistory(ctx, propertyID, "TRANSFER_OPENED", in.CaseType+" opened", "ownership_change_case", c.ID); err != nil {
-			return err
-		}
-		if err := s.record(ctx, "ownership.transfer.open", "ownership_change_case", c.ID, map[string]any{"case_type": in.CaseType}, nil); err != nil {
-			return err
-		}
-		if p, err = s.q.GetProperty(ctx, tx, propertyID); err != nil {
-			return err
-		}
-		if err := s.emitProperty(ctx, "property.updated.v1", p, []string{"status"}); err != nil {
-			return err
-		}
+		c, err := s.openChangeCase(ctx, subj, propertyID, in.CaseType, in.ToEmail, in.Reason, nil)
 		out = transferView(c)
-		return nil
+		return err
 	})
 	return out, err
+}
+
+// SaleTransferInput opens the ownership transfer that follows a completed sale.
+type SaleTransferInput struct {
+	ToEmail string  `json:"to_email" v:"required,format=email" doc:"Buyer's owner-account sign-in email; the buyer must accept, pass the identity gate and the case needs platform review"`
+	Reason  *string `json:"reason,omitempty" v:"max=2000"`
+}
+
+// OpenSaleTransfer opens the SALE ownership-change case for a completed sale.
+// Sale completion itself never changes the owner: authority moves only when
+// this case is accepted by the buyer, evidenced and approved by platform
+// review. The case carries every OpenTransfer guard plus the transaction
+// prerequisites (sale COMPLETED, every required closing milestone met).
+// Retrying with the same recipient returns the existing case; a different
+// recipient while one is live is a conflict.
+func (s *Service) OpenSaleTransfer(ctx context.Context, subj authz.Subject, saleID ids.ID, in SaleTransferInput) (TransferView, error) {
+	if err := schema.Validate(in); err != nil {
+		return TransferView{}, err
+	}
+	var out TransferView
+	err := s.InTx(ctx, func(ctx context.Context) error {
+		t, _, err := s.saleFor(ctx, subj, saleID, authz.Do(authz.CapOwnershipTransfer))
+		if err != nil {
+			return err
+		}
+		tx := mustTx(ctx)
+		if t.Status != "COMPLETED" {
+			return conflict("SALE_NOT_COMPLETED", "Ownership can only be transferred after the sale is completed.")
+		}
+		if t.UnitID != nil {
+			return conflict("UNIT_SALE_TRANSFER_UNSUPPORTED", "This sale covers a single unit; the property ownership workflow transfers whole properties only.")
+		}
+		unmet, err := s.q.UnmetRequiredMilestones(ctx, tx, saleID)
+		if err != nil {
+			return err
+		}
+		if len(unmet) > 0 {
+			return apperrors.Unprocessable("MILESTONES_INCOMPLETE", "Required milestones are not satisfied.").
+				WithDetails(apperrors.Detail{Field: "milestones", Code: "UNMET", Message: joinCodes(unmet)})
+		}
+		to := strings.ToLower(strings.TrimSpace(in.ToEmail))
+		if ex, err := s.q.GetLiveSaleChangeCase(ctx, tx, &saleID); err == nil {
+			if ex.ToEmail != nil && *ex.ToEmail == to {
+				out = transferView(ex)
+				return nil
+			}
+			return conflict("SALE_TRANSFER_EXISTS", "This sale already has an ownership transfer for a different recipient.")
+		} else if !isNoRows(err) {
+			return err
+		}
+		c, err := s.openChangeCase(ctx, subj, t.PropertyID, "SALE", to, in.Reason, &saleID)
+		out = transferView(c)
+		return err
+	})
+	return out, err
+}
+
+// openChangeCase applies the guards shared by every ownership change and
+// opens the case. It must run inside a transaction.
+func (s *Service) openChangeCase(ctx context.Context, subj authz.Subject, propertyID ids.ID, caseType, toEmail string, reason *string, saleID *ids.ID) (db.OwnershipChangeCase, error) {
+	d, err := s.authorize(ctx, subj, authz.Do(authz.CapOwnershipTransfer), propertyID)
+	if err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	acc := accountOf(subj)
+	if err := s.requireIdentity(ctx, acc, GateTransfer); err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	if err := s.requireConsent(ctx, d, propertyID, ConsentOwnershipTransfer, propertyID, acc); err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	tx, now := mustTx(ctx), s.now()
+	p, err := s.q.GetPropertyForUpdate(ctx, tx, propertyID)
+	if err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	if p.Status != "ACTIVE" {
+		return db.OwnershipChangeCase{}, conflict("PROPERTY_NOT_TRANSFERABLE", "Only ACTIVE properties can be transferred.")
+	}
+	rec, err := s.q.GetPrimaryOwnershipRecordForUpdate(ctx, tx, propertyID)
+	if err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	to := strings.ToLower(strings.TrimSpace(toEmail))
+	if me, err := s.q.GetAccount(ctx, tx, acc); err == nil && me.Email == to {
+		return db.OwnershipChangeCase{}, precondition("CANNOT_TRANSFER_TO_SELF", "The recipient must be another person.")
+	}
+	var c db.OwnershipChangeCase
+	if saleID != nil {
+		c, err = s.q.InsertSaleChangeCase(ctx, tx, db.InsertSaleChangeCaseParams{ID: ids.New(), PropertyID: propertyID, FromRecordID: rec.ID, ToEmail: &to,
+			RequestedByAccount: acc, Reason: reason, SaleID: saleID, CreatedAt: now})
+	} else {
+		c, err = s.q.InsertChangeCase(ctx, tx, db.InsertChangeCaseParams{ID: ids.New(), PropertyID: propertyID, CaseType: caseType, FromRecordID: rec.ID,
+			ToEmail: &to, RequestedByAccount: acc, Reason: reason, CreatedAt: now})
+	}
+	if isUnique(err, "ownership_change_cases_open_uniq") || isUnique(err, "ownership_change_cases_sale_uniq") {
+		return db.OwnershipChangeCase{}, conflict("TRANSFER_ALREADY_OPEN", "An ownership change is already in progress.")
+	}
+	if err != nil {
+		return db.OwnershipChangeCase{}, err
+	}
+	if err := domain.OwnershipChange.RecordCreation(ctx, tx, c.ID, &propertyID, "OPEN", now); err != nil {
+		return c, err
+	}
+	if _, _, err := s.transition(ctx, domain.Ownership, rec.ID, lifecycle.Change{To: "TRANSFER_PENDING", Command: "open_transfer"}); err != nil {
+		return c, err
+	}
+	if _, _, err := s.transition(ctx, domain.Property, propertyID, lifecycle.Change{To: "TRANSFER_PENDING", Command: "open_transfer"}); err != nil {
+		return c, err
+	}
+	if err := s.afterTransferLock(ctx, propertyID); err != nil {
+		return c, err
+	}
+	if err := s.propertyHistory(ctx, propertyID, "TRANSFER_OPENED", caseType+" opened", "ownership_change_case", c.ID); err != nil {
+		return c, err
+	}
+	meta := map[string]any{"case_type": caseType}
+	if saleID != nil {
+		meta["sale_id"] = saleID.String()
+	}
+	if err := s.record(ctx, "ownership.transfer.open", "ownership_change_case", c.ID, meta, nil); err != nil {
+		return c, err
+	}
+	if p, err = s.q.GetProperty(ctx, tx, propertyID); err != nil {
+		return c, err
+	}
+	return c, s.emitProperty(ctx, "property.updated.v1", p, []string{"status"})
 }
 
 // transferLockHooks run when a property becomes TRANSFER_PENDING (e.g. pause listings).

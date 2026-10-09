@@ -9398,6 +9398,19 @@ components:
         - expires_at
         - created_at
       type: object
+    SaleTransferInputInput:
+      additionalProperties: false
+      properties:
+        reason:
+          maxLength: 2000
+          type: string
+        to_email:
+          description: Buyer's owner-account sign-in email; the buyer must accept, pass the identity gate and the case needs platform review
+          format: email
+          type: string
+      required:
+        - to_email
+      type: object
     SaleView:
       properties:
         accepted_offer_id:
@@ -10319,6 +10332,12 @@ components:
             - "null"
         recipient_accepted:
           type: boolean
+        sale_id:
+          description: Completed sale this transfer follows (SALE cases)
+          format: uuid
+          type:
+            - string
+            - "null"
         status:
           type: string
         to_email:
@@ -23978,6 +23997,59 @@ paths:
       security:
         - OwnerBearer: []
       summary: Accept, counter or decline an offer
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/ownership-transfer:
+    post:
+      description: Step-up required. Completing a sale never changes the owner. This opens a SALE ownership-change case linked to the completed sale, with the same guards as any transfer (step-up, verified authority, identity verification, co-owner OWNERSHIP_TRANSFER consent) plus the sale prerequisites (COMPLETED, every required milestone met). The buyer accepts from their owner account, evidence is submitted and platform review decides. Retrying with the same recipient returns the existing case.
+      operationId: openSaleOwnershipTransfer
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaleTransferInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open the ownership transfer that follows a completed sale
       tags:
         - Sales
   /api/v1/owner/utilities/{utility_account_id}:

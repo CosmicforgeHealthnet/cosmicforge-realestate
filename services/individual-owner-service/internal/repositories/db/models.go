@@ -1314,6 +1314,7 @@ type OwnershipChangeCase struct {
 	Version            int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+	SaleID             *ids.ID
 }
 
 type OwnershipConsent struct {

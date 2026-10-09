@@ -5474,6 +5474,12 @@ components:
             - "null"
         recipient_accepted:
           type: boolean
+        sale_id:
+          description: Completed sale this transfer follows (SALE cases)
+          format: uuid
+          type:
+            - string
+            - "null"
         status:
           type: string
         to_email:

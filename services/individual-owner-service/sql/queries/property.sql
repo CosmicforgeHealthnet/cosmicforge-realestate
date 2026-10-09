@@ -369,6 +369,15 @@ INSERT INTO ownership_change_cases (id, property_id, case_type, from_record_id, 
 VALUES ($1, $2, $3, $4, $5, $6, 'OPEN', $7, $8, 1, $9, $9)
 RETURNING *;
 
+-- name: InsertSaleChangeCase :one
+INSERT INTO ownership_change_cases (id, property_id, case_type, from_record_id, to_email, status, requested_by_account, reason, sale_id,
+    version, created_at, updated_at)
+VALUES ($1, $2, 'SALE', $3, $4, 'OPEN', $5, $6, $7, 1, $8, $8)
+RETURNING *;
+
+-- name: GetLiveSaleChangeCase :one
+SELECT * FROM ownership_change_cases WHERE sale_id = $1 AND status NOT IN ('REJECTED','CANCELLED');
+
 -- name: GetChangeCase :one
 SELECT * FROM ownership_change_cases WHERE id = $1;
 

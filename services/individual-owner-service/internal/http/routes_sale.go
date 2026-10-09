@@ -103,6 +103,14 @@ func saleRoutes() []Route {
 			}).
 			Describe("Contracting needs no unresolved blocking diligence; closing needs the documentary/consent milestones; completion needs every required milestone and marks the listing SOLD.").
 			Errs(409, 422),
+		Command("POST", "/transactions/sales/{sale_id}/ownership-transfer", "openSaleOwnershipTransfer", tagSales, "Open the ownership transfer that follows a completed sale", http.StatusCreated,
+			func(c *Call, in *usecases.SaleTransferInput) (usecases.TransferView, error) {
+				return c.S.OpenSaleTransfer(c.Ctx, c.Subj, sid(c), *in)
+			}).SteppedUp().
+			Describe("Completing a sale never changes the owner. This opens a SALE ownership-change case linked to the completed sale, with the same guards as any transfer "+
+				"(step-up, verified authority, identity verification, co-owner OWNERSHIP_TRANSFER consent) plus the sale prerequisites (COMPLETED, every required milestone met). "+
+				"The buyer accepts from their owner account, evidence is submitted and platform review decides. Retrying with the same recipient returns the existing case.").
+			Errs(409, 422),
 		Command("POST", "/transactions/sales/{sale_id}/end", "endSale", tagSales, "Cancel, fail, dispute or resume a sale", http.StatusOK,
 			func(c *Call, in *usecases.EndSaleInput) (usecases.SaleView, error) {
 				return c.S.EndSale(c.Ctx, c.Subj, sid(c), *in)

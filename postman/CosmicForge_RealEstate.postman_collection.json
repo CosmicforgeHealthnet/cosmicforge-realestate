@@ -24369,6 +24369,68 @@
               "response": []
             },
             {
+              "name": "Open the ownership transfer that follows a completed sale",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/ownership-transfer",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "ownership-transfer"
+                  ]
+                },
+                "description": "Open the ownership transfer that follows a completed sale. Step-up required (POST /auth/step-up first).\n\nCompleting a sale never changes the owner. This opens a SALE ownership-change case linked to the completed sale, with the same guards as any transfer (step-up, verified authority, identity verification, co-owner OWNERSHIP_TRANSFER consent) plus the sale prerequisites (COMPLETED, every required milestone met). The buyer accepts from their owner account, evidence is submitted and platform review decides. Retrying with the same recipient returns the existing case.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"to_email\": \"owner.example@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Cancel, fail, dispute or resume a sale",
               "event": [
                 {
