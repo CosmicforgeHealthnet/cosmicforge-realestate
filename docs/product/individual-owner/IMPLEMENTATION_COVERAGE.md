@@ -171,7 +171,8 @@ Test evidence paths are relative to `services/individual-owner-service/` unless 
 | Docker image | build + non-root + binaries + process smoke (migrate up, /ready, /version, JWKS) | OK |
 | gitleaks 8.28.0 | `gitleaks git` and `gitleaks dir` with `--exit-code 1` | no leaks (two reviewed history false positives in `.gitleaksignore`) |
 | Trivy 0.57.0 config | `trivy config --severity HIGH,CRITICAL` on the service | no findings (embedded checks; policy download blocked by sandbox proxy) |
-| govulncheck / Trivy image scan | CI (`security.yml`, `images.yml`) | not runnable here (vulnerability DB download blocked by proxy) — CI evidence required |
+| govulncheck | CI `security.yml` | failed on 2026-10-09 for **all** modules on newly published `golang.org/x/net@v0.59.0` advisories (GO-2026-6603, GO-2026-6611, …); fixed by bumping every module to v0.60.0; full regression (all modules, `-race`, real PostgreSQL/Redis/MinIO, e2e) re-run green locally — CI re-run required |
+| Trivy image scan | CI `images.yml` | passed for `individual-owner-service` at `127fcba` |
 
 Deployment wiring (staging/production compose entries, `promote.yml` digest input) is intentionally
 not added until an owner image digest exists and deployment is approved.
