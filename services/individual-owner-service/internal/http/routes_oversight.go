@@ -20,6 +20,16 @@ func disputeEvidence[Req mediaRefs](c *Call, in *Req) (usecases.Evidence, error)
 
 func oversightRoutes() []Route {
 	return []Route{
+		List("/properties/{property_id}/announcements", "listAnnouncements", "Announcements", "Announcements to tenants and guests with delivery status",
+			func(c *Call, _ Page) (pagination.Response[usecases.AnnouncementView], error) {
+				return slice(c.S.ListAnnouncements(c.Ctx, c.Subj, c.ID("property_id")))
+			}),
+		Command("POST", "/properties/{property_id}/announcements", "createAnnouncement", "Announcements", "Notify current tenants or guests", http.StatusCreated,
+			func(c *Call, in *usecases.AnnouncementInput) (usecases.AnnouncementView, error) {
+				return c.S.Announce(c.Ctx, c.Subj, c.ID("property_id"), *in)
+			}).Describe("Operational purposes only (no marketing), at most 5 per property per day. Recipients are tenants of active tenancies and guests " +
+			"of confirmed/current stays of this property. Delivery is requested from the recipients' own domain, which applies their consent and " +
+			"preferred channels; until that contract exists requests are recorded and reported as BLOCKED.").Errs(409),
 		Get("/dashboard", "getDashboard", tagReports, "Owner dashboard",
 			func(c *Call) (usecases.DashboardView, error) { return c.S.Dashboard(c.Ctx, c.Subj) }).
 			Describe("Portfolio counts, items awaiting the owner, rent highlights and the next 14 days."),

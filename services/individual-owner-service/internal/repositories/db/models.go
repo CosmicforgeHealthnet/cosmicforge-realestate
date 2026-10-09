@@ -420,6 +420,26 @@ type Consent struct {
 	CreatedAt     time.Time
 }
 
+type CustomerNotification struct {
+	ID               ids.ID
+	AnnouncementID   *ids.ID
+	PropertyID       ids.ID
+	RecipientDomain  string
+	RecipientRef     ids.ID
+	RelationshipType string
+	RelationshipID   ids.ID
+	Purpose          string
+	Variables        []byte
+	Status           string
+	StatusReason     *string
+	Channels         []string
+	ExternalRef      *string
+	Attempts         int32
+	NextAttemptAt    time.Time
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
 type DamageClaim struct {
 	ID                    ids.ID
 	BookingID             ids.ID
@@ -1223,6 +1243,20 @@ type OwnerAccount struct {
 	Version            int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+type OwnerAnnouncement struct {
+	ID               ids.ID
+	PropertyID       ids.ID
+	SenderAccountID  ids.ID
+	SenderRole       string
+	Audience         string
+	Purpose          string
+	Title            string
+	Message          string
+	Recipients       int32
+	SkippedNoAccount int32
+	CreatedAt        time.Time
 }
 
 type OwnerContact struct {

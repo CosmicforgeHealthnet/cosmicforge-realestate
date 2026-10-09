@@ -17,6 +17,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/credentials"
 	ohttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/calendarsync"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/customernotify"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/esign"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/financing"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/insurance"
@@ -70,6 +71,8 @@ type Overrides struct {
 	Financing    financing.API
 	Insurance    insurance.API
 	SmartAccess  smartaccess.API
+	// CustomerNotify asks a recipient's own domain to notify its customer.
+	CustomerNotify customernotify.API
 }
 
 // Build wires the shared components (database, use cases, HTTP router).
@@ -146,7 +149,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 		Sessions: sessions.Config{MaxSessionLifetime: cfg.SessionLifetime, TokenIdleTTL: cfg.RefreshIdleTTL},
 		Hasher:   hasher, Sealer: sealer, TOTP: credentials.TOTP{Issuer: cfg.TOTPIssuer}, Notify: notify, OAuth: oauth.NewRegistry(),
 		Authz: engine, Policy: cfg.Policy, Logger: log, Now: now, ClosureHolds: ov.ClosureHolds,
-		Verification: verif, Media: med, Payment: ov.Payment, ESign: ov.ESign, CalendarSync: ov.CalendarSync, Financing: ov.Financing, Insurance: ov.Insurance, SmartAccess: ov.SmartAccess,
+		Verification: verif, Media: med, Payment: ov.Payment, ESign: ov.ESign, CalendarSync: ov.CalendarSync, Financing: ov.Financing, Insurance: ov.Insurance, SmartAccess: ov.SmartAccess, CustomerNotify: ov.CustomerNotify,
 	})
 	if err != nil {
 		return fail(err)

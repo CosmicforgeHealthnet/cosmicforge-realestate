@@ -903,6 +903,82 @@ components:
         - shares
         - created_at
       type: object
+    AnnouncementInputInput:
+      additionalProperties: false
+      properties:
+        audience:
+          enum:
+            - TENANTS
+            - GUESTS
+          type: string
+        message:
+          maxLength: 1000
+          minLength: 3
+          type: string
+        purpose:
+          description: Operational purposes only; marketing is not allowed
+          enum:
+            - SERVICE_ANNOUNCEMENT
+            - UTILITY_INTERRUPTION
+            - SERVICE_CHARGE_UPDATE
+            - MAINTENANCE_ACCESS
+            - SAFETY_NOTICE
+          type: string
+        title:
+          maxLength: 120
+          minLength: 3
+          type: string
+      required:
+        - audience
+        - purpose
+        - title
+        - message
+      type: object
+    AnnouncementView:
+      properties:
+        audience:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        delivery:
+          additionalProperties:
+            type: integer
+          description: 'Per-recipient status counts: PENDING, ACCEPTED, SUPPRESSED, BLOCKED, FAILED'
+          type: object
+        id:
+          format: uuid
+          type: string
+        message:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        purpose:
+          type: string
+        recipients:
+          description: Tenants/guests with a platform account
+          type: integer
+        sender_role:
+          type: string
+        skipped_no_account:
+          description: Offline tenants without a platform account (not reachable through the platform)
+          type: integer
+        title:
+          type: string
+      required:
+        - id
+        - property_id
+        - audience
+        - purpose
+        - title
+        - message
+        - sender_role
+        - recipients
+        - skipped_no_account
+        - delivery
+        - created_at
+      type: object
     ApplicationView:
       properties:
         allowed_next_statuses:
@@ -18186,6 +18262,107 @@ paths:
       summary: Update property details (If-Match)
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/announcements:
+    get:
+      operationId: listAnnouncements
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AnnouncementView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Announcements to tenants and guests with delivery status
+      tags:
+        - Announcements
+    post:
+      description: Operational purposes only (no marketing), at most 5 per property per day. Recipients are tenants of active tenancies and guests of confirmed/current stays of this property. Delivery is requested from the recipients' own domain, which applies their consent and preferred channels; until that contract exists requests are recorded and reported as BLOCKED.
+      operationId: createAnnouncement
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnnouncementView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Notify current tenants or guests
+      tags:
+        - Announcements
   /api/v1/owner/properties/{property_id}/archive:
     post:
       operationId: archiveProperty

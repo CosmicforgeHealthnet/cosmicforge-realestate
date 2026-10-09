@@ -150,6 +150,7 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		{Name: "professional-fees", Run: func(ctx context.Context) error { return s.RunProfessionalJobs(ctx, cfg.Batch) }},
 		{Name: "smart-access-expiry", Run: func(ctx context.Context) error { return s.RunAccessJobs(ctx, cfg.Batch) }},
 		{Name: "insurance-renewals", Run: func(ctx context.Context) error { return s.RunInsuranceJobs(ctx, cfg.Batch) }},
+		{Name: "customer-notifications", Run: func(ctx context.Context) error { return s.RunCustomerNotifications(ctx, cfg.Batch) }},
 		{Name: "report-generation", Run: func(ctx context.Context) error { return s.RunReportJobs(ctx, cfg.Batch) }},
 		{Name: "privacy-requests-and-retention", Run: func(ctx context.Context) error { return s.RunPrivacyJobs(ctx, cfg.Batch) }},
 		{Name: "shortlet-bookings-calendar-and-claims", Run: func(ctx context.Context) error { return s.RunShortletJobs(ctx, cfg.Batch) }},

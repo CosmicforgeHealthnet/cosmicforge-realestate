@@ -39,16 +39,23 @@ func TestLoadValidConfiguration(t *testing.T) {
 
 func TestLoadFailsFast(t *testing.T) {
 	cases := map[string]func(map[string]string){
-		"missing pepper":       func(m map[string]string) { delete(m, "OWNER_CODE_PEPPER") },
-		"short pepper":         func(m map[string]string) { m["OWNER_CODE_PEPPER"] = "short" },
-		"bad mfa key":          func(m map[string]string) { m["OWNER_MFA_ENCRYPTION_KEY"] = "abcd" },
-		"bad signing key":      func(m map[string]string) { m["OWNER_ACCESS_TOKEN_PRIVATE_KEY"] = "nope" },
-		"ttl too long":         func(m map[string]string) { m["OWNER_ACCESS_TOKEN_TTL"] = "2h" },
-		"oauth not available":  func(m map[string]string) { m["OWNER_OAUTH_PROVIDERS"] = "google" },
-		"bad fallback":         func(m map[string]string) { m["OWNER_MFA_FALLBACK_METHODS"] = "WHATSAPP" },
-		"bad activation rule":  func(m map[string]string) { m["OWNER_ACTIVATION_REQUIRES"] = "NONE" },
-		"missing notification": func(m map[string]string) { delete(m, "NOTIFICATION_SERVICE_URL") },
-		"step-up too long":     func(m map[string]string) { m["OWNER_STEP_UP_WINDOW"] = "2h" },
+		"missing pepper":                func(m map[string]string) { delete(m, "OWNER_CODE_PEPPER") },
+		"short pepper":                  func(m map[string]string) { m["OWNER_CODE_PEPPER"] = "short" },
+		"bad mfa key":                   func(m map[string]string) { m["OWNER_MFA_ENCRYPTION_KEY"] = "abcd" },
+		"bad signing key":               func(m map[string]string) { m["OWNER_ACCESS_TOKEN_PRIVATE_KEY"] = "nope" },
+		"ttl too long":                  func(m map[string]string) { m["OWNER_ACCESS_TOKEN_TTL"] = "2h" },
+		"oauth not available":           func(m map[string]string) { m["OWNER_OAUTH_PROVIDERS"] = "google" },
+		"payment not available":         func(m map[string]string) { m["PAYMENT_SERVICE_URL"] = "http://payment-service:8080" },
+		"esign not available":           func(m map[string]string) { m["ESIGN_PROVIDER"] = "docusign" },
+		"calendar not available":        func(m map[string]string) { m["EXTERNAL_CALENDAR_PROVIDER"] = "ical" },
+		"financing not available":       func(m map[string]string) { m["FINANCING_PROVIDER"] = "partner" },
+		"insurance not available":       func(m map[string]string) { m["INSURANCE_PROVIDER"] = "partner" },
+		"smart access not available":    func(m map[string]string) { m["SMART_ACCESS_PROVIDER"] = "locks" },
+		"customer notify not available": func(m map[string]string) { m["CUSTOMER_NOTIFY_SERVICE_URL"] = "http://marketplace-service:8080" },
+		"bad fallback":                  func(m map[string]string) { m["OWNER_MFA_FALLBACK_METHODS"] = "WHATSAPP" },
+		"bad activation rule":           func(m map[string]string) { m["OWNER_ACTIVATION_REQUIRES"] = "NONE" },
+		"missing notification":          func(m map[string]string) { delete(m, "NOTIFICATION_SERVICE_URL") },
+		"step-up too long":              func(m map[string]string) { m["OWNER_STEP_UP_WINDOW"] = "2h" },
 		"bad retired keys": func(m map[string]string) {
 			m["OWNER_ACCESS_TOKEN_RETIRED_KEYS"] = "[{\"kid\":\"x\",\"public_key\":\"bad\"}]"
 		},

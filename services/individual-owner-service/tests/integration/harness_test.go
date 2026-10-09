@@ -94,21 +94,22 @@ func (c *clock) advance(d time.Duration) {
 }
 
 type harness struct {
-	verif   *fakeVerification
-	media   *fakeMedia
-	pay     *fakePayment
-	esign   *fakeESign
-	cal     *fakeCalendar
-	fin     *fakeFinancing
-	smart   *fakeSmartAccess
-	t       *testing.T
-	db      *testkit.Database
-	app     *app.App
-	srv     *httptest.Server
-	notify  *fakeNotify
-	clock   *clock
-	signers map[platform.Service]*serviceauth.Signer
-	userKey jwt.SigningKey
+	verif          *fakeVerification
+	media          *fakeMedia
+	pay            *fakePayment
+	esign          *fakeESign
+	cal            *fakeCalendar
+	fin            *fakeFinancing
+	smart          *fakeSmartAccess
+	customerNotify *fakeRecipientDomain
+	t              *testing.T
+	db             *testkit.Database
+	app            *app.App
+	srv            *httptest.Server
+	notify         *fakeNotify
+	clock          *clock
+	signers        map[platform.Service]*serviceauth.Signer
+	userKey        jwt.SigningKey
 }
 
 var callers = []platform.Service{platform.APIGateway, platform.AdminService, platform.MarketplaceService,
@@ -166,6 +167,9 @@ func newHarness(t *testing.T, opts ...func(*harness)) *harness {
 	}
 	if h.smart != nil {
 		ov.SmartAccess = h.smart
+	}
+	if h.customerNotify != nil {
+		ov.CustomerNotify = h.customerNotify
 	}
 	logger := logging.Discard()
 	if os.Getenv("CF_TEST_LOG") != "" {

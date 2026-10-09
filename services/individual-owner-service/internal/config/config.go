@@ -149,7 +149,8 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	esignProvider := l.String("ESIGN_PROVIDER", "")
 	calendarProvider := l.String("EXTERNAL_CALENDAR_PROVIDER", "")
 	partnerProviders := map[string]string{"FINANCING_PROVIDER": l.String("FINANCING_PROVIDER", ""), "INSURANCE_PROVIDER": l.String("INSURANCE_PROVIDER", ""),
-		"SMART_ACCESS_PROVIDER": l.String("SMART_ACCESS_PROVIDER", "")}
+		"SMART_ACCESS_PROVIDER":       l.String("SMART_ACCESS_PROVIDER", ""),
+		"CUSTOMER_NOTIFY_SERVICE_URL": l.String("CUSTOMER_NOTIFY_SERVICE_URL", "")}
 
 	oauthProviders := l.List("OWNER_OAUTH_PROVIDERS", nil)
 	c.NotificationServiceURL = l.Required("NOTIFICATION_SERVICE_URL")
@@ -233,7 +234,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		// short-let availability is managed on the platform only (spec §12).
 		problems = append(problems, "EXTERNAL_CALENDAR_PROVIDER must be empty: no calendar-sync adapter is implemented")
 	}
-	for _, k := range []string{"FINANCING_PROVIDER", "INSURANCE_PROVIDER", "SMART_ACCESS_PROVIDER"} {
+	for _, k := range []string{"FINANCING_PROVIDER", "INSURANCE_PROVIDER", "SMART_ACCESS_PROVIDER", "CUSTOMER_NOTIFY_SERVICE_URL"} {
 		if partnerProviders[k] != "" {
 			// No partner/device adapter is implemented (spec §12); the
 			// dependent features answer 503 FEATURE_UNAVAILABLE.
