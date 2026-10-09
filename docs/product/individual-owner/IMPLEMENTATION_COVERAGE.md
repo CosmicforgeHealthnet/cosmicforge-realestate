@@ -4,7 +4,7 @@
 |---|---|
 | Service | `services/individual-owner-service` · database `individual_owner_db` |
 | Documented foundation baseline | F1–F5 certified at `54425cb5df86fbb239c4faab624d786f98fb343e` |
-| Implementation commits | `31ef5fc` (Section 5 service), `606341e` (gateway prefix, Postman, e2e) |
+| Implementation commits | `31ef5fc` (Section 5 service), `606341e` (gateway prefix, Postman, e2e), `127fcba` (register), `ecf5ee4` (x/net security bump) |
 | Last updated | 2026-10-09 |
 
 ## Specification availability — BLOCKING
@@ -171,7 +171,7 @@ Test evidence paths are relative to `services/individual-owner-service/` unless 
 | Docker image | build + non-root + binaries + process smoke (migrate up, /ready, /version, JWKS) | OK |
 | gitleaks 8.28.0 | `gitleaks git` and `gitleaks dir` with `--exit-code 1` | no leaks (two reviewed history false positives in `.gitleaksignore`) |
 | Trivy 0.57.0 config | `trivy config --severity HIGH,CRITICAL` on the service | no findings (embedded checks; policy download blocked by sandbox proxy) |
-| govulncheck | CI `security.yml` | failed on 2026-10-09 for **all** modules on newly published `golang.org/x/net@v0.59.0` advisories (GO-2026-6603, GO-2026-6611, …); fixed by bumping every module to v0.60.0; full regression (all modules, `-race`, real PostgreSQL/Redis/MinIO, e2e) re-run green locally — CI re-run required |
+| govulncheck | CI `security.yml` | failed on 2026-10-09 for **all** modules on newly published `golang.org/x/net@v0.59.0` advisories (GO-2026-6603, GO-2026-6611, …); fixed by bumping every module to v0.60.0; full regression (all modules, `-race`, real PostgreSQL/Redis/MinIO, e2e) re-run green locally; CI Security/Backend/Images/Contracts/Structure all green at `ecf5ee4` |
 | Trivy image scan | CI `images.yml` | passed for `individual-owner-service` at `127fcba` |
 
 Deployment wiring (staging/production compose entries, `promote.yml` digest input) is intentionally
