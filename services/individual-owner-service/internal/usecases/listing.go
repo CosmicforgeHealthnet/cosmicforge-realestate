@@ -506,7 +506,8 @@ func (s *Service) readiness(ctx context.Context, l db.Listing) ([]Problem, error
 		add("PRICING_NOT_SET", "A complete price with every mandatory fee must be disclosed.")
 	}
 	if a, err := s.q.GetAvailability(ctx, q, l.ID); err == nil {
-		if slices.Contains([]string{"OCCUPIED", "OFF_MARKET", "SOLD", "WITHDRAWN"}, a.Status) {
+		reletting := a.Status == "OCCUPIED" && a.AvailableFrom != nil && a.AvailableFrom.After(s.now())
+		if slices.Contains([]string{"OCCUPIED", "OFF_MARKET", "SOLD", "WITHDRAWN", "OFFER_ACCEPTED"}, a.Status) && !reletting {
 			add("NOT_AVAILABLE", "Availability is "+a.Status+".")
 		}
 	} else if !isNoRows(err) {

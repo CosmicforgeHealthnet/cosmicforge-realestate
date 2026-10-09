@@ -60,7 +60,7 @@ func (s *Service) GetAvailability(ctx context.Context, subj authz.Subject, listi
 
 // AvailabilityInput sets the owner-controlled availability.
 type AvailabilityInput struct {
-	Status         string  `json:"status" v:"required,enum=AVAILABLE|TEMP_UNAVAILABLE|OFF_MARKET|OCCUPIED|SOLD" doc:"RESERVED/APPLICATION_UNDER_REVIEW/OFFER_ACCEPTED are set by applications and offers"`
+	Status         string  `json:"status" v:"required,enum=AVAILABLE|TEMP_UNAVAILABLE|OFF_MARKET|OCCUPIED|SOLD" doc:"RESERVED/APPLICATION_UNDER_REVIEW/OFFER_ACCEPTED are set by applications and offers; OCCUPIED with a future available_from keeps the listing live (re-letting, occupant consent gates viewings)"`
 	AvailableFrom  *string `json:"available_from,omitempty" v:"format=date"`
 	AvailableUntil *string `json:"available_until,omitempty" v:"format=date"`
 	Note           *string `json:"note,omitempty" v:"max=500"`
@@ -106,7 +106,10 @@ func (s *Service) PutAvailability(ctx context.Context, subj authz.Subject, listi
 			UpdatedAt: s.now()}); err != nil {
 			return err
 		}
-		if l.Status == "PUBLISHED" && slices.Contains([]string{"OFF_MARKET", "OCCUPIED", "SOLD"}, in.Status) {
+		// An occupied property may be re-let ahead of move-out when a future
+		// available_from is given; otherwise these states take it off the market.
+		reletting := in.Status == "OCCUPIED" && from != nil && from.After(s.now())
+		if l.Status == "PUBLISHED" && slices.Contains([]string{"OFF_MARKET", "OCCUPIED", "SOLD"}, in.Status) && !reletting {
 			if err := s.pauseTx(ctx, l, "SYSTEM", "AVAILABILITY_"+in.Status); err != nil {
 				return err
 			}

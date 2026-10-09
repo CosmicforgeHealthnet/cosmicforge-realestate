@@ -39,6 +39,53 @@ type AccountStatusHistory struct {
 	OccurredAt          time.Time
 }
 
+type ApplicationDecision struct {
+	ID                ids.ID
+	ApplicationID     ids.ID
+	Decision          string
+	ReasonCodes       []string
+	Conditions        []string
+	Note              *string
+	ScreeningPolicyID *ids.ID
+	PolicyVersion     string
+	HumanReview       bool
+	ActorDomain       string
+	ActorID           ids.ID
+	DecidedAt         time.Time
+}
+
+type ApplicationEvidenceGrant struct {
+	ID             ids.ID
+	ApplicationID  ids.ID
+	ParticipantID  *ids.ID
+	EvidenceType   string
+	Purpose        string
+	Status         string
+	MediaID        *ids.ID
+	RequestNote    *string
+	DueAt          *time.Time
+	GrantedAt      *time.Time
+	ExpiresAt      *time.Time
+	RevokedAt      *time.Time
+	AccessCount    int32
+	LastAccessedAt *time.Time
+	CreatedAt      time.Time
+}
+
+type ApplicationParticipant struct {
+	ID                         ids.ID
+	ApplicationID              ids.ID
+	Role                       string
+	CustomerRefID              *ids.ID
+	DisplayName                string
+	Relationship               *string
+	EmploymentStatus           *string
+	DeclaredMonthlyIncomeMinor *int64
+	IncomeCurrency             *string
+	IdentityVerificationID     *ids.ID
+	CreatedAt                  time.Time
+}
+
 type AuditEvent struct {
 	AuditID        ids.ID
 	OccurredAt     time.Time
@@ -211,6 +258,30 @@ type IdempotencyRecord struct {
 	ExpiresAt      time.Time
 }
 
+type Inquiry struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	ListingID           ids.ID
+	CustomerRefID       ids.ID
+	CustomerDisplayName string
+	Channel             string
+	Status              string
+	Priority            string
+	ConversationRef     *string
+	IntendedMoveIn      *time.Time
+	Occupants           *int32
+	TermMonths          *int32
+	BudgetWithinRange   *bool
+	HasPets             *bool
+	FollowUpAt          *time.Time
+	CloseReason         *string
+	ExternalRef         *string
+	AcknowledgedAt      *time.Time
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
 type LandParcel struct {
 	ID              ids.ID
 	PropertyID      ids.ID
@@ -224,6 +295,19 @@ type LandParcel struct {
 	Version         int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+}
+
+type LeadActivity struct {
+	ID           ids.ID
+	InquiryID    ids.ID
+	PropertyID   ids.ID
+	ActivityType string
+	Note         *string
+	RefType      *string
+	RefID        *ids.ID
+	ActorDomain  *string
+	ActorID      *ids.ID
+	OccurredAt   time.Time
 }
 
 type LifecycleTransition struct {
@@ -784,6 +868,74 @@ type PropertyUnit struct {
 	UpdatedAt    time.Time
 }
 
+type RentalApplication struct {
+	ID                 ids.ID
+	PropertyID         ids.ID
+	ListingID          ids.ID
+	UnitID             *ids.ID
+	InquiryID          *ids.ID
+	CustomerRefID      ids.ID
+	Status             string
+	DesiredMoveIn      *time.Time
+	TermMonths         *int32
+	Occupants          *int32
+	HasPets            *bool
+	ScreeningPolicyID  *ids.ID
+	SubmittedAt        *time.Time
+	RespondBy          *time.Time
+	ExpiresAt          *time.Time
+	ApplicantConsentAt time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type RentalOffer struct {
+	ID               ids.ID
+	ApplicationID    ids.ID
+	PropertyID       ids.ID
+	ListingID        ids.ID
+	UnitID           *ids.ID
+	CustomerRefID    ids.ID
+	Status           string
+	PricingVersionID ids.ID
+	CostSnapshot     []byte
+	StartDate        time.Time
+	TermMonths       int32
+	Conditions       []string
+	ExpiresAt        time.Time
+	SentAt           *time.Time
+	RespondedAt      *time.Time
+	WithdrawReason   *string
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type ScreeningPolicy struct {
+	ID                   ids.ID
+	PropertyID           ids.ID
+	VersionNo            int32
+	Criteria             []byte
+	PolicyVersion        string
+	CreatedByActorDomain string
+	CreatedByActorID     ids.ID
+	CreatedAt            time.Time
+}
+
+type ScreeningResult struct {
+	ID            ids.ID
+	ApplicationID ids.ID
+	PolicyID      ids.ID
+	Criterion     string
+	Outcome       string
+	Source        string
+	Note          *string
+	ActorDomain   *string
+	ActorID       *ids.ID
+	RecordedAt    time.Time
+}
+
 type TaxProfile struct {
 	AccountID            ids.ID
 	TaxIDType            *string
@@ -812,4 +964,67 @@ type VerificationLink struct {
 	LastEventAt       *time.Time
 	LastSyncedAt      time.Time
 	CreatedAt         time.Time
+}
+
+type ViewingAttendance struct {
+	ID          ids.ID
+	ViewingID   ids.ID
+	Party       string
+	Outcome     string
+	Rating      *int32
+	Feedback    *string
+	SafetyFlag  bool
+	ActorDomain *string
+	ActorID     *ids.ID
+	OccurredAt  time.Time
+}
+
+type ViewingRequest struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	ListingID           ids.ID
+	SlotID              *ids.ID
+	InquiryID           *ids.ID
+	CustomerRefID       ids.ID
+	CustomerDisplayName string
+	Mode                string
+	Status              string
+	StartsAt            time.Time
+	EndsAt              time.Time
+	ProposedStartsAt    *time.Time
+	ProposedEndsAt      *time.Time
+	HostType            string
+	HostRefID           *ids.ID
+	Occupied            bool
+	OccupantConsentAt   *time.Time
+	OccupantConsentRef  *string
+	AccessCodeSealed    []byte
+	AccessCodeKeyID     *string
+	AccessCodeExpiresAt *time.Time
+	ConversationRef     *string
+	OwnerNotes          *string
+	CancelReason        *string
+	CancelledBy         *string
+	ReminderSentAt      *time.Time
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type ViewingSlot struct {
+	ID         ids.ID
+	PropertyID ids.ID
+	ListingID  ids.ID
+	StartsAt   time.Time
+	EndsAt     time.Time
+	Mode       string
+	Capacity   int32
+	Booked     int32
+	HostType   string
+	HostRefID  *ids.ID
+	Status     string
+	Notes      *string
+	Version    int64
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }

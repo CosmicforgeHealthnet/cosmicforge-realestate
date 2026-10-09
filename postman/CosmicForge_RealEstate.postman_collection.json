@@ -355,6 +355,56 @@
       "key": "proposal_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "application_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "application_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "grant_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inquiry_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inquiry_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "offer_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "offer_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "viewing_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "viewing_slot_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "viewing_version",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -11855,6 +11905,471 @@
           "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
           "item": [
             {
+              "name": "Marketplace inquiry for a published listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/inquiries",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "inquiries"
+                  ]
+                },
+                "description": "Marketplace inquiry for a published listing.\n\nCaller: marketplace-service with a delegated marketplace customer actor. Message content stays in CF Meet.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customer_display_name\": \"Sample name\",\n  \"listing_id\": \"{{listing_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Marketplace viewing request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/viewings",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "viewings"
+                  ]
+                },
+                "description": "Marketplace viewing request.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customer_display_name\": \"Sample name\",\n  \"listing_id\": \"{{listing_id}}\",\n  \"mode\": \"PHYSICAL\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer accepts a reschedule or cancels",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/viewings/{{viewing_id}}/customer-response",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "customer-response"
+                  ]
+                },
+                "description": "Customer accepts a reschedule or cancels.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"ACCEPT_RESCHEDULE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer's appointment and access code",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/viewings/{{viewing_id}}/access",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "access"
+                  ]
+                },
+                "description": "Customer's appointment and access code.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Marketplace rental application",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/applications",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "applications"
+                  ]
+                },
+                "description": "Marketplace rental application.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"listing_id\": \"{{listing_id}}\",\n  \"participants\": [\n    {\n      \"display_name\": \"Sample name\",\n      \"role\": \"PRIMARY\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer grants time-limited evidence",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/applications/{{application_id}}/evidence",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "evidence"
+                  ]
+                },
+                "description": "Customer grants time-limited evidence.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"media_id\": \"{{media_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer withdraws or appeals",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/applications/{{application_id}}/customer-action",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "customer-action"
+                  ]
+                },
+                "description": "Customer withdraws or appeals.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"WITHDRAW\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer accepts or declines a rental offer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/offers/{{offer_id}}/response",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "offers",
+                    "{{offer_id}}",
+                    "response"
+                  ]
+                },
+                "description": "Customer accepts or declines a rental offer.\n\nAcceptance freezes the pricing version and moves the listing to OFFER_ACCEPTED; competing acceptances are serialized.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Fresh public property/authority summary (marketplace read-back)",
               "event": [
                 {
@@ -14106,6 +14621,1888 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Leads",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Lead pipeline across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries"
+                  ]
+                },
+                "description": "Lead pipeline across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Inquiry with its activity history",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('inquiry_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries/{{inquiry_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries",
+                    "{{inquiry_id}}"
+                  ]
+                },
+                "description": "Inquiry with its activity history.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Priority, follow-up reminder or owner note (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('inquiry_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{inquiry_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries/{{inquiry_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries",
+                    "{{inquiry_id}}"
+                  ]
+                },
+                "description": "Priority, follow-up reminder or owner note (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Acknowledge an inquiry",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries/{{inquiry_id}}/acknowledge",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries",
+                    "{{inquiry_id}}",
+                    "acknowledge"
+                  ]
+                },
+                "description": "Acknowledge an inquiry.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Qualify (or close) a lead with lawful fields",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries/{{inquiry_id}}/qualify",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries",
+                    "{{inquiry_id}}",
+                    "qualify"
+                  ]
+                },
+                "description": "Qualify (or close) a lead with lawful fields.\n\nOnly a fixed set of lawful qualification fields and closing reasons are accepted (no owner-defined criteria).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"QUALIFIED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Close a lead as won or lost",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/inquiries/{{inquiry_id}}/close",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "inquiries",
+                    "{{inquiry_id}}",
+                    "close"
+                  ]
+                },
+                "description": "Close a lead as won or lost.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"CLOSED_WON\",\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Listing campaigns and promotion",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/campaigns?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "campaigns"
+                  ]
+                },
+                "description": "Listing campaigns and promotion.\n\nPromotion references marketplace commercial capability (and payment-service for paid promotion), which have no implemented contract: 503 FEATURE_UNAVAILABLE.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Viewings",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Upcoming viewing slots of a listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewing-slots?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewing-slots"
+                  ]
+                },
+                "description": "Upcoming viewing slots of a listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Open a viewing slot",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('viewing_slot_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewing-slots",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewing-slots"
+                  ]
+                },
+                "description": "Open a viewing slot.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ends_at\": \"2026-12-01T10:00:00Z\",\n  \"listing_id\": \"{{listing_id}}\",\n  \"mode\": \"PHYSICAL\",\n  \"starts_at\": \"2026-12-01T10:00:00Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel a slot and its bookings",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewing-slots/{{viewing_slot_id}}/cancel",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewing-slots",
+                    "{{viewing_slot_id}}",
+                    "cancel"
+                  ]
+                },
+                "description": "Cancel a slot and its bookings.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Viewings across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings"
+                  ]
+                },
+                "description": "Viewings across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Get a viewing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('viewing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}"
+                  ]
+                },
+                "description": "Get a viewing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Owner notes (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('viewing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{viewing_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}"
+                  ]
+                },
+                "description": "Owner notes (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Confirm a requested viewing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/approve",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "approve"
+                  ]
+                },
+                "description": "Confirm a requested viewing.\n\nPhysical viewings receive a one-time access code (returned once). Occupied properties need occupant consent first.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Propose a new time or slot",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/reschedule",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "reschedule"
+                  ]
+                },
+                "description": "Propose a new time or slot.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel a viewing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/cancel",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "cancel"
+                  ]
+                },
+                "description": "Cancel a viewing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"OWNER_UNAVAILABLE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Assign who conducts the viewing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/representative",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "representative"
+                  ]
+                },
+                "description": "Assign who conducts the viewing.\n\nA representative or manager must hold viewings.manage for this property for the whole viewing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"host_type\": \"OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record occupant consent (occupied property)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/occupant-consent",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "occupant-consent"
+                  ]
+                },
+                "description": "Record occupant consent (occupied property).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"consent_ref\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record arrival (verifies the access code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/check-in",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "check-in"
+                  ]
+                },
+                "description": "Record arrival (verifies the access code).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Complete a viewing or record a no-show",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/viewings/{{viewing_id}}/outcome",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "viewings",
+                    "{{viewing_id}}",
+                    "outcome"
+                  ]
+                },
+                "description": "Complete a viewing or record a no-show.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"COMPLETED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Applications",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Screening policy versions",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/screening-policies?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "screening-policies"
+                  ]
+                },
+                "description": "Screening policy versions.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "New screening policy version (configured criteria only)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/screening-policies",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "screening-policies"
+                  ]
+                },
+                "description": "New screening policy version (configured criteria only).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"criteria\": [\n    {\n      \"type\": \"MIN_INCOME_MULTIPLE\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Applications across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications"
+                  ]
+                },
+                "description": "Applications across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Full application for review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('application_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}"
+                  ]
+                },
+                "description": "Full application for review.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Start (or resume) review; appeals go to human review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/review",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "review"
+                  ]
+                },
+                "description": "Start (or resume) review; appeals go to human review.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Request evidence (alternative evidence accepted)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/request-info",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "request-info"
+                  ]
+                },
+                "description": "Request evidence (alternative evidence accepted).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"evidence_type\": \"PROOF_OF_INCOME\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record screening assessments",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/screening",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "screening"
+                  ]
+                },
+                "description": "Record screening assessments.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"results\": [\n    {\n      \"criterion\": \"MIN_INCOME_MULTIPLE\",\n      \"outcome\": \"MET\",\n      \"source\": \"APPLICANT_DECLARED\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record the human decision",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/decision",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Record the human decision.\n\nAutomated screening flags never decide. Declines need configured lawful reason codes; the screening policy version in force is recorded.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"APPROVED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Short-lived evidence URL (purpose-limited, audited)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/evidence/{{grant_id}}/download-url",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "evidence",
+                    "{{grant_id}}",
+                    "download-url"
+                  ]
+                },
+                "description": "Short-lived evidence URL (purpose-limited, audited).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Draft a rental offer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('offer_id', String(pick(body, 'data.id')));",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('offer_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/applications/{{application_id}}/offer",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "applications",
+                    "{{application_id}}",
+                    "offer"
+                  ]
+                },
+                "description": "Draft a rental offer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"start_date\": \"2026-12-01\",\n  \"term_months\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get a rental offer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('offer_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/offers/{{offer_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "offers",
+                    "{{offer_id}}"
+                  ]
+                },
+                "description": "Get a rental offer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Edit a draft offer (re-priced; If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('offer_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{offer_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/offers/{{offer_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "offers",
+                    "{{offer_id}}"
+                  ]
+                },
+                "description": "Edit a draft offer (re-priced; If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"start_date\": \"2026-12-01\",\n  \"term_months\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Send the offer to the applicant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/offers/{{offer_id}}/send",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "offers",
+                    "{{offer_id}}",
+                    "send"
+                  ]
+                },
+                "description": "Send the offer to the applicant.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Withdraw an offer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/offers/{{offer_id}}/withdraw",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "offers",
+                    "{{offer_id}}",
+                    "withdraw"
+                  ]
+                },
+                "description": "Withdraw an offer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"

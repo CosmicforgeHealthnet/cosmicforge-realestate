@@ -129,6 +129,12 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		{Name: "ownership-expiry", Run: func(ctx context.Context) error { return s.ExpireOwnershipAuthority(ctx, cfg.Batch) }},
 		{Name: "consent-and-mandate-expiry", Run: s.ExpireConsentsAndMandates},
 		{Name: "manager-mandates", Run: func(ctx context.Context) error { return s.AdvanceAssignments(ctx, cfg.Batch) }},
+		{Name: "lead-follow-ups", Run: func(ctx context.Context) error {
+			_, err := s.RunLeadFollowUps(ctx, cfg.Batch)
+			return err
+		}},
+		{Name: "viewing-reminders", Run: func(ctx context.Context) error { return s.RunViewingJobs(ctx, cfg.Batch) }},
+		{Name: "application-deadlines", Run: func(ctx context.Context) error { return s.RunApplicationDeadlines(ctx, cfg.Batch) }},
 		{Name: "listing-freshness", Run: func(ctx context.Context) error {
 			_, _, err := s.RunFreshness(ctx, cfg.Batch)
 			return err

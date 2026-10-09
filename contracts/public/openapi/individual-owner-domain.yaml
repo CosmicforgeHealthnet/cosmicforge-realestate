@@ -229,6 +229,106 @@ components:
         - visibility
         - geocode_source
       type: object
+    ApplicationView:
+      properties:
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        decisions:
+          items:
+            $ref: '#/components/schemas/DecisionView'
+          type: array
+        desired_move_in:
+          type:
+            - string
+            - "null"
+        evidence:
+          items:
+            $ref: '#/components/schemas/EvidenceGrantView'
+          type: array
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        has_pets:
+          type:
+            - boolean
+            - "null"
+        id:
+          format: uuid
+          type: string
+        inquiry_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          type:
+            - integer
+            - "null"
+        offers:
+          items:
+            $ref: '#/components/schemas/OfferView'
+          type: array
+        participants:
+          items:
+            $ref: '#/components/schemas/ParticipantView'
+          type: array
+        property_id:
+          format: uuid
+          type: string
+        screening_policy:
+          oneOf:
+            - $ref: '#/components/schemas/ScreeningPolicyView'
+            - type: "null"
+        screening_results:
+          items:
+            $ref: '#/components/schemas/ScreeningResultView'
+          type: array
+        status:
+          type: string
+        submitted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        term_months:
+          type:
+            - integer
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - status
+        - participants
+        - evidence
+        - screening_results
+        - decisions
+        - offers
+        - allowed_next_statuses
+        - version
+        - created_at
+      type: object
     AssetInputInput:
       additionalProperties: false
       properties:
@@ -497,6 +597,31 @@ components:
         - created_at
         - updated_at
       type: object
+    AttendanceView:
+      properties:
+        feedback:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        outcome:
+          type: string
+        party:
+          type: string
+        rating:
+          type:
+            - integer
+            - "null"
+        safety_flag:
+          type: boolean
+      required:
+        - party
+        - outcome
+        - safety_flag
+        - occurred_at
+      type: object
     AvailabilityInputInput:
       additionalProperties: false
       properties:
@@ -510,7 +635,7 @@ components:
           maxLength: 500
           type: string
         status:
-          description: RESERVED/APPLICATION_UNDER_REVIEW/OFFER_ACCEPTED are set by applications and offers
+          description: RESERVED/APPLICATION_UNDER_REVIEW/OFFER_ACCEPTED are set by applications and offers; OCCUPIED with a future available_from keeps the listing live (re-letting, occupant consent gates viewings)
           enum:
             - AVAILABLE
             - TEMP_UNAVAILABLE
@@ -558,6 +683,28 @@ components:
         - allowed_next_statuses
         - version
       type: object
+    CancelViewingInputInput:
+      additionalProperties: false
+      properties:
+        reason_code:
+          enum:
+            - OWNER_UNAVAILABLE
+            - PROPERTY_UNAVAILABLE
+            - SAFETY_CONCERN
+            - CUSTOMER_REQUEST
+            - DUPLICATE
+            - OTHER
+          type: string
+      required:
+        - reason_code
+      type: object
+    CheckInInputInput:
+      additionalProperties: false
+      properties:
+        access_code:
+          pattern: ^(?:[0-9]{6})$
+          type: string
+      type: object
     ClaimInputInput:
       additionalProperties: false
       properties:
@@ -574,6 +721,21 @@ components:
           type: string
       required:
         - claim_type
+      type: object
+    CloseInquiryInputInput:
+      additionalProperties: false
+      properties:
+        outcome:
+          enum:
+            - CLOSED_WON
+            - CLOSED_LOST
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - outcome
+        - reason_code
       type: object
     CoOwnerInputInput:
       additionalProperties: false
@@ -989,6 +1151,120 @@ components:
         - title
         - address
       type: object
+    Criterion:
+      properties:
+        bool_value:
+          type:
+            - boolean
+            - "null"
+        int_value:
+          description: MIN_INCOME_MULTIPLE in basis points of monthly rent (25000 = 2.5x); MAX_OCCUPANTS count
+          maximum: 100000
+          minimum: 0
+          type:
+            - integer
+            - "null"
+        type:
+          enum:
+            - MIN_INCOME_MULTIPLE
+            - MAX_OCCUPANTS
+            - PETS_ALLOWED
+            - REFERENCES_REQUIRED
+            - GUARANTOR_REQUIRED
+            - INCOME_EVIDENCE_REQUIRED
+            - IDENTITY_VERIFICATION_REQUIRED
+          type: string
+      required:
+        - type
+      type: object
+    CriterionInput:
+      additionalProperties: false
+      properties:
+        bool_value:
+          type: boolean
+        int_value:
+          description: MIN_INCOME_MULTIPLE in basis points of monthly rent (25000 = 2.5x); MAX_OCCUPANTS count
+          maximum: 100000
+          minimum: 0
+          type: integer
+        type:
+          enum:
+            - MIN_INCOME_MULTIPLE
+            - MAX_OCCUPANTS
+            - PETS_ALLOWED
+            - REFERENCES_REQUIRED
+            - GUARANTOR_REQUIRED
+            - INCOME_EVIDENCE_REQUIRED
+            - IDENTITY_VERIFICATION_REQUIRED
+          type: string
+      required:
+        - type
+      type: object
+    DecisionInputInput:
+      additionalProperties: false
+      properties:
+        conditions:
+          description: Required for CONDITIONAL
+          items:
+            type: string
+          maxItems: 10
+          type: array
+        decision:
+          enum:
+            - APPROVED
+            - CONDITIONAL
+            - DECLINED
+            - WAITLISTED
+          type: string
+        note:
+          description: Required with OTHER_LAWFUL_REASON
+          maxLength: 2000
+          type: string
+        reason_codes:
+          description: 'Required for DECLINED: configured lawful reasons only'
+          items:
+            type: string
+          maxItems: 5
+          type: array
+      required:
+        - decision
+      type: object
+    DecisionView:
+      properties:
+        conditions:
+          items:
+            type: string
+          type: array
+        decided_at:
+          format: date-time
+          type: string
+        decision:
+          type: string
+        human_review:
+          type: boolean
+        note:
+          type:
+            - string
+            - "null"
+        policy_version:
+          type: string
+        reason_codes:
+          items:
+            type: string
+          type: array
+        screening_policy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - decision
+        - reason_codes
+        - conditions
+        - policy_version
+        - human_review
+        - decided_at
+      type: object
     DocumentInputInput:
       additionalProperties: false
       properties:
@@ -1029,6 +1305,65 @@ components:
         - submitted_to_verification
         - created_at
       type: object
+    EvidenceDownload:
+      properties:
+        expires_at:
+          format: date-time
+          type: string
+        grant_id:
+          format: uuid
+          type: string
+        url:
+          type: string
+      required:
+        - grant_id
+        - url
+        - expires_at
+      type: object
+    EvidenceGrantView:
+      properties:
+        access_count:
+          type: integer
+        due_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        evidence_type:
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        granted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        participant_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        request_note:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+      required:
+        - id
+        - evidence_type
+        - purpose
+        - status
+        - access_count
+      type: object
     EvidenceInputInput:
       additionalProperties: false
       properties:
@@ -1042,6 +1377,34 @@ components:
           type: string
       required:
         - media_id
+        - evidence_type
+      type: object
+    EvidenceRequestItemInput:
+      additionalProperties: false
+      properties:
+        due_in_days:
+          maximum: 30
+          minimum: 1
+          type: integer
+        evidence_type:
+          enum:
+            - PROOF_OF_INCOME
+            - EMPLOYMENT_LETTER
+            - BANK_STATEMENT
+            - ID_DOCUMENT
+            - REFERENCE_LETTER
+            - GUARANTOR_FORM
+            - PREVIOUS_LANDLORD_REFERENCE
+            - OTHER_ALTERNATIVE_EVIDENCE
+          type: string
+        note:
+          description: What is needed; alternative evidence is always acceptable
+          maxLength: 1000
+          type: string
+        participant_id:
+          format: uuid
+          type: string
+      required:
         - evidence_type
       type: object
     FeatureInputInput:
@@ -1373,6 +1736,116 @@ components:
         - errors
         - created_at
       type: object
+    InquiryPatchInput:
+      additionalProperties: false
+      properties:
+        follow_up_at:
+          description: Reminder time
+          format: date-time
+          type: string
+        note:
+          description: Owner note (not a message to the customer)
+          maxLength: 2000
+          type: string
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+          type: string
+      type: object
+    InquiryView:
+      properties:
+        acknowledged_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        activities:
+          items:
+            $ref: '#/components/schemas/LeadActivityView'
+          type: array
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        budget_within_range:
+          type:
+            - boolean
+            - "null"
+        channel:
+          type: string
+        close_reason:
+          type:
+            - string
+            - "null"
+        conversation_ref:
+          description: CF Meet conversation (message content is not stored here)
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        customer_display_name:
+          type: string
+        customer_ref_id:
+          description: Marketplace customer reference (personal data stays in the customer's domain)
+          format: uuid
+          type: string
+        follow_up_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        has_pets:
+          type:
+            - boolean
+            - "null"
+        id:
+          format: uuid
+          type: string
+        intended_move_in:
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          type:
+            - integer
+            - "null"
+        priority:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        term_months:
+          type:
+            - integer
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - customer_display_name
+        - channel
+        - status
+        - priority
+        - allowed_next_statuses
+        - version
+        - created_at
+        - updated_at
+      type: object
     InvitationView:
       properties:
         capabilities:
@@ -1408,6 +1881,38 @@ components:
         - party_role
         - capabilities
         - created_at
+      type: object
+    LeadActivityView:
+      properties:
+        activity_type:
+          type: string
+        actor_domain:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        ref_type:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - activity_type
+        - occurred_at
       type: object
     LineItem:
       properties:
@@ -1766,8 +2271,7 @@ components:
         reason:
           type: string
         snapshot:
-          contentEncoding: base64
-          type: string
+          description: Embedded JSON document
         version_no:
           type: integer
       required:
@@ -1948,6 +2452,103 @@ components:
         - position
         - created_at
       type: object
+    OccupantConsentInputInput:
+      additionalProperties: false
+      properties:
+        consent_ref:
+          description: Reference of the occupant's consent (e.g. CF Meet message or signed notice)
+          maxLength: 128
+          type: string
+      required:
+        - consent_ref
+      type: object
+    OfferInputInput:
+      additionalProperties: false
+      properties:
+        conditions:
+          items:
+            type: string
+          maxItems: 10
+          type: array
+        expires_in_days:
+          description: Default per policy (7)
+          maximum: 30
+          minimum: 1
+          type: integer
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+      type: object
+    OfferView:
+      properties:
+        application_id:
+          format: uuid
+          type: string
+        conditions:
+          items:
+            type: string
+          type: array
+        cost:
+          description: All-in cost computed by the shared calculator
+        created_at:
+          format: date-time
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        pricing_version_id:
+          description: Frozen when accepted
+          format: uuid
+          type: string
+        responded_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        sent_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        start_date:
+          type: string
+        status:
+          type: string
+        term_months:
+          type: integer
+        version:
+          type: integer
+      required:
+        - id
+        - application_id
+        - listing_id
+        - customer_ref_id
+        - status
+        - pricing_version_id
+        - cost
+        - start_date
+        - term_months
+        - conditions
+        - expires_at
+        - version
+        - created_at
+      type: object
     OwnershipSummary:
       properties:
         claim_type:
@@ -2018,8 +2619,7 @@ components:
           minimum: 1
           type: integer
         boundary_geojson:
-          contentEncoding: base64
-          type: string
+          description: Embedded JSON document
         parcel_ref:
           description: Survey plan / registry reference
           maxLength: 120
@@ -2051,9 +2651,7 @@ components:
             - integer
             - "null"
         boundary_geojson:
-          contentEncoding: base64
           description: GeoJSON Polygon/MultiPolygon (owner-provided)
-          type: string
         created_at:
           format: date-time
           type: string
@@ -2089,6 +2687,44 @@ components:
         - version
         - created_at
         - updated_at
+      type: object
+    ParticipantView:
+      properties:
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        declared_monthly_income_minor:
+          type:
+            - integer
+            - "null"
+        display_name:
+          type: string
+        employment_status:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        identity_verification_linked:
+          type: boolean
+        income_currency:
+          type:
+            - string
+            - "null"
+        relationship:
+          type:
+            - string
+            - "null"
+        role:
+          type: string
+      required:
+        - id
+        - role
+        - display_name
+        - identity_verification_linked
       type: object
     PartyView:
       properties:
@@ -2871,6 +3507,44 @@ components:
         - property_version
         - generated_at
       type: object
+    QualifyInputInput:
+      additionalProperties: false
+      properties:
+        budget_within_range:
+          type: boolean
+        has_pets:
+          type: boolean
+        intended_move_in:
+          format: date
+          type: string
+        occupants:
+          maximum: 100
+          minimum: 1
+          type: integer
+        outcome:
+          enum:
+            - QUALIFIED
+            - CLOSED_LOST
+          type: string
+        reason_code:
+          description: Required for CLOSED_LOST; only lawful, configured reasons
+          enum:
+            - BUDGET_MISMATCH
+            - DATES_MISMATCH
+            - OCCUPANCY_LIMIT
+            - PETS_NOT_ALLOWED
+            - UNRESPONSIVE
+            - NOT_INTERESTED
+            - LISTING_UNAVAILABLE
+            - DUPLICATE
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - outcome
+      type: object
     ReasonCodeInputInput:
       additionalProperties: false
       properties:
@@ -2961,6 +3635,22 @@ components:
         - id
         - removed
       type: object
+    RepresentativeInputInput:
+      additionalProperties: false
+      properties:
+        host_ref_id:
+          description: Ownership party ID (REPRESENTATIVE) or manager assignment ID (MANAGER)
+          format: uuid
+          type: string
+        host_type:
+          enum:
+            - OWNER
+            - REPRESENTATIVE
+            - MANAGER
+          type: string
+      required:
+        - host_type
+      type: object
     RequestConsentInputInput:
       additionalProperties: false
       properties:
@@ -2989,6 +3679,31 @@ components:
         - action_type
         - target_type
         - target_id
+      type: object
+    RequestInfoInputInput:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EvidenceRequestItemInput'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - items
+      type: object
+    RescheduleInputInput:
+      additionalProperties: false
+      properties:
+        ends_at:
+          format: date-time
+          type: string
+        slot_id:
+          format: uuid
+          type: string
+        starts_at:
+          format: date-time
+          type: string
       type: object
     Rule:
       properties:
@@ -3122,6 +3837,181 @@ components:
       required:
         - listing_id
         - version
+      type: object
+    ScreeningInputInput:
+      additionalProperties: false
+      properties:
+        results:
+          items:
+            additionalProperties: false
+            properties:
+              criterion:
+                enum:
+                  - MIN_INCOME_MULTIPLE
+                  - MAX_OCCUPANTS
+                  - PETS_ALLOWED
+                  - REFERENCES_REQUIRED
+                  - GUARANTOR_REQUIRED
+                  - INCOME_EVIDENCE_REQUIRED
+                  - IDENTITY_VERIFICATION_REQUIRED
+                type: string
+              note:
+                maxLength: 500
+                type: string
+              outcome:
+                enum:
+                  - MET
+                  - NOT_MET
+                  - UNKNOWN
+                  - WAIVED
+                type: string
+              source:
+                enum:
+                  - APPLICANT_DECLARED
+                  - EVIDENCE_REVIEWED
+                  - OWNER_ASSESSED
+                type: string
+            required:
+              - criterion
+              - outcome
+              - source
+            type: object
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - results
+      type: object
+    ScreeningPolicyInputInput:
+      additionalProperties: false
+      properties:
+        criteria:
+          items:
+            $ref: '#/components/schemas/CriterionInput'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - criteria
+      type: object
+    ScreeningPolicyView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        criteria:
+          items:
+            $ref: '#/components/schemas/Criterion'
+          type: array
+        id:
+          format: uuid
+          type: string
+        policy_version:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        version_no:
+          type: integer
+      required:
+        - id
+        - property_id
+        - version_no
+        - criteria
+        - policy_version
+        - created_at
+      type: object
+    ScreeningResultView:
+      properties:
+        criterion:
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        outcome:
+          type: string
+        recorded_at:
+          format: date-time
+          type: string
+        source:
+          type: string
+      required:
+        - criterion
+        - outcome
+        - source
+        - recorded_at
+      type: object
+    SlotInputInput:
+      additionalProperties: false
+      properties:
+        capacity:
+          description: Default 1 (OPEN_HOUSE default 20)
+          maximum: 200
+          minimum: 1
+          type: integer
+        ends_at:
+          format: date-time
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        mode:
+          enum:
+            - PHYSICAL
+            - VIRTUAL_LIVE
+            - OPEN_HOUSE
+          type: string
+        notes:
+          maxLength: 1000
+          type: string
+        starts_at:
+          format: date-time
+          type: string
+      required:
+        - listing_id
+        - starts_at
+        - ends_at
+        - mode
+      type: object
+    SlotView:
+      properties:
+        booked:
+          type: integer
+        capacity:
+          type: integer
+        ends_at:
+          format: date-time
+          type: string
+        host_type:
+          type: string
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        mode:
+          type: string
+        notes:
+          type:
+            - string
+            - "null"
+        starts_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - listing_id
+        - starts_at
+        - ends_at
+        - mode
+        - capacity
+        - booked
+        - host_type
+        - status
       type: object
     Statement:
       properties:
@@ -3491,6 +4381,142 @@ components:
         - last_synced_at
         - created_at
       type: object
+    ViewingNotesInputInput:
+      additionalProperties: false
+      properties:
+        owner_notes:
+          maxLength: 2000
+          type: string
+      type: object
+    ViewingOutcomeInputInput:
+      additionalProperties: false
+      properties:
+        feedback:
+          maxLength: 2000
+          type: string
+        outcome:
+          enum:
+            - COMPLETED
+            - NO_SHOW
+          type: string
+        rating:
+          maximum: 5
+          minimum: 1
+          type: integer
+        safety_flag:
+          description: Flag a safety concern for platform review
+          type: boolean
+      required:
+        - outcome
+      type: object
+    ViewingView:
+      properties:
+        access_code:
+          description: Returned once, when issued
+          type:
+            - string
+            - "null"
+        access_code_issued:
+          type: boolean
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        attendance:
+          items:
+            $ref: '#/components/schemas/AttendanceView'
+          type: array
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        customer_display_name:
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        ends_at:
+          format: date-time
+          type: string
+        host_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        host_type:
+          type: string
+        id:
+          format: uuid
+          type: string
+        inquiry_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        mode:
+          type: string
+        occupant_consent_recorded:
+          type: boolean
+        occupied:
+          type: boolean
+        owner_notes:
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        proposed_ends_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        proposed_starts_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        slot_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        starts_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+        video_session:
+          description: 'CF Meet session state: NOT_APPLICABLE, LINKED or UNAVAILABLE (CF Meet integration not configured)'
+          type: string
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - customer_display_name
+        - mode
+        - status
+        - starts_at
+        - ends_at
+        - host_type
+        - occupied
+        - occupant_consent_recorded
+        - access_code_issued
+        - video_session
+        - attendance
+        - allowed_next_statuses
+        - version
+        - created_at
+      type: object
   securitySchemes:
     OwnerBearer:
       bearerFormat: owner at+jwt (EdDSA)
@@ -3548,6 +4574,436 @@ paths:
       summary: Account status, activation rule and sensitive-action gates
       tags:
         - Account & Profile
+  /api/v1/owner/applications:
+    get:
+      operationId: listApplications
+      parameters:
+        - in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ApplicationView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Applications across my properties
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}:
+    get:
+      operationId: getApplication
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Full application for review
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/decision:
+    post:
+      description: Automated screening flags never decide. Declines need configured lawful reason codes; the screening policy version in force is recorded.
+      operationId: decideApplication
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record the human decision
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/evidence/{grant_id}/download-url:
+    post:
+      operationId: getEvidenceDownloadUrl
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: grant_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EvidenceDownload'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Short-lived evidence URL (purpose-limited, audited)
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/offer:
+    post:
+      operationId: createRentalOffer
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Draft a rental offer
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/request-info:
+    post:
+      operationId: requestApplicationInfo
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestInfoInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request evidence (alternative evidence accepted)
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/review:
+    post:
+      operationId: startApplicationReview
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Start (or resume) review; appeals go to human review
+      tags:
+        - Applications
+  /api/v1/owner/applications/{application_id}/screening:
+    post:
+      operationId: recordScreening
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScreeningInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record screening assessments
+      tags:
+        - Applications
+  /api/v1/owner/campaigns:
+    get:
+      description: 'Promotion references marketplace commercial capability (and payment-service for paid promotion), which have no implemented contract: 503 FEATURE_UNAVAILABLE.'
+      operationId: listCampaigns
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/InquiryView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Listing campaigns and promotion
+      tags:
+        - Leads
   /api/v1/owner/co-owner-invitations:
     get:
       operationId: listCoOwnerInvitations
@@ -3776,6 +5232,299 @@ paths:
       summary: Approve or reject a consent request (immutable)
       tags:
         - Account & Profile
+  /api/v1/owner/inquiries:
+    get:
+      operationId: listInquiries
+      parameters:
+        - in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - NEW
+              - ACKNOWLEDGED
+              - QUALIFIED
+              - VIEWING
+              - APPLICATION
+              - OFFER
+              - BOOKING
+              - CLOSED_WON
+              - CLOSED_LOST
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/InquiryView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Lead pipeline across my properties
+      tags:
+        - Leads
+  /api/v1/owner/inquiries/{inquiry_id}:
+    get:
+      operationId: getInquiry
+      parameters:
+        - in: path
+          name: inquiry_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Inquiry with its activity history
+      tags:
+        - Leads
+    patch:
+      operationId: updateInquiry
+      parameters:
+        - in: path
+          name: inquiry_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InquiryPatchInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Priority, follow-up reminder or owner note (If-Match)
+      tags:
+        - Leads
+  /api/v1/owner/inquiries/{inquiry_id}/acknowledge:
+    post:
+      operationId: acknowledgeInquiry
+      parameters:
+        - in: path
+          name: inquiry_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Acknowledge an inquiry
+      tags:
+        - Leads
+  /api/v1/owner/inquiries/{inquiry_id}/close:
+    post:
+      operationId: closeInquiry
+      parameters:
+        - in: path
+          name: inquiry_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseInquiryInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Close a lead as won or lost
+      tags:
+        - Leads
+  /api/v1/owner/inquiries/{inquiry_id}/qualify:
+    post:
+      description: Only a fixed set of lawful qualification fields and closing reasons are accepted (no owner-defined criteria).
+      operationId: qualifyInquiry
+      parameters:
+        - in: path
+          name: inquiry_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualifyInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Qualify (or close) a lead with lawful fields
+      tags:
+        - Leads
   /api/v1/owner/listings:
     get:
       operationId: listListings
@@ -5211,6 +6960,185 @@ paths:
       summary: Search managers (property-manager-service)
       tags:
         - Delegation
+  /api/v1/owner/offers/{offer_id}:
+    get:
+      operationId: getRentalOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Get a rental offer
+      tags:
+        - Applications
+    patch:
+      operationId: updateRentalOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Edit a draft offer (re-priced; If-Match)
+      tags:
+        - Applications
+  /api/v1/owner/offers/{offer_id}/send:
+    post:
+      operationId: sendRentalOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Send the offer to the applicant
+      tags:
+        - Applications
+  /api/v1/owner/offers/{offer_id}/withdraw:
+    post:
+      operationId: withdrawRentalOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonCodeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Withdraw an offer
+      tags:
+        - Applications
   /api/v1/owner/ownership-transfers/{case_id}/accept:
     post:
       operationId: acceptOwnershipTransfer
@@ -7107,6 +9035,106 @@ paths:
       summary: Replace a parcel (If-Match)
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/screening-policies:
+    get:
+      operationId: listScreeningPolicies
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ScreeningPolicyView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Screening policy versions
+      tags:
+        - Applications
+    post:
+      operationId: createScreeningPolicy
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScreeningPolicyInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ScreeningPolicyView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: New screening policy version (configured criteria only)
+      tags:
+        - Applications
   /api/v1/owner/properties/{property_id}/units:
     get:
       operationId: listUnits
@@ -7745,6 +9773,645 @@ paths:
       summary: Reconcile a verification by read-back
       tags:
         - Account & Profile
+  /api/v1/owner/viewing-slots:
+    get:
+      operationId: listViewingSlots
+      parameters:
+        - in: query
+          name: listing_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/SlotView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Upcoming viewing slots of a listing
+      tags:
+        - Viewings
+    post:
+      operationId: createViewingSlot
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlotInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SlotView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open a viewing slot
+      tags:
+        - Viewings
+  /api/v1/owner/viewing-slots/{viewing_slot_id}/cancel:
+    post:
+      operationId: cancelViewingSlot
+      parameters:
+        - in: path
+          name: viewing_slot_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonCodeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SlotView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel a slot and its bookings
+      tags:
+        - Viewings
+  /api/v1/owner/viewings:
+    get:
+      operationId: listViewings
+      parameters:
+        - in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - REQUESTED
+              - CONFIRMED
+              - CHECKED_IN
+              - COMPLETED
+              - RESCHEDULED
+              - CANCELLED
+              - NO_SHOW
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ViewingView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Viewings across my properties
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}:
+    get:
+      operationId: getViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Get a viewing
+      tags:
+        - Viewings
+    patch:
+      operationId: updateViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewingNotesInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Owner notes (If-Match)
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/approve:
+    post:
+      description: Physical viewings receive a one-time access code (returned once). Occupied properties need occupant consent first.
+      operationId: approveViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Confirm a requested viewing
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/cancel:
+    post:
+      operationId: cancelViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelViewingInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel a viewing
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/check-in:
+    post:
+      operationId: checkInViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record arrival (verifies the access code)
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/occupant-consent:
+    post:
+      operationId: recordOccupantConsent
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OccupantConsentInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record occupant consent (occupied property)
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/outcome:
+    post:
+      operationId: recordViewingOutcome
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewingOutcomeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Complete a viewing or record a no-show
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/representative:
+    post:
+      description: A representative or manager must hold viewings.manage for this property for the whole viewing.
+      operationId: assignViewingRepresentative
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepresentativeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Assign who conducts the viewing
+      tags:
+        - Viewings
+  /api/v1/owner/viewings/{viewing_id}/reschedule:
+    post:
+      operationId: rescheduleViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Propose a new time or slot
+      tags:
+        - Viewings
 security:
   - OwnerBearer: []
 servers:

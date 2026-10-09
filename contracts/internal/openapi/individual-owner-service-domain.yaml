@@ -129,6 +129,145 @@ components:
       required:
         - decision
       type: object
+    ApplicationEvent:
+      properties:
+        application_id:
+          format: uuid
+          type: string
+        application_version:
+          type: integer
+        customer_ref_id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+        open_evidence_requests:
+          type: integer
+        previous_status:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        schema_version:
+          type: integer
+        status:
+          type: string
+      required:
+        - schema_version
+        - application_id
+        - listing_id
+        - property_id
+        - customer_ref_id
+        - status
+        - previous_status
+        - open_evidence_requests
+        - application_version
+        - occurred_at
+      type: object
+    ApplicationView:
+      properties:
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        decisions:
+          items:
+            $ref: '#/components/schemas/DecisionView'
+          type: array
+        desired_move_in:
+          type:
+            - string
+            - "null"
+        evidence:
+          items:
+            $ref: '#/components/schemas/EvidenceGrantView'
+          type: array
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        has_pets:
+          type:
+            - boolean
+            - "null"
+        id:
+          format: uuid
+          type: string
+        inquiry_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          type:
+            - integer
+            - "null"
+        offers:
+          items:
+            $ref: '#/components/schemas/OfferView'
+          type: array
+        participants:
+          items:
+            $ref: '#/components/schemas/ParticipantView'
+          type: array
+        property_id:
+          format: uuid
+          type: string
+        screening_policy:
+          oneOf:
+            - $ref: '#/components/schemas/ScreeningPolicyView'
+            - type: "null"
+        screening_results:
+          items:
+            $ref: '#/components/schemas/ScreeningResultView'
+          type: array
+        status:
+          type: string
+        submitted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        term_months:
+          type:
+            - integer
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - status
+        - participants
+        - evidence
+        - screening_results
+        - decisions
+        - offers
+        - allowed_next_statuses
+        - version
+        - created_at
+      type: object
     AssignmentView:
       properties:
         allowed_next_statuses:
@@ -205,6 +344,31 @@ components:
         - version
         - created_at
         - updated_at
+      type: object
+    AttendanceView:
+      properties:
+        feedback:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        outcome:
+          type: string
+        party:
+          type: string
+        rating:
+          type:
+            - integer
+            - "null"
+        safety_flag:
+          type: boolean
+      required:
+        - party
+        - outcome
+        - safety_flag
+        - occurred_at
       type: object
     AvailabilityView:
       properties:
@@ -360,6 +524,313 @@ components:
         - pricing_version_id
         - cost
       type: object
+    Criterion:
+      properties:
+        bool_value:
+          type:
+            - boolean
+            - "null"
+        int_value:
+          description: MIN_INCOME_MULTIPLE in basis points of monthly rent (25000 = 2.5x); MAX_OCCUPANTS count
+          maximum: 100000
+          minimum: 0
+          type:
+            - integer
+            - "null"
+        type:
+          enum:
+            - MIN_INCOME_MULTIPLE
+            - MAX_OCCUPANTS
+            - PETS_ALLOWED
+            - REFERENCES_REQUIRED
+            - GUARANTOR_REQUIRED
+            - INCOME_EVIDENCE_REQUIRED
+            - IDENTITY_VERIFICATION_REQUIRED
+          type: string
+      required:
+        - type
+      type: object
+    CustomerApplicationActionInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - WITHDRAW
+            - APPEAL
+          type: string
+      required:
+        - action
+      type: object
+    CustomerApplicationInputInput:
+      additionalProperties: false
+      properties:
+        consent:
+          description: Applicant consent to processing for this application (required)
+          type: boolean
+        desired_move_in:
+          format: date
+          type: string
+        has_pets:
+          type: boolean
+        inquiry_id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          maximum: 100
+          minimum: 1
+          type: integer
+        participants:
+          items:
+            additionalProperties: false
+            properties:
+              customer_ref_id:
+                format: uuid
+                type: string
+              declared_monthly_income_minor:
+                minimum: 0
+                type: integer
+              display_name:
+                maxLength: 120
+                type: string
+              employment_status:
+                enum:
+                  - EMPLOYED
+                  - SELF_EMPLOYED
+                  - STUDENT
+                  - RETIRED
+                  - UNEMPLOYED
+                  - OTHER
+                type: string
+              identity_verification_id:
+                description: Customer-domain verification reference (never the document)
+                format: uuid
+                type: string
+              income_currency:
+                pattern: ^[A-Z]{3}$
+                type: string
+              relationship:
+                enum:
+                  - SELF
+                  - SPOUSE_PARTNER
+                  - FAMILY
+                  - FLATMATE
+                  - EMPLOYER
+                  - GUARANTOR
+                  - OTHER
+                type: string
+              role:
+                enum:
+                  - PRIMARY
+                  - CO_APPLICANT
+                  - GUARANTOR
+                  - OCCUPANT
+                type: string
+            required:
+              - role
+              - display_name
+            type: object
+          maxItems: 10
+          minItems: 1
+          type: array
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - listing_id
+        - participants
+      type: object
+    CustomerEvidenceInputInput:
+      additionalProperties: false
+      properties:
+        evidence_type:
+          enum:
+            - PROOF_OF_INCOME
+            - EMPLOYMENT_LETTER
+            - BANK_STATEMENT
+            - ID_DOCUMENT
+            - REFERENCE_LETTER
+            - GUARANTOR_FORM
+            - PREVIOUS_LANDLORD_REFERENCE
+            - OTHER_ALTERNATIVE_EVIDENCE
+          type: string
+        grant_id:
+          description: Evidence request being fulfilled
+          format: uuid
+          type: string
+        media_id:
+          description: Customer-domain media; access is enforced by media-document-service
+          format: uuid
+          type: string
+        participant_id:
+          format: uuid
+          type: string
+      required:
+        - media_id
+      type: object
+    CustomerInquiryInputInput:
+      additionalProperties: false
+      properties:
+        channel:
+          enum:
+            - MARKETPLACE
+            - CF_MEET
+            - EXTERNAL
+          type: string
+        conversation_ref:
+          maxLength: 128
+          type: string
+        customer_display_name:
+          maxLength: 120
+          type: string
+        external_ref:
+          description: Marketplace inquiry reference (idempotent matching)
+          maxLength: 128
+          type: string
+        intended_move_in:
+          format: date
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          maximum: 100
+          minimum: 1
+          type: integer
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - listing_id
+        - customer_display_name
+      type: object
+    CustomerOfferResponseInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - DECLINE
+          type: string
+      required:
+        - decision
+      type: object
+    CustomerViewingAccess:
+      properties:
+        access_code:
+          description: Present once access is permitted (confirmed, consent recorded)
+          type:
+            - string
+            - "null"
+        access_code_expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        ends_at:
+          format: date-time
+          type: string
+        starts_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+        viewing_id:
+          format: uuid
+          type: string
+      required:
+        - viewing_id
+        - status
+        - starts_at
+        - ends_at
+      type: object
+    CustomerViewingInputInput:
+      additionalProperties: false
+      properties:
+        conversation_ref:
+          description: CF Meet context for live video
+          maxLength: 128
+          type: string
+        customer_display_name:
+          maxLength: 120
+          type: string
+        ends_at:
+          format: date-time
+          type: string
+        inquiry_id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        mode:
+          enum:
+            - PHYSICAL
+            - VIRTUAL_LIVE
+            - OPEN_HOUSE
+          type: string
+        slot_id:
+          format: uuid
+          type: string
+        starts_at:
+          format: date-time
+          type: string
+      required:
+        - listing_id
+        - customer_display_name
+        - mode
+      type: object
+    CustomerViewingResponseInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - ACCEPT_RESCHEDULE
+            - CANCEL
+          type: string
+      required:
+        - action
+      type: object
+    DecisionView:
+      properties:
+        conditions:
+          items:
+            type: string
+          type: array
+        decided_at:
+          format: date-time
+          type: string
+        decision:
+          type: string
+        human_review:
+          type: boolean
+        note:
+          type:
+            - string
+            - "null"
+        policy_version:
+          type: string
+        reason_codes:
+          items:
+            type: string
+          type: array
+        screening_policy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - decision
+        - reason_codes
+        - conditions
+        - policy_version
+        - human_review
+        - decided_at
+      type: object
     DocumentView:
       properties:
         created_at:
@@ -384,6 +855,50 @@ components:
         - media_status
         - submitted_to_verification
         - created_at
+      type: object
+    EvidenceGrantView:
+      properties:
+        access_count:
+          type: integer
+        due_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        evidence_type:
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        granted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        participant_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        request_note:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+      required:
+        - id
+        - evidence_type
+        - purpose
+        - status
+        - access_count
       type: object
     FeatureView:
       properties:
@@ -435,6 +950,98 @@ components:
         - refundable
         - payable_to
       type: object
+    InquiryView:
+      properties:
+        acknowledged_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        activities:
+          items:
+            $ref: '#/components/schemas/LeadActivityView'
+          type: array
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        budget_within_range:
+          type:
+            - boolean
+            - "null"
+        channel:
+          type: string
+        close_reason:
+          type:
+            - string
+            - "null"
+        conversation_ref:
+          description: CF Meet conversation (message content is not stored here)
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        customer_display_name:
+          type: string
+        customer_ref_id:
+          description: Marketplace customer reference (personal data stays in the customer's domain)
+          format: uuid
+          type: string
+        follow_up_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        has_pets:
+          type:
+            - boolean
+            - "null"
+        id:
+          format: uuid
+          type: string
+        intended_move_in:
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        occupants:
+          type:
+            - integer
+            - "null"
+        priority:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        term_months:
+          type:
+            - integer
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - customer_display_name
+        - channel
+        - status
+        - priority
+        - allowed_next_statuses
+        - version
+        - created_at
+        - updated_at
+      type: object
     InternalListingView:
       properties:
         authority_verified:
@@ -469,9 +1076,7 @@ components:
           format: date-time
           type: string
         snapshot:
-          contentEncoding: base64
           description: The published immutable version
-          type: string
         status:
           type: string
       required:
@@ -482,6 +1087,38 @@ components:
         - bookable
         - snapshot
         - read_at
+      type: object
+    LeadActivityView:
+      properties:
+        activity_type:
+          type: string
+        actor_domain:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        ref_type:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - activity_type
+        - occurred_at
       type: object
     LineItem:
       properties:
@@ -773,6 +1410,69 @@ components:
         - action
         - reason_code
       type: object
+    OfferView:
+      properties:
+        application_id:
+          format: uuid
+          type: string
+        conditions:
+          items:
+            type: string
+          type: array
+        cost:
+          description: All-in cost computed by the shared calculator
+        created_at:
+          format: date-time
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        pricing_version_id:
+          description: Frozen when accepted
+          format: uuid
+          type: string
+        responded_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        sent_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        start_date:
+          type: string
+        status:
+          type: string
+        term_months:
+          type: integer
+        version:
+          type: integer
+      required:
+        - id
+        - application_id
+        - listing_id
+        - customer_ref_id
+        - status
+        - pricing_version_id
+        - cost
+        - start_date
+        - term_months
+        - conditions
+        - expires_at
+        - version
+        - created_at
+      type: object
     OwnershipSummary:
       properties:
         claim_type:
@@ -806,6 +1506,44 @@ components:
       type: object
     Page:
       $ref: ../../schemas/pagination.schema.json
+    ParticipantView:
+      properties:
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        declared_monthly_income_minor:
+          type:
+            - integer
+            - "null"
+        display_name:
+          type: string
+        employment_status:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        identity_verification_linked:
+          type: boolean
+        income_currency:
+          type:
+            - string
+            - "null"
+        relationship:
+          type:
+            - string
+            - "null"
+        role:
+          type: string
+      required:
+        - id
+        - role
+        - display_name
+        - identity_verification_linked
+      type: object
     PermissionView:
       properties:
         capabilities:
@@ -1200,6 +1938,54 @@ components:
           pattern: ^(?:(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$
           type: string
       type: object
+    ScreeningPolicyView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        criteria:
+          items:
+            $ref: '#/components/schemas/Criterion'
+          type: array
+        id:
+          format: uuid
+          type: string
+        policy_version:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        version_no:
+          type: integer
+      required:
+        - id
+        - property_id
+        - version_no
+        - criteria
+        - policy_version
+        - created_at
+      type: object
+    ScreeningResultView:
+      properties:
+        criterion:
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        outcome:
+          type: string
+        recorded_at:
+          format: date-time
+          type: string
+        source:
+          type: string
+      required:
+        - criterion
+        - outcome
+        - source
+        - recorded_at
+      type: object
     TransferView:
       properties:
         case_type:
@@ -1244,6 +2030,114 @@ components:
         - created_at
         - updated_at
       type: object
+    ViewingView:
+      properties:
+        access_code:
+          description: Returned once, when issued
+          type:
+            - string
+            - "null"
+        access_code_issued:
+          type: boolean
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        attendance:
+          items:
+            $ref: '#/components/schemas/AttendanceView'
+          type: array
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        customer_display_name:
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        ends_at:
+          format: date-time
+          type: string
+        host_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        host_type:
+          type: string
+        id:
+          format: uuid
+          type: string
+        inquiry_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        listing_id:
+          format: uuid
+          type: string
+        mode:
+          type: string
+        occupant_consent_recorded:
+          type: boolean
+        occupied:
+          type: boolean
+        owner_notes:
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        proposed_ends_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        proposed_starts_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        slot_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        starts_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+        video_session:
+          description: 'CF Meet session state: NOT_APPLICABLE, LINKED or UNAVAILABLE (CF Meet integration not configured)'
+          type: string
+      required:
+        - id
+        - property_id
+        - listing_id
+        - customer_ref_id
+        - customer_display_name
+        - mode
+        - status
+        - starts_at
+        - ends_at
+        - host_type
+        - occupied
+        - occupant_consent_recorded
+        - access_code_issued
+        - video_session
+        - attendance
+        - allowed_next_statuses
+        - version
+        - created_at
+      type: object
   securitySchemes:
     ServiceBearer:
       bearerFormat: service+jwt (EdDSA)
@@ -1259,6 +2153,195 @@ info:
   version: 1.0.0
 openapi: 3.1.0
 paths:
+  /internal/v1/owner/applications:
+    post:
+      operationId: customerSubmitApplication
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerApplicationInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Marketplace rental application
+      tags:
+        - _Internal
+  /internal/v1/owner/applications/{application_id}/customer-action:
+    post:
+      operationId: customerApplicationAction
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerApplicationActionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ApplicationEvent'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Customer withdraws or appeals
+      tags:
+        - _Internal
+  /internal/v1/owner/applications/{application_id}/evidence:
+    post:
+      operationId: customerProvideEvidence
+      parameters:
+        - in: path
+          name: application_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerEvidenceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EvidenceGrantView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Customer grants time-limited evidence
+      tags:
+        - _Internal
+  /internal/v1/owner/inquiries:
+    post:
+      description: 'Caller: marketplace-service with a delegated marketplace customer actor. Message content stays in CF Meet.'
+      operationId: customerCreateInquiry
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerInquiryInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InquiryView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Marketplace inquiry for a published listing
+      tags:
+        - _Internal
   /internal/v1/owner/listings/{listing_id}:
     get:
       description: 'Callers: marketplace-service, admin-service. Used before high-value actions and for projection recovery. Never-published listings answer 404.'
@@ -1741,6 +2824,57 @@ paths:
       summary: Manager accepts or declines a proposed assignment
       tags:
         - _Internal
+  /internal/v1/owner/offers/{offer_id}/response:
+    post:
+      description: Acceptance freezes the pricing version and moves the listing to OFFER_ACCEPTED; competing acceptances are serialized.
+      operationId: customerRespondOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerOfferResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Customer accepts or declines a rental offer
+      tags:
+        - _Internal
   /internal/v1/owner/ownership-conflicts:
     get:
       operationId: listOwnershipConflicts
@@ -2022,6 +3156,135 @@ paths:
       summary: Restrict a property (platform review)
       tags:
         - _Admin
+  /internal/v1/owner/viewings:
+    post:
+      operationId: customerRequestViewing
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerViewingInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ViewingView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Marketplace viewing request
+      tags:
+        - _Internal
+  /internal/v1/owner/viewings/{viewing_id}/access:
+    get:
+      operationId: customerViewingAccess
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CustomerViewingAccess'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Customer's appointment and access code
+      tags:
+        - _Internal
+  /internal/v1/owner/viewings/{viewing_id}/customer-response:
+    post:
+      operationId: customerRespondViewing
+      parameters:
+        - in: path
+          name: viewing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerViewingResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CustomerViewingAccess'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Customer accepts a reschedule or cancels
+      tags:
+        - _Internal
 security:
   - ServiceBearer: []
 servers:

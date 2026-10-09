@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"encoding/json"
 	"reflect"
 	"strings"
 	"time"
@@ -99,6 +100,9 @@ func (c Components) base(t reflect.Type, request bool, r Rules) map[string]any {
 				"currency":     map[string]any{"type": "string", "pattern": "^[A-Z]{3}$"},
 			}}
 		return map[string]any{"$ref": "#/components/schemas/Money"}
+	}
+	if t == reflect.TypeFor[json.RawMessage]() {
+		return map[string]any{"description": "Embedded JSON document"}
 	}
 	if t == reflect.TypeFor[time.Duration]() {
 		return map[string]any{"type": "integer"}

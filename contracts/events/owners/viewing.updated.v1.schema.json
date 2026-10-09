@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "ViewingEvent": {
+      "properties": {
+        "access_ready": {
+          "description": "An access code is ready for the customer (retrieved via the internal API, never in events)",
+          "type": "boolean"
+        },
+        "cancel_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "customer_ref_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "ends_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "previous_status": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "proposed_ends_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "proposed_starts_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "starts_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "viewing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "viewing_version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "viewing_id",
+        "listing_id",
+        "property_id",
+        "customer_ref_id",
+        "status",
+        "previous_status",
+        "mode",
+        "starts_at",
+        "ends_at",
+        "access_ready",
+        "viewing_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/viewing.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Customer-visible viewing appointment state changed. Producer: individual-owner-service. Consumers: Marketplace, Notification. Aggregate: viewing. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "viewing"
+    },
+    "event_type": {
+      "const": "viewing.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/ViewingEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "viewing.updated.v1"
+}

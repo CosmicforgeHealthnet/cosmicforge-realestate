@@ -152,3 +152,11 @@ func checkVersion(expected, actual int64) error {
 }
 
 func isUnique(err error, constraint string) bool { return database.IsUniqueViolation(err, constraint) }
+
+// actorFromCtx returns the attributable actor of the request, if any.
+func actorFromCtx(ctx context.Context) *requestcontext.Actor {
+	if a, ok := requestcontext.ActorFrom(ctx); ok && !a.IsZero() {
+		return &a
+	}
+	return nil
+}

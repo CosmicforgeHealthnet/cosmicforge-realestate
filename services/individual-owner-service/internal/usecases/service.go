@@ -94,6 +94,12 @@ type DomainPolicy struct {
 	// FeeCategories are the configured fee categories (§13.8: unknown or
 	// legal fee categories require configured policy).
 	FeeCategories []string
+	// DeclineReasons are the lawful, configured application decline reasons.
+	DeclineReasons []string
+	// Application and offer deadlines.
+	ApplicationTTL   time.Duration
+	EvidenceGrantTTL time.Duration
+	OfferTTL         time.Duration
 }
 
 // Identity-gated actions.
@@ -114,7 +120,10 @@ func DefaultDomainPolicy() DomainPolicy {
 			"COMMERCIAL_LEASE": 30 * 24 * time.Hour, "LAND_LEASE": 60 * 24 * time.Hour},
 		FreshnessReminderLead: 3 * 24 * time.Hour, FreshnessGrace: 2 * 24 * time.Hour,
 		FeeCategories: []string{"AGENCY", "LEGAL", "CAUTION", "SERVICE_CHARGE", "CLEANING", "UTILITY", "INSURANCE", "MAINTENANCE", "SECURITY",
-			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"}}
+			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"},
+		DeclineReasons: []string{"INCOME_BELOW_POLICY", "INCOMPLETE_APPLICATION", "REFERENCES_UNSATISFACTORY", "OCCUPANCY_LIMIT",
+			"MOVE_IN_DATE_MISMATCH", "PROPERTY_NO_LONGER_AVAILABLE", "OTHER_LAWFUL_REASON"},
+		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour}
 }
 
 // DefaultPolicy is the baseline (policy version 2026-10-01).

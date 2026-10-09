@@ -1,0 +1,109 @@
+{
+  "$defs": {
+    "RentalOfferEvent": {
+      "properties": {
+        "application_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "cost": {
+          "description": "Embedded JSON document"
+        },
+        "customer_ref_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "offer_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "offer_version": {
+          "type": "integer"
+        },
+        "previous_status": {
+          "type": "string"
+        },
+        "pricing_version_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "start_date": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "term_months": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "offer_id",
+        "application_id",
+        "listing_id",
+        "property_id",
+        "customer_ref_id",
+        "status",
+        "previous_status",
+        "pricing_version_id",
+        "cost",
+        "start_date",
+        "term_months",
+        "conditions",
+        "expires_at",
+        "offer_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/rental_offer.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Rental offer state, terms and deadline (an accepted offer freezes its pricing version). Producer: individual-owner-service. Consumers: Marketplace, Notification. Aggregate: rental_offer. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "rental_offer"
+    },
+    "event_type": {
+      "const": "rental_offer.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/RentalOfferEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "rental_offer.updated.v1"
+}
