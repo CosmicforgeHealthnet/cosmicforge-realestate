@@ -18,10 +18,13 @@ import (
 	ohttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/calendarsync"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/esign"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/financing"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/insurance"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/oauth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/smartaccess"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/workers"
@@ -64,6 +67,9 @@ type Overrides struct {
 	Payment      payment.API
 	ESign        esign.API
 	CalendarSync calendarsync.API
+	Financing    financing.API
+	Insurance    insurance.API
+	SmartAccess  smartaccess.API
 }
 
 // Build wires the shared components (database, use cases, HTTP router).
@@ -140,7 +146,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 		Sessions: sessions.Config{MaxSessionLifetime: cfg.SessionLifetime, TokenIdleTTL: cfg.RefreshIdleTTL},
 		Hasher:   hasher, Sealer: sealer, TOTP: credentials.TOTP{Issuer: cfg.TOTPIssuer}, Notify: notify, OAuth: oauth.NewRegistry(),
 		Authz: engine, Policy: cfg.Policy, Logger: log, Now: now, ClosureHolds: ov.ClosureHolds,
-		Verification: verif, Media: med, Payment: ov.Payment, ESign: ov.ESign, CalendarSync: ov.CalendarSync,
+		Verification: verif, Media: med, Payment: ov.Payment, ESign: ov.ESign, CalendarSync: ov.CalendarSync, Financing: ov.Financing, Insurance: ov.Insurance, SmartAccess: ov.SmartAccess,
 	})
 	if err != nil {
 		return fail(err)

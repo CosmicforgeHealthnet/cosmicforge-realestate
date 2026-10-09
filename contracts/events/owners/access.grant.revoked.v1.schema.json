@@ -1,0 +1,89 @@
+{
+  "$defs": {
+    "AccessGrantEvent": {
+      "properties": {
+        "device_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "grant_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "principal_domain": {
+          "type": "string"
+        },
+        "principal_ref": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "relation_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "relation_type": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "status": {
+          "description": "EXPIRED, REVOKED or COMPROMISED",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "grant_id",
+        "property_id",
+        "device_id",
+        "purpose",
+        "relation_type",
+        "relation_id",
+        "principal_domain",
+        "principal_ref",
+        "status",
+        "reason",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/access.grant.revoked.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Access ended: revoked, compromised or expired (credential revocation propagation). Producer: individual-owner-service. Consumers: Smart-access adapter, Notification. Aggregate: access_grant. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "access_grant"
+    },
+    "event_type": {
+      "const": "access.grant.revoked.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/AccessGrantEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "access.grant.revoked.v1"
+}

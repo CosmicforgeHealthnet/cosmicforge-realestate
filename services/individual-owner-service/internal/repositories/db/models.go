@@ -11,6 +11,51 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 )
 
+type AccessDevice struct {
+	ID                ids.ID
+	PropertyID        ids.ID
+	UnitID            *ids.ID
+	DeviceType        string
+	Label             string
+	ProviderDeviceRef *string
+	Status            string
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type AccessEvent struct {
+	ID         ids.ID
+	GrantID    *ids.ID
+	DeviceID   ids.ID
+	PropertyID ids.ID
+	EventType  string
+	Actor      string
+	Note       *string
+	OccurredAt time.Time
+}
+
+type AccessGrant struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	DeviceID            ids.ID
+	Purpose             string
+	RelationType        string
+	RelationID          ids.ID
+	PrincipalDomain     string
+	PrincipalRef        ids.ID
+	PrincipalLabel      string
+	StartsAt            time.Time
+	EndsAt              time.Time
+	Status              string
+	RequestedBy         string
+	CredentialRef       *string
+	CredentialRevokedAt *time.Time
+	EndReason           *string
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
 type AccountSecurityEvent struct {
 	EventID    ids.ID
 	AccountID  ids.ID
@@ -552,6 +597,23 @@ type FeeDefinition struct {
 	PayableTo        string
 }
 
+type FinanceOffer struct {
+	ID                    ids.ID
+	AccountID             ids.ID
+	ListingID             *ids.ID
+	ProductType           string
+	PartnerRef            string
+	ExternalOfferRef      string
+	Status                string
+	OwnerPayoutPreference *string
+	Disclosure            []byte
+	ConsentID             ids.ID
+	ExpiresAt             *time.Time
+	DecidedAt             *time.Time
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type FreshnessCheck struct {
 	ID         ids.ID
 	ListingID  ids.ID
@@ -605,6 +667,48 @@ type Inquiry struct {
 	Version             int64
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
+}
+
+type InsuranceClaim struct {
+	ID               ids.ID
+	PolicyID         ids.ID
+	PropertyID       ids.ID
+	IncidentDate     time.Time
+	Description      string
+	ClaimedMinor     int64
+	Currency         string
+	Status           string
+	InsurerClaimRef  *string
+	ApprovedMinor    *int64
+	PaidMinor        int64
+	EvidenceMediaIds []ids.ID
+	RelatedRefType   *string
+	RelatedRefID     *ids.ID
+	StatusNote       *string
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type InsurancePolicy struct {
+	ID                ids.ID
+	AccountID         ids.ID
+	PropertyID        ids.ID
+	Source            string
+	ProductType       string
+	InsurerName       string
+	PolicyRef         string
+	CoverageMinor     *int64
+	PremiumMinor      *int64
+	Currency          string
+	StartsOn          time.Time
+	EndsOn            time.Time
+	Status            string
+	DocumentMediaID   *ids.ID
+	RenewalRemindedAt *time.Time
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 type KeyAccessInventory struct {

@@ -613,6 +613,12 @@ func (s *Service) ChangeAssignmentStatus(ctx context.Context, subj authz.Subject
 		if _, _, err := s.transition(ctx, domain.ManagerAssignment, id, lifecycle.Change{To: to, Command: command, Reason: in.ReasonCode}); err != nil {
 			return err
 		}
+		if command == "revoke" || command == "suspend" {
+			// Revocation/suspension ends the manager's access immediately (§14.5).
+			if err := s.endRelationGrants(ctx, "manager_assignment", id, "MANDATE_"+strings.ToUpper(command)+"D"); err != nil {
+				return err
+			}
+		}
 		if command == "revoke" {
 			if err := s.q.SetAssignmentRevocation(ctx, mustTx(ctx), db.SetAssignmentRevocationParams{ID: id, RevokedAt: ptr(s.now()), RevokeReason: &in.ReasonCode}); err != nil {
 				return err

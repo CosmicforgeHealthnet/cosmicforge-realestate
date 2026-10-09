@@ -2685,6 +2685,102 @@ components:
         - summary
         - created_at
       type: object
+    GrantInputInput:
+      additionalProperties: false
+      properties:
+        device_id:
+          format: uuid
+          type: string
+        ends_at:
+          description: Must fall within the relationship's lawful period
+          format: date-time
+          type: string
+        relation_id:
+          format: uuid
+          type: string
+        relation_type:
+          enum:
+            - viewing_request
+            - tenancy
+            - shortlet_booking
+            - manager_assignment
+            - maintenance_job
+          type: string
+        starts_at:
+          format: date-time
+          type: string
+      required:
+        - device_id
+        - relation_type
+        - relation_id
+        - starts_at
+        - ends_at
+      type: object
+    GrantView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        credential_issued:
+          description: A provider credential exists (delivered by the provider to the principal)
+          type: boolean
+        device_id:
+          format: uuid
+          type: string
+        end_reason:
+          type:
+            - string
+            - "null"
+        ends_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        principal_domain:
+          type: string
+        principal_label:
+          type: string
+        principal_ref:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        purpose:
+          type: string
+        relation_id:
+          format: uuid
+          type: string
+        relation_type:
+          type: string
+        requested_by:
+          type: string
+        starts_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - device_id
+        - purpose
+        - relation_type
+        - relation_id
+        - principal_domain
+        - principal_ref
+        - principal_label
+        - starts_at
+        - ends_at
+        - status
+        - requested_by
+        - credential_issued
+        - version
+        - created_at
+      type: object
     GuestInputInput:
       additionalProperties: false
       properties:
@@ -7289,6 +7385,52 @@ paths:
       security:
         - ServiceBearer: []
       summary: Artisan quotes a platform-sourced request (artisan-service)
+      tags:
+        - _Internal
+  /internal/v1/owner/managed/access/grants:
+    post:
+      operationId: managerRequestAccessGrant
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrantInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GrantView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Delegated manager requests access (owner approves remotely)
       tags:
         - _Internal
   /internal/v1/owner/managed/listings/{listing_id}:

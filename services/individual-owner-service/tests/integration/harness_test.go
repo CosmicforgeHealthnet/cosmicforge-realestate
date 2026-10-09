@@ -99,6 +99,8 @@ type harness struct {
 	pay     *fakePayment
 	esign   *fakeESign
 	cal     *fakeCalendar
+	fin     *fakeFinancing
+	smart   *fakeSmartAccess
 	t       *testing.T
 	db      *testkit.Database
 	app     *app.App
@@ -158,6 +160,12 @@ func newHarness(t *testing.T, opts ...func(*harness)) *harness {
 	}
 	if h.cal != nil {
 		ov.CalendarSync = h.cal
+	}
+	if h.fin != nil {
+		ov.Financing = h.fin
+	}
+	if h.smart != nil {
+		ov.SmartAccess = h.smart
 	}
 	logger := logging.Discard()
 	if os.Getenv("CF_TEST_LOG") != "" {
