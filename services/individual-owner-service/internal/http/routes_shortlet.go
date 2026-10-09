@@ -162,3 +162,76 @@ func shortletInternalRoutes() []Route {
 			}).Internal().Describe("The award (≤ claim) is then settled through payment-service or off-platform evidence.").Errs(409, 422),
 	}
 }
+
+// shortletPropertyRoutes are the Section 8 property-scoped short-let paths.
+// They resolve the property's short-let listing (listing_id selects one when
+// the property has several) and call the same use cases as the
+// listing-scoped routes.
+func shortletPropertyRoutes() []Route {
+	pp := "/properties/{property_id}/shortlet"
+	resolve := func(c *Call) (ids.ID, error) {
+		lid, err := c.QueryID("listing_id")
+		if err != nil {
+			return ids.Nil, err
+		}
+		return c.S.ShortletListingForProperty(c.Ctx, c.Subj, c.ID("property_id"), lid)
+	}
+	sel := Param{Name: "listing_id", Doc: "Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)"}
+	alias := func(canonical string) string {
+		return "Specification path (Section 8) for " + canonical + " on the property's short-let listing; identical behaviour."
+	}
+	return []Route{
+		Get(pp+"/settings", "getPropertyShortletSettings", tagShortlet, "Short-let settings (property path)",
+			func(c *Call) (usecases.ShortletSettingsView, error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return usecases.ShortletSettingsView{}, err
+				}
+				return c.S.GetShortletSettings(c.Ctx, c.Subj, lid)
+			}).Q(sel).Describe(alias("GET /listings/{listing_id}/shortlet/settings")).Errs(409),
+		Update("PUT", pp+"/settings", "putPropertyShortletSettings", tagShortlet, "Configure short-let (property path; If-Match, \"0\" to create)", true,
+			func(c *Call, in *usecases.ShortletSettingsInput) (usecases.ShortletSettingsView, error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return usecases.ShortletSettingsView{}, err
+				}
+				return c.S.PutShortletSettings(c.Ctx, c.Subj, lid, c.Version, *in)
+			}).Q(sel).Describe(alias("PUT /listings/{listing_id}/shortlet/settings")).Errs(409, 422, 503),
+		List(pp+"/rates", "getPropertyShortletRates", tagShortlet, "Active date rates (property path)",
+			func(c *Call, _ Page) (pagination.Response[usecases.RateView], error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return pagination.Response[usecases.RateView]{}, err
+				}
+				return slice(c.S.GetRates(c.Ctx, c.Subj, lid))
+			}).Q(sel).Describe(alias("GET /listings/{listing_id}/shortlet/rates")).Errs(409),
+		Command("PUT", pp+"/rates", "putPropertyShortletRates", tagShortlet, "Replace the date rates (property path)", http.StatusOK,
+			func(c *Call, in *usecases.RatesInput) ([]usecases.RateView, error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return nil, err
+				}
+				return c.S.PutRates(c.Ctx, c.Subj, lid, *in)
+			}).Q(sel).Describe(alias("PUT /listings/{listing_id}/shortlet/rates")).Errs(409, 422),
+		List(pp+"/calendar", "getPropertyShortletCalendar", tagShortlet, "Date inventory (property path)",
+			func(c *Call, _ Page) (pagination.Response[usecases.CalendarDay], error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return pagination.Response[usecases.CalendarDay]{}, err
+				}
+				from, to, err := dateRange(c)
+				if err != nil {
+					return pagination.Response[usecases.CalendarDay]{}, err
+				}
+				return slice(c.S.GetCalendar(c.Ctx, c.Subj, lid, from, to))
+			}).Q(append([]Param{sel}, rangeParams...)...).Describe(alias("GET /listings/{listing_id}/shortlet/calendar")).Errs(409),
+		Command("PUT", pp+"/calendar", "putPropertyShortletCalendar", tagShortlet, "Block or free days (property path)", http.StatusOK,
+			func(c *Call, in *usecases.CalendarInput) ([]usecases.CalendarDay, error) {
+				lid, err := resolve(c)
+				if err != nil {
+					return nil, err
+				}
+				return c.S.PutCalendar(c.Ctx, c.Subj, lid, *in)
+			}).Q(sel).Describe(alias("PUT /listings/{listing_id}/shortlet/calendar")).Errs(409),
+	}
+}

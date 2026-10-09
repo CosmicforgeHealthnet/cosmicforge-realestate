@@ -406,6 +406,74 @@ paths:
       responses:
         "200": {$ref: "#/components/responses/Account"}
         "403": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/forgot-password:
+    post:
+      operationId: forgotPasswordSpecPath
+      x-alias-of: "POST /api/v1/owner/auth/password/forgot"
+      description: Specification path (Section 8) for POST /api/v1/owner/auth/password/forgot; identical behaviour. Exactly one of email or phone. Always 202; never reveals whether an account exists.
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {type: object, properties: {email: {type: string, format: email}, phone: {$ref: "#/components/schemas/E164"}}}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/reset-password:
+    post:
+      operationId: resetPasswordSpecPath
+      x-alias-of: "POST /api/v1/owner/auth/password/reset"
+      description: Specification path (Section 8) for POST /api/v1/owner/auth/password/reset; identical behaviour. Sets a new password and revokes every session. MFA still applies at the next sign-in.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challenge_id, code, new_password]
+              properties:
+                challenge_id: {$ref: "#/components/schemas/UUIDv7"}
+                code: {type: string}
+                new_password: {type: string, minLength: 10, maxLength: 128}
+      responses:
+        "200": {description: Password reset., content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {status: {const: PASSWORD_RESET}}}}}}}}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/mfa/enrol:
+    post:
+      operationId: enrolMFASpecPath
+      x-alias-of: "POST /api/v1/owner/me/mfa/totp/setup"
+      description: Specification path (Section 8) for POST /api/v1/owner/me/mfa/totp/setup; identical behaviour. Step-up. Creates a pending authenticator credential; the secret is shown once.
+      responses:
+        "201": {description: Pending credential., content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/TOTPSetup"}}}}}}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/sessions:
+    get:
+      operationId: listSessionsSpecPath
+      x-alias-of: "GET /api/v1/owner/me/sessions"
+      description: Specification path (Section 8) for GET /api/v1/owner/me/sessions; identical behaviour. Active sessions (bounded to 100), most recently used first.
+      responses:
+        "200": {description: Sessions., content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {$ref: "#/components/schemas/Session"}}}}}}}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/sessions/{session_id}:
+    delete:
+      operationId: revokeSessionSpecPath
+      x-alias-of: "DELETE /api/v1/owner/me/sessions/{session_id}"
+      description: Specification path (Section 8) for DELETE /api/v1/owner/me/sessions/{session_id}; identical behaviour. Remote sign-out; takes effect immediately for that session's access tokens. Idempotent.
+      parameters: [{name: session_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}]
+      responses:
+        "204": {description: Revoked.}
+        "401": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/account/closure:
+    post:
+      operationId: requestAccountClosureSpecPath
+      x-alias-of: "POST /api/v1/owner/me/closure"
+      description: Specification path (Section 8) for POST /api/v1/owner/me/closure; identical behaviour. Step-up. Moves the account to CLOSURE_PENDING; it closes after the cooling-off period (default 30 days) unless cancelled or held. Not available while RESTRICTED or SUSPENDED.
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
 components:
   securitySchemes:
     OwnerBearer: {type: http, scheme: bearer, bearerFormat: "at+jwt (EdDSA) issued by individual-owner-service"}

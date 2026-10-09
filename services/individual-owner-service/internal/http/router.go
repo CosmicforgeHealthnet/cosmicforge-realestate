@@ -77,6 +77,9 @@ func NewRouter(cfg Config) http.Handler {
 		r.Post("/auth/refresh", h.refresh)
 		r.Post("/auth/password/forgot", h.forgotPassword)
 		r.Post("/auth/password/reset", h.resetPassword)
+		// Section 8 specification paths: aliases of the routes above (same handlers).
+		r.Post("/auth/forgot-password", h.forgotPassword)
+		r.Post("/auth/reset-password", h.resetPassword)
 		r.Get("/auth/oauth/providers", h.oauthProviders)
 		r.Post("/auth/oauth/{provider}/start", h.oauthUnavailable)
 		r.Post("/auth/oauth/{provider}/callback", h.oauthUnavailable)
@@ -108,6 +111,11 @@ func NewRouter(cfg Config) http.Handler {
 			r.Post("/me/mfa/recovery-codes", h.regenerateRecoveryCodes)
 			r.Post("/me/closure", h.requestClosure)
 			r.Delete("/me/closure", h.cancelClosure)
+			// Section 8 specification paths: aliases of the routes above (same handlers).
+			r.Post("/auth/mfa/enrol", h.setupTOTP)
+			r.Get("/sessions", h.listSessions)
+			r.Delete("/sessions/{session_id}", h.revokeSession)
+			r.Post("/account/closure", h.requestClosure)
 			// Sections 6–13 domain API (route registry).
 			h.mountRoutes(r, Owner)
 		})

@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
@@ -16,10 +17,32 @@ func DomainRoutes() []Route {
 		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(), agreementRoutes(), tenancyRoutes(), utilityRoutes(), tenancyInternalRoutes(),
 		commercialRoutes(), saleRoutes(), commercialSaleInternalRoutes(), shortletRoutes(), shortletInternalRoutes(),
 		maintenanceRoutes(), professionalRoutes(), providerInternalRoutes(), oversightRoutes(), oversightAdminRoutes(), partnerRoutes(), accessRoutes(),
-		propertyInternalRoutes(), listingInternalRoutes()} {
+		propertyInternalRoutes(), listingInternalRoutes(), shortletPropertyRoutes()} {
 		rs = append(rs, group...)
 	}
-	return rs
+	return append(rs, specAliases(rs)...)
+}
+
+// specPaths maps an operation to its Section 8 specification path where the
+// implemented path is normalized differently. The alias reuses the exact
+// route (handler, authorization, validation, idempotency) under the
+// specification path; there is no second implementation.
+var specPaths = map[string]string{
+	"raiseDamageClaim": "/shortlet/bookings/{booking_id}/damage-claim",
+}
+
+func specAliases(rs []Route) []Route {
+	var out []Route
+	for _, r := range rs {
+		if path, ok := specPaths[r.Op]; ok {
+			canonical := r.Method + " " + r.FullPath()
+			r.Path, r.Op, r.Captures = path, r.Op+"SpecPath", nil
+			r.Summary += " (specification path)"
+			r.Doc = strings.TrimSpace("Specification path (Section 8) for " + canonical + "; identical behaviour. " + r.Doc)
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 // Tags (Postman folders, §21 grouping).

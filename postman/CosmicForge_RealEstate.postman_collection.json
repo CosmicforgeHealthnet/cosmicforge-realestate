@@ -2614,6 +2614,162 @@
               ]
             },
             {
+              "name": "Forgot password (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 202', () => pm.response.to.have.status(202));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const body = pm.response.json();",
+                      "pm.test('data envelope', () => pm.expect(body).to.have.property('data'));",
+                      "if (body && body.data.challenge_id) { pm.environment.set('owner_challenge_id', body.data.challenge_id); }"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/auth/forgot-password",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "auth",
+                    "forgot-password"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to POST /api/v1/owner/auth/password/forgot.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"ada@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "202 Accepted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/auth/password/forgot",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "auth",
+                        "password",
+                        "forgot"
+                      ]
+                    },
+                    "description": "Starts recovery by email or phone (exactly one). Always 202; never reveals whether an account exists.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"ada@example.com\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Accepted",
+                  "code": 202,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"challenge_id\": \"019a2b3c-3333-7000-8000-000000000003\",\n    \"channel\": \"EMAIL\",\n    \"destination_hint\": \"a***@example.com\",\n    \"expires_at\": \"2026-10-09T10:10:00Z\",\n    \"delivery_status\": null\n  }\n}"
+                },
+                {
+                  "name": "400 Validation error",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/auth/password/forgot",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "auth",
+                        "password",
+                        "forgot"
+                      ]
+                    },
+                    "description": "Starts recovery by email or phone (exactly one). Always 202; never reveals whether an account exists.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"ada@example.com\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Validation error",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_REQUEST\",\n    \"message\": \"Request body is invalid.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
               "name": "Reset password",
               "event": [
                 {
@@ -2656,6 +2812,211 @@
                   ]
                 },
                 "description": "Sets a new password with the recovery code and signs out every session.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challenge_id\": \"{{owner_challenge_id}}\",\n  \"code\": \"123456\",\n  \"new_password\": \"a brand new passphrase\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/auth/password/reset",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "auth",
+                        "password",
+                        "reset"
+                      ]
+                    },
+                    "description": "Sets a new password with the recovery code and signs out every session.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"challenge_id\": \"{{owner_challenge_id}}\",\n  \"code\": \"123456\",\n  \"new_password\": \"a brand new passphrase\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"status\": \"PASSWORD_RESET\"\n  }\n}"
+                },
+                {
+                  "name": "400 Validation error",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/auth/password/reset",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "auth",
+                        "password",
+                        "reset"
+                      ]
+                    },
+                    "description": "Sets a new password with the recovery code and signs out every session.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"challenge_id\": \"{{owner_challenge_id}}\",\n  \"code\": \"123456\",\n  \"new_password\": \"a brand new passphrase\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Validation error",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_REQUEST\",\n    \"message\": \"Request body is invalid.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                },
+                {
+                  "name": "422 Invalid code",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/auth/password/reset",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "auth",
+                        "password",
+                        "reset"
+                      ]
+                    },
+                    "description": "Sets a new password with the recovery code and signs out every session.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"challenge_id\": \"{{owner_challenge_id}}\",\n  \"code\": \"123456\",\n  \"new_password\": \"a brand new passphrase\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid code",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_VERIFICATION_CODE\",\n    \"message\": \"The code is invalid, expired or already used.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Reset password (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const body = pm.response.json();",
+                      "pm.test('data envelope', () => pm.expect(body).to.have.property('data'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/auth/reset-password",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "auth",
+                    "reset-password"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to POST /api/v1/owner/auth/password/reset.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"challenge_id\": \"{{owner_challenge_id}}\",\n  \"code\": \"123456\",\n  \"new_password\": \"a brand new passphrase\"\n}",
@@ -5791,6 +6152,117 @@
               ]
             },
             {
+              "name": "List my sessions (specification path)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/sessions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "sessions"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to GET /api/v1/owner/me/sessions."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/sessions",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "sessions"
+                      ]
+                    },
+                    "description": "Active sessions, most recent first; current=true marks this one."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": [\n    {\n      \"session_id\": \"019a2b3c-2222-7000-8000-000000000002\",\n      \"current\": true,\n      \"device_id\": \"019a2b3c-4444-7000-8000-000000000004\",\n      \"device_name\": \"Ada's iPhone\",\n      \"device_platform\": \"IOS\",\n      \"user_agent\": \"CosmicForgeOwner/1.0\",\n      \"ip_address\": \"203.0.113.7\",\n      \"auth_method\": \"PASSWORD\",\n      \"mfa_method\": null,\n      \"created_at\": \"2026-10-09T10:00:00Z\",\n      \"last_refreshed_at\": \"2026-10-09T10:14:00Z\",\n      \"expires_at\": \"2026-11-08T10:00:00Z\",\n      \"step_up_at\": \"2026-10-09T10:00:00Z\"\n    }\n  ]\n}"
+                },
+                {
+                  "name": "401 Unauthorized",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/sessions",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "sessions"
+                      ]
+                    },
+                    "description": "Active sessions, most recent first; current=true marks this one."
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_TOKEN\",\n    \"message\": \"The access token is invalid or expired.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
               "name": "Revoke a session",
               "event": [
                 {
@@ -5831,6 +6303,132 @@
                   ]
                 },
                 "description": "Remote sign-out; that session's tokens stop working immediately."
+              },
+              "response": [
+                {
+                  "name": "204 No Content",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/sessions/{{owner_session_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "sessions",
+                        "{{owner_session_id}}"
+                      ]
+                    },
+                    "description": "Remote sign-out; that session's tokens stop working immediately."
+                  },
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": ""
+                },
+                {
+                  "name": "401 Unauthorized",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/sessions/{{owner_session_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "sessions",
+                        "{{owner_session_id}}"
+                      ]
+                    },
+                    "description": "Remote sign-out; that session's tokens stop working immediately."
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"INVALID_TOKEN\",\n    \"message\": \"The access token is invalid or expired.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Revoke a session (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 204', () => pm.response.to.have.status(204));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/sessions/{{owner_session_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "sessions",
+                    "{{owner_session_id}}"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to DELETE /api/v1/owner/me/sessions/{session_id}."
               },
               "response": [
                 {
@@ -6794,6 +7392,179 @@
               ]
             },
             {
+              "name": "Start authenticator setup (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const body = pm.response.json();",
+                      "pm.test('data envelope', () => pm.expect(body).to.have.property('data'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/auth/mfa/enrol",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "auth",
+                    "mfa",
+                    "enrol"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to POST /api/v1/owner/me/mfa/totp/setup."
+              },
+              "response": [
+                {
+                  "name": "201 Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/mfa/totp/setup",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "mfa",
+                        "totp",
+                        "setup"
+                      ]
+                    },
+                    "description": "Step-up. Returns the secret and otpauth:// URI once (render as QR)."
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"credential_id\": \"019a2b3c-6666-7000-8000-000000000006\",\n    \"secret\": \"JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP\",\n    \"otpauth_uri\": \"otpauth://totp/CosmicForge%20Owner:ada@example.com?algorithm=SHA1&digits=6&issuer=CosmicForge+Owner&period=30&secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP\"\n  }\n}"
+                },
+                {
+                  "name": "403 Step-up required",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/mfa/totp/setup",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "mfa",
+                        "totp",
+                        "setup"
+                      ]
+                    },
+                    "description": "Step-up. Returns the secret and otpauth:// URI once (render as QR)."
+                  },
+                  "status": "Step-up required",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"STEP_UP_REQUIRED\",\n    \"message\": \"Recent re-authentication is required for this operation.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                },
+                {
+                  "name": "409 Conflict",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/mfa/totp/setup",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "mfa",
+                        "totp",
+                        "setup"
+                      ]
+                    },
+                    "description": "Step-up. Returns the secret and otpauth:// URI once (render as QR)."
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"The resource was modified concurrently. Reload and retry.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
               "name": "Confirm authenticator",
               "event": [
                 {
@@ -7358,6 +8129,132 @@
                   ]
                 },
                 "description": "Step-up. Moves the account to CLOSURE_PENDING; it closes after the cooling-off period (default 30 days) unless cancelled."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/closure",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "closure"
+                      ]
+                    },
+                    "description": "Step-up. Moves the account to CLOSURE_PENDING; it closes after the cooling-off period (default 30 days) unless cancelled."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"account_id\": \"019a2b3c-1111-7000-8000-000000000001\",\n    \"status\": \"CLOSURE_PENDING\",\n    \"email\": \"ada@example.com\",\n    \"email_verified\": true,\n    \"phone\": null,\n    \"phone_verified\": false,\n    \"display_name\": \"Ada Owner\",\n    \"locale\": \"en\",\n    \"mfa_enabled\": false,\n    \"closure_effective_at\": \"2026-11-08T10:20:00Z\",\n    \"version\": 4,\n    \"created_at\": \"2026-10-09T10:00:00Z\",\n    \"updated_at\": \"2026-10-09T10:05:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "403 Step-up required",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{request_id}}"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{individual_owner_token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/owner/me/closure",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "owner",
+                        "me",
+                        "closure"
+                      ]
+                    },
+                    "description": "Step-up. Moves the account to CLOSURE_PENDING; it closes after the cooling-off period (default 30 days) unless cancelled."
+                  },
+                  "status": "Step-up required",
+                  "code": 403,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"STEP_UP_REQUIRED\",\n    \"message\": \"Recent re-authentication is required for this operation.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Request account closure (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const body = pm.response.json();",
+                      "pm.test('data envelope', () => pm.expect(body).to.have.property('data'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/account/closure",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "account",
+                    "closure"
+                  ]
+                },
+                "description": "Section 8 specification path; identical to POST /api/v1/owner/me/closure."
               },
               "response": [
                 {
@@ -24898,6 +25795,399 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"action\": \"WITHDRAW\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Short-let settings (property path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('settings_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/settings",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "settings"
+                  ]
+                },
+                "description": "Short-let settings (property path).\n\nSpecification path (Section 8) for GET /listings/{listing_id}/shortlet/settings on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Configure short-let (property path; If-Match, \"0\" to create)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('settings_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{settings_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/settings",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "settings"
+                  ]
+                },
+                "description": "Configure short-let (property path; If-Match, \"0\" to create).\n\nSpecification path (Section 8) for PUT /listings/{listing_id}/shortlet/settings on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cancellation_policy\": \"FLEXIBLE\",\n  \"check_in_time\": \"VALUE\",\n  \"check_out_time\": \"VALUE\",\n  \"max_guests\": 1,\n  \"max_nights\": 1,\n  \"min_nights\": 1,\n  \"payment_collection\": \"PLATFORM\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Active date rates (property path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/rates?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "rates"
+                  ]
+                },
+                "description": "Active date rates (property path).\n\nSpecification path (Section 8) for GET /listings/{listing_id}/shortlet/rates on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Replace the date rates (property path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/rates",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "rates"
+                  ]
+                },
+                "description": "Replace the date rates (property path).\n\nSpecification path (Section 8) for PUT /listings/{listing_id}/shortlet/rates on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Date inventory (property path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/calendar?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "calendar"
+                  ]
+                },
+                "description": "Date inventory (property path).\n\nSpecification path (Section 8) for GET /listings/{listing_id}/shortlet/calendar on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Block or free days (property path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/shortlet/calendar",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "shortlet",
+                    "calendar"
+                  ]
+                },
+                "description": "Block or free days (property path).\n\nSpecification path (Section 8) for PUT /listings/{listing_id}/shortlet/calendar on the property's short-let listing; identical behaviour.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ranges\": [\n    {\n      \"from\": \"2026-12-01\",\n      \"status\": \"AVAILABLE\",\n      \"to\": \"2026-12-01\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Raise a damage claim (specification path)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/shortlet/bookings/{{booking_id}}/damage-claim",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "shortlet",
+                    "bookings",
+                    "{{booking_id}}",
+                    "damage-claim"
+                  ]
+                },
+                "description": "Raise a damage claim (specification path).\n\nSpecification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"amount_minor\": 1,\n      \"description\": \"string\",\n      \"media_ids\": [\n        \"019a2b3c-0000-7000-8000-000000000001\"\n      ]\n    }\n  ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"

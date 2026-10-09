@@ -110,6 +110,40 @@ func (s *Service) shortletListing(ctx context.Context, subj authz.Subject, listi
 	return l, d, err
 }
 
+// ShortletListingForProperty resolves the short-let listing behind the
+// property-scoped specification paths: the property's only live SHORT_LET
+// listing, or the one named by listingID. It authorizes property access
+// first; the resolved use case authorizes again for its own action.
+func (s *Service) ShortletListingForProperty(ctx context.Context, subj authz.Subject, propertyID, listingID ids.ID) (ids.ID, error) {
+	if _, err := s.authorize(ctx, subj, authz.Read(authz.CapPropertyView), propertyID); err != nil {
+		return ids.Nil, err
+	}
+	rows, err := s.dbq(ctx).Query(ctx, `SELECT id FROM listings WHERE property_id = $1 AND transaction_type = 'SHORT_LET'
+		AND status NOT IN ('WITHDRAWN','ARCHIVED') AND ($2::uuid IS NULL OR id = $2) ORDER BY created_at LIMIT 2`, propertyID, idp(listingID))
+	if err != nil {
+		return ids.Nil, err
+	}
+	defer rows.Close()
+	var found []ids.ID
+	for rows.Next() {
+		var id ids.ID
+		if err := rows.Scan(&id); err != nil {
+			return ids.Nil, err
+		}
+		found = append(found, id)
+	}
+	if err := rows.Err(); err != nil {
+		return ids.Nil, err
+	}
+	switch len(found) {
+	case 0:
+		return ids.Nil, apperrors.NotFound("SHORTLET_LISTING_NOT_FOUND", "The property has no active short-let listing.")
+	case 1:
+		return found[0], nil
+	}
+	return ids.Nil, conflict("AMBIGUOUS_SHORTLET_LISTING", "The property has several short-let listings; pass listing_id.")
+}
+
 // GetShortletSettings returns the listing's short-let settings.
 func (s *Service) GetShortletSettings(ctx context.Context, subj authz.Subject, listingID ids.ID) (ShortletSettingsView, error) {
 	if _, _, err := s.shortletListing(ctx, subj, listingID, authz.Read(authz.CapShortletManage)); err != nil {

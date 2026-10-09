@@ -19946,6 +19946,353 @@ paths:
       summary: Draft a service-charge budget
       tags:
         - Utilities & Service Charges
+  /api/v1/owner/properties/{property_id}/shortlet/calendar:
+    get:
+      description: Specification path (Section 8) for GET /listings/{listing_id}/shortlet/calendar on the property's short-let listing; identical behaviour.
+      operationId: getPropertyShortletCalendar
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - description: First day (default today)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Last day, inclusive (default from + 90 days; at most 366 days)
+          in: query
+          name: to
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarDay'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Date inventory (property path)
+      tags:
+        - Short-let
+    put:
+      description: Specification path (Section 8) for PUT /listings/{listing_id}/shortlet/calendar on the property's short-let listing; identical behaviour.
+      operationId: putPropertyShortletCalendar
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarDay'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Block or free days (property path)
+      tags:
+        - Short-let
+  /api/v1/owner/properties/{property_id}/shortlet/rates:
+    get:
+      description: Specification path (Section 8) for GET /listings/{listing_id}/shortlet/rates on the property's short-let listing; identical behaviour.
+      operationId: getPropertyShortletRates
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RateView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Active date rates (property path)
+      tags:
+        - Short-let
+    put:
+      description: Specification path (Section 8) for PUT /listings/{listing_id}/shortlet/rates on the property's short-let listing; identical behaviour.
+      operationId: putPropertyShortletRates
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatesInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RateView'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace the date rates (property path)
+      tags:
+        - Short-let
+  /api/v1/owner/properties/{property_id}/shortlet/settings:
+    get:
+      description: Specification path (Section 8) for GET /listings/{listing_id}/shortlet/settings on the property's short-let listing; identical behaviour.
+      operationId: getPropertyShortletSettings
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ShortletSettingsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Short-let settings (property path)
+      tags:
+        - Short-let
+    put:
+      description: Specification path (Section 8) for PUT /listings/{listing_id}/shortlet/settings on the property's short-let listing; identical behaviour.
+      operationId: putPropertyShortletSettings
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Required when the property has more than one short-let listing (409 AMBIGUOUS_SHORTLET_LISTING otherwise)
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShortletSettingsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ShortletSettingsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Configure short-let (property path; If-Match, "0" to create)
+      tags:
+        - Short-let
   /api/v1/owner/properties/{property_id}/units:
     get:
       operationId: listUnits
@@ -21174,6 +21521,59 @@ paths:
       security:
         - OwnerBearer: []
       summary: Approve, decline, check in/out, no-show or cancel (If-Match)
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/bookings/{booking_id}/damage-claim:
+    post:
+      description: Specification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.
+      operationId: raiseDamageClaimSpecPath
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DamageClaimInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DamageClaimView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Raise a damage claim (specification path)
       tags:
         - Short-let
   /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims:
