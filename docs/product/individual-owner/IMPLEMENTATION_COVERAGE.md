@@ -4,7 +4,7 @@
 |---|---|
 | Service | `services/individual-owner-service` · database `individual_owner_db` |
 | Documented foundation baseline | F1–F5 certified at `54425cb5df86fbb239c4faab624d786f98fb343e` |
-| Implementation commits | Section 5: `31ef5fc`, `606341e`, `127fcba`, `ecf5ee4` · Sections 6–13: `2592eff` (ownership/property/banking), `41202cc` (delegation/listings/pricing/availability), `5e61cbc` (leads/viewings/applications/offers), `5c7aaec` (agreements/tenancy/obligations/utilities), `f802392` (commercial/land/sale), `6e986f2` (short-let), `4f55d6a` (maintenance/professionals), `3848d8c` (disputes/privacy/reports/insights/dashboard), `d297990` (financing/insurance/smart access), `659d43e` (consumers, templates, domain E2E) · Final corrections: `9dfe6a7` (spec path aliases), `27511c9` (tenant/guest recipient contract), `42ff86b` (sale-linked ownership transfer), `d19746d` (jurisdiction legal policy), `c5bb657` (event compatibility), `e0a05ec` (migration preflight), `deb5c93` (capture-file hardening) |
+| Implementation commits | Section 5: `31ef5fc`, `606341e`, `127fcba`, `ecf5ee4` · Sections 6–13: `2592eff` (ownership/property/banking), `41202cc` (delegation/listings/pricing/availability), `5e61cbc` (leads/viewings/applications/offers), `5c7aaec` (agreements/tenancy/obligations/utilities), `f802392` (commercial/land/sale), `6e986f2` (short-let), `4f55d6a` (maintenance/professionals), `3848d8c` (disputes/privacy/reports/insights/dashboard), `d297990` (financing/insurance/smart access), `659d43e` (consumers, templates, domain E2E) · Final corrections: `9dfe6a7` (spec path aliases), `27511c9` (tenant/guest recipient contract), `42ff86b` (sale-linked ownership transfer), `d19746d` (jurisdiction legal policy), `c5bb657` (event compatibility), `e0a05ec` (migration preflight), `deb5c93` (capture-file hardening) · Functional closure: `74a8120` (listing media access fix, real-service functional journey) |
 | Specification | `CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf` (this folder) |
 | Last updated | 2026-10-09 |
 
@@ -30,6 +30,46 @@ are scheduled by the specification's workstreams (§23, IO-2…IO-16).
 | §19 config names `OWNER_AUTH_PRIVATE_KEY[_FILE]`, `POLICY_CONFIG_VERSION` | `OWNER_ACCESS_TOKEN_PRIVATE_KEY[_FILE]`, `OWNER_SECURITY_POLICY_VERSION` | Naming deviation; accept the spec names as aliases in IO-2. |
 | §16 step-up for payout changes, sensitive document grants, property transfer | step-up rules on payout/tax writes, transfers and privacy verification | PASS (LOCAL). |
 | §23 IO-1 Service bootstrapping & local auth | `31ef5fc` … `ecf5ee4` | **IO-1: PASS (LOCAL/CONTRACT)** except OAuth adapters (BLOCKED, Appendix D "DOMAIN IMPLEMENTATION": provider selection pending). |
+
+## Final functional closure (2026-10-09, at `74a8120`)
+
+All 12 user journeys run through the real HTTP router, authorization, use cases, PostgreSQL 16 and
+worker jobs in the integration suite. The core journey also runs against the real platform services in
+real processes. External dependencies that are not implemented are disabled and return explicit
+503 responses (`FEATURE_UNAVAILABLE`, `DEPENDENCY_UNAVAILABLE`, `OAUTH_PROVIDER_UNAVAILABLE`); none
+reports false success.
+
+| # | Journey | Evidence (through the API) | Result |
+|---|---|---|---|
+| 1 | Registration, verification, login, MFA, account management | `auth_test`, `mfa_test`, `lifecycle_test`; E2E owner account journey and real identity verification | PASS |
+| 2 | Property, ownership records, co-owner permissions, verification | `property_test`, `property2_test`; E2E PROPERTY_AUTHORITY through the real verification-service | PASS |
+| 3 | Listing, pricing, availability, publication, withdrawal | `listing_test`; E2E with real media, including marketplace media access | PASS (defect fixed: `74a8120`) |
+| 4 | Inquiries, viewings, applications, offers | `leads_test` (incl. concurrent acceptance, deadlines) | PASS (LOCAL) |
+| 5 | Agreements, tenancy operations | `tenancy_test`, `legal_policy_test` | PASS (LOCAL); PLATFORM money and e-sign BLOCKED |
+| 6 | Commercial, land, sale | `sale_test`, `sale_transfer_test` | PASS (LOCAL); PLATFORM money BLOCKED |
+| 7 | Short-let calendars, conflicts, rates, bookings | `shortlet_test` (booking race, holds, claims), `specpaths_test` | PASS (LOCAL); external calendar and PLATFORM money BLOCKED |
+| 8 | Manager delegation, enforcement, revocation | `listing_test` (delegation lifecycle, mandate expiry worker), `maintenance_test` (manager limits) | PASS (LOCAL); manager service not built |
+| 9 | Maintenance, professional services | `maintenance_test`; E2E maintenance via gateway | PASS (LOCAL / CONTRACT); provider payments BLOCKED |
+| 10 | Reports, dashboard, portfolio, calendar | `oversight_test`; E2E dashboard and PDF export through real media | PASS |
+| 11 | Disputes, privacy, ownership transfer, closure | `oversight_test`, `property_test`, `sale_transfer_test`, `lifecycle_test` | PASS (LOCAL) |
+| 12 | Financing, insurance, smart access (external execution disabled) | `partners_test` | PASS (LOCAL); partners and devices BLOCKED |
+
+Defect found and fixed during closure: published listing photos stayed `PRIVATE` to the owner
+domain, so marketplace-service could never read them. The new `listing-media-access` job grants
+marketplace read access while a live listing uses a file and revokes it afterwards, verified against
+the real media-document-service. No other functional defects were found.
+
+Test results for this closure (local, PostgreSQL 16, Redis, NATS, MinIO):
+
+| Suite | Result |
+|---|---|
+| Owner module: gofmt, vet, staticcheck, `go mod tidy` drift, sqlc diff, `apidocgen -check` | clean |
+| Owner module: `go test -race -count=1 ./...` with integration required (80 integration test functions, migration round trip and preflight, contract/Postman parity, events) | pass (≈155 s) |
+| E2E with real processes (`go test -race`): foundation, owner account, owner domain, owner + real producers, owner functional journey | 5/5 pass |
+| Architecture boundaries; `go mod tidy` drift (e2e) | OK |
+| Full multi-module gate replica at `deb5c93` (other modules unchanged since) | pass; govulncheck BLOCKED (vuln.go.dev unreachable) |
+
+**Verdict: INDIVIDUAL OWNER — LOCAL IMPLEMENTATION CLOSED; EXTERNAL INTEGRATION / STAGING CERTIFICATION PENDING.**
 
 ## Final corrections (2026-10-09)
 
@@ -97,7 +137,7 @@ Test evidence paths are relative to `services/individual-owner-service/` unless 
 
 ## Section 6 — Database and data model
 
-16 goose migrations (`migrations/00001`–`00016`), 131 tables, all in `individual_owner_db`; no
+17 goose migrations (`migrations/00001`–`00017`), 132 tables, all in `individual_owner_db`; no
 cross-service foreign keys (other services' records are typed UUID references). Every migration is
 round-trip tested (`TestMigrationsRoundTrip`) and `sqlc diff` is clean. Append-only tables are
 enforced by `forbid_mutation()` triggers; concurrency invariants by partial unique indexes and (short-let)
@@ -135,6 +175,7 @@ credential secrets or provider keys are stored (media/verification/payment/CF Me
 | S6-27 | SALE ownership-change case linked to the completed sale (one live/completed case per sale) | 00014 | PASS | LOCAL |
 | S6-28 | Versioned jurisdiction legal policies (immutable once approved); `RESPONSE_OVERDUE` damage claims; `NO_RESPONSE` deposit responses | 00015 | PASS | LOCAL |
 | S6-29 | Payment-intent ordering watermarks | 00016 | PASS | LOCAL |
+| S6-30 | Marketplace access state of listing media | 00017 | PASS | CONTRACT (real media-document-service) |
 
 Deployment prerequisite: migration 00009 (and no other) needs `btree_gist`. `migrate up` runs a
 non-destructive preflight and refuses (exit 1, nothing applied) when the role cannot create it;
@@ -183,7 +224,7 @@ errors use the platform envelope. CONTRACT level is claimed only where a real-pr
 | S8-C | Banking & tax | 10 | PASS (payout activation needs payment-service) | LOCAL |
 | S8-D | Ownership & verification | 14 | PASS | LOCAL |
 | S8-E | Properties (units, parcels, assets, media, imports, history) | 20 | PASS | CONTRACT (create via gateway in E2E) |
-| S8-F | Listings, pricing, availability | 18 | PASS | LOCAL |
+| S8-F | Listings, pricing, availability | 18 | PASS | CONTRACT (create, pricing, publish, withdraw via gateway with real media in E2E) |
 | S8-G | Leads, viewings | 20 | PASS | LOCAL |
 | S8-H | Applications & offers | 14 | PASS | LOCAL |
 | S8-I | Agreements (e-sign 503 without provider; OFFLINE signing works) | 14 | PASS | LOCAL |
@@ -193,7 +234,7 @@ errors use the platform envelope. CONTRACT level is claimed only where a real-pr
 | S8-M | Short-let | 15 | PASS | LOCAL |
 | S8-N | Delegation | 12 | PASS | LOCAL |
 | S8-O | Maintenance, professionals | 20 | PASS | CONTRACT (maintenance via gateway in E2E) |
-| S8-P | Reports & insights, dashboard, calendar, audit activity | 9 | PASS | CONTRACT (dashboard via gateway in E2E) |
+| S8-P | Reports & insights, dashboard, calendar, audit activity | 9 | PASS | CONTRACT (dashboard and PDF export via gateway in E2E) |
 | S8-Q | Disputes & privacy | 10 | PASS | LOCAL |
 | S8-R | Financing & insurance | 10 | PARTIAL — financing/insurance options need partners (503); owner-held insurance PASS | LOCAL |
 | S8-S | Smart access | 7 | PARTIAL — smart devices need a provider (503); keys/cards/lockboxes PASS | LOCAL |
@@ -286,17 +327,18 @@ families 3–7 are not live-integration evidence.
 | S11-15 | Manager mandate expiry | `manager-mandates`, `consent-and-mandate-expiry` | PASS | LOCAL |
 | S11-16 | Preventive maintenance | `maintenance-preventive-and-payments` | PASS | LOCAL |
 | S11-17 | Privacy retention | `privacy-requests-and-retention` | PARTIAL | guest anonymization with legal holds; other retention classes need the legal policy pack |
-| S11-18 | Report generation | `report-generation` | PASS | LOCAL (media upload contract not exercised against real media-service) |
+| S11-18 | Report generation | `report-generation` | PASS | CONTRACT — real worker uploads the PDF to the real media-document-service and the owner downloads it (E2E) |
 | S11-19 | Smart access expiry | `smart-access-expiry` | PASS | LOCAL |
 | S11-x | Sale offers/milestones, professional fees, insurance renewals, property imports, security alerts, closure, housekeeping | various | PASS | LOCAL |
+| S11-21 | Marketplace access to live listing media | `listing-media-access` | PASS | CONTRACT — grant on publication and revocation on withdrawal verified against the real media-document-service (`74a8120`) |
 | S11-20 | Customer (tenant/guest) notification requests | `customer-notifications` | PASS (LOCAL) · live BLOCKED | lease → call outside the transaction → record; ended relationships suppressed; recipient domain not implemented |
 
 ## Section 12 — Cross-service and external integrations
 
 | ID | Integration | Status | Level | Notes |
 |---|---|---|---|---|
-| S12-01 | Verification Service (IDENTITY, PROPERTY_AUTHORITY) | PASS | CONTRACT (IDENTITY) / LOCAL (PROPERTY_AUTHORITY) | real-process E2E: owner → real verification-service (sandbox provider) → `verification.verified.v1` → owner consumer; production KYC provider not selected |
-| S12-02 | Media & Document Service | PASS | CONTRACT (metadata, deletion event) / LOCAL (rest) | real-process run exposed that identity evidence must be uploaded `DOMAIN_RESTRICTED` (the class default `ADMIN_RESTRICTED` hides it from the owner's ownership check); contract documented on `POST /verification` |
+| S12-01 | Verification Service (IDENTITY, PROPERTY_AUTHORITY) | PASS | CONTRACT (both) | real-process E2E: owner → real verification-service (sandbox provider) → `verification.verified.v1` → owner consumer; production KYC provider not selected |
+| S12-02 | Media & Document Service | PASS | CONTRACT (evidence metadata, deed/photo checks, access policy, generated-PDF upload and download, deletion event) / LOCAL (data-room and application-evidence downloads) | real-process run exposed that identity evidence must be uploaded `DOMAIN_RESTRICTED` (the class default `ADMIN_RESTRICTED` hides it from the owner's ownership check); contract documented on `POST /verification` |
 | S12-03 | Notification Service | PASS | CONTRACT | 25 owner templates seeded (drift-tested); E2E delivery of activation code through the real service |
 | S12-04 | Payment Service | BLOCKED | — | contract + fakes; config refuses `PAYMENT_SERVICE_URL`; all PLATFORM money answers 503 |
 | S12-05 | Marketplace | PASS (LOCAL) · live BLOCKED | internal APIs + events + customer-notification recipient contract; marketplace-service not built |
@@ -347,18 +389,18 @@ families 3–7 are not live-integration evidence.
 | 13.29 | Insurance and protection | PARTIAL | partner products/claims BLOCKED; owner-held policies/claims PASS |
 | 13.30 | Smart access and remote controls | PARTIAL | smart devices BLOCKED; manual access and grant lifecycle PASS |
 
-## Totals (at `deb5c93` + register)
+## Totals (at `74a8120` + register)
 
 | Measure | Count |
 |---|---|
-| Migrations / tables | 16 / 131 |
+| Migrations / tables | 17 / 132 |
 | State machines | 24 |
 | Public operations (auth + domain) | 43 + 288 = 331 (13 of them specification-path aliases) |
 | Internal operations | 83 |
 | Produced event types / consumers | 26 / 7 (2 with real producers, 5 BLOCKED) |
-| Worker jobs (domain + platform) | 24 + 4 |
+| Worker jobs (domain + platform) | 25 + 4 |
 | Integration adapters | 11 (`calendarsync`, `customernotify`, `esign`, `financing`, `insurance`, `media`, `notification`, `oauth`, `payment`, `smartaccess`, `verification`) |
-| Test functions (owner module) | 79 integration / 32 unit · E2E journeys: 4 (foundation, owner account, owner domain, owner + real verification/media producers) |
+| Test functions (owner module) | 80 integration / 32 unit · E2E journeys: 5 (foundation, owner account, owner domain, owner + real verification/media producers, owner functional journey with real services) |
 | Notification templates seeded | 25 owner + 4 platform |
 | Certification | LOCAL for the domain; CONTRACT where stated; STAGING/PRODUCTION not claimed |
 
