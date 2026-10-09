@@ -1,0 +1,786 @@
+{
+  "$defs": {
+    "AvailabilityView": {
+      "properties": {
+        "allowed_next_statuses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "available_from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "available_until": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_confirmed_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next_confirmation_due": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "status",
+        "allowed_next_statuses",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Cost": {
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "calculator_version": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "cycle": {
+          "type": "string"
+        },
+        "cycle_count": {
+          "type": "integer"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/LineItem"
+          },
+          "type": "array"
+        },
+        "nights": {
+          "type": "integer"
+        },
+        "optional_lines": {
+          "description": "Disclosed optional extras, excluded from totals",
+          "items": {
+            "$ref": "#/$defs/LineItem"
+          },
+          "type": "array"
+        },
+        "recurring_per_cycle_minor": {
+          "type": "integer"
+        },
+        "refundable_total_minor": {
+          "type": "integer"
+        },
+        "term_months": {
+          "type": "integer"
+        },
+        "term_total_minor": {
+          "description": "Total payable over the term/stay, excluding refundable deposits",
+          "type": "integer"
+        },
+        "transaction_type": {
+          "type": "string"
+        },
+        "upfront_total_minor": {
+          "description": "Everything due before move-in / check-in / completion",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "currency",
+        "transaction_type",
+        "lines",
+        "optional_lines",
+        "upfront_total_minor",
+        "recurring_per_cycle_minor",
+        "cycle",
+        "cycle_count",
+        "term_months",
+        "nights",
+        "term_total_minor",
+        "refundable_total_minor",
+        "assumptions",
+        "calculator_version"
+      ],
+      "type": "object"
+    },
+    "FeatureView": {
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "key",
+        "category"
+      ],
+      "type": "object"
+    },
+    "Fee": {
+      "properties": {
+        "amount_minor": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "calculation": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "mandatory": {
+          "type": "boolean"
+        },
+        "payable_to": {
+          "type": "string"
+        },
+        "rate_bps": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "refundable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "category",
+        "label",
+        "calculation",
+        "frequency",
+        "mandatory",
+        "refundable",
+        "payable_to"
+      ],
+      "type": "object"
+    },
+    "LineItem": {
+      "properties": {
+        "amount_minor": {
+          "type": "integer"
+        },
+        "category": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "mandatory": {
+          "type": "boolean"
+        },
+        "payable_to": {
+          "type": "string"
+        },
+        "refundable": {
+          "type": "boolean"
+        },
+        "timing": {
+          "description": "UPFRONT, RECURRING (per cycle), STAY or PURCHASE",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "label",
+        "category",
+        "amount_minor",
+        "mandatory",
+        "refundable",
+        "timing",
+        "payable_to"
+      ],
+      "type": "object"
+    },
+    "ListingDetails": {
+      "properties": {
+        "check_in_time": {
+          "pattern": "^(?:([01][0-9]|2[0-3]):[0-5][0-9])$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "check_out_time": {
+          "pattern": "^(?:([01][0-9]|2[0-3]):[0-5][0-9])$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fenced": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fit_out": {
+          "enum": [
+            "SHELL",
+            "SEMI_FINISHED",
+            "FINISHED"
+          ],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "furnishing": {
+          "enum": [
+            "UNFURNISHED",
+            "SEMI_FURNISHED",
+            "FURNISHED"
+          ],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlights": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "type": "array"
+        },
+        "house_rules": {
+          "maxLength": 4000,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instant_book": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "max_guests": {
+          "description": "Short-let",
+          "maximum": 100,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "max_occupants": {
+          "maximum": 200,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "min_nights": {
+          "maximum": 365,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "min_term_months": {
+          "description": "Leases: minimum term",
+          "maximum": 600,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "parking_spaces": {
+          "maximum": 1000,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "permitted_use": {
+          "description": "Commercial/land use",
+          "maxLength": 200,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pets_allowed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "smoking_allowed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "title_document_type": {
+          "description": "Sale: title held (e.g. CERTIFICATE_OF_OCCUPANCY)",
+          "pattern": "^(?:[A-Z][A-Z0-9_]{1,39})$",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ListingEvent": {
+      "properties": {
+        "change_reason": {
+          "type": "string"
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "published_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/ListingSnapshot"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version_no": {
+          "description": "Immutable listing version; consumers discard lower versions",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "listing_id",
+        "property_id",
+        "status",
+        "version_no",
+        "change_reason",
+        "published_at",
+        "snapshot",
+        "occurred_at"
+      ],
+      "type": "object"
+    },
+    "ListingMediaView": {
+      "properties": {
+        "is_cover": {
+          "type": "boolean"
+        },
+        "media_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "media_status": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "media_id",
+        "position",
+        "is_cover",
+        "media_status"
+      ],
+      "type": "object"
+    },
+    "ListingSnapshot": {
+      "properties": {
+        "all_in_cost": {
+          "description": "Default scenario of the shared calculator",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Cost"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "area_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authority_verified": {
+          "type": "boolean"
+        },
+        "availability": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AvailabilityView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bathrooms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "bedrooms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "category": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "details": {
+          "$ref": "#/$defs/ListingDetails"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/$defs/FeatureView"
+          },
+          "type": "array"
+        },
+        "floor_area_sqm": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "latitude": {
+          "description": "Only with EXACT address visibility",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/ListingMediaView"
+          },
+          "type": "array"
+        },
+        "pricing": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/PricingView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "property_type": {
+          "type": "string"
+        },
+        "quality_score": {
+          "type": "integer"
+        },
+        "state_region": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "transaction_type": {
+          "type": "string"
+        },
+        "unit_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verification_level": {
+          "type": "string"
+        },
+        "version_no": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "listing_id",
+        "property_id",
+        "version_no",
+        "transaction_type",
+        "category",
+        "property_type",
+        "title",
+        "details",
+        "city",
+        "state_region",
+        "country_code",
+        "features",
+        "media",
+        "authority_verified",
+        "verification_level",
+        "quality_score"
+      ],
+      "type": "object"
+    },
+    "PricingView": {
+      "properties": {
+        "accepted": {
+          "description": "Frozen: referenced by an accepted offer",
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "base_amount_minor": {
+          "type": "integer"
+        },
+        "base_period": {
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "deposit_amount_minor": {
+          "type": "integer"
+        },
+        "fees": {
+          "items": {
+            "$ref": "#/$defs/Fee"
+          },
+          "type": "array"
+        },
+        "negotiable": {
+          "type": "boolean"
+        },
+        "payment_cycle": {
+          "type": "string"
+        },
+        "policy_version": {
+          "type": "string"
+        },
+        "pricing_version_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/Rule"
+          },
+          "type": "array"
+        },
+        "version_no": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pricing_version_id",
+        "version_no",
+        "currency",
+        "base_amount_minor",
+        "base_period",
+        "payment_cycle",
+        "deposit_amount_minor",
+        "negotiable",
+        "fees",
+        "rules",
+        "active",
+        "accepted",
+        "policy_version",
+        "created_at"
+      ],
+      "type": "object"
+    },
+    "Rule": {
+      "properties": {
+        "params": {
+          "$ref": "#/$defs/RuleParams"
+        },
+        "rule_type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_type",
+        "params"
+      ],
+      "type": "object"
+    },
+    "RuleParams": {
+      "properties": {
+        "after_months": {
+          "description": "ESCALATION: every N months",
+          "maximum": 600,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "days": {
+          "description": "WEEKEND: nights starting on these days",
+          "items": {
+            "enum": [
+              "MON",
+              "TUE",
+              "WED",
+              "THU",
+              "FRI",
+              "SAT",
+              "SUN"
+            ],
+            "type": "string"
+          },
+          "maxItems": 7,
+          "type": "array"
+        },
+        "from": {
+          "description": "SEASONAL: MM-DD (inclusive)",
+          "pattern": "^(?:(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$",
+          "type": "string"
+        },
+        "min_nights": {
+          "description": "LONG_STAY: minimum nights",
+          "maximum": 365,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_term_months": {
+          "description": "DISCOUNT: minimum term",
+          "maximum": 600,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "rate_bps": {
+          "description": "Change in basis points (+surcharge / -discount; DISCOUNT and LONG_STAY take a positive discount)",
+          "maximum": 10000,
+          "minimum": -10000,
+          "type": "integer"
+        },
+        "to": {
+          "description": "SEASONAL: MM-DD (inclusive, may wrap the year)",
+          "pattern": "^(?:(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/listing.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "A published listing changed (edit, price change); the payload is the new immutable version. Producer: individual-owner-service. Consumers: Marketplace. Aggregate: listing. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "listing"
+    },
+    "event_type": {
+      "const": "listing.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/ListingEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "listing.updated.v1"
+}

@@ -128,5 +128,10 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		{Name: "verification-reconciliation", Run: func(ctx context.Context) error { return s.ReconcileVerifications(ctx, cfg.Batch) }},
 		{Name: "ownership-expiry", Run: func(ctx context.Context) error { return s.ExpireOwnershipAuthority(ctx, cfg.Batch) }},
 		{Name: "consent-and-mandate-expiry", Run: s.ExpireConsentsAndMandates},
+		{Name: "manager-mandates", Run: func(ctx context.Context) error { return s.AdvanceAssignments(ctx, cfg.Batch) }},
+		{Name: "listing-freshness", Run: func(ctx context.Context) error {
+			_, _, err := s.RunFreshness(ctx, cfg.Batch)
+			return err
+		}},
 	}
 }

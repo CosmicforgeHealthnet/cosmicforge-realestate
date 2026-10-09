@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "AvailabilityView": {
+      "properties": {
+        "allowed_next_statuses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "available_from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "available_until": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_confirmed_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next_confirmation_due": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "status",
+        "allowed_next_statuses",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ListingStateEvent": {
+      "properties": {
+        "availability": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AvailabilityView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "listing_version": {
+          "description": "Aggregate version (monotonic)",
+          "type": "integer"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "reason_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "OWNER",
+            "MANAGER",
+            "SYSTEM",
+            "ADMIN"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version_no": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "listing_id",
+        "property_id",
+        "status",
+        "version_no",
+        "source",
+        "listing_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/listing.paused.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "A listing was paused by the owner, a delegate, the system or platform review. Producer: individual-owner-service. Consumers: Marketplace. Aggregate: listing. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "listing"
+    },
+    "event_type": {
+      "const": "listing.paused.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/ListingStateEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "listing.paused.v1"
+}

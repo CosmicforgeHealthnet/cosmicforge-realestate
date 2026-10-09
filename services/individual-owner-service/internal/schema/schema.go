@@ -211,6 +211,9 @@ func field(v reflect.Value, name string, r Rules, d *[]apperrors.Detail) {
 		str(s, name, r, d)
 	case reflect.Int, reflect.Int32, reflect.Int64:
 		n := v.Int()
+		if n == 0 && !r.Required {
+			return // optional non-pointer number: zero means "not set"
+		}
 		if r.Min != nil && n < *r.Min {
 			add(d, name, "OUT_OF_RANGE", fmt.Sprintf("%s must be at least %d", name, *r.Min))
 		}

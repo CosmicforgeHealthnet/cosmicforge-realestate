@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "AssignmentEvent": {
+      "properties": {
+        "assignment_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "assignment_version": {
+          "description": "Monotonic; consumers discard stale versions",
+          "type": "integer"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "emergency_limit_minor": {
+          "type": "integer"
+        },
+        "emergency_rule": {
+          "type": "string"
+        },
+        "ends_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "manager_domain": {
+          "type": "string"
+        },
+        "manager_ref_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "permission_version": {
+          "type": "integer"
+        },
+        "previous_status": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "reason_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "report_schedule": {
+          "type": "string"
+        },
+        "role_type": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "spend_limit_minor": {
+          "type": "integer"
+        },
+        "starts_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "assignment_id",
+        "property_id",
+        "manager_domain",
+        "manager_ref_id",
+        "role_type",
+        "status",
+        "previous_status",
+        "capabilities",
+        "spend_limit_minor",
+        "emergency_limit_minor",
+        "currency",
+        "emergency_rule",
+        "permission_version",
+        "starts_at",
+        "ends_at",
+        "report_schedule",
+        "assignment_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/manager.assignment.created.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "An owner mandate was created and is available to the manager service for acceptance. Producer: individual-owner-service. Consumers: property-manager-service. Aggregate: manager_assignment. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "manager_assignment"
+    },
+    "event_type": {
+      "const": "manager.assignment.created.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/AssignmentEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "manager.assignment.created.v1"
+}

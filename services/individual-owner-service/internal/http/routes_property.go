@@ -12,7 +12,8 @@ import (
 // DomainRoutes is the complete Sections 6–13 route registry.
 func DomainRoutes() []Route {
 	var rs []Route
-	for _, group := range [][]Route{accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), propertyInternalRoutes()} {
+	for _, group := range [][]Route{accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), delegationRoutes(), listingRoutes(),
+		propertyInternalRoutes(), listingInternalRoutes()} {
 		rs = append(rs, group...)
 	}
 	return rs

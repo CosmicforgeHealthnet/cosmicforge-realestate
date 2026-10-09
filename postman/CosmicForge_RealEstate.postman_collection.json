@@ -310,6 +310,51 @@
       "key": "unit_version",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "availability_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "copied_listing_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "listing_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manager_assignment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manager_assignment_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manager_proposal_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manager_ref_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pricing_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "proposal_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -8530,6 +8575,67 @@
                 }
               },
               "response": []
+            },
+            {
+              "name": "Admin moderation of a listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/listings/{{listing_id}}/moderation",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "moderation"
+                  ]
+                },
+                "description": "Admin moderation of a listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"PAUSE\",\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
             }
           ]
         },
@@ -11789,6 +11895,2223 @@
                   ]
                 },
                 "description": "Fresh public property/authority summary (marketplace read-back).\n\nCallers: marketplace-service, admin-service. No owner personal data; exact coordinates only with EXACT visibility.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Authoritative listing read-back (marketplace)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/listings/{{listing_id}}",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}"
+                  ]
+                },
+                "description": "Authoritative listing read-back (marketplace).\n\nCallers: marketplace-service, admin-service. Used before high-value actions and for projection recovery. Never-published listings answer 404.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Customer-facing all-in cost of a published listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/listings/{{listing_id}}/cost-preview",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "cost-preview"
+                  ]
+                },
+                "description": "Customer-facing all-in cost of a published listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Route a marketplace listing report to the owner domain",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/listings/{{listing_id}}/reports",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "reports"
+                  ]
+                },
+                "description": "Route a marketplace listing report to the owner domain.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"report_type\": \"STALE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Manager reads its own mandate",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('manager_assignment_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/manager-assignments/{{manager_assignment_id}}",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}"
+                  ]
+                },
+                "description": "Manager reads its own mandate.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Manager accepts or declines a proposed assignment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/manager-assignments/{{manager_assignment_id}}/respond",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "respond"
+                  ]
+                },
+                "description": "Manager accepts or declines a proposed assignment.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record manager activity",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/manager-assignments/{{manager_assignment_id}}/activity",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "activity"
+                  ]
+                },
+                "description": "Record manager activity.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"activity_type\": \"INSPECTION_COMPLETED\",\n  \"summary\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delegated manager reads a property (property.view)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('property_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/managed/properties/{{property_id}}",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "managed",
+                    "properties",
+                    "{{property_id}}"
+                  ]
+                },
+                "description": "Delegated manager reads a property (property.view).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Delegated manager reads a listing (listing.manage)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('listing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/managed/listings/{{listing_id}}",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "managed",
+                    "listings",
+                    "{{listing_id}}"
+                  ]
+                },
+                "description": "Delegated manager reads a listing (listing.manage).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Delegated manager confirms availability (availability.manage)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/managed/listings/{{listing_id}}/confirm-availability",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "managed",
+                    "listings",
+                    "{{listing_id}}",
+                    "confirm-availability"
+                  ]
+                },
+                "description": "Delegated manager confirms availability (availability.manage).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delegated manager pauses a listing (listing.pause)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/managed/listings/{{listing_id}}/pause",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "managed",
+                    "listings",
+                    "{{listing_id}}",
+                    "pause"
+                  ]
+                },
+                "description": "Delegated manager pauses a listing (listing.pause).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Delegation",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Search managers (property-manager-service)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/managers/search?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "managers",
+                    "search"
+                  ]
+                },
+                "description": "Search managers (property-manager-service).\n\nManager discovery is owned by property-manager-service, which has no implemented contract yet: 503 FEATURE_UNAVAILABLE.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "List a property's management proposals",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-proposals?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-proposals"
+                  ]
+                },
+                "description": "List a property's management proposals.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Propose a management mandate to a manager",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('manager_proposal_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-proposals",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-proposals"
+                  ]
+                },
+                "description": "Propose a management mandate to a manager.\n\nCapabilities are an explicit subset of the role's capability matrix; payout and ownership authorities are never delegable.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fee_type\": \"PERCENT_OF_RENT\",\n  \"manager_display_name\": \"Sample name\",\n  \"manager_domain\": \"property-manager\",\n  \"manager_ref_id\": \"{{manager_ref_id}}\",\n  \"property_id\": \"{{property_id}}\",\n  \"role_type\": \"FULL_MANAGEMENT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Withdraw an open proposal",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-proposals/{{manager_proposal_id}}/withdraw",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-proposals",
+                    "{{manager_proposal_id}}",
+                    "withdraw"
+                  ]
+                },
+                "description": "Withdraw an open proposal.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "List manager assignments across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments"
+                  ]
+                },
+                "description": "List manager assignments across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Create an assignment from a proposal",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('manager_assignment_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments"
+                  ]
+                },
+                "description": "Create an assignment from a proposal.\n\nRequires co-owner consent (MANAGER_ASSIGNMENT, target = proposal) when the property has other principals. The assignment is PROPOSED until property-manager-service records the manager's acceptance.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currency\": \"NGN\",\n  \"ends_at\": \"2026-12-01T10:00:00Z\",\n  \"proposal_id\": \"{{proposal_id}}\",\n  \"starts_at\": \"2026-12-01T10:00:00Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get an assignment with its permission history",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('manager_assignment_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}"
+                  ]
+                },
+                "description": "Get an assignment with its permission history.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Change capabilities, limits or term (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('manager_assignment_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{manager_assignment_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}"
+                  ]
+                },
+                "description": "Change capabilities, limits or term (If-Match).\n\nCapability/limit changes append a new immutable permission version; widening needs co-owner consent.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Suspend an assignment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}/suspend",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "suspend"
+                  ]
+                },
+                "description": "Suspend an assignment.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Resume a suspended assignment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}/resume",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "resume"
+                  ]
+                },
+                "description": "Resume a suspended assignment.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Revoke an assignment (immediate)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}/revoke",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "revoke"
+                  ]
+                },
+                "description": "Revoke an assignment (immediate).\n\nRevocation blocks every delegated capability check at once and emits manager.assignment.revoked.v1.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Manager activity on the assignment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/manager-assignments/{{manager_assignment_id}}/activity?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "manager-assignments",
+                    "{{manager_assignment_id}}",
+                    "activity"
+                  ]
+                },
+                "description": "Manager activity on the assignment.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Listings",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "List listings across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings"
+                  ]
+                },
+                "description": "List listings across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Create a DRAFT listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('listing_id', String(pick(body, 'data.id')));",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('listing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings"
+                  ]
+                },
+                "description": "Create a DRAFT listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_id\": \"{{property_id}}\",\n  \"title\": \"3-bedroom flat in Lekki\",\n  \"transaction_type\": \"RENT_LONG_TERM\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get a listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('listing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}"
+                  ]
+                },
+                "description": "Get a listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Edit a listing (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('listing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{listing_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}"
+                  ]
+                },
+                "description": "Edit a listing (If-Match).\n\nEditing a published listing must keep it publishable; the edit is emitted as a new immutable version (listing.updated.v1).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Preview the customer view and the publication checklist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/preview",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "preview"
+                  ]
+                },
+                "description": "Preview the customer view and the publication checklist.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Publish (or resume) a listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/publish",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "publish"
+                  ]
+                },
+                "description": "Publish (or resume) a listing.\n\nValidates property status, verified ownership authority, identity verification (policy), co-owner consent (LISTING_PUBLISH), listing details, ready photos, full price disclosure and availability. 422 LISTING_NOT_PUBLISHABLE lists every unmet requirement.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Pause a published listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/pause",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "pause"
+                  ]
+                },
+                "description": "Pause a published listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Withdraw a listing from the market",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/withdraw",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "withdraw"
+                  ]
+                },
+                "description": "Withdraw a listing from the market.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Archive a listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/archive",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "archive"
+                  ]
+                },
+                "description": "Archive a listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Copy a listing into a new draft",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('copied_listing_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/copy",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "copy"
+                  ]
+                },
+                "description": "Copy a listing into a new draft.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Immutable published versions",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/versions?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "versions"
+                  ]
+                },
+                "description": "Immutable published versions.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Pricing",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Active price model",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('pricing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/pricing",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "pricing"
+                  ]
+                },
+                "description": "Active price model.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Set the price model (new immutable version; If-Match \"0\" first)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('pricing_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{pricing_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/pricing",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "pricing"
+                  ]
+                },
+                "description": "Set the price model (new immutable version; If-Match \"0\" first).\n\nEvery mandatory fee must be disclosed with a configured category; platform fees cannot be owner-defined. A price change on a published listing needs co-owner consent (PRICE_CHANGE) and republishes.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"base_amount_minor\": 1,\n  \"base_period\": \"MONTH\",\n  \"currency\": \"NGN\",\n  \"payment_cycle\": \"MONTHLY\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "All pricing versions",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/price-history?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "price-history"
+                  ]
+                },
+                "description": "All pricing versions.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "All-in cost for a scenario (shared calculator)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/cost-preview",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "cost-preview"
+                  ]
+                },
+                "description": "All-in cost for a scenario (shared calculator).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Availability",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Listing availability",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('availability_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/availability",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "availability"
+                  ]
+                },
+                "description": "Listing availability.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Set availability (If-Match on the availability version)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('availability_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{availability_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/availability",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "availability"
+                  ]
+                },
+                "description": "Set availability (If-Match on the availability version).\n\nCounts as a freshness confirmation. OFF_MARKET, OCCUPIED or SOLD pause a published listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"AVAILABLE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Confirm the listing is still available",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/listings/{{listing_id}}/confirm-availability",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "listings",
+                    "{{listing_id}}",
+                    "confirm-availability"
+                  ]
+                },
+                "description": "Confirm the listing is still available.\n\nResolves the freshness check, schedules the next one and resumes a listing paused only for missed freshness.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
               },
               "response": []
             }

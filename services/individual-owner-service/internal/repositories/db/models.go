@@ -134,11 +134,62 @@ type AuthorityDocument struct {
 	UpdatedAt              time.Time
 }
 
+type AvailabilityCalendar struct {
+	ListingID          ids.ID
+	Day                time.Time
+	Status             string
+	Source             string
+	RefID              *ids.ID
+	PriceOverrideMinor *int64
+	MinNights          *int32
+	UpdatedAt          time.Time
+}
+
+type AvailabilityState struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	Status              string
+	AvailableFrom       *time.Time
+	AvailableUntil      *time.Time
+	Note                *string
+	LastConfirmedAt     *time.Time
+	NextConfirmationDue *time.Time
+	Version             int64
+	UpdatedAt           time.Time
+}
+
 type DashboardPreference struct {
 	AccountID         ids.ID
 	Widgets           []string
 	DefaultPropertyID *ids.ID
 	UpdatedAt         time.Time
+}
+
+type FeeDefinition struct {
+	ID               ids.ID
+	PricingVersionID ids.ID
+	Code             string
+	Category         string
+	Label            string
+	Calculation      string
+	AmountMinor      *int64
+	RateBps          *int32
+	Frequency        string
+	Mandatory        bool
+	Refundable       bool
+	PayableTo        string
+}
+
+type FreshnessCheck struct {
+	ID         ids.ID
+	ListingID  ids.ID
+	Trigger    string
+	Status     string
+	DueAt      time.Time
+	RemindedAt *time.Time
+	ResolvedAt *time.Time
+	ReportType *string
+	CreatedAt  time.Time
 }
 
 type IdempotencyRecord struct {
@@ -191,6 +242,61 @@ type LifecycleTransition struct {
 	AggregateVersion int64
 	Metadata         []byte
 	OccurredAt       time.Time
+}
+
+type Listing struct {
+	ID                   ids.ID
+	PropertyID           ids.ID
+	UnitID               *ids.ID
+	TransactionType      string
+	Status               string
+	Title                string
+	Description          *string
+	Details              []byte
+	CopyOfListingID      *ids.ID
+	CurrentVersionNo     int32
+	PublishedVersionNo   *int32
+	FirstPublishedAt     *time.Time
+	PublishedAt          *time.Time
+	PauseSource          *string
+	PauseReason          *string
+	QualityScore         *int32
+	CreatedByActorDomain string
+	CreatedByActorID     ids.ID
+	Version              int64
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type ListingMediaLink struct {
+	ListingID ids.ID
+	MediaID   ids.ID
+	Position  int32
+	IsCover   bool
+	CreatedAt time.Time
+}
+
+type ListingPublication struct {
+	ID         ids.ID
+	ListingID  ids.ID
+	VersionNo  *int32
+	Action     string
+	Channel    string
+	Source     string
+	Reason     *string
+	OccurredAt time.Time
+}
+
+type ListingVersion struct {
+	ID               ids.ID
+	ListingID        ids.ID
+	VersionNo        int32
+	Snapshot         []byte
+	PricingVersionID *ids.ID
+	Reason           string
+	ActorDomain      *string
+	ActorID          *ids.ID
+	CreatedAt        time.Time
 }
 
 type ManagerActivityRef struct {
@@ -500,6 +606,39 @@ type PayoutProfile struct {
 	ShortletPayoutAccountID *ids.ID
 	Version                 int64
 	UpdatedAt               time.Time
+}
+
+type PriceSchedule struct {
+	ListingID              ids.ID
+	ActivePricingVersionID *ids.ID
+	Currency               string
+	Version                int64
+	UpdatedAt              time.Time
+}
+
+type PricingRule struct {
+	ID               ids.ID
+	PricingVersionID ids.ID
+	RuleType         string
+	Position         int32
+	Params           []byte
+}
+
+type PricingVersion struct {
+	ID                   ids.ID
+	ListingID            ids.ID
+	VersionNo            int32
+	Currency             string
+	BaseAmountMinor      int64
+	BasePeriod           string
+	PaymentCycle         string
+	DepositAmountMinor   int64
+	Negotiable           bool
+	PolicyVersion        string
+	CreatedByActorDomain string
+	CreatedByActorID     ids.ID
+	AcceptedAt           *time.Time
+	CreatedAt            time.Time
 }
 
 type ProcessedEvent struct {

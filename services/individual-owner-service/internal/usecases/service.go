@@ -86,6 +86,14 @@ type DomainPolicy struct {
 	MaxContacts             int
 	MaxImportRows           int
 	TransferInviteTTL       time.Duration
+	// Listing policy (§13.7–§13.9).
+	MinListingPhotos      map[string]int           // by transaction type
+	FreshnessInterval     map[string]time.Duration // by transaction type
+	FreshnessReminderLead time.Duration
+	FreshnessGrace        time.Duration
+	// FeeCategories are the configured fee categories (§13.8: unknown or
+	// legal fee categories require configured policy).
+	FeeCategories []string
 }
 
 // Identity-gated actions.
@@ -100,7 +108,13 @@ const (
 func DefaultDomainPolicy() DomainPolicy {
 	return DomainPolicy{IdentityRequiredFor: []string{GateListingPublish, GatePayout, GateSale, GateTransfer},
 		CoOwnerConsentThreshold: "ALL", ConsentTTL: 7 * 24 * time.Hour, PayoutCoolingOff: 48 * time.Hour,
-		MaxContacts: 10, MaxImportRows: 500, TransferInviteTTL: 14 * 24 * time.Hour}
+		MaxContacts: 10, MaxImportRows: 500, TransferInviteTTL: 14 * 24 * time.Hour,
+		MinListingPhotos: map[string]int{"RENT_LONG_TERM": 3, "SALE": 3, "SHORT_LET": 5, "COMMERCIAL_LEASE": 2, "LAND_LEASE": 1},
+		FreshnessInterval: map[string]time.Duration{"RENT_LONG_TERM": 14 * 24 * time.Hour, "SALE": 30 * 24 * time.Hour, "SHORT_LET": 30 * 24 * time.Hour,
+			"COMMERCIAL_LEASE": 30 * 24 * time.Hour, "LAND_LEASE": 60 * 24 * time.Hour},
+		FreshnessReminderLead: 3 * 24 * time.Hour, FreshnessGrace: 2 * 24 * time.Hour,
+		FeeCategories: []string{"AGENCY", "LEGAL", "CAUTION", "SERVICE_CHARGE", "CLEANING", "UTILITY", "INSURANCE", "MAINTENANCE", "SECURITY",
+			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"}}
 }
 
 // DefaultPolicy is the baseline (policy version 2026-10-01).

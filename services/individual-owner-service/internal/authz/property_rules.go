@@ -107,6 +107,7 @@ const (
 	ActInternalAdminVerify     Action = "internal.admin.ownership"
 	ActSystemProperty          Action = "system.property"
 	ActTransferCancel          Action = "ownership.transfer.cancel"
+	ActInternalListingReport   Action = "internal.listing.report"
 )
 
 var (
@@ -170,6 +171,7 @@ func PropertyRules() []Rule {
 		Rule{Action: ActMarketInsightsRead, SelfService: true, AccountStatuses: signedIn},
 		// Internal contracts (§9): capability-scoped per calling service.
 		Rule{Action: ActInternalListingRead, Services: []ServiceGrant{{Service: platform.MarketplaceService}, {Service: platform.AdminService}}},
+		Rule{Action: ActInternalListingReport, Services: []ServiceGrant{{Service: platform.MarketplaceService}}},
 		Rule{Action: ActInternalPublicSummary, Services: []ServiceGrant{{Service: platform.MarketplaceService}, {Service: platform.AdminService}}},
 		Rule{Action: ActInternalCustomerIntake, Services: []ServiceGrant{{Service: platform.MarketplaceService, ActorDomains: []platform.Domain{platform.DomainMarketplace}, RequiresActor: true}}},
 		Rule{Action: ActInternalManagerRespond, Services: managerSvc},

@@ -315,6 +315,32 @@ func Update[Req, Resp any](method, path, op, tag, summary string, upsert bool, f
 	return rt
 }
 
+// Query declares a side-effect-free POST (previews/calculations): the body
+// is validated, no Idempotency-Key is needed and nothing is persisted.
+func Query[Req, Resp any](path, op, tag, summary string, fn func(c *Call, req *Req) (Resp, error)) Route {
+	rt := Route{Method: http.MethodPost, Path: path, Op: op, Tag: tag, Summary: summary, Status: http.StatusOK,
+		Req: reflect.TypeFor[Req](), Resp: reflect.TypeFor[Resp]()}
+	rt.handler = func(h *Handler, rt Route) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			c, err := h.prepare(w, r, rt)
+			var req *Req
+			if err == nil {
+				_, req, err = decodeBody[Req](w, r)
+			}
+			var resp Resp
+			if err == nil {
+				resp, err = fn(c, req)
+			}
+			if err != nil {
+				httpx.WriteError(w, r, err)
+				return
+			}
+			httpx.WriteData(w, http.StatusOK, resp)
+		}
+	}
+	return rt
+}
+
 // Get declares a read returning one object.
 func Get[Resp any](path, op, tag, summary string, fn func(c *Call) (Resp, error)) Route {
 	rt := Route{Method: http.MethodGet, Path: path, Op: op, Tag: tag, Summary: summary, Status: http.StatusOK, Resp: reflect.TypeFor[Resp]()}
