@@ -393,21 +393,26 @@ runs `37907440709` Backend, `37907440571` Security, `37907440570` Contracts, `37
 assigned, typically billing/spending limit), not a code failure; it cannot be fixed from the
 repository. All gates were therefore run locally (below). STAGING/PRODUCTION promotion was not attempted.
 
-## Quality gates run for this register (2026-10-09, local, at `659d43e` + docs)
+## Quality gates run for this register (2026-10-09, local, at `deb5c93`)
 
-| Gate | Command | Result |
-|---|---|---|
-| gofmt / vet / staticcheck | owner, notification and e2e modules | clean |
-| go mod tidy drift | `go mod tidy` + diff (owner, notification, e2e) | clean |
-| sqlc drift | `sqlc diff -f sql/sqlc.yaml` | clean |
-| Generated docs | `go run ./cmd/apidocgen -check` | current |
-| Architecture boundaries | `scripts/ci/check-architecture.sh` | OK |
-| Owner unit + PostgreSQL 16 + NATS + contract tests | `CF_REQUIRE_INTEGRATION=1 go test -race -count=1 ./...` | all pass (≈165 s); 68.7% statement coverage of `internal/...` |
-| notification-service | `go test -count=1 ./...` with PostgreSQL | pass |
-| E2E (foundation, owner account, owner domain) | `go test -race -count=1 ./...` in `tests/e2e` with PostgreSQL + Redis | pass |
-| OpenAPI / JSON Schema / Postman | `openapi-spec-validator` (2 domain specs), `check-jsonschema --check-metaschema`, `json.tool` | OK |
-| Secrets | `gitleaks protect --staged` on every commit | no leaks |
-| GitHub Actions | all workflows | not executed — account-level block (see "CI status") |
+A local replica of the Backend, Contracts and Security workflows ran over every Go module
+(`shared/go`, `gateway/api-gateway`, verification, media-document, notification and individual-owner
+services, `tests/e2e`) with PostgreSQL 16, Redis, NATS (embedded) and MinIO. Result: no failures.
+
+| Gate | Result |
+|---|---|
+| gofmt, `go mod tidy` drift, `go vet`, staticcheck (all 7 modules) | clean |
+| `go test -race -count=1 ./...` with `CF_REQUIRE_INTEGRATION=1` (all 7 modules, incl. owner integration ≈150 s and E2E with real processes) | pass |
+| Real-process E2E: foundation, owner account, owner domain, owner + real verification/media producers | pass |
+| sqlc diff (4 services) | clean |
+| Architecture boundaries (`check-architecture.sh --self-test` and run) | OK |
+| Generated API docs (`apidocgen -check`) | current |
+| OpenAPI validation, JSON Schema metaschema, Postman JSON | OK |
+| actionlint | clean |
+| gitleaks (full git history and working tree) | no leaks |
+| govulncheck | **BLOCKED** — `vuln.go.dev` is unreachable from this environment (HTTP 403 from the network policy); not run |
+| GitHub Actions | not dispatched (account-level restriction, see "CI status") |
+| Staging / production | not attempted; nothing here certifies them |
 
 Deployment wiring (staging/production compose entries, `promote.yml` digest input) is intentionally
 not added until an owner image digest exists from a working CI and deployment is approved.
