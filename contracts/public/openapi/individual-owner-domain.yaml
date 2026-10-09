@@ -1636,6 +1636,152 @@ components:
         - created_at
         - updated_at
       type: object
+    AssistanceInputInput:
+      additionalProperties: false
+      properties:
+        channel:
+          enum:
+            - IN_APP
+            - PHONE
+            - IN_PERSON
+            - VIDEO
+          type: string
+        expires_in_hours:
+          description: At most 30 days
+          maximum: 720
+          minimum: 1
+          type: integer
+        property_ids:
+          description: 'Limit assistance to these properties (default: no property limit)'
+          items:
+            format: uuid
+            type: string
+          maxItems: 50
+          type: array
+        reason:
+          maxLength: 500
+          type: string
+        scopes:
+          items:
+            enum:
+              - ONBOARDING
+              - PROPERTY_RECORDS
+              - MEDIA_CAPTURE
+              - DOCUMENT_SCANNING
+              - ACCESSIBILITY_SUPPORT
+            type: string
+          maxItems: 5
+          minItems: 1
+          type: array
+      required:
+        - scopes
+        - channel
+        - expires_in_hours
+      type: object
+    AssistanceRevokeInputInput:
+      additionalProperties: false
+      properties:
+        reason:
+          maxLength: 500
+          type: string
+      type: object
+    AssistanceView:
+      properties:
+        channel:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        property_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        reason:
+          type:
+            - string
+            - "null"
+        revoke_reason:
+          type:
+            - string
+            - "null"
+        revoked_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        scopes:
+          items:
+            type: string
+          type: array
+        status:
+          description: ACTIVE, REVOKED or EXPIRED
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - scopes
+        - property_ids
+        - channel
+        - status
+        - expires_at
+        - version
+        - created_at
+      type: object
+    AssistedActivityView:
+      properties:
+        activity_type:
+          type: string
+        authorization_id:
+          format: uuid
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        note:
+          type: string
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        scope:
+          type: string
+        support_actor_domain:
+          type: string
+        support_actor_id:
+          description: The individual support staff member (admin account)
+          format: uuid
+          type: string
+        support_service:
+          type: string
+      required:
+        - id
+        - authorization_id
+        - support_service
+        - support_actor_domain
+        - support_actor_id
+        - activity_type
+        - scope
+        - media_ids
+        - note
+        - created_at
+      type: object
     AttendanceView:
       properties:
         feedback:
@@ -8038,8 +8184,13 @@ components:
           type: string
         to:
           type: string
+        yield:
+          description: Gross rental yield over properties with a recorded valuation (basis disclosed); null when none is valued
+          oneOf:
+            - $ref: '#/components/schemas/YieldFigures'
+            - type: "null"
         yield_bps:
-          description: 'Not computed: property valuations are not recorded in the owner domain'
+          description: Gross yield when the valued properties use one currency; null without valuations
           type:
             - integer
             - "null"
@@ -10263,6 +10414,174 @@ components:
         - currency
         - download_ref
       type: object
+    StatutoryCloseInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - COMPLETE
+            - CANCEL
+          type: string
+        evidence_media_ids:
+          description: Receipts or filing acknowledgements (COMPLETE)
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        notes:
+          maxLength: 2000
+          type: string
+      required:
+        - action
+      type: object
+    StatutoryInputInput:
+      additionalProperties: false
+      properties:
+        authority:
+          description: Revenue service, state or local authority
+          maxLength: 160
+          type: string
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        due_on:
+          format: date
+          type: string
+        estimated_amount_minor:
+          description: The owner's informational estimate; never computed by the platform
+          minimum: 0
+          type: integer
+        jurisdiction:
+          pattern: ^[A-Z]{2}$
+          type: string
+        notes:
+          maxLength: 2000
+          type: string
+        obligation_type:
+          enum:
+            - INCOME_TAX_FILING
+            - RENTAL_INCOME_TAX
+            - WITHHOLDING_TAX_REMITTANCE
+            - PROPERTY_TAX
+            - LAND_USE_CHARGE
+            - GROUND_RENT
+            - TENEMENT_RATE
+            - SERVICE_LICENCE
+            - STATUTORY_INSURANCE
+            - OTHER
+          type: string
+        property_id:
+          description: Omit for account-level obligations (e.g. income tax filing)
+          format: uuid
+          type: string
+        recurrence:
+          enum:
+            - NONE
+            - MONTHLY
+            - QUARTERLY
+            - ANNUAL
+          type: string
+        reference:
+          description: Assessment or file reference
+          maxLength: 120
+          type: string
+        reminder_days:
+          description: Default 14
+          maximum: 90
+          minimum: 0
+          type: integer
+        title:
+          maxLength: 160
+          minLength: 3
+          type: string
+      required:
+        - obligation_type
+        - title
+        - jurisdiction
+        - due_on
+        - recurrence
+      type: object
+    StatutoryView:
+      properties:
+        authority:
+          type:
+            - string
+            - "null"
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        currency:
+          type:
+            - string
+            - "null"
+        due_on:
+          type: string
+        estimated_amount_minor:
+          type:
+            - integer
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        jurisdiction:
+          type: string
+        notes:
+          type:
+            - string
+            - "null"
+        obligation_type:
+          type: string
+        previous_id:
+          description: The occurrence this recurring entry follows
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        recurrence:
+          type: string
+        reference:
+          type:
+            - string
+            - "null"
+        reminded_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        reminder_days:
+          type: integer
+        status:
+          description: UPCOMING, COMPLETED or CANCELLED
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - obligation_type
+        - title
+        - jurisdiction
+        - due_on
+        - recurrence
+        - reminder_days
+        - status
+        - evidence_media_ids
+        - version
+      type: object
     SubmitChecklistInputInput:
       additionalProperties: false
       properties:
@@ -11048,6 +11367,86 @@ components:
         - original_allocation
         - version
       type: object
+    ValuationInputInput:
+      additionalProperties: false
+      properties:
+        basis:
+          enum:
+            - OWNER_ESTIMATE
+            - PURCHASE_PRICE
+            - PROFESSIONAL_VALUATION
+          type: string
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        note:
+          maxLength: 1000
+          type: string
+        professional_appointment_id:
+          description: 'Required for PROFESSIONAL_VALUATION: an appointment on this property with a submitted report'
+          format: uuid
+          type: string
+        value_minor:
+          minimum: 1
+          type: integer
+        valued_on:
+          format: date
+          type: string
+      required:
+        - value_minor
+        - currency
+        - valued_on
+        - basis
+      type: object
+    ValuationView:
+      properties:
+        basis:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        professional_appointment_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        value_minor:
+          type: integer
+        valued_on:
+          type: string
+      required:
+        - id
+        - property_id
+        - value_minor
+        - currency
+        - valued_on
+        - basis
+        - evidence_media_ids
+        - created_at
+      type: object
     VerificationLinkView:
       properties:
         created_at:
@@ -11254,6 +11653,37 @@ components:
         - starts_on
         - ends_on
         - status
+      type: object
+    YieldFigures:
+      properties:
+        annualized_income:
+          additionalProperties:
+            type: integer
+          description: Rent collected + short-let revenue of the valued properties in the period, annualized
+          type: object
+        bases:
+          description: Valuation bases used (OWNER_ESTIMATE, PURCHASE_PRICE, PROFESSIONAL_VALUATION)
+          items:
+            type: string
+          type: array
+        gross_yield_bps:
+          additionalProperties:
+            type: integer
+          type: object
+        valuation:
+          additionalProperties:
+            type: integer
+          description: Latest valuation per property, summed per currency
+          type: object
+        valued_properties:
+          description: Properties with a recorded valuation (others are excluded)
+          type: integer
+      required:
+        - valued_properties
+        - valuation
+        - annualized_income
+        - gross_yield_bps
+        - bases
       type: object
   securitySchemes:
     OwnerBearer:
@@ -12704,6 +13134,190 @@ paths:
       summary: Record screening assessments
       tags:
         - Applications
+  /api/v1/owner/assistance/activity:
+    get:
+      operationId: listAssistedActivity
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AssistedActivityView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: What support did on my account
+      tags:
+        - Assisted Use
+  /api/v1/owner/assistance/authorizations:
+    get:
+      operationId: listAssistanceAuthorizations
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AssistanceView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Support assistance I authorized
+      tags:
+        - Assisted Use
+    post:
+      description: Concierge onboarding, assisted photography/scanning, accessibility support and remote help for named scopes, optional properties and at most 30 days. Support acts as named staff through admin-service, never with my session; every action is recorded and notified.
+      operationId: grantAssistance
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistanceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssistanceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Authorize support staff to assist (step-up)
+      tags:
+        - Assisted Use
+  /api/v1/owner/assistance/authorizations/{assistance_id}/revoke:
+    post:
+      operationId: revokeAssistance
+      parameters:
+        - in: path
+          name: assistance_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistanceRevokeInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssistanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Revoke an authorization now
+      tags:
+        - Assisted Use
   /api/v1/owner/audit/activity:
     get:
       description: My actions, actions on my account (including privileged operator reads) and on my properties.
@@ -19235,6 +19849,58 @@ paths:
       summary: Immutable property history
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/insights:
+    get:
+      description: 'Deterministic rules over this property''s records with model, version, inputs, confidence and expiry (refreshed daily). Advisory only: no external AI or market provider is used and nothing is decided for the owner.'
+      operationId: getPropertyInsights
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/InsightView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Advisory vacancy, renewal and maintenance insights
+      tags:
+        - Reports & Insights
   /api/v1/owner/properties/{property_id}/land-terms:
     get:
       operationId: getLandTerms
@@ -21072,6 +21738,109 @@ paths:
       summary: Record a utility bill
       tags:
         - Utilities & Service Charges
+  /api/v1/owner/properties/{property_id}/valuations:
+    get:
+      operationId: listPropertyValuations
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ValuationView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Valuations (latest first)
+      tags:
+        - Reports & Insights
+    post:
+      description: Append-only. The latest valuation is the disclosed basis of gross yield in portfolio reports; a professional valuation references an appointment on the property with a submitted report.
+      operationId: recordPropertyValuation
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValuationInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ValuationView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a valuation
+      tags:
+        - Reports & Insights
   /api/v1/owner/properties/{property_id}/verification:
     get:
       operationId: listPropertyVerifications
@@ -22498,6 +23267,158 @@ paths:
       summary: Owner statements (payment-service)
       tags:
         - Banking & Tax
+  /api/v1/owner/statutory-obligations:
+    get:
+      operationId: listStatutoryObligations
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - UPCOMING
+              - COMPLETED
+              - CANCELLED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/StatutoryView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: My tax and statutory calendar
+      tags:
+        - Reports & Insights
+    post:
+      description: 'The owner''s own calendar of filings, rates, ground rent and licences with a reminder before the due date. Amounts are the owner''s informational estimates: the platform computes no tax and collects nothing here.'
+      operationId: createStatutoryObligation
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatutoryInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StatutoryView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a tax or statutory date
+      tags:
+        - Reports & Insights
+  /api/v1/owner/statutory-obligations/{statutory_id}/close:
+    post:
+      description: Completing a recurring entry schedules its next occurrence.
+      operationId: closeStatutoryObligation
+      parameters:
+        - in: path
+          name: statutory_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatutoryCloseInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StatutoryView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Complete (with receipts) or cancel
+      tags:
+        - Reports & Insights
   /api/v1/owner/tax-profile:
     get:
       operationId: getTaxProfile

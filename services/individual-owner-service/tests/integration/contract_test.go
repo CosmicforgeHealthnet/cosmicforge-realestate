@@ -168,9 +168,17 @@ func TestOwnerTemplatesSeeded(t *testing.T) {
 			used[keyRe.FindStringSubmatch(m)[1]] = true
 		}
 	}
-	seed, err := os.ReadFile("../../../notification-service/migrations/00003_seed_owner_templates.sql")
-	if err != nil {
-		t.Fatal(err)
+	files, err := filepath.Glob("../../../notification-service/migrations/*_seed_owner_templates*.sql")
+	if err != nil || len(files) < 2 {
+		t.Fatalf("owner template seeds %v %v", files, err)
+	}
+	var seed []byte
+	for _, f := range files {
+		b, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		seed = append(seed, b...)
 	}
 	seeded := map[string]bool{}
 	for _, m := range regexp.MustCompile(`'(owner\.[a-z_]+)'`).FindAllStringSubmatch(string(seed), -1) {

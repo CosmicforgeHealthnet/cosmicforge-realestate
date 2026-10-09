@@ -17,7 +17,7 @@ func DomainRoutes() []Route {
 		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(), agreementRoutes(), tenancyRoutes(), utilityRoutes(), tenancyInternalRoutes(),
 		commercialRoutes(), saleRoutes(), commercialSaleInternalRoutes(), shortletRoutes(), shortletInternalRoutes(),
 		maintenanceRoutes(), professionalRoutes(), providerInternalRoutes(), oversightRoutes(), oversightAdminRoutes(), partnerRoutes(), accessRoutes(),
-		propertyInternalRoutes(), listingInternalRoutes(), shortletPropertyRoutes()} {
+		propertyInternalRoutes(), listingInternalRoutes(), shortletPropertyRoutes(), closureRoutes(), closureAdminRoutes()} {
 		rs = append(rs, group...)
 	}
 	return append(rs, specAliases(rs)...)

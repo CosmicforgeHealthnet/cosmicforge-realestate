@@ -75,7 +75,8 @@ type PortfolioReport struct {
 	NetIncome          Money            `json:"net_income" doc:"Rent collected + short-let revenue − maintenance − professional fees"`
 	OpenMaintenance    int64            `json:"open_maintenance"`
 	OpenDisputes       int64            `json:"open_disputes"`
-	YieldBps           *int64           `json:"yield_bps" doc:"Not computed: property valuations are not recorded in the owner domain"`
+	YieldBps           *int64           `json:"yield_bps" doc:"Gross yield when the valued properties use one currency; null without valuations"`
+	Yield              *YieldFigures    `json:"yield" doc:"Gross rental yield over properties with a recorded valuation (basis disclosed); null when none is valued"`
 	Sources            string           `json:"sources"`
 }
 
@@ -204,6 +205,15 @@ func (s *Service) portfolioFigures(ctx context.Context, account ids.ID, property
 	}
 	for c, v := range r.ProfessionalFees {
 		r.NetIncome[c] -= v
+	}
+	y, err := s.yieldFigures(ctx, account, propertyID, from, to)
+	if err != nil {
+		return r, err
+	}
+	if r.Yield = y; y != nil && len(y.GrossYieldBps) == 1 {
+		for _, v := range y.GrossYieldBps {
+			r.YieldBps = &v
+		}
 	}
 	return r, nil
 }

@@ -91,9 +91,12 @@ const (
 	ActFinancingConsent   Action = "owner.financing.consent"
 	ActManagerSearch      Action = "owner.manager.search"
 	ActMarketInsightsRead Action = "owner.market_insights.read"
-	ActPrivacyVerify      Action = "owner.privacy.verify"  // step-up confirms the requester
-	ActAccountDispute     Action = "owner.dispute.account" // disputes about the account itself or its payout accounts
-	ActReportsRead        Action = "owner.reports.read"    // portfolio-wide reports, dashboard, calendar, own audit trail
+	ActPrivacyVerify      Action = "owner.privacy.verify"   // step-up confirms the requester
+	ActAccountDispute     Action = "owner.dispute.account"  // disputes about the account itself or its payout accounts
+	ActReportsRead        Action = "owner.reports.read"     // portfolio-wide reports, dashboard, calendar, own audit trail
+	ActStatutoryWrite     Action = "owner.statutory.write"  // tax/statutory calendar entries (§13.25)
+	ActAssistanceGrant    Action = "owner.assistance.grant" // authorize support staff (§13.27), step-up
+	ActAssistanceRead     Action = "owner.assistance.read"
 )
 
 // Internal (service principal) actions.
@@ -114,6 +117,7 @@ const (
 	ActInternalAdminTemplates  Action = "internal.admin.legal_templates" // agreement/notice templates (controlled legal configuration)
 	ActLegalTemplatesRead      Action = "owner.legal_templates.read"
 	ActInternalDataRoomAccess  Action = "internal.data_room.access" // grantee (buyer or professional) reads a sale data room
+	ActInternalAdminAssist     Action = "internal.admin.assist"     // attributed support staff act under an owner's assistance authorization
 )
 
 var (
@@ -178,6 +182,9 @@ func PropertyRules() []Rule {
 		Rule{Action: ActPrivacyVerify, SelfService: true, AccountStatuses: signedIn, StepUp: true},
 		Rule{Action: ActAccountDispute, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActReportsRead, SelfService: true, AccountStatuses: signedIn},
+		Rule{Action: ActStatutoryWrite, SelfService: true, AccountStatuses: activeOnly},
+		Rule{Action: ActAssistanceGrant, SelfService: true, AccountStatuses: signedIn, StepUp: true},
+		Rule{Action: ActAssistanceRead, SelfService: true, AccountStatuses: signedIn},
 		// Internal contracts (§9): capability-scoped per calling service.
 		Rule{Action: ActInternalListingRead, Services: []ServiceGrant{{Service: platform.MarketplaceService}, {Service: platform.AdminService}}},
 		Rule{Action: ActInternalListingReport, Services: []ServiceGrant{{Service: platform.MarketplaceService}}},
@@ -195,6 +202,7 @@ func PropertyRules() []Rule {
 		Rule{Action: ActInternalAdminPrivacy, Services: adminActor},
 		Rule{Action: ActInternalAdminVerify, Services: adminActor},
 		Rule{Action: ActInternalAdminTemplates, Services: adminActor},
+		Rule{Action: ActInternalAdminAssist, Services: adminActor},
 		Rule{Action: ActLegalTemplatesRead, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActInternalDataRoomAccess, Services: []ServiceGrant{
 			{Service: platform.MarketplaceService, ActorDomains: []platform.Domain{platform.DomainMarketplace}, RequiresActor: true},
