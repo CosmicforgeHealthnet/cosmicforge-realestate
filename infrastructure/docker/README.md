@@ -34,6 +34,11 @@ capabilities dropped and `no-new-privileges`.
 
 - PostgreSQL: one managed database per service with its own credentials
   (`verification_db`, `media_document_db`, `notification_db`); no cross-database access.
+  `individual_owner_db` (individual-owner-service is not in these Compose files yet) needs the
+  `btree_gist` extension: an administrator runs `CREATE EXTENSION IF NOT EXISTS btree_gist;` in
+  it once, or the migration role must be allowed to create it. `/app/migrate up` refuses to start
+  (exit 1, nothing applied) when it is missing, and `/app/migrate preflight` runs only that check —
+  see `docs/product/individual-owner/DATABASE_PREREQUISITES.md`.
 - S3-compatible object storage for media.
 - TLS termination: the gateway is published on `127.0.0.1` for the host reverse proxy / load
   balancer.

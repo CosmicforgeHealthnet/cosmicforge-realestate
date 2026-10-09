@@ -78,8 +78,21 @@ func Status(ctx context.Context, db *sql.DB, fsys fs.FS, w io.Writer) error {
 	return nil
 }
 
+// Options declares a service's database prerequisites.
+type Options struct {
+	// Extensions are the PostgreSQL extensions the migrations create.
+	// "up" verifies them with Preflight before applying anything.
+	Extensions []string
+}
+
 // Run implements a small CLI: up | down-to <version> | status | version.
 func Run(ctx context.Context, args []string, url string, fsys fs.FS, out io.Writer) error {
+	return RunWith(ctx, args, url, fsys, out, Options{})
+}
+
+// RunWith is Run with prerequisite checks. It adds the "preflight" command
+// (checks only), and "up" refuses to start when a prerequisite is missing.
+func RunWith(ctx context.Context, args []string, url string, fsys fs.FS, out io.Writer, opts Options) error {
 	if url == "" {
 		return errors.New("migrate: DATABASE_URL is required")
 	}
@@ -93,7 +106,16 @@ func Run(ctx context.Context, args []string, url string, fsys fs.FS, out io.Writ
 		cmd = args[0]
 	}
 	switch cmd {
+	case "preflight":
+		if err := Preflight(ctx, db, opts.Extensions); err != nil {
+			return err
+		}
+		fmt.Fprintln(out, "preflight ok")
+		return nil
 	case "up":
+		if err := Preflight(ctx, db, opts.Extensions); err != nil {
+			return err
+		}
 		return Up(ctx, db, fsys)
 	case "down-to":
 		if len(args) != 2 {
@@ -114,5 +136,58 @@ func Run(ctx context.Context, args []string, url string, fsys fs.FS, out io.Writ
 		fmt.Fprintln(out, v)
 		return nil
 	}
-	return fmt.Errorf("migrate: unknown command %q (up | down-to <v> | status | version)", cmd)
+	return fmt.Errorf("migrate: unknown command %q (up | preflight | down-to <v> | status | version)", cmd)
+}
+
+// ErrPrerequisite is wrapped by every failed preflight check.
+var ErrPrerequisite = errors.New("migrate: database prerequisite missing")
+
+// Preflight checks, without changing the database, that each extension is
+// installed or can be created by the connected role: it must be available
+// on the server and the role must be a superuser, or the extension must be
+// trusted (PostgreSQL 13+) and the role must hold CREATE on the database and
+// on the current schema. Otherwise it returns ErrPrerequisite with the exact
+// statement an administrator must run first.
+func Preflight(ctx context.Context, db *sql.DB, extensions []string) error {
+	for _, ext := range extensions {
+		var (
+			installed, available, trusted, super, dbCreate, schemaCreate bool
+			database, role                                               string
+			version                                                      int
+		)
+		err := db.QueryRowContext(ctx, `SELECT
+			EXISTS (SELECT 1 FROM pg_extension WHERE extname = $1),
+			EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = $1),
+			coalesce((SELECT rolsuper FROM pg_roles WHERE rolname = current_user), false),
+			has_database_privilege(current_database(), 'CREATE'),
+			coalesce(has_schema_privilege(current_schema(), 'CREATE'), false),
+			current_database(), current_user, current_setting('server_version_num')::int`, ext).
+			Scan(&installed, &available, &super, &dbCreate, &schemaCreate, &database, &role, &version)
+		if err != nil {
+			return fmt.Errorf("migrate: preflight query: %w", err)
+		}
+		if installed {
+			continue
+		}
+		admin := fmt.Sprintf("an administrator must run `CREATE EXTENSION IF NOT EXISTS %s;` in database %q before migrating", ext, database)
+		if !available {
+			return fmt.Errorf("%w: extension %s is not available on this PostgreSQL server (install the server's contrib package or allow it "+
+				"in the managed database's extension list); then %s", ErrPrerequisite, ext, admin)
+		}
+		if super {
+			continue
+		}
+		if version >= 130000 {
+			if err := db.QueryRowContext(ctx, `SELECT coalesce(bool_or(v.trusted), false) FROM pg_available_extension_versions v
+				JOIN pg_available_extensions a ON a.name = v.name AND a.default_version = v.version WHERE v.name = $1`, ext).Scan(&trusted); err != nil {
+				return fmt.Errorf("migrate: preflight query: %w", err)
+			}
+		}
+		if trusted && dbCreate && schemaCreate {
+			continue
+		}
+		return fmt.Errorf("%w: role %q cannot create extension %s in database %q (needs superuser, or CREATE on the database and schema for a "+
+			"trusted extension; trusted=%t database_create=%t schema_create=%t); %s", ErrPrerequisite, role, ext, database, trusted, dbCreate, schemaCreate, admin)
+	}
+	return nil
 }

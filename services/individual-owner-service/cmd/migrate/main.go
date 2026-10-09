@@ -1,8 +1,11 @@
 // Command migrate applies individual_owner_db Goose migrations:
 //
-//	migrate [up | down-to <version> | status | version]
+//	migrate [up | preflight | down-to <version> | status | version]
 //
 // DATABASE_URL (or DATABASE_URL_FILE) must point at individual_owner_db.
+// "up" first verifies, without changing the database, that the required
+// extensions are installed or creatable by the connected role, and refuses
+// to apply anything otherwise; "preflight" runs only that check.
 package main
 
 import (
@@ -24,7 +27,8 @@ func main() {
 			}
 		}
 	}
-	if err := migrate.Run(context.Background(), os.Args[1:], url, migrations.FS, os.Stdout); err != nil {
+	opts := migrate.Options{Extensions: migrations.RequiredExtensions}
+	if err := migrate.RunWith(context.Background(), os.Args[1:], url, migrations.FS, os.Stdout, opts); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
