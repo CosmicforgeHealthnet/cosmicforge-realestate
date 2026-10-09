@@ -153,7 +153,8 @@ var (
 			for i := 0; i < len(fwd)-1; i++ {
 				m[fwd[i]] = []string{fwd[i+1], "CANCELLED", "FAILED", "DISPUTED"}
 			}
-			m["DISPUTED"] = []string{"DUE_DILIGENCE", "CONTRACTING", "CONDITIONS_PENDING", "CANCELLED", "FAILED"} // eng: dispute resolution
+			// eng: dispute resolution returns to the pre-dispute stage (or ends it).
+			m["DISPUTED"] = []string{"OFFERING", "OFFER_ACCEPTED", "DUE_DILIGENCE", "CONTRACTING", "CONDITIONS_PENDING", "CLOSING", "CANCELLED", "FAILED"}
 			return m
 		}())
 
@@ -236,6 +237,14 @@ var (
 			"ACCEPTED":  {"COMPLETED", "WITHDRAWN"}, // WITHDRAWN: addendum cancelled before signature
 		})
 
+	CommercialLOI = lifecycle.New("commercial_loi", "commercial_lois",
+		[]string{"SUBMITTED", "COUNTERED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED", "CONVERTED"},
+		map[string][]string{
+			"SUBMITTED": {"COUNTERED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED"},
+			"COUNTERED": {"SUBMITTED", "ACCEPTED", "DECLINED", "WITHDRAWN", "EXPIRED"},
+			"ACCEPTED":  {"CONVERTED", "WITHDRAWN"},
+		})
+
 	MoveOut = lifecycle.New("move_out_case", "move_out_cases",
 		[]string{"OPEN", "INSPECTION_SCHEDULED", "INSPECTED", "SETTLEMENT_PENDING", "COMPLETED"},
 		map[string][]string{
@@ -259,5 +268,5 @@ var (
 func Machines() []*lifecycle.Machine {
 	return []*lifecycle.Machine{Ownership, Property, Listing, Availability, Inquiry, Viewing, Application, RentalOffer, Agreement,
 		Tenancy, RentObligation, Deposit, Notice, Sale, ShortletBooking, ManagerAssignment, Maintenance, ProfessionalAppointment,
-		DataSubjectRequest, AccessGrant, OwnershipChange, RenewalCase, MoveOut}
+		DataSubjectRequest, AccessGrant, OwnershipChange, RenewalCase, MoveOut, CommercialLOI}
 }

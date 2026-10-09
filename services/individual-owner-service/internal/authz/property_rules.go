@@ -110,6 +110,7 @@ const (
 	ActInternalListingReport   Action = "internal.listing.report"
 	ActInternalAdminTemplates  Action = "internal.admin.legal_templates" // agreement/notice templates (controlled legal configuration)
 	ActLegalTemplatesRead      Action = "owner.legal_templates.read"
+	ActInternalDataRoomAccess  Action = "internal.data_room.access" // grantee (buyer or professional) reads a sale data room
 )
 
 var (
@@ -185,6 +186,9 @@ func PropertyRules() []Rule {
 		Rule{Action: ActInternalAdminVerify, Services: adminActor},
 		Rule{Action: ActInternalAdminTemplates, Services: adminActor},
 		Rule{Action: ActLegalTemplatesRead, SelfService: true, AccountStatuses: signedIn},
+		Rule{Action: ActInternalDataRoomAccess, Services: []ServiceGrant{
+			{Service: platform.MarketplaceService, ActorDomains: []platform.Domain{platform.DomainMarketplace}, RequiresActor: true},
+			{Service: platform.ProfessionalServicesService, ActorDomains: []platform.Domain{platform.DomainProfessionalServices}, RequiresActor: true}}},
 		Rule{Action: ActSystemProperty, System: true},
 	)
 	return rules

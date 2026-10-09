@@ -192,7 +192,7 @@ func (s *Service) createTenancy(ctx context.Context, a db.Agreement, t Agreement
 		AgreementID: a.ID, CustomerRefID: customer, TenantDisplayName: tenantName, StartDate: rt.Start, EndDate: &end, RentMinor: t.RentMinor,
 		Currency: t.Currency, Frequency: t.Frequency, DueDay: t.DueDay, RentCollection: t.RentCollection, DepositHandling: t.DepositHandling,
 		LateFeeGraceDays: t.LateFeeGraceDays, LateFeeMinor: t.LateFeeMinor, RecurringFeesMinor: t.RecurringFeesMinor, EscalationAfterMonths: escAfter,
-		EscalationBps: escBps, CreatedAt: now})
+		EscalationBps: escBps, RentFreeMonths: t.RentFreeMonths, CreatedAt: now})
 	if err != nil {
 		return ids.Nil, err
 	}
@@ -227,9 +227,9 @@ func (s *Service) createTenancy(ctx context.Context, a db.Agreement, t Agreement
 // tenancyRentTerms rebuilds the schedule terms of the tenancy's current
 // segment (from the original start, or from the latest renewal's start).
 func tenancyRentTerms(t db.Tenancy) domain.RentTerms {
-	start := t.StartDate
+	start, rentFree := t.StartDate, t.RentFreeMonths
 	if t.ScheduleAnchor != nil {
-		start = *t.ScheduleAnchor
+		start, rentFree = *t.ScheduleAnchor, 0
 	}
 	months := int32(12)
 	if t.EndDate != nil {
@@ -238,7 +238,7 @@ func tenancyRentTerms(t db.Tenancy) domain.RentTerms {
 		months = int32((e.Year()-start.Year())*12 + int(e.Month()) - int(start.Month()))
 	}
 	return domain.RentTerms{Start: start, TermMonths: months, Frequency: t.Frequency, DueDay: t.DueDay, RentMinor: t.RentMinor,
-		FeesMinor: t.RecurringFeesMinor, EscalateAfter: deref(t.EscalationAfterMonths), EscalateBps: deref(t.EscalationBps)}
+		FeesMinor: t.RecurringFeesMinor, EscalateAfter: deref(t.EscalationAfterMonths), EscalateBps: deref(t.EscalationBps), RentFreeMonths: rentFree}
 }
 
 func (s *Service) insertObligation(ctx context.Context, t db.Tenancy, p domain.RentPeriod) error {
@@ -348,7 +348,7 @@ func (s *Service) MoveIn(ctx context.Context, subj authz.Subject, id ids.ID, in 
 			at = *in.MoveInAt
 		}
 		if t.RentCollection == "PLATFORM" {
-			ok, err := s.q.InitialObligationsSettled(ctx, tx, t.ID)
+			ok, err := s.q.InitialObligationsSettled(ctx, tx, db.InitialObligationsSettledParams{TenancyID: t.ID, Today: dayOf(now)})
 			if err != nil {
 				return err
 			}

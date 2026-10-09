@@ -1,0 +1,93 @@
+{
+  "$defs": {
+    "SaleEvent": {
+      "properties": {
+        "agreed_price_minor": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "buyer_ref_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "previous_status": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "sale_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "sale_kind": {
+          "type": "string"
+        },
+        "sale_version": {
+          "type": "integer"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "sale_id",
+        "property_id",
+        "sale_kind",
+        "status",
+        "previous_status",
+        "currency",
+        "sale_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/sale.transaction.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Customer-visible sale state (stage, accepted buyer reference and agreed price). Producer: individual-owner-service. Consumers: Marketplace, Notification, Admin. Aggregate: sale_transaction. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "sale_transaction"
+    },
+    "event_type": {
+      "const": "sale.transaction.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/SaleEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "sale.transaction.updated.v1"
+}

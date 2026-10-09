@@ -36,31 +36,47 @@ const (
 
 // AgreementTerms are the structured business terms of an agreement version.
 type AgreementTerms struct {
-	StartDate          string   `json:"start_date" v:"required,format=date"`
-	TermMonths         int32    `json:"term_months" v:"required,min=1,max=600"`
-	Currency           string   `json:"currency" v:"required,format=currency"`
-	RentMinor          int64    `json:"rent_minor" v:"required,min=1" doc:"Rent per cycle at the start of the term"`
-	RecurringFeesMinor int64    `json:"recurring_fees_minor,omitempty" v:"min=0" doc:"Mandatory recurring fees per cycle"`
-	Frequency          string   `json:"frequency" v:"required,enum=MONTHLY|QUARTERLY|BIANNUAL|ANNUAL|ONE_TIME"`
-	DueDay             int32    `json:"due_day" v:"required,min=1,max=28"`
-	EscalationMonths   int32    `json:"escalation_after_months,omitempty" v:"min=1,max=600"`
-	EscalationBps      int32    `json:"escalation_bps,omitempty" v:"min=-10000,max=10000"`
-	RentCollection     string   `json:"rent_collection" v:"required,enum=PLATFORM|OFF_PLATFORM" doc:"PLATFORM collects through payment-service"`
-	DepositMinor       int64    `json:"deposit_minor,omitempty" v:"min=0"`
-	DepositHandling    string   `json:"deposit_handling" v:"required,enum=PLATFORM|OFF_PLATFORM|NONE" doc:"PLATFORM holds the deposit in payment-service"`
-	DepositReleaseDays int32    `json:"deposit_release_days,omitempty" v:"min=1,max=180"`
-	LateFeeMinor       int64    `json:"late_fee_minor,omitempty" v:"min=0" doc:"Flat late fee per overdue period (capped by policy)"`
-	LateFeeGraceDays   int32    `json:"late_fee_grace_days,omitempty" v:"min=0,max=60"`
-	Clauses            []string `json:"clauses,omitempty" v:"max=100" doc:"Template clause codes included (all required clauses must be present)"`
-	HouseRules         []string `json:"house_rules,omitempty" v:"max=30"`
-	SpecialConditions  []string `json:"special_conditions,omitempty" v:"max=30"`
-	InventoryNotes     *string  `json:"inventory_notes,omitempty" v:"max=4000"`
+	StartDate          string                 `json:"start_date" v:"required,format=date"`
+	TermMonths         int32                  `json:"term_months" v:"required,min=1,max=600"`
+	Currency           string                 `json:"currency" v:"required,format=currency"`
+	RentMinor          int64                  `json:"rent_minor" v:"required,min=1" doc:"Rent per cycle at the start of the term"`
+	RecurringFeesMinor int64                  `json:"recurring_fees_minor,omitempty" v:"min=0" doc:"Mandatory recurring fees per cycle"`
+	Frequency          string                 `json:"frequency" v:"required,enum=MONTHLY|QUARTERLY|BIANNUAL|ANNUAL|ONE_TIME"`
+	DueDay             int32                  `json:"due_day" v:"required,min=1,max=28"`
+	EscalationMonths   int32                  `json:"escalation_after_months,omitempty" v:"min=1,max=600"`
+	EscalationBps      int32                  `json:"escalation_bps,omitempty" v:"min=-10000,max=10000"`
+	RentFreeMonths     int32                  `json:"rent_free_months,omitempty" v:"min=1,max=120" doc:"Leading rent-free months (whole cycles), e.g. commercial fit-out"`
+	RentCollection     string                 `json:"rent_collection" v:"required,enum=PLATFORM|OFF_PLATFORM" doc:"PLATFORM collects through payment-service"`
+	DepositMinor       int64                  `json:"deposit_minor,omitempty" v:"min=0"`
+	DepositHandling    string                 `json:"deposit_handling" v:"required,enum=PLATFORM|OFF_PLATFORM|NONE" doc:"PLATFORM holds the deposit in payment-service"`
+	DepositReleaseDays int32                  `json:"deposit_release_days,omitempty" v:"min=1,max=180"`
+	LateFeeMinor       int64                  `json:"late_fee_minor,omitempty" v:"min=0" doc:"Flat late fee per overdue period (capped by policy)"`
+	LateFeeGraceDays   int32                  `json:"late_fee_grace_days,omitempty" v:"min=0,max=60"`
+	Clauses            []string               `json:"clauses,omitempty" v:"max=100" doc:"Template clause codes included (all required clauses must be present)"`
+	HouseRules         []string               `json:"house_rules,omitempty" v:"max=30"`
+	SpecialConditions  []string               `json:"special_conditions,omitempty" v:"max=30"`
+	InventoryNotes     *string                `json:"inventory_notes,omitempty" v:"max=4000"`
+	Commercial         *CommercialLeaseExtras `json:"commercial,omitempty" doc:"Commercial lease extensions (§13.17)"`
+}
+
+// CommercialLeaseExtras are the typed commercial terms of a lease.
+type CommercialLeaseExtras struct {
+	PermittedUse      string `json:"permitted_use" v:"required,max=200"`
+	FitOutDays        int32  `json:"fit_out_days,omitempty" v:"min=1,max=730"`
+	BreakAfterMonths  int32  `json:"break_after_months,omitempty" v:"min=1,max=600"`
+	BreakNoticeDays   int32  `json:"break_notice_days,omitempty" v:"min=1,max=730"`
+	ServiceChargeBy   string `json:"service_charge_by" v:"required,enum=OWNER|TENANT|SHARED"`
+	InsuranceBy       string `json:"insurance_by" v:"required,enum=OWNER|TENANT|SHARED"`
+	RepairsBy         string `json:"repairs_by" v:"required,enum=OWNER|TENANT|SHARED"`
+	SublettingAllowed bool   `json:"subletting_allowed"`
+	SignageAllowed    bool   `json:"signage_allowed"`
+	ParkingSpaces     int32  `json:"parking_spaces,omitempty" v:"min=1,max=10000"`
 }
 
 func (t AgreementTerms) rentTerms() domain.RentTerms {
 	start, _ := time.Parse(time.DateOnly, t.StartDate)
 	return domain.RentTerms{Start: start, TermMonths: t.TermMonths, Frequency: t.Frequency, DueDay: t.DueDay, RentMinor: t.RentMinor,
-		FeesMinor: t.RecurringFeesMinor, EscalateAfter: t.EscalationMonths, EscalateBps: t.EscalationBps}
+		FeesMinor: t.RecurringFeesMinor, EscalateAfter: t.EscalationMonths, EscalateBps: t.EscalationBps, RentFreeMonths: t.RentFreeMonths}
 }
 
 // validateTerms checks schema, schedule and policy rules of terms.
@@ -142,6 +158,7 @@ type AgreementView struct {
 	UnitID            *ids.ID                    `json:"unit_id"`
 	ListingID         *ids.ID                    `json:"listing_id"`
 	OfferID           *ids.ID                    `json:"offer_id"`
+	LOIID             *ids.ID                    `json:"loi_id"`
 	ParentAgreementID *ids.ID                    `json:"parent_agreement_id"`
 	RenewalCaseID     *ids.ID                    `json:"renewal_case_id"`
 	TenancyID         *ids.ID                    `json:"tenancy_id"`
@@ -168,7 +185,7 @@ type AgreementView struct {
 
 func (s *Service) agreementView(ctx context.Context, a db.Agreement) (AgreementView, error) {
 	q := s.dbq(ctx)
-	v := AgreementView{ID: a.ID, PropertyID: a.PropertyID, UnitID: a.UnitID, ListingID: a.ListingID, OfferID: a.OfferID, ParentAgreementID: a.ParentAgreementID,
+	v := AgreementView{ID: a.ID, PropertyID: a.PropertyID, UnitID: a.UnitID, ListingID: a.ListingID, OfferID: a.OfferID, LOIID: a.LoiID, ParentAgreementID: a.ParentAgreementID,
 		RenewalCaseID: a.RenewalCaseID, TenancyID: a.TenancyID, AgreementKind: a.AgreementKind, Source: a.Source, Status: a.Status, CustomerRefID: a.CustomerRefID,
 		TemplateID: a.TemplateID, PricingVersionID: a.PricingVersionID, SigningMethod: a.SigningMethod, SigningVersionNo: a.SigningVersionNo,
 		SigningStartedAt: a.SigningStartedAt, FullySignedAt: a.FullySignedAt, EffectiveAt: a.EffectiveAt, CancelledAt: a.CancelledAt,

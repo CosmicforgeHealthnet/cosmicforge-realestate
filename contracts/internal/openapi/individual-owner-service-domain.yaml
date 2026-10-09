@@ -251,6 +251,11 @@ components:
             type: string
           maxItems: 100
           type: array
+        commercial:
+          description: Commercial lease extensions (§13.17)
+          oneOf:
+            - $ref: '#/components/schemas/CommercialLeaseExtras'
+            - type: "null"
         currency:
           pattern: ^[A-Z]{3}$
           type: string
@@ -316,6 +321,11 @@ components:
             - PLATFORM
             - OFF_PLATFORM
           type: string
+        rent_free_months:
+          description: Leading rent-free months (whole cycles), e.g. commercial fit-out
+          maximum: 120
+          minimum: 1
+          type: integer
         rent_minor:
           description: Rent per cycle at the start of the term
           minimum: 1
@@ -414,6 +424,11 @@ components:
           format: uuid
           type: string
         listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        loi_id:
           format: uuid
           type:
             - string
@@ -837,6 +852,107 @@ components:
         - status
         - items
         - version
+      type: object
+    CommercialLeaseExtras:
+      properties:
+        break_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        break_notice_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        parking_spaces:
+          maximum: 10000
+          minimum: 1
+          type: integer
+        permitted_use:
+          maxLength: 200
+          type: string
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+      required:
+        - permitted_use
+        - service_charge_by
+        - insurance_by
+        - repairs_by
+        - subletting_allowed
+        - signage_allowed
+      type: object
+    CommercialLeaseExtrasInput:
+      additionalProperties: false
+      properties:
+        break_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        break_notice_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        parking_spaces:
+          maximum: 10000
+          minimum: 1
+          type: integer
+        permitted_use:
+          maxLength: 200
+          type: string
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+      required:
+        - permitted_use
+        - service_charge_by
+        - insurance_by
+        - repairs_by
       type: object
     ConditionItemInputInput:
       additionalProperties: false
@@ -1271,6 +1387,27 @@ components:
         - listing_id
         - customer_display_name
       type: object
+    CustomerLOIInputInput:
+      additionalProperties: false
+      properties:
+        business_name:
+          maxLength: 200
+          type: string
+        business_verification_ref:
+          maxLength: 128
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        terms:
+          $ref: '#/components/schemas/LOITermsInput'
+      required:
+        - listing_id
+        - business_name
+      type: object
     CustomerNoticeActionInput:
       additionalProperties: false
       properties:
@@ -1312,6 +1449,78 @@ components:
           enum:
             - ACCEPT
             - DECLINE
+          type: string
+      required:
+        - decision
+      type: object
+    CustomerSaleActionInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - CONFIRM_MILESTONE
+            - WITHDRAW
+            - DISPUTE
+          type: string
+        milestone_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - action
+      type: object
+    CustomerSaleOfferInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        buyer_display_name:
+          maxLength: 120
+          type: string
+        conditions:
+          items:
+            type: string
+          maxItems: 10
+          type: array
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        expires_in_days:
+          maximum: 30
+          minimum: 1
+          type: integer
+        financing:
+          enum:
+            - CASH
+            - MORTGAGE
+            - INSTALLMENT
+            - OTHER
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        proof_of_funds_ref:
+          description: Reference only; documents stay with the buyer's domain
+          maxLength: 128
+          type: string
+      required:
+        - listing_id
+        - buyer_display_name
+        - amount_minor
+        - currency
+        - financing
+      type: object
+    CustomerSaleOfferResponseInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - DECLINE
+            - WITHDRAW
           type: string
       required:
         - decision
@@ -1391,6 +1600,120 @@ components:
           type: string
       required:
         - action
+      type: object
+    DataRoomDocument:
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        title:
+          type: string
+      required:
+        - id
+        - media_id
+        - category
+        - title
+        - created_at
+      type: object
+    DataRoomDownload:
+      properties:
+        document_id:
+          format: uuid
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        url:
+          type: string
+      required:
+        - document_id
+        - url
+        - expires_at
+      type: object
+    DataRoomGrantView:
+      properties:
+        access_count:
+          type: integer
+        categories:
+          description: Empty = every category
+          items:
+            type: string
+          type: array
+        expires_at:
+          format: date-time
+          type: string
+        grantee_domain:
+          type: string
+        grantee_label:
+          type: string
+        grantee_ref_id:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        last_accessed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        revoked_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - grantee_domain
+        - grantee_ref_id
+        - grantee_label
+        - purpose
+        - categories
+        - expires_at
+        - access_count
+      type: object
+    DataRoomView:
+      properties:
+        closed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        documents:
+          items:
+            $ref: '#/components/schemas/DataRoomDocument'
+          type: array
+        grants:
+          items:
+            $ref: '#/components/schemas/DataRoomGrantView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        sale_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - sale_id
+        - status
+        - documents
+        - created_at
       type: object
     DecisionView:
       properties:
@@ -1522,6 +1845,92 @@ components:
         - disputed_minor
         - released_minor
         - version
+      type: object
+    DiligenceInputInput:
+      additionalProperties: false
+      properties:
+        blocking:
+          type: boolean
+        category:
+          enum:
+            - LEGAL
+            - SURVEY
+            - VALUATION
+            - INSPECTION
+            - TITLE_SEARCH
+            - CHARTING
+            - ENCUMBRANCE
+            - PLANNING
+            - OTHER
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        finding:
+          maxLength: 4000
+          type: string
+        professional_appointment_ref:
+          format: uuid
+          type: string
+        title:
+          maxLength: 200
+          type: string
+      required:
+        - category
+        - title
+      type: object
+    DiligenceView:
+      properties:
+        blocking:
+          description: Unresolved blocking items prevent contracting
+          type: boolean
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        finding:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        professional_appointment_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        raised_by:
+          type: string
+        resolution_note:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - category
+        - title
+        - raised_by
+        - status
+        - blocking
+        - evidence_media_ids
+        - version
+        - created_at
       type: object
     DocumentView:
       properties:
@@ -1779,6 +2188,211 @@ components:
         - bookable
         - snapshot
         - read_at
+      type: object
+    LOIResponseInput:
+      additionalProperties: false
+      properties:
+        counter:
+          $ref: '#/components/schemas/LOITermsInput'
+        decision:
+          enum:
+            - ACCEPT
+            - COUNTER
+            - DECLINE
+            - WITHDRAW
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+      type: object
+    LOIRoundView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        proposed_by:
+          type: string
+        round_no:
+          type: integer
+        terms:
+          $ref: '#/components/schemas/LOITerms'
+      required:
+        - round_no
+        - proposed_by
+        - terms
+        - created_at
+      type: object
+    LOITerms:
+      properties:
+        commercial:
+          $ref: '#/components/schemas/CommercialLeaseExtras'
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        rent_free_months:
+          maximum: 120
+          minimum: 1
+          type: integer
+        rent_minor:
+          minimum: 1
+          type: integer
+        service_charge_minor:
+          description: Recurring service charge per cycle
+          minimum: 0
+          type: integer
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+        - commercial
+      type: object
+    LOITermsInput:
+      additionalProperties: false
+      properties:
+        commercial:
+          $ref: '#/components/schemas/CommercialLeaseExtrasInput'
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        rent_free_months:
+          maximum: 120
+          minimum: 1
+          type: integer
+        rent_minor:
+          minimum: 1
+          type: integer
+        service_charge_minor:
+          description: Recurring service charge per cycle
+          minimum: 0
+          type: integer
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+      type: object
+    LOIView:
+      properties:
+        agreement_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        applicant_ref_id:
+          format: uuid
+          type: string
+        business_name:
+          type: string
+        business_verification_ref:
+          description: Reference to the business verification held by its domain (never copied)
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        current_round:
+          type: integer
+        decline_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        respond_by:
+          format: date-time
+          type: string
+        rounds:
+          items:
+            $ref: '#/components/schemas/LOIRoundView'
+          type: array
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - applicant_ref_id
+        - business_name
+        - status
+        - current_round
+        - respond_by
+        - rounds
+        - version
+        - created_at
       type: object
     LeadActivityView:
       properties:
@@ -2174,6 +2788,72 @@ components:
         - read_at
         - recorded_by_party
         - created_at
+      type: object
+    MilestoneView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        attested_by:
+          type:
+            - string
+            - "null"
+        buyer_confirmed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        code:
+          type: string
+        due_date:
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        kind:
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        required_for_completion:
+          type: boolean
+        satisfied_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        settlement:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+        waived_reason:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - code
+        - title
+        - kind
+        - required_for_completion
+        - paid_minor
+        - status
+        - evidence_media_ids
+        - version
       type: object
     ModerationInputInput:
       additionalProperties: false
@@ -3019,6 +3699,149 @@ components:
           description: 'SEASONAL: MM-DD (inclusive, may wrap the year)'
           pattern: ^(?:(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$
           type: string
+      type: object
+    SaleOfferView:
+      properties:
+        amount_minor:
+          type: integer
+        buyer_display_name:
+          type: string
+        buyer_ref_id:
+          format: uuid
+          type: string
+        conditions:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decline_reason:
+          type:
+            - string
+            - "null"
+        expires_at:
+          format: date-time
+          type: string
+        financing:
+          type: string
+        id:
+          format: uuid
+          type: string
+        made_by:
+          type: string
+        parent_offer_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        proof_of_funds_ref:
+          description: Reference to the buyer's proof of funds held by its domain (never copied)
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+      required:
+        - id
+        - buyer_ref_id
+        - buyer_display_name
+        - made_by
+        - amount_minor
+        - currency
+        - financing
+        - conditions
+        - status
+        - expires_at
+        - created_at
+      type: object
+    SaleView:
+      properties:
+        accepted_offer_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        agreed_price_minor:
+          type:
+            - integer
+            - "null"
+        asking_price_minor:
+          type:
+            - integer
+            - "null"
+        buyer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        due_diligence:
+          items:
+            $ref: '#/components/schemas/DiligenceView'
+          type: array
+        end_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        milestones:
+          items:
+            $ref: '#/components/schemas/MilestoneView'
+          type: array
+        offers:
+          items:
+            $ref: '#/components/schemas/SaleOfferView'
+          type: array
+        property_id:
+          format: uuid
+          type: string
+        sale_kind:
+          type: string
+        status:
+          type: string
+        target_closing_date:
+          type:
+            - string
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - sale_kind
+        - status
+        - currency
+        - version
+        - created_at
       type: object
     ScreeningPolicyView:
       properties:
@@ -3972,6 +4795,136 @@ paths:
       summary: Customer grants time-limited evidence
       tags:
         - _Internal
+  /internal/v1/owner/commercial-lois:
+    post:
+      description: 'Corporate verification stays with its domain: only business_verification_ref is stored.'
+      operationId: customerSubmitLOI
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerLOIInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LOIView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Business applicant submits an LOI
+      tags:
+        - _Internal
+  /internal/v1/owner/commercial-lois/{loi_id}/customer-response:
+    post:
+      operationId: customerRespondLOI
+      parameters:
+        - in: path
+          name: loi_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LOIResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LOIView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Applicant accepts, counters, declines or withdraws
+      tags:
+        - _Internal
+  /internal/v1/owner/commercial-lois/{loi_id}/customer-view:
+    get:
+      operationId: customerGetLOI
+      parameters:
+        - in: path
+          name: loi_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LOIView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: LOI as seen by the applicant
+      tags:
+        - _Internal
   /internal/v1/owner/customer-tenancies:
     get:
       operationId: customerListTenancies
@@ -4015,6 +4968,85 @@ paths:
       security:
         - ServiceBearer: []
       summary: The customer's tenancies
+      tags:
+        - _Internal
+  /internal/v1/owner/data-rooms/{data_room_id}:
+    get:
+      description: 'Callers: marketplace-service (buyer actor) or professional-services-service (professional actor) holding an active grant.'
+      operationId: granteeListDataRoom
+      parameters:
+        - in: path
+          name: data_room_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Documents within the grantee's scope
+      tags:
+        - _Internal
+  /internal/v1/owner/data-rooms/{data_room_id}/documents/{document_id}/download-url:
+    post:
+      operationId: granteeDataRoomDownloadUrl
+      parameters:
+        - in: path
+          name: data_room_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: document_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomDownload'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Short-lived, audited download URL
       tags:
         - _Internal
   /internal/v1/owner/inquiries:
@@ -4976,6 +6008,101 @@ paths:
       summary: Tenant accepts, counters or declines a renewal
       tags:
         - _Internal
+  /internal/v1/owner/sale-offers:
+    post:
+      description: Proof of funds is referenced, never copied.
+      operationId: customerMakeSaleOffer
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerSaleOfferInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleOfferView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Buyer makes an offer on a SALE listing
+      tags:
+        - _Internal
+  /internal/v1/owner/sale-offers/{offer_id}/customer-response:
+    post:
+      operationId: customerRespondSaleOffer
+      parameters:
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerSaleOfferResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleOfferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Buyer answers a counter-offer or withdraws
+      tags:
+        - _Internal
   /internal/v1/owner/tenancies/{tenancy_id}/customer-meter-readings:
     post:
       operationId: customerRecordMeterReading
@@ -5261,6 +6388,141 @@ paths:
       security:
         - ServiceBearer: []
       summary: Tenant acknowledges or disputes the move-out checklist
+      tags:
+        - _Internal
+  /internal/v1/owner/transactions/sales/{sale_id}/customer-action:
+    post:
+      operationId: customerSaleAction
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerSaleActionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Buyer confirms a payment, withdraws or disputes
+      tags:
+        - _Internal
+  /internal/v1/owner/transactions/sales/{sale_id}/customer-due-diligence:
+    post:
+      operationId: customerRaiseDueDiligence
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiligenceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DiligenceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Buyer raises a due-diligence item
+      tags:
+        - _Internal
+  /internal/v1/owner/transactions/sales/{sale_id}/customer-view:
+    get:
+      operationId: customerGetSale
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Sale as seen by the accepted buyer
       tags:
         - _Internal
   /internal/v1/owner/viewings:

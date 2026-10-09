@@ -144,7 +144,7 @@ func (q *Queries) CustomerAgreementRoles(ctx context.Context, db DBTX, arg Custo
 }
 
 const customerTenancies = `-- name: CustomerTenancies :many
-SELECT t.id, t.property_id, t.unit_id, t.listing_id, t.agreement_id, t.customer_ref_id, t.tenant_display_name, t.status, t.start_date, t.end_date, t.rent_minor, t.currency, t.frequency, t.recurring_fees_minor, t.escalation_after_months, t.escalation_bps, t.due_day, t.rent_collection, t.deposit_handling, t.late_fee_grace_days, t.late_fee_minor, t.dispute_flag, t.schedule_anchor, t.schedule_materialized_to, t.move_in_at, t.termination_effective_date, t.ended_at, t.end_reason, t.renewal_reminder_sent_at, t.version, t.created_at, t.updated_at FROM tenancies t
+SELECT t.id, t.property_id, t.unit_id, t.listing_id, t.agreement_id, t.customer_ref_id, t.tenant_display_name, t.status, t.start_date, t.end_date, t.rent_minor, t.currency, t.frequency, t.recurring_fees_minor, t.escalation_after_months, t.escalation_bps, t.due_day, t.rent_collection, t.deposit_handling, t.late_fee_grace_days, t.late_fee_minor, t.dispute_flag, t.schedule_anchor, t.schedule_materialized_to, t.move_in_at, t.termination_effective_date, t.ended_at, t.end_reason, t.renewal_reminder_sent_at, t.version, t.created_at, t.updated_at, t.rent_free_months FROM tenancies t
  WHERE t.customer_ref_id = $1
     OR t.agreement_id IN (SELECT p.agreement_id FROM agreement_participants p WHERE p.party_domain = 'marketplace' AND p.party_ref_id = $1 AND p.removed_at IS NULL)
  ORDER BY t.created_at DESC
@@ -193,6 +193,7 @@ func (q *Queries) CustomerTenancies(ctx context.Context, db DBTX, customerRefID 
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.RentFreeMonths,
 		); err != nil {
 			return nil, err
 		}
@@ -405,7 +406,7 @@ func (q *Queries) FutureObligationsAfter(ctx context.Context, db DBTX, arg Futur
 }
 
 const getAgreement = `-- name: GetAgreement :one
-SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id FROM agreements WHERE id = $1
+SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id, loi_id FROM agreements WHERE id = $1
 `
 
 func (q *Queries) GetAgreement(ctx context.Context, db DBTX, id ids.ID) (Agreement, error) {
@@ -438,12 +439,13 @@ func (q *Queries) GetAgreement(ctx context.Context, db DBTX, id ids.ID) (Agreeme
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.TenancyID,
+		&i.LoiID,
 	)
 	return i, err
 }
 
 const getAgreementByOffer = `-- name: GetAgreementByOffer :one
-SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id FROM agreements WHERE offer_id = $1 AND status <> 'CANCELLED'
+SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id, loi_id FROM agreements WHERE offer_id = $1 AND status <> 'CANCELLED'
 `
 
 func (q *Queries) GetAgreementByOffer(ctx context.Context, db DBTX, offerID *ids.ID) (Agreement, error) {
@@ -476,12 +478,13 @@ func (q *Queries) GetAgreementByOffer(ctx context.Context, db DBTX, offerID *ids
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.TenancyID,
+		&i.LoiID,
 	)
 	return i, err
 }
 
 const getAgreementForUpdate = `-- name: GetAgreementForUpdate :one
-SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id FROM agreements WHERE id = $1 FOR UPDATE
+SELECT id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id, loi_id FROM agreements WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetAgreementForUpdate(ctx context.Context, db DBTX, id ids.ID) (Agreement, error) {
@@ -514,6 +517,7 @@ func (q *Queries) GetAgreementForUpdate(ctx context.Context, db DBTX, id ids.ID)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.TenancyID,
+		&i.LoiID,
 	)
 	return i, err
 }
@@ -1198,7 +1202,7 @@ func (q *Queries) GetSignatureRequestForUpdate(ctx context.Context, db DBTX, arg
 }
 
 const getTenancy = `-- name: GetTenancy :one
-SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at FROM tenancies WHERE id = $1
+SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at, rent_free_months FROM tenancies WHERE id = $1
 `
 
 func (q *Queries) GetTenancy(ctx context.Context, db DBTX, id ids.ID) (Tenancy, error) {
@@ -1237,12 +1241,13 @@ func (q *Queries) GetTenancy(ctx context.Context, db DBTX, id ids.ID) (Tenancy, 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RentFreeMonths,
 	)
 	return i, err
 }
 
 const getTenancyForUpdate = `-- name: GetTenancyForUpdate :one
-SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at FROM tenancies WHERE id = $1 FOR UPDATE
+SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at, rent_free_months FROM tenancies WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetTenancyForUpdate(ctx context.Context, db DBTX, id ids.ID) (Tenancy, error) {
@@ -1281,6 +1286,7 @@ func (q *Queries) GetTenancyForUpdate(ctx context.Context, db DBTX, id ids.ID) (
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RentFreeMonths,
 	)
 	return i, err
 }
@@ -1340,13 +1346,19 @@ func (q *Queries) GetUtilityBillForUpdate(ctx context.Context, db DBTX, id ids.I
 }
 
 const initialObligationsSettled = `-- name: InitialObligationsSettled :one
-SELECT NOT EXISTS (SELECT 1 FROM rent_obligations o WHERE o.tenancy_id = $1 AND o.kind = 'RENT'
-   AND o.period_start = (SELECT min(x.period_start) FROM rent_obligations x WHERE x.tenancy_id = $1 AND x.kind = 'RENT')
-   AND o.status NOT IN ('PAID','WAIVED'))::boolean AS settled
+SELECT NOT EXISTS (SELECT 1 FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
+  WHERE o.tenancy_id = $1 AND o.kind = 'RENT'
+    AND o.period_start <= greatest(t.start_date, $2::date)
+    AND o.status NOT IN ('PAID','WAIVED'))::boolean AS settled
 `
 
-func (q *Queries) InitialObligationsSettled(ctx context.Context, db DBTX, tenancyID ids.ID) (*bool, error) {
-	row := db.QueryRow(ctx, initialObligationsSettled, tenancyID)
+type InitialObligationsSettledParams struct {
+	TenancyID ids.ID
+	Today     time.Time
+}
+
+func (q *Queries) InitialObligationsSettled(ctx context.Context, db DBTX, arg InitialObligationsSettledParams) (*bool, error) {
+	row := db.QueryRow(ctx, initialObligationsSettled, arg.TenancyID, arg.Today)
 	var settled *bool
 	err := row.Scan(&settled)
 	return settled, err
@@ -1355,9 +1367,9 @@ func (q *Queries) InitialObligationsSettled(ctx context.Context, db DBTX, tenanc
 const insertAgreement = `-- name: InsertAgreement :one
 
 INSERT INTO agreements (id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, tenancy_id, agreement_kind, source,
-    status, customer_ref_id, template_id, pricing_version_id, current_version_no, version, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'DRAFT', $11, $12, $13, 0, 1, $14, $14)
-RETURNING id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id
+    status, customer_ref_id, template_id, pricing_version_id, loi_id, current_version_no, version, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'DRAFT', $11, $12, $13, $14, 0, 1, $15, $15)
+RETURNING id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, agreement_kind, source, status, customer_ref_id, template_id, pricing_version_id, current_version_no, signing_method, esign_envelope_ref, signing_version_no, signing_started_at, fully_signed_at, effective_at, cancelled_at, cancel_reason, version, created_at, updated_at, tenancy_id, loi_id
 `
 
 type InsertAgreementParams struct {
@@ -1374,6 +1386,7 @@ type InsertAgreementParams struct {
 	CustomerRefID     *ids.ID
 	TemplateID        *ids.ID
 	PricingVersionID  *ids.ID
+	LoiID             *ids.ID
 	CreatedAt         time.Time
 }
 
@@ -1393,6 +1406,7 @@ func (q *Queries) InsertAgreement(ctx context.Context, db DBTX, arg InsertAgreem
 		arg.CustomerRefID,
 		arg.TemplateID,
 		arg.PricingVersionID,
+		arg.LoiID,
 		arg.CreatedAt,
 	)
 	var i Agreement
@@ -1423,6 +1437,7 @@ func (q *Queries) InsertAgreement(ctx context.Context, db DBTX, arg InsertAgreem
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.TenancyID,
+		&i.LoiID,
 	)
 	return i, err
 }
@@ -2410,9 +2425,9 @@ const insertTenancy = `-- name: InsertTenancy :one
 
 INSERT INTO tenancies (id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date,
     rent_minor, currency, frequency, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, recurring_fees_minor,
-    escalation_after_months, escalation_bps, version, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_MOVE_IN', $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 1, $21, $21)
-RETURNING id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at
+    escalation_after_months, escalation_bps, rent_free_months, version, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_MOVE_IN', $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 1, $22, $22)
+RETURNING id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at, rent_free_months
 `
 
 type InsertTenancyParams struct {
@@ -2436,6 +2451,7 @@ type InsertTenancyParams struct {
 	RecurringFeesMinor    int64
 	EscalationAfterMonths *int32
 	EscalationBps         *int32
+	RentFreeMonths        int32
 	CreatedAt             time.Time
 }
 
@@ -2462,6 +2478,7 @@ func (q *Queries) InsertTenancy(ctx context.Context, db DBTX, arg InsertTenancyP
 		arg.RecurringFeesMinor,
 		arg.EscalationAfterMonths,
 		arg.EscalationBps,
+		arg.RentFreeMonths,
 		arg.CreatedAt,
 	)
 	var i Tenancy
@@ -2498,6 +2515,7 @@ func (q *Queries) InsertTenancy(ctx context.Context, db DBTX, arg InsertTenancyP
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RentFreeMonths,
 	)
 	return i, err
 }
@@ -2757,7 +2775,7 @@ func (q *Queries) ListAgreementVersions(ctx context.Context, db DBTX, agreementI
 }
 
 const listAgreementsForAccount = `-- name: ListAgreementsForAccount :many
-SELECT a.id, a.property_id, a.unit_id, a.listing_id, a.offer_id, a.parent_agreement_id, a.renewal_case_id, a.agreement_kind, a.source, a.status, a.customer_ref_id, a.template_id, a.pricing_version_id, a.current_version_no, a.signing_method, a.esign_envelope_ref, a.signing_version_no, a.signing_started_at, a.fully_signed_at, a.effective_at, a.cancelled_at, a.cancel_reason, a.version, a.created_at, a.updated_at, a.tenancy_id FROM agreements a
+SELECT a.id, a.property_id, a.unit_id, a.listing_id, a.offer_id, a.parent_agreement_id, a.renewal_case_id, a.agreement_kind, a.source, a.status, a.customer_ref_id, a.template_id, a.pricing_version_id, a.current_version_no, a.signing_method, a.esign_envelope_ref, a.signing_version_no, a.signing_started_at, a.fully_signed_at, a.effective_at, a.cancelled_at, a.cancel_reason, a.version, a.created_at, a.updated_at, a.tenancy_id, a.loi_id FROM agreements a
  WHERE a.property_id IN (SELECT pa.property_id FROM property_access pa WHERE pa.account_id = $1
                             AND (pa.valid_until IS NULL OR pa.valid_until > $2::timestamptz))
    AND ($3::uuid IS NULL OR a.property_id = $3::uuid)
@@ -2821,6 +2839,7 @@ func (q *Queries) ListAgreementsForAccount(ctx context.Context, db DBTX, arg Lis
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.TenancyID,
+			&i.LoiID,
 		); err != nil {
 			return nil, err
 		}
@@ -3337,7 +3356,7 @@ func (q *Queries) ListSignatureRequests(ctx context.Context, db DBTX, arg ListSi
 }
 
 const listTenanciesForAccount = `-- name: ListTenanciesForAccount :many
-SELECT t.id, t.property_id, t.unit_id, t.listing_id, t.agreement_id, t.customer_ref_id, t.tenant_display_name, t.status, t.start_date, t.end_date, t.rent_minor, t.currency, t.frequency, t.recurring_fees_minor, t.escalation_after_months, t.escalation_bps, t.due_day, t.rent_collection, t.deposit_handling, t.late_fee_grace_days, t.late_fee_minor, t.dispute_flag, t.schedule_anchor, t.schedule_materialized_to, t.move_in_at, t.termination_effective_date, t.ended_at, t.end_reason, t.renewal_reminder_sent_at, t.version, t.created_at, t.updated_at FROM tenancies t
+SELECT t.id, t.property_id, t.unit_id, t.listing_id, t.agreement_id, t.customer_ref_id, t.tenant_display_name, t.status, t.start_date, t.end_date, t.rent_minor, t.currency, t.frequency, t.recurring_fees_minor, t.escalation_after_months, t.escalation_bps, t.due_day, t.rent_collection, t.deposit_handling, t.late_fee_grace_days, t.late_fee_minor, t.dispute_flag, t.schedule_anchor, t.schedule_materialized_to, t.move_in_at, t.termination_effective_date, t.ended_at, t.end_reason, t.renewal_reminder_sent_at, t.version, t.created_at, t.updated_at, t.rent_free_months FROM tenancies t
  WHERE t.property_id IN (SELECT pa.property_id FROM property_access pa WHERE pa.account_id = $1
                             AND (pa.valid_until IS NULL OR pa.valid_until > $2::timestamptz))
    AND ($3::uuid IS NULL OR t.property_id = $3::uuid)
@@ -3407,6 +3426,7 @@ func (q *Queries) ListTenanciesForAccount(ctx context.Context, db DBTX, arg List
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.RentFreeMonths,
 		); err != nil {
 			return nil, err
 		}
@@ -4395,7 +4415,7 @@ const tenanciesForRenewalReminder = `-- name: TenanciesForRenewalReminder :many
 UPDATE tenancies SET renewal_reminder_sent_at = $1::timestamptz
  WHERE id IN (SELECT t.id FROM tenancies t WHERE t.status = 'ACTIVE' AND t.end_date IS NOT NULL AND t.end_date <= $2::date
                 AND t.renewal_reminder_sent_at IS NULL ORDER BY t.end_date LIMIT $3 FOR UPDATE SKIP LOCKED)
-RETURNING id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at
+RETURNING id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at, rent_free_months
 `
 
 type TenanciesForRenewalReminderParams struct {
@@ -4446,6 +4466,7 @@ func (q *Queries) TenanciesForRenewalReminder(ctx context.Context, db DBTX, arg 
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.RentFreeMonths,
 		); err != nil {
 			return nil, err
 		}
@@ -4458,7 +4479,7 @@ func (q *Queries) TenanciesForRenewalReminder(ctx context.Context, db DBTX, arg 
 }
 
 const tenanciesNeedingSchedule = `-- name: TenanciesNeedingSchedule :many
-SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at FROM tenancies
+SELECT id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date, rent_minor, currency, frequency, recurring_fees_minor, escalation_after_months, escalation_bps, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, dispute_flag, schedule_anchor, schedule_materialized_to, move_in_at, termination_effective_date, ended_at, end_reason, renewal_reminder_sent_at, version, created_at, updated_at, rent_free_months FROM tenancies
  WHERE rent_collection = 'PLATFORM' AND status IN ('PENDING_MOVE_IN','ACTIVE','RENEWAL_PENDING','TERMINATION_PENDING')
    AND (schedule_materialized_to IS NULL OR schedule_materialized_to < $1::date)
    AND (end_date IS NULL OR schedule_materialized_to IS NULL OR schedule_materialized_to < end_date)
@@ -4513,6 +4534,7 @@ func (q *Queries) TenanciesNeedingSchedule(ctx context.Context, db DBTX, arg Ten
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.RentFreeMonths,
 		); err != nil {
 			return nil, err
 		}

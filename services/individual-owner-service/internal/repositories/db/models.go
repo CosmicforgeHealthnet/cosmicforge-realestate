@@ -66,6 +66,7 @@ type Agreement struct {
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	TenancyID         *ids.ID
+	LoiID             *ids.ID
 }
 
 type AgreementParticipant struct {
@@ -278,6 +279,73 @@ type AvailabilityState struct {
 	UpdatedAt           time.Time
 }
 
+type ClosingMilestone struct {
+	ID                    ids.ID
+	SaleID                ids.ID
+	Code                  string
+	Title                 string
+	Kind                  string
+	RequiredForCompletion bool
+	Sequence              int32
+	Settlement            *string
+	AmountMinor           *int64
+	PaymentIntentRef      *string
+	PaidMinor             int64
+	LastPaymentStatus     *string
+	Status                string
+	EvidenceMediaIds      []ids.ID
+	AttestedBy            *string
+	BuyerConfirmedAt      *time.Time
+	SatisfiedAt           *time.Time
+	WaivedReason          *string
+	DueDate               *time.Time
+	LastCheckedAt         *time.Time
+	Version               int64
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type CommercialLoi struct {
+	ID                      ids.ID
+	PropertyID              ids.ID
+	UnitID                  *ids.ID
+	ListingID               ids.ID
+	ApplicantRefID          ids.ID
+	BusinessName            string
+	BusinessVerificationRef *string
+	Status                  string
+	CurrentRound            int32
+	RespondBy               time.Time
+	AgreementID             *ids.ID
+	DeclineReason           *string
+	Version                 int64
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
+}
+
+type CommercialLoiRound struct {
+	ID         ids.ID
+	LoiID      ids.ID
+	RoundNo    int32
+	ProposedBy string
+	Terms      []byte
+	Note       *string
+	CreatedAt  time.Time
+}
+
+type CommercialTerm struct {
+	ID            ids.ID
+	PropertyID    ids.ID
+	UnitID        *ids.ID
+	VersionNo     int32
+	PermittedUses []string
+	ZoningClass   *string
+	Terms         []byte
+	ActorDomain   *string
+	ActorID       *ids.ID
+	CreatedAt     time.Time
+}
+
 type ConditionItem struct {
 	ID              ids.ID
 	ChecklistID     ids.ID
@@ -300,6 +368,47 @@ type DashboardPreference struct {
 	Widgets           []string
 	DefaultPropertyID *ids.ID
 	UpdatedAt         time.Time
+}
+
+type DataRoom struct {
+	ID         ids.ID
+	SaleID     ids.ID
+	PropertyID ids.ID
+	Status     string
+	ClosedAt   *time.Time
+	CreatedAt  time.Time
+}
+
+type DataRoomAccessLog struct {
+	ID         ids.ID
+	GrantID    ids.ID
+	DocumentID ids.ID
+	AccessedAt time.Time
+}
+
+type DataRoomDocument struct {
+	ID         ids.ID
+	DataRoomID ids.ID
+	MediaID    ids.ID
+	Category   string
+	Title      string
+	RemovedAt  *time.Time
+	CreatedAt  time.Time
+}
+
+type DataRoomGrant struct {
+	ID             ids.ID
+	DataRoomID     ids.ID
+	GranteeDomain  string
+	GranteeRefID   ids.ID
+	GranteeLabel   string
+	Purpose        string
+	Categories     []string
+	ExpiresAt      time.Time
+	RevokedAt      *time.Time
+	AccessCount    int32
+	LastAccessedAt *time.Time
+	CreatedAt      time.Time
 }
 
 type DepositObligation struct {
@@ -328,6 +437,23 @@ type DepositObligation struct {
 	Version              int64
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+}
+
+type DueDiligenceItem struct {
+	ID                         ids.ID
+	SaleID                     ids.ID
+	Category                   string
+	Title                      string
+	RaisedBy                   string
+	Status                     string
+	Blocking                   bool
+	Finding                    *string
+	EvidenceMediaIds           []ids.ID
+	ProfessionalAppointmentRef *ids.ID
+	ResolutionNote             *string
+	Version                    int64
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
 }
 
 type FeeDefinition struct {
@@ -430,6 +556,19 @@ type LandParcel struct {
 	Version         int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+}
+
+type LandTerm struct {
+	ID               ids.ID
+	PropertyID       ids.ID
+	ParcelID         *ids.ID
+	VersionNo        int32
+	PermittedUses    []string
+	Terms            []byte
+	EvidenceMediaIds []ids.ID
+	ActorDomain      *string
+	ActorID          *ids.ID
+	CreatedAt        time.Time
 }
 
 type LeadActivity struct {
@@ -1208,6 +1347,48 @@ type RentalOffer struct {
 	UpdatedAt        time.Time
 }
 
+type SaleOffer struct {
+	ID               ids.ID
+	SaleID           ids.ID
+	BuyerRefID       ids.ID
+	BuyerDisplayName string
+	ParentOfferID    *ids.ID
+	MadeBy           string
+	AmountMinor      int64
+	Currency         string
+	Financing        string
+	Conditions       []string
+	ProofOfFundsRef  *string
+	Status           string
+	ExpiresAt        time.Time
+	DecidedAt        *time.Time
+	DeclineReason    *string
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type SaleTransaction struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	UnitID              *ids.ID
+	ListingID           *ids.ID
+	SaleKind            string
+	Status              string
+	Currency            string
+	AskingPriceMinor    *int64
+	AcceptedOfferID     *ids.ID
+	BuyerRefID          *ids.ID
+	AgreedPriceMinor    *int64
+	TargetClosingDate   *time.Time
+	StatusBeforeDispute *string
+	EndReason           *string
+	CompletedAt         *time.Time
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
 type ScreeningPolicy struct {
 	ID                   ids.ID
 	PropertyID           ids.ID
@@ -1327,6 +1508,7 @@ type Tenancy struct {
 	Version                  int64
 	CreatedAt                time.Time
 	UpdatedAt                time.Time
+	RentFreeMonths           int32
 }
 
 type UtilityAccount struct {

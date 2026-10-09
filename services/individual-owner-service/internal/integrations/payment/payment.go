@@ -49,6 +49,8 @@ const (
 	PurposeRent    = "RENT"
 	PurposeLateFee = "LATE_FEE"
 	PurposeDeposit = "DEPOSIT"
+	// PurposeSaleMilestone collects a sale reservation or purchase price.
+	PurposeSaleMilestone = "SALE_MILESTONE"
 )
 
 // IntentRequest asks payment-service to collect a business amount. The owner
@@ -56,7 +58,7 @@ const (
 // providers, ledger and settlement.
 type IntentRequest struct {
 	Purpose             string
-	ReferenceType       string // rent_obligation | deposit_obligation
+	ReferenceType       string // rent_obligation | deposit_obligation | closing_milestone
 	ReferenceID         ids.ID
 	PayeeOwnerAccountID ids.ID
 	PayerDomain         string

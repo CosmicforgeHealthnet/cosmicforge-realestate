@@ -92,3 +92,18 @@ func TestRentScheduleMonthEnd(t *testing.T) {
 		t.Fatalf("month-end clamping: %+v end %s", p, terms.EndDate())
 	}
 }
+
+func TestRentFreeMonths(t *testing.T) {
+	terms := RentTerms{Start: date("2027-01-01"), TermMonths: 12, Frequency: "QUARTERLY", DueDay: 1, RentMinor: 100, RentFreeMonths: 6}
+	if err := ValidateRentTerms(terms); err != nil {
+		t.Fatal(err)
+	}
+	p := RentSchedule(terms, date("2030-01-01"))
+	if len(p) != 2 || p[0].PeriodStart != date("2027-07-01") || p[0].Seq != 3 {
+		t.Fatalf("rent-free schedule %+v", p)
+	}
+	terms.RentFreeMonths = 4
+	if ValidateRentTerms(terms) == nil {
+		t.Fatal("rent-free must be whole cycles")
+	}
+}

@@ -229,6 +229,20 @@ components:
         - visibility
         - geocode_source
       type: object
+    AdvanceSaleInputInput:
+      additionalProperties: false
+      properties:
+        to:
+          enum:
+            - DUE_DILIGENCE
+            - CONTRACTING
+            - CONDITIONS_PENDING
+            - CLOSING
+            - COMPLETED
+          type: string
+      required:
+        - to
+      type: object
     AgreementDraftInputInput:
       additionalProperties: false
       properties:
@@ -331,6 +345,11 @@ components:
             type: string
           maxItems: 100
           type: array
+        commercial:
+          description: Commercial lease extensions (§13.17)
+          oneOf:
+            - $ref: '#/components/schemas/CommercialLeaseExtras'
+            - type: "null"
         currency:
           pattern: ^[A-Z]{3}$
           type: string
@@ -396,6 +415,11 @@ components:
             - PLATFORM
             - OFF_PLATFORM
           type: string
+        rent_free_months:
+          description: Leading rent-free months (whole cycles), e.g. commercial fit-out
+          maximum: 120
+          minimum: 1
+          type: integer
         rent_minor:
           description: Rent per cycle at the start of the term
           minimum: 1
@@ -431,6 +455,8 @@ components:
             type: string
           maxItems: 100
           type: array
+        commercial:
+          $ref: '#/components/schemas/CommercialLeaseExtrasInput'
         currency:
           pattern: ^[A-Z]{3}$
           type: string
@@ -494,6 +520,11 @@ components:
             - PLATFORM
             - OFF_PLATFORM
           type: string
+        rent_free_months:
+          description: Leading rent-free months (whole cycles), e.g. commercial fit-out
+          maximum: 120
+          minimum: 1
+          type: integer
         rent_minor:
           description: Rent per cycle at the start of the term
           minimum: 1
@@ -592,6 +623,11 @@ components:
           format: uuid
           type: string
         listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        loi_id:
           format: uuid
           type:
             - string
@@ -1462,6 +1498,279 @@ components:
         - party_role
         - display_name
       type: object
+    CommercialLeaseExtras:
+      properties:
+        break_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        break_notice_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        parking_spaces:
+          maximum: 10000
+          minimum: 1
+          type: integer
+        permitted_use:
+          maxLength: 200
+          type: string
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+      required:
+        - permitted_use
+        - service_charge_by
+        - insurance_by
+        - repairs_by
+        - subletting_allowed
+        - signage_allowed
+      type: object
+    CommercialLeaseExtrasInput:
+      additionalProperties: false
+      properties:
+        break_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        break_notice_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        parking_spaces:
+          maximum: 10000
+          minimum: 1
+          type: integer
+        permitted_use:
+          maxLength: 200
+          type: string
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+      required:
+        - permitted_use
+        - service_charge_by
+        - insurance_by
+        - repairs_by
+      type: object
+    CommercialTermsInput:
+      properties:
+        facilities:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        fit_out_allowed:
+          type: boolean
+        floor_area_sqm:
+          maximum: 10000000
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        max_fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        max_rent_free_months:
+          maximum: 60
+          minimum: 1
+          type: integer
+        obligations:
+          items:
+            $ref: '#/components/schemas/LeaseObligation'
+          maxItems: 50
+          type: array
+        parking_spaces:
+          maximum: 100000
+          minimum: 1
+          type: integer
+        permitted_uses:
+          items:
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        zoning_class:
+          maxLength: 64
+          type:
+            - string
+            - "null"
+      required:
+        - permitted_uses
+        - fit_out_allowed
+        - signage_allowed
+        - subletting_allowed
+        - service_charge_by
+        - insurance_by
+        - repairs_by
+      type: object
+    CommercialTermsInputInput:
+      additionalProperties: false
+      properties:
+        facilities:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        fit_out_allowed:
+          type: boolean
+        floor_area_sqm:
+          maximum: 10000000
+          minimum: 1
+          type: integer
+        insurance_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        max_fit_out_days:
+          maximum: 730
+          minimum: 1
+          type: integer
+        max_rent_free_months:
+          maximum: 60
+          minimum: 1
+          type: integer
+        obligations:
+          items:
+            $ref: '#/components/schemas/LeaseObligationInput'
+          maxItems: 50
+          type: array
+        parking_spaces:
+          maximum: 100000
+          minimum: 1
+          type: integer
+        permitted_uses:
+          items:
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+        repairs_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        service_charge_by:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+        signage_allowed:
+          type: boolean
+        subletting_allowed:
+          type: boolean
+        unit_id:
+          format: uuid
+          type: string
+        zoning_class:
+          maxLength: 64
+          type: string
+      required:
+        - permitted_uses
+        - service_charge_by
+        - insurance_by
+        - repairs_by
+      type: object
+    CommercialTermsView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        terms:
+          $ref: '#/components/schemas/CommercialTermsInput'
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          description: Version number (If-Match)
+          type: integer
+      required:
+        - property_id
+        - version
+        - terms
+        - created_at
+      type: object
     ConditionItemInputInput:
       additionalProperties: false
       properties:
@@ -2010,6 +2319,174 @@ components:
       required:
         - type
       type: object
+    DataRoomDocument:
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        title:
+          type: string
+      required:
+        - id
+        - media_id
+        - category
+        - title
+        - created_at
+      type: object
+    DataRoomDocumentInputInput:
+      additionalProperties: false
+      properties:
+        category:
+          enum:
+            - TITLE
+            - SURVEY
+            - PLANNING
+            - VALUATION
+            - INSPECTION
+            - TAX
+            - LEGAL
+            - FINANCIAL
+            - OTHER
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        title:
+          maxLength: 200
+          type: string
+      required:
+        - media_id
+        - category
+        - title
+      type: object
+    DataRoomGrantInputInput:
+      additionalProperties: false
+      properties:
+        categories:
+          items:
+            enum:
+              - TITLE
+              - SURVEY
+              - PLANNING
+              - VALUATION
+              - INSPECTION
+              - TAX
+              - LEGAL
+              - FINANCIAL
+              - OTHER
+            type: string
+          maxItems: 9
+          type: array
+        expires_in_days:
+          maximum: 30
+          minimum: 1
+          type: integer
+        grantee_domain:
+          enum:
+            - marketplace
+            - professional-services
+          type: string
+        grantee_label:
+          maxLength: 120
+          type: string
+        grantee_ref_id:
+          format: uuid
+          type: string
+        purpose:
+          pattern: ^(?:[a-z][a-z0-9_.:-]{2,99})$
+          type: string
+      required:
+        - grantee_domain
+        - grantee_ref_id
+        - grantee_label
+        - purpose
+        - expires_in_days
+      type: object
+    DataRoomGrantView:
+      properties:
+        access_count:
+          type: integer
+        categories:
+          description: Empty = every category
+          items:
+            type: string
+          type: array
+        expires_at:
+          format: date-time
+          type: string
+        grantee_domain:
+          type: string
+        grantee_label:
+          type: string
+        grantee_ref_id:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        last_accessed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        revoked_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - grantee_domain
+        - grantee_ref_id
+        - grantee_label
+        - purpose
+        - categories
+        - expires_at
+        - access_count
+      type: object
+    DataRoomView:
+      properties:
+        closed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        documents:
+          items:
+            $ref: '#/components/schemas/DataRoomDocument'
+          type: array
+        grants:
+          items:
+            $ref: '#/components/schemas/DataRoomGrantView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        sale_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - sale_id
+        - status
+        - documents
+        - created_at
+      type: object
     DecisionInputInput:
       additionalProperties: false
       properties:
@@ -2195,6 +2672,146 @@ components:
         - released_minor
         - version
       type: object
+    DevelopmentObligation:
+      properties:
+        deadline_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        description:
+          maxLength: 300
+          type: string
+      required:
+        - description
+      type: object
+    DevelopmentObligationInput:
+      additionalProperties: false
+      properties:
+        deadline_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        description:
+          maxLength: 300
+          type: string
+      required:
+        - description
+      type: object
+    DiligenceInputInput:
+      additionalProperties: false
+      properties:
+        blocking:
+          type: boolean
+        category:
+          enum:
+            - LEGAL
+            - SURVEY
+            - VALUATION
+            - INSPECTION
+            - TITLE_SEARCH
+            - CHARTING
+            - ENCUMBRANCE
+            - PLANNING
+            - OTHER
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        finding:
+          maxLength: 4000
+          type: string
+        professional_appointment_ref:
+          format: uuid
+          type: string
+        title:
+          maxLength: 200
+          type: string
+      required:
+        - category
+        - title
+      type: object
+    DiligenceUpdateInput:
+      additionalProperties: false
+      properties:
+        blocking:
+          type: boolean
+        evidence_media_ids:
+          description: Added to the item's evidence
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        finding:
+          maxLength: 4000
+          type: string
+        resolution_note:
+          maxLength: 2000
+          type: string
+        status:
+          enum:
+            - OPEN
+            - IN_PROGRESS
+            - ISSUE_FOUND
+            - RESOLVED
+            - WAIVED
+          type: string
+      required:
+        - status
+      type: object
+    DiligenceView:
+      properties:
+        blocking:
+          description: Unresolved blocking items prevent contracting
+          type: boolean
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        finding:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        professional_appointment_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        raised_by:
+          type: string
+        resolution_note:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - category
+        - title
+        - raised_by
+        - status
+        - blocking
+        - evidence_media_ids
+        - version
+        - created_at
+      type: object
     DocumentInputInput:
       additionalProperties: false
       properties:
@@ -2234,6 +2851,23 @@ components:
         - media_status
         - submitted_to_verification
         - created_at
+      type: object
+    EndSaleInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - CANCEL
+            - FAIL
+            - DISPUTE
+            - RESUME
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - action
+        - reason_code
       type: object
     EvidenceDownload:
       properties:
@@ -2909,6 +3543,350 @@ components:
           minimum: 0
           type: integer
       type: object
+    LOIResponseInput:
+      additionalProperties: false
+      properties:
+        counter:
+          $ref: '#/components/schemas/LOITermsInput'
+        decision:
+          enum:
+            - ACCEPT
+            - COUNTER
+            - DECLINE
+            - WITHDRAW
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+      type: object
+    LOIRoundView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        note:
+          type:
+            - string
+            - "null"
+        proposed_by:
+          type: string
+        round_no:
+          type: integer
+        terms:
+          $ref: '#/components/schemas/LOITerms'
+      required:
+        - round_no
+        - proposed_by
+        - terms
+        - created_at
+      type: object
+    LOITerms:
+      properties:
+        commercial:
+          $ref: '#/components/schemas/CommercialLeaseExtras'
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        rent_free_months:
+          maximum: 120
+          minimum: 1
+          type: integer
+        rent_minor:
+          minimum: 1
+          type: integer
+        service_charge_minor:
+          description: Recurring service charge per cycle
+          minimum: 0
+          type: integer
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+        - commercial
+      type: object
+    LOITermsInput:
+      additionalProperties: false
+      properties:
+        commercial:
+          $ref: '#/components/schemas/CommercialLeaseExtrasInput'
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        deposit_minor:
+          minimum: 0
+          type: integer
+        escalation_after_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+        escalation_bps:
+          maximum: 10000
+          minimum: -10000
+          type: integer
+        frequency:
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - BIANNUAL
+            - ANNUAL
+            - ONE_TIME
+          type: string
+        rent_free_months:
+          maximum: 120
+          minimum: 1
+          type: integer
+        rent_minor:
+          minimum: 1
+          type: integer
+        service_charge_minor:
+          description: Recurring service charge per cycle
+          minimum: 0
+          type: integer
+        start_date:
+          format: date
+          type: string
+        term_months:
+          maximum: 600
+          minimum: 1
+          type: integer
+      required:
+        - start_date
+        - term_months
+        - currency
+        - rent_minor
+        - frequency
+      type: object
+    LOIView:
+      properties:
+        agreement_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        applicant_ref_id:
+          format: uuid
+          type: string
+        business_name:
+          type: string
+        business_verification_ref:
+          description: Reference to the business verification held by its domain (never copied)
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        current_round:
+          type: integer
+        decline_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        respond_by:
+          format: date-time
+          type: string
+        rounds:
+          items:
+            $ref: '#/components/schemas/LOIRoundView'
+          type: array
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - listing_id
+        - applicant_ref_id
+        - business_name
+        - status
+        - current_round
+        - respond_by
+        - rounds
+        - version
+        - created_at
+      type: object
+    LandTermsInput:
+      properties:
+        access_rights:
+          maxLength: 1000
+          type:
+            - string
+            - "null"
+        development_obligations:
+          items:
+            $ref: '#/components/schemas/DevelopmentObligation'
+          maxItems: 30
+          type: array
+        environmental_restrictions:
+          maxLength: 2000
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          description: Survey, title and charting documents in media-document-service
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        lease_type:
+          enum:
+            - GROUND_LEASE
+            - AGRICULTURAL
+            - DEVELOPMENT
+            - STORAGE
+            - OTHER
+          type: string
+        max_lease_years:
+          maximum: 999
+          minimum: 1
+          type: integer
+        parcel_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        permitted_uses:
+          items:
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+        restoration_required:
+          type: boolean
+        restoration_terms:
+          maxLength: 2000
+          type:
+            - string
+            - "null"
+        sublease_allowed:
+          type: boolean
+      required:
+        - permitted_uses
+        - lease_type
+        - restoration_required
+        - sublease_allowed
+      type: object
+    LandTermsInputInput:
+      additionalProperties: false
+      properties:
+        access_rights:
+          maxLength: 1000
+          type: string
+        development_obligations:
+          items:
+            $ref: '#/components/schemas/DevelopmentObligationInput'
+          maxItems: 30
+          type: array
+        environmental_restrictions:
+          maxLength: 2000
+          type: string
+        evidence_media_ids:
+          description: Survey, title and charting documents in media-document-service
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        lease_type:
+          enum:
+            - GROUND_LEASE
+            - AGRICULTURAL
+            - DEVELOPMENT
+            - STORAGE
+            - OTHER
+          type: string
+        max_lease_years:
+          maximum: 999
+          minimum: 1
+          type: integer
+        parcel_id:
+          format: uuid
+          type: string
+        permitted_uses:
+          items:
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+        restoration_required:
+          type: boolean
+        restoration_terms:
+          maxLength: 2000
+          type: string
+        sublease_allowed:
+          type: boolean
+      required:
+        - permitted_uses
+        - lease_type
+      type: object
+    LandTermsView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        parcel_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        terms:
+          $ref: '#/components/schemas/LandTermsInput'
+        version:
+          description: Version number (If-Match)
+          type: integer
+      required:
+        - property_id
+        - version
+        - terms
+        - created_at
+      type: object
     LeadActivityView:
       properties:
         activity_type:
@@ -2940,6 +3918,63 @@ components:
         - id
         - activity_type
         - occurred_at
+      type: object
+    LeaseObligation:
+      properties:
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        description:
+          maxLength: 300
+          type: string
+        first_due:
+          format: date
+          type: string
+        recurrence_months:
+          description: Repeat every N months (omit for one-off)
+          maximum: 120
+          minimum: 1
+          type: integer
+        responsible:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+      required:
+        - code
+        - description
+        - responsible
+        - first_due
+      type: object
+    LeaseObligationInput:
+      additionalProperties: false
+      properties:
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        description:
+          maxLength: 300
+          type: string
+        first_due:
+          format: date
+          type: string
+        recurrence_months:
+          description: Repeat every N months (omit for one-off)
+          maximum: 120
+          minimum: 1
+          type: integer
+        responsible:
+          enum:
+            - OWNER
+            - TENANT
+            - SHARED
+          type: string
+      required:
+        - code
+        - description
+        - responsible
+        - first_due
       type: object
     LineItem:
       properties:
@@ -3569,6 +4604,120 @@ components:
         - recorded_by_party
         - created_at
       type: object
+    MilestoneInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - EVIDENCE
+            - WAIVE
+            - ADD
+          type: string
+        attestation:
+          description: Who produced the evidence (default OWNER)
+          enum:
+            - OWNER
+            - PROFESSIONAL
+            - PROVIDER
+          type: string
+        code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        kind:
+          description: ADD only (payment milestones come from the accepted offer)
+          enum:
+            - DOCUMENT
+            - CONSENT
+            - HANDOVER
+            - PERFECTION
+            - OTHER
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        required_for_completion:
+          description: ADD only
+          type: boolean
+        title:
+          description: ADD only
+          maxLength: 200
+          type: string
+      required:
+        - code
+        - action
+      type: object
+    MilestoneView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        attested_by:
+          type:
+            - string
+            - "null"
+        buyer_confirmed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        code:
+          type: string
+        due_date:
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        kind:
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        required_for_completion:
+          type: boolean
+        satisfied_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        settlement:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+        waived_reason:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - code
+        - title
+        - kind
+        - required_for_completion
+        - paid_minor
+        - status
+        - evidence_media_ids
+        - version
+      type: object
     MoveInInputInput:
       additionalProperties: false
       properties:
@@ -3864,6 +5013,22 @@ components:
         - version
         - created_at
       type: object
+    ObligationDate:
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        due_date:
+          type: string
+        responsible:
+          type: string
+      required:
+        - code
+        - description
+        - responsible
+        - due_date
+      type: object
     ObligationDecisionInputInput:
       additionalProperties: false
       properties:
@@ -3918,6 +5083,42 @@ components:
           type: string
       required:
         - consent_ref
+      type: object
+    OfferDecisionInputInput:
+      additionalProperties: false
+      properties:
+        counter_amount_minor:
+          minimum: 1
+          type: integer
+        counter_conditions:
+          items:
+            type: string
+          maxItems: 10
+          type: array
+        decision:
+          enum:
+            - ACCEPT
+            - COUNTER
+            - DECLINE
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        reservation_minor:
+          description: Optional reservation deposit milestone
+          minimum: 1
+          type: integer
+        settlement:
+          description: How the purchase money is paid (PLATFORM needs payment-service)
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        target_closing_date:
+          format: date
+          type: string
+      required:
+        - decision
       type: object
     OfferInputInput:
       additionalProperties: false
@@ -5477,6 +6678,172 @@ components:
           description: 'SEASONAL: MM-DD (inclusive, may wrap the year)'
           pattern: ^(?:(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$
           type: string
+      type: object
+    SaleInputInput:
+      additionalProperties: false
+      properties:
+        asking_price_minor:
+          minimum: 1
+          type: integer
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        listing_id:
+          description: Published SALE listing (optional; the sale survives its withdrawal)
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        unit_id:
+          format: uuid
+          type: string
+      required:
+        - property_id
+        - currency
+      type: object
+    SaleOfferView:
+      properties:
+        amount_minor:
+          type: integer
+        buyer_display_name:
+          type: string
+        buyer_ref_id:
+          format: uuid
+          type: string
+        conditions:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decline_reason:
+          type:
+            - string
+            - "null"
+        expires_at:
+          format: date-time
+          type: string
+        financing:
+          type: string
+        id:
+          format: uuid
+          type: string
+        made_by:
+          type: string
+        parent_offer_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        proof_of_funds_ref:
+          description: Reference to the buyer's proof of funds held by its domain (never copied)
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+      required:
+        - id
+        - buyer_ref_id
+        - buyer_display_name
+        - made_by
+        - amount_minor
+        - currency
+        - financing
+        - conditions
+        - status
+        - expires_at
+        - created_at
+      type: object
+    SaleView:
+      properties:
+        accepted_offer_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        agreed_price_minor:
+          type:
+            - integer
+            - "null"
+        asking_price_minor:
+          type:
+            - integer
+            - "null"
+        buyer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        due_diligence:
+          items:
+            $ref: '#/components/schemas/DiligenceView'
+          type: array
+        end_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        milestones:
+          items:
+            $ref: '#/components/schemas/MilestoneView'
+          type: array
+        offers:
+          items:
+            $ref: '#/components/schemas/SaleOfferView'
+          type: array
+        property_id:
+          format: uuid
+          type: string
+        sale_kind:
+          type: string
+        status:
+          type: string
+        target_closing_date:
+          type:
+            - string
+            - "null"
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - sale_kind
+        - status
+        - currency
+        - version
+        - created_at
       type: object
     ScheduleView:
       properties:
@@ -7970,6 +9337,155 @@ paths:
       summary: Decline an invitation
       tags:
         - Account & Profile
+  /api/v1/owner/commercial-lois:
+    get:
+      operationId: listCommercialLOIs
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - SUBMITTED
+              - COUNTERED
+              - ACCEPTED
+              - DECLINED
+              - WITHDRAWN
+              - EXPIRED
+              - CONVERTED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/LOIView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Letters of intent across my properties
+      tags:
+        - Commercial & Land
+  /api/v1/owner/commercial-lois/{loi_id}:
+    get:
+      operationId: getCommercialLOI
+      parameters:
+        - in: path
+          name: loi_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LOIView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Letter of intent with its immutable rounds
+      tags:
+        - Commercial & Land
+  /api/v1/owner/commercial-lois/{loi_id}/response:
+    post:
+      description: Acceptance converts the LOI into a COMMERCIAL_LEASE agreement draft with typed commercial terms and reserves the listing.
+      operationId: respondCommercialLOI
+      parameters:
+        - in: path
+          name: loi_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LOIResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LOIView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept, counter or decline an LOI
+      tags:
+        - Commercial & Land
   /api/v1/owner/consents:
     get:
       operationId: listMyPendingConsents
@@ -11325,6 +12841,158 @@ paths:
       summary: Remove a party
       tags:
         - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/commercial-terms:
+    get:
+      operationId: getCommercialTerms
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: unit_id
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommercialTermsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Current commercial terms
+      tags:
+        - Commercial & Land
+    put:
+      description: Zoning/use/facilities, fit-out, rent-free, responsibilities and an auditable obligation calendar. Versions are append-only.
+      operationId: putCommercialTerms
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercialTermsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommercialTermsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a new commercial-terms version (If-Match; "0" for the first)
+      tags:
+        - Commercial & Land
+  /api/v1/owner/properties/{property_id}/commercial-terms/calendar:
+    get:
+      operationId: getCommercialCalendar
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: unit_id
+          schema:
+            type: string
+        - description: Horizon in months (1-60, default 12)
+          in: query
+          name: months
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ObligationDate'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Upcoming commercial obligations
+      tags:
+        - Commercial & Land
   /api/v1/owner/properties/{property_id}/consents:
     get:
       operationId: listPropertyConsents
@@ -11478,6 +13146,98 @@ paths:
       summary: Immutable property history
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/land-terms:
+    get:
+      operationId: getLandTerms
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: parcel_id
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LandTermsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Current land terms
+      tags:
+        - Commercial & Land
+    put:
+      description: Survey/title evidence stays in media-document-service; versions are append-only.
+      operationId: putLandTerms
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LandTermsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LandTermsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a new land-terms version (If-Match; "0" for the first)
+      tags:
+        - Commercial & Land
   /api/v1/owner/properties/{property_id}/media:
     get:
       operationId: listPropertyMedia
@@ -14510,6 +16270,741 @@ paths:
       summary: Rent obligations (payment-service truth)
       tags:
         - Tenancy
+  /api/v1/owner/transactions/sales:
+    get:
+      operationId: listSales
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/SaleView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Sale transactions across my properties
+      tags:
+        - Sales
+    post:
+      description: Owner-only authority with verified ownership; buyers' offers also open one automatically.
+      operationId: createSale
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaleInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open a sale transaction
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}:
+    get:
+      operationId: getSale
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Sale with offers, milestones and due diligence
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/advance:
+    post:
+      description: Contracting needs no unresolved blocking diligence; closing needs the documentary/consent milestones; completion needs every required milestone and marks the listing SOLD.
+      operationId: advanceSale
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvanceSaleInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Move the sale to its next stage
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/data-room:
+    get:
+      operationId: getDataRoom
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Data room with documents and grants
+      tags:
+        - Sales
+    post:
+      operationId: openDataRoom
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open the sale's data room
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/data-room/documents:
+    post:
+      operationId: addDataRoomDocument
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataRoomDocumentInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a document
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/data-room/documents/{document_id}:
+    delete:
+      operationId: removeDataRoomDocument
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: document_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Remove a document
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/data-room/grants:
+    post:
+      description: 'Least privilege: by category, purpose and expiry (≤ 30 days); every download is logged.'
+      operationId: grantDataRoomAccess
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataRoomGrantInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Grant time/purpose-limited access
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/data-room/grants/{grant_id}/revoke:
+    post:
+      operationId: revokeDataRoomGrant
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: grant_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DataRoomView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Revoke a grant
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/due-diligence:
+    post:
+      operationId: addDueDiligenceItem
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiligenceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DiligenceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Raise a due-diligence item
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/due-diligence/{item_id}:
+    patch:
+      operationId: updateDueDiligenceItem
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiligenceUpdateInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DiligenceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Progress a due-diligence item (If-Match)
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/end:
+    post:
+      operationId: endSale
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndSaleInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel, fail, dispute or resume a sale
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/milestones:
+    post:
+      description: Platform payments are confirmed only by payment-service; off-platform payments need the buyer's confirmation; registration/perfection needs evidence.
+      operationId: recordSaleMilestone
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MilestoneInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record milestone evidence, waive or add a milestone
+      tags:
+        - Sales
+  /api/v1/owner/transactions/sales/{sale_id}/offers/{offer_id}/decision:
+    post:
+      description: 'Accepting or countering binds the owner: identity policy and co-owner SALE consent apply. Acceptance creates the configured closing checklist; PLATFORM settlement needs payment-service (503).'
+      operationId: decideSaleOffer
+      parameters:
+        - in: path
+          name: sale_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferDecisionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SaleView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept, counter or decline an offer
+      tags:
+        - Sales
   /api/v1/owner/utilities/{utility_account_id}:
     patch:
       operationId: updateUtilityAccount

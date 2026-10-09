@@ -535,6 +535,76 @@
       "key": "utility_bill_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "commercial_terms_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "data_room_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "diligence_item_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "diligence_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "document_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "grantee_ref_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "item_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "item_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "land_terms_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loi_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loi_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sale_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sale_offer_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sale_version",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -13508,6 +13578,563 @@
               "response": []
             },
             {
+              "name": "Business applicant submits an LOI",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/commercial-lois",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "commercial-lois"
+                  ]
+                },
+                "description": "Business applicant submits an LOI.\n\nCorporate verification stays with its domain: only business_verification_ref is stored.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_name\": \"Sample name\",\n  \"listing_id\": \"{{listing_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOI as seen by the applicant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('customer_view_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/commercial-lois/{{loi_id}}/customer-view",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "commercial-lois",
+                    "{{loi_id}}",
+                    "customer-view"
+                  ]
+                },
+                "description": "LOI as seen by the applicant.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Applicant accepts, counters, declines or withdraws",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/commercial-lois/{{loi_id}}/customer-response",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "commercial-lois",
+                    "{{loi_id}}",
+                    "customer-response"
+                  ]
+                },
+                "description": "Applicant accepts, counters, declines or withdraws.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buyer makes an offer on a SALE listing",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('sale_offer_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/sale-offers",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "sale-offers"
+                  ]
+                },
+                "description": "Buyer makes an offer on a SALE listing.\n\nProof of funds is referenced, never copied.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount_minor\": 1,\n  \"buyer_display_name\": \"Sample name\",\n  \"currency\": \"NGN\",\n  \"financing\": \"CASH\",\n  \"listing_id\": \"{{listing_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buyer answers a counter-offer or withdraws",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/sale-offers/{{offer_id}}/customer-response",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "sale-offers",
+                    "{{offer_id}}",
+                    "customer-response"
+                  ]
+                },
+                "description": "Buyer answers a counter-offer or withdraws.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Sale as seen by the accepted buyer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('customer_view_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/transactions/sales/{{sale_id}}/customer-view",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "customer-view"
+                  ]
+                },
+                "description": "Sale as seen by the accepted buyer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Buyer confirms a payment, withdraws or disputes",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/transactions/sales/{{sale_id}}/customer-action",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "customer-action"
+                  ]
+                },
+                "description": "Buyer confirms a payment, withdraws or disputes.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"CONFIRM_MILESTONE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buyer raises a due-diligence item",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/transactions/sales/{{sale_id}}/customer-due-diligence",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "customer-due-diligence"
+                  ]
+                },
+                "description": "Buyer raises a due-diligence item.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": \"LEGAL\",\n  \"title\": \"3-bedroom flat in Lekki\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Documents within the grantee's scope",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/data-rooms/{{data_room_id}}",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "data-rooms",
+                    "{{data_room_id}}"
+                  ]
+                },
+                "description": "Documents within the grantee's scope.\n\nCallers: marketplace-service (buyer actor) or professional-services-service (professional actor) holding an active grant.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Short-lived, audited download URL",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/data-rooms/{{data_room_id}}/documents/{{document_id}}/download-url",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "data-rooms",
+                    "{{data_room_id}}",
+                    "documents",
+                    "{{document_id}}",
+                    "download-url"
+                  ]
+                },
+                "description": "Short-lived, audited download URL.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
               "name": "Fresh public property/authority summary (marketplace read-back)",
               "event": [
                 {
@@ -20840,6 +21467,1315 @@
                     }
                   }
                 }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Commercial & Land",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Current commercial terms",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('commercial_terms_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/commercial-terms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "commercial-terms"
+                  ]
+                },
+                "description": "Current commercial terms.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Record a new commercial-terms version (If-Match; \"0\" for the first)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('commercial_terms_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{commercial_terms_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/commercial-terms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "commercial-terms"
+                  ]
+                },
+                "description": "Record a new commercial-terms version (If-Match; \"0\" for the first).\n\nZoning/use/facilities, fit-out, rent-free, responsibilities and an auditable obligation calendar. Versions are append-only.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"insurance_by\": \"OWNER\",\n  \"permitted_uses\": [\n    \"string\"\n  ],\n  \"repairs_by\": \"OWNER\",\n  \"service_charge_by\": \"OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Upcoming commercial obligations",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/commercial-terms/calendar?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "commercial-terms",
+                    "calendar"
+                  ]
+                },
+                "description": "Upcoming commercial obligations.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Current land terms",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('land_terms_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/land-terms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "land-terms"
+                  ]
+                },
+                "description": "Current land terms.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Record a new land-terms version (If-Match; \"0\" for the first)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('land_terms_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{land_terms_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/land-terms",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "land-terms"
+                  ]
+                },
+                "description": "Record a new land-terms version (If-Match; \"0\" for the first).\n\nSurvey/title evidence stays in media-document-service; versions are append-only.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"lease_type\": \"GROUND_LEASE\",\n  \"permitted_uses\": [\n    \"string\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Letters of intent across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/commercial-lois?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "commercial-lois"
+                  ]
+                },
+                "description": "Letters of intent across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Letter of intent with its immutable rounds",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('loi_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/commercial-lois/{{loi_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "commercial-lois",
+                    "{{loi_id}}"
+                  ]
+                },
+                "description": "Letter of intent with its immutable rounds.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Accept, counter or decline an LOI",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/commercial-lois/{{loi_id}}/response",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "commercial-lois",
+                    "{{loi_id}}",
+                    "response"
+                  ]
+                },
+                "description": "Accept, counter or decline an LOI.\n\nAcceptance converts the LOI into a COMMERCIAL_LEASE agreement draft with typed commercial terms and reserves the listing.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Sales",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Sale transactions across my properties",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales"
+                  ]
+                },
+                "description": "Sale transactions across my properties.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Open a sale transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('sale_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales"
+                  ]
+                },
+                "description": "Open a sale transaction.\n\nOwner-only authority with verified ownership; buyers' offers also open one automatically.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currency\": \"NGN\",\n  \"property_id\": \"{{property_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Sale with offers, milestones and due diligence",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('sale_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}"
+                  ]
+                },
+                "description": "Sale with offers, milestones and due diligence.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Accept, counter or decline an offer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/offers/{{offer_id}}/decision",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "offers",
+                    "{{offer_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Accept, counter or decline an offer.\n\nAccepting or countering binds the owner: identity policy and co-owner SALE consent apply. Acceptance creates the configured closing checklist; PLATFORM settlement needs payment-service (503).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Move the sale to its next stage",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/advance",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "advance"
+                  ]
+                },
+                "description": "Move the sale to its next stage.\n\nContracting needs no unresolved blocking diligence; closing needs the documentary/consent milestones; completion needs every required milestone and marks the listing SOLD.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"to\": \"DUE_DILIGENCE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel, fail, dispute or resume a sale",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/end",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "end"
+                  ]
+                },
+                "description": "Cancel, fail, dispute or resume a sale.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"CANCEL\",\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record milestone evidence, waive or add a milestone",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/milestones",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "milestones"
+                  ]
+                },
+                "description": "Record milestone evidence, waive or add a milestone.\n\nPlatform payments are confirmed only by payment-service; off-platform payments need the buyer's confirmation; registration/perfection needs evidence.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"EVIDENCE\",\n  \"code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Raise a due-diligence item",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('diligence_item_id', String(pick(body, 'data.id')));",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('diligence_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/due-diligence",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "due-diligence"
+                  ]
+                },
+                "description": "Raise a due-diligence item.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": \"LEGAL\",\n  \"title\": \"3-bedroom flat in Lekki\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Progress a due-diligence item (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('item_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{item_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/due-diligence/{{item_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "due-diligence",
+                    "{{item_id}}"
+                  ]
+                },
+                "description": "Progress a due-diligence item (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"OPEN\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Data room with documents and grants",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room"
+                  ]
+                },
+                "description": "Data room with documents and grants.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Open the sale's data room",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('data_room_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room"
+                  ]
+                },
+                "description": "Open the sale's data room.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Add a document",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room/documents",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room",
+                    "documents"
+                  ]
+                },
+                "description": "Add a document.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": \"TITLE\",\n  \"media_id\": \"{{media_id}}\",\n  \"title\": \"3-bedroom flat in Lekki\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove a document",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room/documents/{{document_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room",
+                    "documents",
+                    "{{document_id}}"
+                  ]
+                },
+                "description": "Remove a document.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Grant time/purpose-limited access",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room/grants",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room",
+                    "grants"
+                  ]
+                },
+                "description": "Grant time/purpose-limited access.\n\nLeast privilege: by category, purpose and expiry (≤ 30 days); every download is logged.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expires_in_days\": 1,\n  \"grantee_domain\": \"marketplace\",\n  \"grantee_label\": \"string\",\n  \"grantee_ref_id\": \"{{grantee_ref_id}}\",\n  \"purpose\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Revoke a grant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/transactions/sales/{{sale_id}}/data-room/grants/{{grant_id}}/revoke",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "transactions",
+                    "sales",
+                    "{{sale_id}}",
+                    "data-room",
+                    "grants",
+                    "{{grant_id}}",
+                    "revoke"
+                  ]
+                },
+                "description": "Revoke a grant.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
               },
               "response": []
             }

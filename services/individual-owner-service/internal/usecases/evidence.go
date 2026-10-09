@@ -39,10 +39,11 @@ const (
 	ScopeNotice         = "notice"
 	ScopeUtilityAccount = "utility_account"
 	ScopeBudget         = "service_charge_budget"
+	ScopeSale           = "sale_transaction"
 )
 
 var scopeTables = map[string]string{ScopeProperty: "properties", ScopeAgreement: "agreements", ScopeTenancy: "tenancies",
-	ScopeNotice: "notices", ScopeUtilityAccount: "utility_accounts", ScopeBudget: "service_charge_budgets"}
+	ScopeNotice: "notices", ScopeUtilityAccount: "utility_accounts", ScopeBudget: "service_charge_budgets", ScopeSale: "sale_transactions"}
 
 func (s *Service) scopeProperty(ctx context.Context, scope string, id ids.ID) (ids.ID, error) {
 	table, ok := scopeTables[scope]

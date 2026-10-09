@@ -255,7 +255,7 @@ func (s *Service) createAddendum(ctx context.Context, c db.RenewalCase, t db.Ten
 	}
 	terms := parseTerms(pv.Terms)
 	terms.StartDate, terms.TermMonths, terms.RentMinor = last.StartDate.Format(time.DateOnly), last.TermMonths, last.RentMinor
-	terms.Clauses = []string{}
+	terms.Clauses, terms.RentFreeMonths = []string{}, 0
 	a, err := s.q.InsertAgreement(ctx, tx, db.InsertAgreementParams{ID: ids.New(), PropertyID: t.PropertyID, UnitID: t.UnitID, ListingID: t.ListingID,
 		ParentAgreementID: &parent.ID, RenewalCaseID: &c.ID, TenancyID: &t.ID, AgreementKind: "RENEWAL_ADDENDUM", Source: "RENEWAL",
 		CustomerRefID: t.CustomerRefID, CreatedAt: now})

@@ -9,14 +9,15 @@ import (
 
 // RentTerms are the schedule-relevant terms of a tenancy (§13.14).
 type RentTerms struct {
-	Start         time.Time
-	TermMonths    int32
-	Frequency     string // MONTHLY | QUARTERLY | BIANNUAL | ANNUAL | ONE_TIME
-	DueDay        int32  // 1–28: rent for a period is due on this day of the month the period begins (the first period on its start date)
-	RentMinor     int64  // cycle rent at the start of the term
-	FeesMinor     int64  // mandatory recurring fees per cycle (not escalated)
-	EscalateAfter int32  // months; 0 = none
-	EscalateBps   int32
+	Start          time.Time
+	TermMonths     int32
+	Frequency      string // MONTHLY | QUARTERLY | BIANNUAL | ANNUAL | ONE_TIME
+	DueDay         int32  // 1–28: rent for a period is due on this day of the month the period begins (the first period on its start date)
+	RentMinor      int64  // cycle rent at the start of the term
+	FeesMinor      int64  // mandatory recurring fees per cycle (not escalated)
+	EscalateAfter  int32  // months; 0 = none
+	EscalateBps    int32
+	RentFreeMonths int32 // leading months without rent (whole cycles; commercial fit-out)
 }
 
 // RentPeriod is one materialized obligation of the schedule.
@@ -47,6 +48,11 @@ func ValidateRentTerms(t RentTerms) error {
 	}
 	if (t.EscalateAfter == 0) != (t.EscalateBps == 0) {
 		return invalid("escalation", "escalation needs both after_months and rate_bps")
+	}
+	if t.RentFreeMonths > 0 {
+		if m := cycleMonths[t.Frequency]; m == 0 || t.RentFreeMonths%m != 0 || t.RentFreeMonths >= t.TermMonths {
+			return apperrors.Unprocessable("RENT_FREE_INVALID", "Rent-free months must be whole payment cycles within the term.")
+		}
 	}
 	return nil
 }
@@ -86,6 +92,9 @@ func RentSchedule(t RentTerms, until time.Time) []RentPeriod {
 		pe := AddMonths(start, (i+1)*m).AddDate(0, 0, -1)
 		if pe.After(end) {
 			pe = end
+		}
+		if i*m < t.RentFreeMonths {
+			continue
 		}
 		due := ps
 		if i > 0 {

@@ -44,8 +44,8 @@ UPDATE notice_templates SET status = 'RETIRED', retired_at = $2 WHERE id = $1 AN
 
 -- name: InsertAgreement :one
 INSERT INTO agreements (id, property_id, unit_id, listing_id, offer_id, parent_agreement_id, renewal_case_id, tenancy_id, agreement_kind, source,
-    status, customer_ref_id, template_id, pricing_version_id, current_version_no, version, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'DRAFT', $11, $12, $13, 0, 1, $14, $14)
+    status, customer_ref_id, template_id, pricing_version_id, loi_id, current_version_no, version, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'DRAFT', $11, $12, $13, $14, 0, 1, $15, $15)
 RETURNING *;
 
 -- name: GetAgreement :one
@@ -149,8 +149,8 @@ UPDATE signature_requests SET status = 'VOIDED', version = version + 1, updated_
 -- name: InsertTenancy :one
 INSERT INTO tenancies (id, property_id, unit_id, listing_id, agreement_id, customer_ref_id, tenant_display_name, status, start_date, end_date,
     rent_minor, currency, frequency, due_day, rent_collection, deposit_handling, late_fee_grace_days, late_fee_minor, recurring_fees_minor,
-    escalation_after_months, escalation_bps, version, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_MOVE_IN', $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 1, $21, $21)
+    escalation_after_months, escalation_bps, rent_free_months, version, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_MOVE_IN', $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 1, $22, $22)
 RETURNING *;
 
 -- name: GetTenancy :one
@@ -281,9 +281,10 @@ SELECT count(*)::int AS open_count, coalesce(sum(amount_minor - paid_minor), 0):
   FROM rent_obligations WHERE tenancy_id = $1 AND status IN ('DUE','PARTIAL','OVERDUE','DISPUTED');
 
 -- name: InitialObligationsSettled :one
-SELECT NOT EXISTS (SELECT 1 FROM rent_obligations o WHERE o.tenancy_id = $1 AND o.kind = 'RENT'
-   AND o.period_start = (SELECT min(x.period_start) FROM rent_obligations x WHERE x.tenancy_id = $1 AND x.kind = 'RENT')
-   AND o.status NOT IN ('PAID','WAIVED'))::boolean AS settled;
+SELECT NOT EXISTS (SELECT 1 FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
+  WHERE o.tenancy_id = sqlc.arg(tenancy_id) AND o.kind = 'RENT'
+    AND o.period_start <= greatest(t.start_date, sqlc.arg(today)::date)
+    AND o.status NOT IN ('PAID','WAIVED'))::boolean AS settled;
 
 -- name: InsertDeposit :one
 INSERT INTO deposit_obligations (id, tenancy_id, property_id, amount_minor, currency, status, release_due_days, version, created_at, updated_at)
