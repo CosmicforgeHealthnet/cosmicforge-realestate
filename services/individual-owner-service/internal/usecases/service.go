@@ -112,6 +112,10 @@ type DomainPolicy struct {
 	RenewalReminderLead    time.Duration
 	NoticeTemplateRequired []string // notice types that must use a configured legal template
 	PaymentReconcileAfter  time.Duration
+	// Maintenance (§13.22).
+	DefaultCurrency     string        // currency of owner-originated amounts without one (budgets, preventive tasks)
+	MaxReworkRounds     int32         // completion rework requests before the job must be disputed
+	MaintenanceQuoteTTL time.Duration // default validity of owner-recorded quotes
 }
 
 // Identity-gated actions.
@@ -135,6 +139,7 @@ func DefaultDomainPolicy() DomainPolicy {
 			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"},
 		DeclineReasons: []string{"INCOME_BELOW_POLICY", "INCOMPLETE_APPLICATION", "REFERENCES_UNSATISFACTORY", "OCCUPANCY_LIMIT",
 			"MOVE_IN_DATE_MISMATCH", "PROPERTY_NO_LONGER_AVAILABLE", "OTHER_LAWFUL_REASON"},
+		DefaultCurrency: "NGN", MaxReworkRounds: 3, MaintenanceQuoteTTL: 30 * 24 * time.Hour,
 		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour,
 		RentIntentLead: 7 * 24 * time.Hour, RentScheduleHorizon: 90 * 24 * time.Hour, MaxLateFeeBps: 1000, DepositReleaseDays: 30,
 		DepositResponseWindow: 14 * 24 * time.Hour, RenewalResponseTTL: 14 * 24 * time.Hour, RenewalReminderLead: 60 * 24 * time.Hour,

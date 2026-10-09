@@ -1,0 +1,131 @@
+{
+  "$defs": {
+    "MaintenanceEvent": {
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "job_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "provider_ref": {
+          "description": "Assigned provider (warranty claims are routed to the original provider)",
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "request_version": {
+          "type": "integer"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "selected_quote_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sourcing": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state_region": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "unit_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warranty_of_request_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "request_id",
+        "property_id",
+        "category",
+        "priority",
+        "title",
+        "description",
+        "status",
+        "city",
+        "state_region",
+        "country_code",
+        "request_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/maintenance.request.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Platform-sourced request state for the provider (quote decisions, assignment, rework, completion, cancellation). Producer: individual-owner-service. Consumers: Artisan. Aggregate: maintenance_request. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "maintenance_request"
+    },
+    "event_type": {
+      "const": "maintenance.request.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/MaintenanceEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "maintenance.request.updated.v1"
+}

@@ -141,6 +141,8 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		{Name: "deposits", Run: func(ctx context.Context) error { return s.RunDeposits(ctx, cfg.Batch) }},
 		{Name: "renewals-and-notices", Run: func(ctx context.Context) error { return s.RunRenewals(ctx, cfg.Batch) }},
 		{Name: "sale-offers-and-milestones", Run: func(ctx context.Context) error { return s.RunSaleJobs(ctx, cfg.Batch) }},
+		{Name: "maintenance-preventive-and-payments", Run: func(ctx context.Context) error { return s.RunMaintenanceJobs(ctx, cfg.Batch) }},
+		{Name: "professional-fees", Run: func(ctx context.Context) error { return s.RunProfessionalJobs(ctx, cfg.Batch) }},
 		{Name: "shortlet-bookings-calendar-and-claims", Run: func(ctx context.Context) error { return s.RunShortletJobs(ctx, cfg.Batch) }},
 		{Name: "listing-freshness", Run: func(ctx context.Context) error {
 			_, _, err := s.RunFreshness(ctx, cfg.Batch)

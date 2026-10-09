@@ -653,6 +653,193 @@ components:
         - version
         - created_at
       type: object
+    AppointmentView:
+      properties:
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        cfmeet_context_id:
+          type:
+            - string
+            - "null"
+        conflict_declared:
+          type:
+            - boolean
+            - "null"
+        conflict_note:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        data_room_grant_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        due_by:
+          type:
+            - string
+            - "null"
+        fee_collection:
+          type:
+            - string
+            - "null"
+        feedback:
+          type:
+            - string
+            - "null"
+        findings:
+          items:
+            $ref: '#/components/schemas/FindingView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        licence_ref:
+          type:
+            - string
+            - "null"
+        paid_minor:
+          type: integer
+        payment_status:
+          type:
+            - string
+            - "null"
+        professional_label:
+          type: string
+        professional_ref:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        quote_amount_minor:
+          type:
+            - integer
+            - "null"
+        quote_valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+        rating:
+          type:
+            - integer
+            - "null"
+        report_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        report_signed:
+          type: boolean
+        report_submitted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        sale_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        scope:
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - purpose
+        - scope
+        - professional_ref
+        - professional_label
+        - status
+        - currency
+        - paid_minor
+        - report_signed
+        - findings
+        - version
+        - created_at
+      type: object
+    ApprovalInputInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - APPROVE
+            - REJECT
+          type: string
+        exceed_budget:
+          description: 'Owner/co-owner only: approve above the request budget'
+          type: boolean
+        note:
+          maxLength: 1000
+          type: string
+        payment_collection:
+          description: PLATFORM needs payment-service; self-sourced work is OFF_PLATFORM
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+      required:
+        - decision
+      type: object
+    ApprovalView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        approved_via:
+          type: string
+        approver_ref:
+          format: uuid
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decision:
+          type: string
+        emergency:
+          type: boolean
+        limit_minor:
+          description: Delegated manager's limit applied
+          type:
+            - integer
+            - "null"
+        note:
+          type:
+            - string
+            - "null"
+        quote_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - decision
+        - currency
+        - approved_via
+        - approver_ref
+        - emergency
+        - created_at
+      type: object
     AssignmentView:
       properties:
         allowed_next_statuses:
@@ -2348,6 +2535,41 @@ components:
         - refundable
         - payable_to
       type: object
+    FindingView:
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        severity:
+          type: string
+        summary:
+          type: string
+        used_in_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        used_in_type:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - category
+        - severity
+        - summary
+        - created_at
+      type: object
     GuestInputInput:
       additionalProperties: false
       properties:
@@ -2538,6 +2760,131 @@ components:
         - bookable
         - snapshot
         - read_at
+      type: object
+    JobEventInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          description: INVOICE amount
+          minimum: 1
+          type: integer
+        event_id:
+          description: Idempotency id of this record
+          maxLength: 128
+          type: string
+        event_type:
+          enum:
+            - ATTENDED
+            - PROGRESS
+            - COMPLETION_SUBMITTED
+            - INVOICE
+            - PAYMENT_ACKNOWLEDGED
+            - WITHDRAWN
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        external_job_ref:
+          maxLength: 128
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+      required:
+        - event_id
+        - event_type
+      type: object
+    JobEventView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        event_type:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        note:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        source:
+          type: string
+      required:
+        - event_type
+        - source
+        - evidence_media_ids
+        - occurred_at
+      type: object
+    JobView:
+      properties:
+        accepted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        amount_minor:
+          description: Approved amount (payment ceiling)
+          type: integer
+        currency:
+          type: string
+        events:
+          items:
+            $ref: '#/components/schemas/JobEventView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        invoiced_minor:
+          type:
+            - integer
+            - "null"
+        paid_minor:
+          description: payment-service truth (PLATFORM) or recorded evidence (OFF_PLATFORM)
+          type: integer
+        payment_collection:
+          type: string
+        payment_status:
+          type:
+            - string
+            - "null"
+        provider_acknowledged_payment:
+          type: boolean
+        provider_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        quote_id:
+          format: uuid
+          type: string
+        rework_count:
+          type: integer
+        status:
+          type: string
+      required:
+        - id
+        - quote_id
+        - status
+        - amount_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - provider_acknowledged_payment
+        - rework_count
+        - events
       type: object
     LOIResponseInput:
       additionalProperties: false
@@ -3037,6 +3384,189 @@ components:
         - version
         - created_at
         - updated_at
+      type: object
+    MaintenanceInputInput:
+      additionalProperties: false
+      properties:
+        asset_id:
+          description: Appliance/equipment from the property asset register
+          format: uuid
+          type: string
+        budget_minor:
+          minimum: 1
+          type: integer
+        category:
+          description: e.g. PLUMBING, ELECTRICAL, ROOFING, HVAC, PEST_CONTROL
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        cfmeet_context_id:
+          description: CF Meet conversation for this request (messages stay in CF Meet)
+          maxLength: 128
+          type: string
+        currency:
+          pattern: ^(?:[A-Z]{3})$
+          type: string
+        description:
+          maxLength: 4000
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+            - EMERGENCY
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        tenancy_id:
+          format: uuid
+          type: string
+        title:
+          maxLength: 120
+          type: string
+        unit_id:
+          format: uuid
+          type: string
+      required:
+        - property_id
+        - title
+        - description
+        - category
+        - priority
+      type: object
+    MaintenanceResolutionInput:
+      additionalProperties: false
+      properties:
+        note:
+          maxLength: 1000
+          type: string
+        outcome:
+          enum:
+            - REWORK
+            - COMPLETED
+            - CANCELLED
+          type: string
+      required:
+        - outcome
+      type: object
+    MaintenanceView:
+      properties:
+        approvals:
+          items:
+            $ref: '#/components/schemas/ApprovalView'
+          type: array
+        asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        budget_minor:
+          type:
+            - integer
+            - "null"
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        category:
+          type: string
+        cfmeet_context_id:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        description:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        job:
+          oneOf:
+            - $ref: '#/components/schemas/JobView'
+            - type: "null"
+        preventive_schedule_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        priority:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        quotes:
+          items:
+            $ref: '#/components/schemas/QuoteView'
+          type: array
+        reported_by_type:
+          type: string
+        responsibility:
+          type: string
+        responsibility_note:
+          type:
+            - string
+            - "null"
+        sourcing:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        tenancy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        title:
+          type: string
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+        warranty:
+          oneOf:
+            - $ref: '#/components/schemas/WarrantyView'
+            - type: "null"
+        warranty_of_request_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - property_id
+        - title
+        - description
+        - category
+        - priority
+        - responsibility
+        - reported_by_type
+        - status
+        - evidence_media_ids
+        - currency
+        - quotes
+        - approvals
+        - version
+        - created_at
       type: object
     ManagerResponseInputInput:
       additionalProperties: false
@@ -3707,6 +4237,162 @@ components:
         - created_at
         - updated_at
       type: object
+    ProviderAppointmentUpdateInput:
+      additionalProperties: false
+      properties:
+        conflict_declared:
+          type: boolean
+        conflict_note:
+          maxLength: 1000
+          type: string
+        external_ref:
+          maxLength: 128
+          type: string
+        findings:
+          items:
+            $ref: '#/components/schemas/ProviderFindingInput'
+          maxItems: 100
+          type: array
+        licence_ref:
+          description: Licence confirmed by professional-services
+          maxLength: 128
+          type: string
+        quote_amount_minor:
+          minimum: 1
+          type: integer
+        quote_valid_until:
+          format: date-time
+          type: string
+        report_media_id:
+          format: uuid
+          type: string
+        report_signed:
+          type: boolean
+        type:
+          enum:
+            - QUOTE
+            - DECLINE
+            - START
+            - REPORT
+          type: string
+      required:
+        - type
+      type: object
+    ProviderFindingInput:
+      additionalProperties: false
+      properties:
+        category:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        ref:
+          maxLength: 128
+          type: string
+        severity:
+          enum:
+            - INFO
+            - LOW
+            - MEDIUM
+            - HIGH
+            - BLOCKING
+          type: string
+        summary:
+          maxLength: 2000
+          type: string
+      required:
+        - ref
+        - category
+        - severity
+        - summary
+      type: object
+    ProviderMaintenanceView:
+      properties:
+        approved_amount_minor:
+          type:
+            - integer
+            - "null"
+        currency:
+          type: string
+        job_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        job_status:
+          type:
+            - string
+            - "null"
+        quote_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        quote_status:
+          type:
+            - string
+            - "null"
+        recorded_event_types:
+          items:
+            type: string
+          type: array
+        request_id:
+          format: uuid
+          type: string
+        rework_count:
+          type: integer
+        status:
+          type: string
+      required:
+        - request_id
+        - status
+        - currency
+        - rework_count
+        - recorded_event_types
+      type: object
+    ProviderQuoteInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        currency:
+          pattern: ^(?:[A-Z]{3})$
+          type: string
+        earliest_start_at:
+          format: date-time
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        external_quote_ref:
+          description: artisan-service quote id (idempotency)
+          maxLength: 128
+          type: string
+        provider_display_name:
+          maxLength: 120
+          type: string
+        scope:
+          maxLength: 4000
+          type: string
+        valid_until:
+          format: date-time
+          type: string
+        warranty_days:
+          maximum: 3650
+          minimum: 0
+          type: integer
+      required:
+        - external_quote_ref
+        - provider_display_name
+        - scope
+        - amount_minor
+        - currency
+      type: object
     PublicSummary:
       properties:
         area_label:
@@ -3782,6 +4468,60 @@ components:
         - limitations
         - property_version
         - generated_at
+      type: object
+    QuoteView:
+      properties:
+        amount_minor:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        earliest_start_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        provider_display_name:
+          type: string
+        provider_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        scope:
+          type: string
+        source:
+          type: string
+        status:
+          type: string
+        valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+        warranty_days:
+          type: integer
+      required:
+        - id
+        - source
+        - provider_display_name
+        - scope
+        - amount_minor
+        - currency
+        - warranty_days
+        - evidence_media_ids
+        - status
+        - created_at
       type: object
     RecordView:
       properties:
@@ -4568,6 +5308,24 @@ components:
         - version
         - created_at
       type: object
+    WarrantyView:
+      properties:
+        claim_request_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        ends_on:
+          type: string
+        starts_on:
+          type: string
+        status:
+          type: string
+      required:
+        - starts_on
+        - ends_on
+        - status
+      type: object
   securitySchemes:
     ServiceBearer:
       bearerFormat: service+jwt (EdDSA)
@@ -4774,6 +5532,56 @@ paths:
       security:
         - ServiceBearer: []
       summary: Decide a disputed damage claim
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/maintenance/{request_id}/resolution:
+    post:
+      operationId: adminResolveMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceResolutionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Decide a disputed maintenance completion
       tags:
         - _Admin
   /internal/v1/owner/admin/notice-templates:
@@ -5948,6 +6756,112 @@ paths:
       summary: Public date inventory of a short-let listing (marketplace)
       tags:
         - _Internal
+  /internal/v1/owner/maintenance-jobs/{job_id}/provider-events:
+    post:
+      description: Append-only and idempotent per event_id; late records never move state backwards.
+      operationId: artisanJobEvent
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobEventInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProviderMaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Assigned artisan reports attendance, progress, completion, invoice, payment receipt or withdrawal
+      tags:
+        - _Internal
+  /internal/v1/owner/maintenance/{request_id}/provider-quotes:
+    post:
+      description: Idempotent per external_quote_ref; the delegated artisan actor is the quoting provider.
+      operationId: artisanSubmitQuote
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderQuoteInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProviderMaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Artisan quotes a platform-sourced request (artisan-service)
+      tags:
+        - _Internal
   /internal/v1/owner/managed/listings/{listing_id}:
     get:
       operationId: managerGetListing
@@ -6081,6 +6995,139 @@ paths:
       security:
         - ServiceBearer: []
       summary: Delegated manager pauses a listing (listing.pause)
+      tags:
+        - _Internal
+  /internal/v1/owner/managed/maintenance:
+    post:
+      operationId: managerCreateMaintenance
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Delegated manager reports maintenance (maintenance.request)
+      tags:
+        - _Internal
+  /internal/v1/owner/managed/maintenance/{request_id}:
+    get:
+      operationId: managerGetMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Delegated manager reads a request
+      tags:
+        - _Internal
+  /internal/v1/owner/managed/maintenance/{request_id}/approve:
+    post:
+      operationId: managerApproveMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Delegated manager approves within its limits (maintenance.approve)
       tags:
         - _Internal
   /internal/v1/owner/managed/properties/{property_id}:
@@ -6499,6 +7546,58 @@ paths:
       summary: Approve or reject an ownership transfer under review
       tags:
         - _Admin
+  /internal/v1/owner/professional-appointments/{appointment_id}/provider-updates:
+    post:
+      operationId: professionalUpdateAppointment
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderAppointmentUpdateInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Professional quotes, declines, starts or submits the signed report
+      tags:
+        - _Internal
   /internal/v1/owner/properties/{property_id}/lift-restriction:
     post:
       operationId: liftPropertyRestriction

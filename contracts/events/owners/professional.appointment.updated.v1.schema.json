@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "AppointmentEvent": {
+      "properties": {
+        "appointment_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "appointment_version": {
+          "type": "integer"
+        },
+        "data_room_grant_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "due_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "professional_ref": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "sale_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "appointment_id",
+        "professional_ref",
+        "purpose",
+        "scope",
+        "status",
+        "appointment_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/professional.appointment.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Professional appointment requested/decided/ended, with any data-room grant (engineering addition). Producer: individual-owner-service. Consumers: Professional services. Aggregate: professional_appointment. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "professional_appointment"
+    },
+    "event_type": {
+      "const": "professional.appointment.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/AppointmentEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "professional.appointment.updated.v1"
+}

@@ -55,6 +55,10 @@ const (
 	PurposeShortletStay = "SHORTLET_STAY"
 	// PurposeDamageClaim charges an agreed or awarded damage claim.
 	PurposeDamageClaim = "DAMAGE_CLAIM"
+	// PurposeMaintenanceJob pays an artisan for an accepted, approved job.
+	PurposeMaintenanceJob = "MAINTENANCE_JOB"
+	// PurposeProfessionalFee pays an appointed professional.
+	PurposeProfessionalFee = "PROFESSIONAL_FEE"
 )
 
 // RefundRequest asks payment-service to refund part of a collected intent.
@@ -87,7 +91,9 @@ type IntentRequest struct {
 	Purpose             string
 	ReferenceType       string // rent_obligation | deposit_obligation | closing_milestone
 	ReferenceID         ids.ID
-	PayeeOwnerAccountID ids.ID
+	PayeeOwnerAccountID ids.ID // owner receives (rent, stays, sales)
+	PayeeDomain         string // or another domain's party receives (artisan, professional)
+	PayeeRefID          *ids.ID
 	PayerDomain         string
 	PayerRefID          *ids.ID
 	AmountMinor         int64

@@ -679,6 +679,120 @@ type ListingVersion struct {
 	CreatedAt        time.Time
 }
 
+type MaintenanceApproval struct {
+	ID           ids.ID
+	RequestID    ids.ID
+	QuoteID      *ids.ID
+	Decision     string
+	AmountMinor  *int64
+	Currency     string
+	ApprovedVia  string
+	ApproverRef  ids.ID
+	AssignmentID *ids.ID
+	LimitMinor   *int64
+	Emergency    bool
+	Note         *string
+	CreatedAt    time.Time
+}
+
+type MaintenanceJob struct {
+	ID                     ids.ID
+	RequestID              ids.ID
+	QuoteID                ids.ID
+	ProviderRef            *ids.ID
+	ExternalJobRef         *string
+	Status                 string
+	AmountMinor            int64
+	InvoicedMinor          *int64
+	Currency               string
+	PaymentCollection      string
+	PaymentIntentRef       *string
+	PaidMinor              int64
+	LastPaymentStatus      *string
+	LastCheckedAt          *time.Time
+	OfflinePaymentEvidence []ids.ID
+	ProviderPaymentAck     bool
+	ReworkCount            int32
+	AcceptedAt             *time.Time
+	Version                int64
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+}
+
+type MaintenanceJobEvent struct {
+	ID               ids.ID
+	JobID            ids.ID
+	EventType        string
+	Source           string
+	ExternalEventID  *string
+	Note             *string
+	EvidenceMediaIds []ids.ID
+	AmountMinor      *int64
+	OccurredAt       time.Time
+	RecordedAt       time.Time
+}
+
+type MaintenanceQuote struct {
+	ID                  ids.ID
+	RequestID           ids.ID
+	Source              string
+	ProviderRef         *ids.ID
+	ProviderDisplayName string
+	ExternalQuoteRef    *string
+	Scope               string
+	AmountMinor         int64
+	Currency            string
+	EarliestStartAt     *time.Time
+	ValidUntil          *time.Time
+	WarrantyDays        int32
+	EvidenceMediaIds    []ids.ID
+	Status              string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type MaintenanceRequest struct {
+	ID                   ids.ID
+	PropertyID           ids.ID
+	UnitID               *ids.ID
+	AssetID              *ids.ID
+	TenancyID            *ids.ID
+	PreventiveScheduleID *ids.ID
+	DueOn                *time.Time
+	WarrantyOfRequestID  *ids.ID
+	Title                string
+	Description          string
+	Category             string
+	Priority             string
+	Responsibility       string
+	ResponsibilityNote   *string
+	Sourcing             *string
+	ReportedByType       string
+	ReportedByRef        *ids.ID
+	Status               string
+	EvidenceMediaIds     []ids.ID
+	BudgetMinor          *int64
+	Currency             string
+	CfmeetContextID      *string
+	CancelReason         *string
+	Version              int64
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type MaintenanceWarranty struct {
+	ID             ids.ID
+	RequestID      ids.ID
+	JobID          ids.ID
+	ProviderRef    *ids.ID
+	StartsOn       time.Time
+	EndsOn         time.Time
+	Status         string
+	ClaimRequestID *ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type ManagerActivityRef struct {
 	ID           ids.ID
 	AssignmentID ids.ID
@@ -1084,6 +1198,23 @@ type PayoutProfile struct {
 	UpdatedAt               time.Time
 }
 
+type PreventiveSchedule struct {
+	ID              ids.ID
+	PropertyID      ids.ID
+	AssetID         *ids.ID
+	Title           string
+	Category        string
+	IntervalDays    int32
+	LeadDays        int32
+	NextDueOn       time.Time
+	Priority        string
+	Status          string
+	LastGeneratedOn *time.Time
+	Version         int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
 type PriceSchedule struct {
 	ListingID              ids.ID
 	ActivePricingVersionID *ids.ID
@@ -1122,6 +1253,55 @@ type ProcessedEvent struct {
 	EventID     ids.ID
 	EventType   string
 	ProcessedAt time.Time
+}
+
+type ProfessionalAppointment struct {
+	ID                ids.ID
+	OwnerAccountID    ids.ID
+	PropertyID        *ids.ID
+	SaleID            *ids.ID
+	Purpose           string
+	Scope             string
+	ProfessionalRef   ids.ID
+	ProfessionalLabel string
+	ExternalRef       *string
+	Status            string
+	QuoteAmountMinor  *int64
+	Currency          string
+	QuoteValidUntil   *time.Time
+	LicenceRef        *string
+	ConflictDeclared  *bool
+	ConflictNote      *string
+	FeeCollection     *string
+	PaymentIntentRef  *string
+	PaidMinor         int64
+	LastPaymentStatus *string
+	LastCheckedAt     *time.Time
+	DataRoomGrantID   *ids.ID
+	ReportMediaID     *ids.ID
+	ReportSigned      bool
+	ReportSubmittedAt *time.Time
+	DueBy             *time.Time
+	Rating            *int32
+	Feedback          *string
+	CancelReason      *string
+	CfmeetContextID   *string
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type ProfessionalFinding struct {
+	ID                 ids.ID
+	AppointmentID      ids.ID
+	Category           string
+	Severity           string
+	Summary            string
+	MediaID            *ids.ID
+	ExternalFindingRef *string
+	UsedInType         *string
+	UsedInID           *ids.ID
+	CreatedAt          time.Time
 }
 
 type Property struct {

@@ -43,11 +43,13 @@ const (
 	ScopeBooking        = "shortlet_booking"
 	ScopeTurnover       = "turnover_job"
 	ScopeDamageClaim    = "damage_claim"
+	ScopeMaintenance    = "maintenance_request"
 )
 
 var scopeTables = map[string]string{ScopeProperty: "properties", ScopeAgreement: "agreements", ScopeTenancy: "tenancies",
 	ScopeNotice: "notices", ScopeUtilityAccount: "utility_accounts", ScopeBudget: "service_charge_budgets", ScopeSale: "sale_transactions",
-	ScopeBooking: "shortlet_bookings", ScopeTurnover: "turnover_jobs", ScopeDamageClaim: "damage_claims"}
+	ScopeBooking: "shortlet_bookings", ScopeTurnover: "turnover_jobs", ScopeDamageClaim: "damage_claims",
+	ScopeMaintenance: "maintenance_requests"}
 
 func (s *Service) scopeProperty(ctx context.Context, scope string, id ids.ID) (ids.ID, error) {
 	table, ok := scopeTables[scope]
@@ -106,6 +108,24 @@ func (s *Service) CheckCustomerEvidence(ctx context.Context, subj authz.Subject,
 	if err != nil {
 		return ev, err
 	}
+	return s.checkActorMedia(ctx, ev, platform.DomainMarketplace, customer, mediaIDs, classes)
+}
+
+// CheckProviderEvidence verifies files uploaded by the calling provider
+// (artisan or professional) in its own domain.
+func (s *Service) CheckProviderEvidence(ctx context.Context, subj authz.Subject, mediaIDs []ids.ID, classes ...string) (Evidence, error) {
+	ev := Evidence{checked: map[ids.ID]media.Media{}}
+	mediaIDs = uniqueIDs(mediaIDs)
+	if len(mediaIDs) == 0 {
+		return ev, nil
+	}
+	if _, err := s.Authz.Require(ctx, subj, authz.ActInternalProviderUpdate, authz.Resource{}); err != nil {
+		return ev, err
+	}
+	return s.checkActorMedia(ctx, ev, subj.ActorDomain, subj.ActorID, mediaIDs, classes)
+}
+
+func (s *Service) checkActorMedia(ctx context.Context, ev Evidence, domain platform.Domain, actor ids.ID, mediaIDs []ids.ID, classes []string) (Evidence, error) {
 	if s.Media == nil {
 		return ev, unavailable("Evidence upload", "media-document-service")
 	}
@@ -118,8 +138,8 @@ func (s *Service) CheckCustomerEvidence(ctx context.Context, subj authz.Subject,
 			}
 			return ev, downstream("media-document-service", err)
 		}
-		if m.OwnerDomain != string(platform.DomainMarketplace) || m.OwnerID != customer {
-			return ev, precondition("MEDIA_NOT_OWNED", "The media file was not uploaded by this customer.")
+		if m.OwnerDomain != string(domain) || m.OwnerID != actor {
+			return ev, precondition("MEDIA_NOT_OWNED", "The media file was not uploaded by this actor.")
 		}
 		if len(classes) > 0 && !slices.Contains(classes, m.MediaClass) {
 			return ev, precondition("MEDIA_CLASS_NOT_ALLOWED", "The media file's class is not allowed here.")

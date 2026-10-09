@@ -179,7 +179,11 @@ func PropertyRules() []Rule {
 		Rule{Action: ActInternalCustomerIntake, Services: []ServiceGrant{{Service: platform.MarketplaceService, ActorDomains: []platform.Domain{platform.DomainMarketplace}, RequiresActor: true}}},
 		Rule{Action: ActInternalManagerRespond, Services: managerSvc},
 		Rule{Action: ActInternalManagerActivity, Services: managerSvc},
-		Rule{Action: ActInternalProviderUpdate, Services: []ServiceGrant{{Service: platform.ArtisanService}, {Service: platform.ProfessionalServicesService}}},
+		// Providers act for themselves: the delegated actor must be the
+		// artisan/professional the quote, job or appointment belongs to.
+		Rule{Action: ActInternalProviderUpdate, Services: []ServiceGrant{
+			{Service: platform.ArtisanService, ActorDomains: []platform.Domain{platform.DomainArtisan}, RequiresActor: true},
+			{Service: platform.ProfessionalServicesService, ActorDomains: []platform.Domain{platform.DomainProfessionalServices}, RequiresActor: true}}},
 		Rule{Action: ActInternalAdminModerate, Services: adminActor},
 		Rule{Action: ActInternalAdminDispute, Services: adminActor},
 		Rule{Action: ActInternalAdminPrivacy, Services: adminActor},

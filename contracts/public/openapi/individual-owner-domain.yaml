@@ -909,6 +909,295 @@ components:
         - version
         - created_at
       type: object
+    AppointmentCommandInput:
+      additionalProperties: false
+      properties:
+        acknowledge_conflict:
+          description: APPOINT despite a declared conflict of interest
+          type: boolean
+        action:
+          enum:
+            - APPOINT
+            - CANCEL
+            - ACCEPT_REPORT
+            - DISPUTE_REPORT
+            - GRANT_DATA_ROOM
+            - REVOKE_DATA_ROOM
+            - RATE
+          type: string
+        categories:
+          description: GRANT_DATA_ROOM
+          items:
+            enum:
+              - TITLE
+              - SURVEY
+              - PLANNING
+              - VALUATION
+              - INSPECTION
+              - TAX
+              - LEGAL
+              - FINANCIAL
+              - OTHER
+            type: string
+          maxItems: 9
+          type: array
+        expires_in_days:
+          description: GRANT_DATA_ROOM (default 14)
+          maximum: 30
+          minimum: 1
+          type: integer
+        fee_collection:
+          description: 'APPOINT: PLATFORM needs payment-service'
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        rating:
+          maximum: 5
+          minimum: 1
+          type: integer
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - action
+      type: object
+    AppointmentInputInput:
+      additionalProperties: false
+      properties:
+        cfmeet_context_id:
+          maxLength: 128
+          type: string
+        currency:
+          pattern: ^(?:[A-Z]{3})$
+          type: string
+        due_by:
+          format: date
+          type: string
+        professional_label:
+          maxLength: 120
+          type: string
+        professional_ref:
+          description: professional-services profile id (from its search)
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        purpose:
+          enum:
+            - VALUATION
+            - SURVEY
+            - LEGAL_DUE_DILIGENCE
+            - TITLE_SEARCH
+            - INSPECTION
+            - TAX_ADVICE
+            - CONVEYANCING
+            - OTHER
+          type: string
+        sale_id:
+          description: Due diligence on a sale transaction
+          format: uuid
+          type: string
+        scope:
+          maxLength: 4000
+          type: string
+      required:
+        - purpose
+        - scope
+        - professional_ref
+        - professional_label
+      type: object
+    AppointmentView:
+      properties:
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        cfmeet_context_id:
+          type:
+            - string
+            - "null"
+        conflict_declared:
+          type:
+            - boolean
+            - "null"
+        conflict_note:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        data_room_grant_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        due_by:
+          type:
+            - string
+            - "null"
+        fee_collection:
+          type:
+            - string
+            - "null"
+        feedback:
+          type:
+            - string
+            - "null"
+        findings:
+          items:
+            $ref: '#/components/schemas/FindingView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        licence_ref:
+          type:
+            - string
+            - "null"
+        paid_minor:
+          type: integer
+        payment_status:
+          type:
+            - string
+            - "null"
+        professional_label:
+          type: string
+        professional_ref:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        purpose:
+          type: string
+        quote_amount_minor:
+          type:
+            - integer
+            - "null"
+        quote_valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+        rating:
+          type:
+            - integer
+            - "null"
+        report_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        report_signed:
+          type: boolean
+        report_submitted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        sale_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        scope:
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - purpose
+        - scope
+        - professional_ref
+        - professional_label
+        - status
+        - currency
+        - paid_minor
+        - report_signed
+        - findings
+        - version
+        - created_at
+      type: object
+    ApprovalInputInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - APPROVE
+            - REJECT
+          type: string
+        exceed_budget:
+          description: 'Owner/co-owner only: approve above the request budget'
+          type: boolean
+        note:
+          maxLength: 1000
+          type: string
+        payment_collection:
+          description: PLATFORM needs payment-service; self-sourced work is OFF_PLATFORM
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+      required:
+        - decision
+      type: object
+    ApprovalView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        approved_via:
+          type: string
+        approver_ref:
+          format: uuid
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decision:
+          type: string
+        emergency:
+          type: boolean
+        limit_minor:
+          description: Delegated manager's limit applied
+          type:
+            - integer
+            - "null"
+        note:
+          type:
+            - string
+            - "null"
+        quote_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - decision
+        - currency
+        - approved_via
+        - approver_ref
+        - emergency
+        - created_at
+      type: object
     AssetInputInput:
       additionalProperties: false
       properties:
@@ -1997,6 +2286,27 @@ components:
         - version
         - terms
         - created_at
+      type: object
+    CompletionReviewInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - REWORK
+            - DISPUTE
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        note:
+          maxLength: 2000
+          type: string
+      required:
+        - decision
       type: object
     ConditionItemInputInput:
       additionalProperties: false
@@ -3457,6 +3767,41 @@ components:
         - frequency
         - payable_to
       type: object
+    FindingView:
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        severity:
+          type: string
+        summary:
+          type: string
+        used_in_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        used_in_type:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - category
+        - severity
+        - summary
+        - created_at
+      type: object
     GateView:
       properties:
         action:
@@ -3840,6 +4185,131 @@ components:
           type: array
       required:
         - participants
+      type: object
+    JobEventInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          description: INVOICE amount
+          minimum: 1
+          type: integer
+        event_id:
+          description: Idempotency id of this record
+          maxLength: 128
+          type: string
+        event_type:
+          enum:
+            - ATTENDED
+            - PROGRESS
+            - COMPLETION_SUBMITTED
+            - INVOICE
+            - PAYMENT_ACKNOWLEDGED
+            - WITHDRAWN
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        external_job_ref:
+          maxLength: 128
+          type: string
+        note:
+          maxLength: 2000
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+      required:
+        - event_id
+        - event_type
+      type: object
+    JobEventView:
+      properties:
+        amount_minor:
+          type:
+            - integer
+            - "null"
+        event_type:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        note:
+          type:
+            - string
+            - "null"
+        occurred_at:
+          format: date-time
+          type: string
+        source:
+          type: string
+      required:
+        - event_type
+        - source
+        - evidence_media_ids
+        - occurred_at
+      type: object
+    JobView:
+      properties:
+        accepted_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        amount_minor:
+          description: Approved amount (payment ceiling)
+          type: integer
+        currency:
+          type: string
+        events:
+          items:
+            $ref: '#/components/schemas/JobEventView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        invoiced_minor:
+          type:
+            - integer
+            - "null"
+        paid_minor:
+          description: payment-service truth (PLATFORM) or recorded evidence (OFF_PLATFORM)
+          type: integer
+        payment_collection:
+          type: string
+        payment_status:
+          type:
+            - string
+            - "null"
+        provider_acknowledged_payment:
+          type: boolean
+        provider_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        quote_id:
+          format: uuid
+          type: string
+        rework_count:
+          type: integer
+        status:
+          type: string
+      required:
+        - id
+        - quote_id
+        - status
+        - amount_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - provider_acknowledged_payment
+        - rework_count
+        - events
       type: object
     KeyItemInputInput:
       additionalProperties: false
@@ -4816,6 +5286,214 @@ components:
         - created_at
         - updated_at
       type: object
+    MaintenanceCancelInput:
+      additionalProperties: false
+      properties:
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - reason_code
+      type: object
+    MaintenanceInputInput:
+      additionalProperties: false
+      properties:
+        asset_id:
+          description: Appliance/equipment from the property asset register
+          format: uuid
+          type: string
+        budget_minor:
+          minimum: 1
+          type: integer
+        category:
+          description: e.g. PLUMBING, ELECTRICAL, ROOFING, HVAC, PEST_CONTROL
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        cfmeet_context_id:
+          description: CF Meet conversation for this request (messages stay in CF Meet)
+          maxLength: 128
+          type: string
+        currency:
+          pattern: ^(?:[A-Z]{3})$
+          type: string
+        description:
+          maxLength: 4000
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+            - EMERGENCY
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        tenancy_id:
+          format: uuid
+          type: string
+        title:
+          maxLength: 120
+          type: string
+        unit_id:
+          format: uuid
+          type: string
+      required:
+        - property_id
+        - title
+        - description
+        - category
+        - priority
+      type: object
+    MaintenanceTriageInput:
+      additionalProperties: false
+      properties:
+        budget_minor:
+          minimum: 1
+          type: integer
+        cfmeet_context_id:
+          maxLength: 128
+          type: string
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+            - EMERGENCY
+          type: string
+        responsibility:
+          enum:
+            - PENDING_REVIEW
+            - OWNER
+            - TENANT
+            - SHARED
+            - WARRANTY
+          type: string
+        responsibility_note:
+          maxLength: 1000
+          type: string
+      required:
+        - priority
+        - responsibility
+      type: object
+    MaintenanceView:
+      properties:
+        approvals:
+          items:
+            $ref: '#/components/schemas/ApprovalView'
+          type: array
+        asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        budget_minor:
+          type:
+            - integer
+            - "null"
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        category:
+          type: string
+        cfmeet_context_id:
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        description:
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        job:
+          oneOf:
+            - $ref: '#/components/schemas/JobView'
+            - type: "null"
+        preventive_schedule_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        priority:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        quotes:
+          items:
+            $ref: '#/components/schemas/QuoteView'
+          type: array
+        reported_by_type:
+          type: string
+        responsibility:
+          type: string
+        responsibility_note:
+          type:
+            - string
+            - "null"
+        sourcing:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        tenancy_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        title:
+          type: string
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+        warranty:
+          oneOf:
+            - $ref: '#/components/schemas/WarrantyView'
+            - type: "null"
+        warranty_of_request_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - property_id
+        - title
+        - description
+        - category
+        - priority
+        - responsibility
+        - reported_by_type
+        - status
+        - evidence_media_ids
+        - currency
+        - quotes
+        - approvals
+        - version
+        - created_at
+      type: object
     MediaLinkInputInput:
       additionalProperties: false
       properties:
@@ -5590,6 +6268,24 @@ components:
         - version
         - created_at
       type: object
+    OfflinePaymentInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        evidence_media_ids:
+          description: Proof of payment
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - amount_minor
+        - evidence_media_ids
+      type: object
     OfflineSignatureInputInput:
       additionalProperties: false
       properties:
@@ -5617,6 +6313,39 @@ components:
       required:
         - open_obligations
         - outstanding_minor
+      type: object
+    OwnerQuoteInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        evidence_media_ids:
+          description: The provider's written quote
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+        provider_display_name:
+          maxLength: 120
+          type: string
+        scope:
+          maxLength: 4000
+          type: string
+        valid_until:
+          format: date-time
+          type: string
+        warranty_days:
+          maximum: 3650
+          minimum: 0
+          type: integer
+      required:
+        - provider_display_name
+        - scope
+        - amount_minor
+        - evidence_media_ids
       type: object
     OwnershipSummary:
       properties:
@@ -6024,6 +6753,123 @@ components:
         - currency
         - emergency_rule
         - created_at
+      type: object
+    PreventiveInputInput:
+      additionalProperties: false
+      properties:
+        asset_id:
+          format: uuid
+          type: string
+        category:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        first_due_on:
+          format: date
+          type: string
+        interval_days:
+          maximum: 3650
+          minimum: 1
+          type: integer
+        lead_days:
+          description: Create the task this many days before it is due (default 7)
+          maximum: 90
+          minimum: 0
+          type: integer
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+          type: string
+        title:
+          maxLength: 120
+          type: string
+      required:
+        - title
+        - category
+        - interval_days
+        - first_due_on
+      type: object
+    PreventiveUpdateInput:
+      additionalProperties: false
+      properties:
+        interval_days:
+          maximum: 3650
+          minimum: 1
+          type: integer
+        lead_days:
+          maximum: 90
+          minimum: 0
+          type: integer
+        next_due_on:
+          format: date
+          type: string
+        priority:
+          enum:
+            - LOW
+            - NORMAL
+            - HIGH
+          type: string
+        status:
+          enum:
+            - ACTIVE
+            - PAUSED
+            - RETIRED
+          type: string
+        title:
+          maxLength: 120
+          type: string
+      required:
+        - title
+        - interval_days
+        - next_due_on
+        - priority
+        - status
+      type: object
+    PreventiveView:
+      properties:
+        asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        category:
+          type: string
+        id:
+          format: uuid
+          type: string
+        interval_days:
+          type: integer
+        last_generated_on:
+          type:
+            - string
+            - "null"
+        lead_days:
+          type: integer
+        next_due_on:
+          type: string
+        priority:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - title
+        - category
+        - interval_days
+        - lead_days
+        - next_due_on
+        - priority
+        - status
+        - version
       type: object
     PreviewView:
       properties:
@@ -6613,6 +7459,72 @@ components:
           type: integer
       required:
         - outcome
+      type: object
+    QuoteRequestInputInput:
+      additionalProperties: false
+      properties:
+        sourcing:
+          description: 'PLATFORM: artisans discover the request through artisan-service; SELF_SOURCED: the owner records quotes from their own providers'
+          enum:
+            - PLATFORM
+            - SELF_SOURCED
+          type: string
+      required:
+        - sourcing
+      type: object
+    QuoteView:
+      properties:
+        amount_minor:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        earliest_start_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        provider_display_name:
+          type: string
+        provider_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        scope:
+          type: string
+        source:
+          type: string
+        status:
+          type: string
+        valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+        warranty_days:
+          type: integer
+      required:
+        - id
+        - source
+        - provider_display_name
+        - scope
+        - amount_minor
+        - currency
+        - warranty_days
+        - evidence_media_ids
+        - status
+        - created_at
       type: object
     RateInputInput:
       additionalProperties: false
@@ -8429,6 +9341,21 @@ components:
           minimum: 1600
           type: integer
       type: object
+    UseFindingInputInput:
+      additionalProperties: false
+      properties:
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          enum:
+            - due_diligence_item
+            - maintenance_request
+          type: string
+      required:
+        - target_type
+        - target_id
+      type: object
     UtilityAccountInputInput:
       additionalProperties: false
       properties:
@@ -8785,6 +9712,41 @@ components:
         - allowed_next_statuses
         - version
         - created_at
+      type: object
+    WarrantyClaimInputInput:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 4000
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+      required:
+        - description
+        - evidence_media_ids
+      type: object
+    WarrantyView:
+      properties:
+        claim_request_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        ends_on:
+          type: string
+        starts_on:
+          type: string
+        status:
+          type: string
+      required:
+        - starts_on
+        - ends_on
+        - status
       type: object
   securitySchemes:
     OwnerBearer:
@@ -11814,6 +12776,621 @@ paths:
       summary: Withdraw a listing from the market
       tags:
         - Listings
+  /api/v1/owner/maintenance:
+    get:
+      operationId: listMaintenance
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - OPEN
+              - TRIAGED
+              - QUOTING
+              - APPROVAL_PENDING
+              - APPROVED
+              - ASSIGNED
+              - IN_PROGRESS
+              - COMPLETION_REVIEW
+              - COMPLETED
+              - REWORK
+              - CANCELLED
+              - DISPUTED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/MaintenanceView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Maintenance requests across my properties
+      tags:
+        - Maintenance
+    post:
+      operationId: createMaintenance
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Report a maintenance need
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}:
+    get:
+      operationId: getMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request with quotes, approvals, job records and warranty
+      tags:
+        - Maintenance
+    patch:
+      description: Deciding responsibility moves an OPEN request to TRIAGED. Locked once work is approved.
+      operationId: triageMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceTriageInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: 'Triage: priority, responsibility, budget (If-Match)'
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/approve:
+    post:
+      description: Approval assigns the job to the quoting provider. Managers approve within their mandate's spend limit and emergency rule (403 APPROVAL_LIMIT_EXCEEDED / OWNER_APPROVAL_REQUIRED); budgets are exceeded only by the owner. PLATFORM payment needs payment-service.
+      operationId: approveMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Approve a quote or reject all
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/cancel:
+    post:
+      operationId: cancelMaintenance
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceCancelInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel a request
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/completion:
+    post:
+      description: Acceptance starts the quote's warranty, updates the asset's service date and (PLATFORM) requests payment of the approved/invoiced amount.
+      operationId: reviewMaintenanceCompletion
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionReviewInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept, rework or dispute the work
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/job-events:
+    post:
+      description: Append-only attendance/progress/completion/invoice records; completion needs photos.
+      operationId: recordMaintenanceJobEvent
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobEventInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record self-sourced job progress
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/offline-payment:
+    post:
+      description: Confirmed when the provider acknowledges it; self-sourced payments stay OWNER_ATTESTED.
+      operationId: recordMaintenancePayment
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfflinePaymentInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record an off-platform provider payment
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/quotes:
+    post:
+      operationId: recordMaintenanceQuote
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OwnerQuoteInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Record a self-sourced quote
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/request-quotes:
+    post:
+      description: PLATFORM publishes maintenance.request.created.v1 for artisan discovery; SELF_SOURCED lets the owner record quotes from their own providers.
+      operationId: requestMaintenanceQuotes
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequestInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open quoting
+      tags:
+        - Maintenance
+  /api/v1/owner/maintenance/{request_id}/warranty-claim:
+    post:
+      description: Opens a linked WARRANTY request routed to the original provider.
+      operationId: claimMaintenanceWarranty
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarrantyClaimInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaintenanceView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Claim the workmanship warranty
+      tags:
+        - Maintenance
   /api/v1/owner/manager-assignments:
     get:
       operationId: listManagerAssignments
@@ -13159,6 +14736,305 @@ paths:
       summary: Replace payout preferences (If-Match; "0" creates)
       tags:
         - Banking & Tax
+  /api/v1/owner/preventive-schedules/{schedule_id}:
+    patch:
+      operationId: updatePreventiveSchedule
+      parameters:
+        - in: path
+          name: schedule_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreventiveUpdateInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PreventiveView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Edit, pause or retire a schedule (If-Match)
+      tags:
+        - Maintenance
+  /api/v1/owner/professional-appointments:
+    get:
+      operationId: listProfessionalAppointments
+      parameters:
+        - in: query
+          name: status
+          schema:
+            enum:
+              - REQUESTED
+              - QUOTING
+              - APPOINTED
+              - IN_PROGRESS
+              - REPORT_SUBMITTED
+              - ACCEPTED
+              - DISPUTED
+              - CANCELLED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AppointmentView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Professional appointments
+      tags:
+        - Professionals
+    post:
+      description: For a property or a sale's due diligence; professional-services is told through professional.appointment.updated.v1.
+      operationId: createProfessionalAppointment
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request a professional
+      tags:
+        - Professionals
+  /api/v1/owner/professional-appointments/{appointment_id}:
+    get:
+      operationId: getProfessionalAppointment
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Appointment with report findings
+      tags:
+        - Professionals
+    patch:
+      description: Appointing needs a valid quote and a confirmed licence; a declared conflict must be acknowledged. Data-room grants expire and are revoked when the report is accepted or the appointment ends. PLATFORM fees need payment-service.
+      operationId: actOnProfessionalAppointment
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCommandInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Appoint, cancel, accept/dispute the report, grant data-room access or rate (If-Match)
+      tags:
+        - Professionals
+  /api/v1/owner/professional-appointments/{appointment_id}/findings/{finding_id}/use:
+    post:
+      operationId: useProfessionalFinding
+      parameters:
+        - in: path
+          name: appointment_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: finding_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UseFindingInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Link a finding to a due-diligence item or maintenance request
+      tags:
+        - Professionals
   /api/v1/owner/profile:
     get:
       operationId: getOwnerProfile
@@ -15016,6 +16892,107 @@ paths:
       summary: Replace a parcel (If-Match)
       tags:
         - Properties
+  /api/v1/owner/properties/{property_id}/preventive-schedules:
+    get:
+      operationId: listPreventiveSchedules
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PreventiveView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Preventive schedules
+      tags:
+        - Maintenance
+    post:
+      description: The preventive-maintenance worker creates a TRIAGED request lead_days before each due date.
+      operationId: createPreventiveSchedule
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreventiveInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PreventiveView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a preventive schedule
+      tags:
+        - Maintenance
   /api/v1/owner/properties/{property_id}/screening-policies:
     get:
       operationId: listScreeningPolicies
