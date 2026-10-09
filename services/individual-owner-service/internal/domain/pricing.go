@@ -61,6 +61,9 @@ type PriceModel struct {
 	MinNights       int32 // from listing details (short-let)
 	Fees            []Fee
 	Rules           []Rule
+	// NightlyOverrides are short-let date rates (YYYY-MM-DD → nightly rate)
+	// that replace the base and the seasonal/weekend adjustments.
+	NightlyOverrides map[string]int64
 }
 
 // Scenario is what the customer asks about.
@@ -315,6 +318,10 @@ func Calculate(m PriceModel, sc Scenario) (Cost, error) {
 		var subtotal int64
 		for d := in; d.Before(out); d = d.AddDate(0, 0, 1) {
 			rate := m.Base
+			if o, ok := m.NightlyOverrides[d.Format(time.DateOnly)]; ok {
+				subtotal += o
+				continue
+			}
 			for _, r := range m.Rules {
 				switch r.Type {
 				case "SEASONAL":

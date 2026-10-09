@@ -51,7 +51,34 @@ const (
 	PurposeDeposit = "DEPOSIT"
 	// PurposeSaleMilestone collects a sale reservation or purchase price.
 	PurposeSaleMilestone = "SALE_MILESTONE"
+	// PurposeShortletStay collects a short-let booking.
+	PurposeShortletStay = "SHORTLET_STAY"
+	// PurposeDamageClaim charges an agreed or awarded damage claim.
+	PurposeDamageClaim = "DAMAGE_CLAIM"
 )
+
+// RefundRequest asks payment-service to refund part of a collected intent.
+type RefundRequest struct {
+	IntentRef     string
+	ReferenceType string
+	ReferenceID   ids.ID
+	AmountMinor   int64
+	Reason        string
+}
+
+// Refund statuses.
+const (
+	RefundPending   = "PENDING"
+	RefundCompleted = "COMPLETED"
+	RefundFailed    = "FAILED"
+)
+
+// Refund is payment-service's view of a refund.
+type Refund struct {
+	Ref           string
+	Status        string
+	RefundedMinor int64
+}
 
 // IntentRequest asks payment-service to collect a business amount. The owner
 // domain supplies the business context only; payment-service owns methods,
@@ -135,4 +162,7 @@ type API interface {
 	// RequestDepositRelease is idempotent per idemKey.
 	RequestDepositRelease(ctx context.Context, req DepositReleaseRequest, idemKey string) (Release, error)
 	GetRelease(ctx context.Context, ref string) (Release, error)
+	// RequestRefund is idempotent per idemKey.
+	RequestRefund(ctx context.Context, req RefundRequest, idemKey string) (Refund, error)
+	GetRefund(ctx context.Context, ref string) (Refund, error)
 }

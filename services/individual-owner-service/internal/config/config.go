@@ -147,6 +147,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.WorkerInterval = l.Duration("DOMAIN_WORKER_INTERVAL", 30*time.Second)
 	paymentURL := l.String("PAYMENT_SERVICE_URL", "")
 	esignProvider := l.String("ESIGN_PROVIDER", "")
+	calendarProvider := l.String("EXTERNAL_CALENDAR_PROVIDER", "")
 
 	oauthProviders := l.List("OWNER_OAUTH_PROVIDERS", nil)
 	c.NotificationServiceURL = l.Required("NOTIFICATION_SERVICE_URL")
@@ -224,6 +225,11 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		// No electronic-signature provider adapter is implemented; owners
 		// sign OFFLINE until one is selected and built (spec §12).
 		problems = append(problems, "ESIGN_PROVIDER must be empty: no e-sign provider adapter is implemented")
+	}
+	if calendarProvider != "" {
+		// No external calendar (iCal/channel manager) adapter is implemented;
+		// short-let availability is managed on the platform only (spec §12).
+		problems = append(problems, "EXTERNAL_CALENDAR_PROVIDER must be empty: no calendar-sync adapter is implemented")
 	}
 	for _, g := range d.IdentityRequiredFor {
 		switch g {

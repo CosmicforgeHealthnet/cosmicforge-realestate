@@ -1030,6 +1030,21 @@ func (s *Service) ProjectPaymentIntent(ctx context.Context, eventID ids.ID, in p
 		} else if !isNoRows(err) {
 			return err
 		}
+		if m, err := s.q.GetMilestoneByIntent(ctx, tx, &in.Ref); err == nil {
+			return s.projectMilestoneIntent(ctx, m.ID, in)
+		} else if !isNoRows(err) {
+			return err
+		}
+		if id, err := s.q.GetBookingByIntent(ctx, tx, &in.Ref); err == nil {
+			return s.projectBookingIntent(ctx, id, in)
+		} else if !isNoRows(err) {
+			return err
+		}
+		if id, err := s.q.GetClaimByIntent(ctx, tx, &in.Ref); err == nil {
+			return s.projectClaimIntent(ctx, id, in)
+		} else if !isNoRows(err) {
+			return err
+		}
 		return fmt.Errorf("payment intent %s is not known yet", in.Ref)
 	})
 }

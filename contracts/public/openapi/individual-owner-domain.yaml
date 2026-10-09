@@ -104,6 +104,53 @@ components:
       required:
         - documents
       type: object
+    AddOn:
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        code:
+          pattern: ^(?:[a-z][a-z0-9_]{1,39})$
+          type: string
+        label:
+          maxLength: 80
+          type: string
+        per:
+          enum:
+            - STAY
+            - NIGHT
+            - GUEST
+          type: string
+      required:
+        - code
+        - label
+        - amount_minor
+        - per
+      type: object
+    AddOnInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        code:
+          pattern: ^(?:[a-z][a-z0-9_]{1,39})$
+          type: string
+        label:
+          maxLength: 80
+          type: string
+        per:
+          enum:
+            - STAY
+            - NIGHT
+            - GUEST
+          type: string
+      required:
+        - code
+        - label
+        - amount_minor
+        - per
+      type: object
     AddPayoutAccountInputInput:
       additionalProperties: false
       properties:
@@ -1232,6 +1279,134 @@ components:
       required:
         - action
       type: object
+    BookingCommandInput:
+      additionalProperties: false
+      properties:
+        access_grant_ref:
+          description: 'CHECK_IN: smart-access grant for the stay'
+          format: uuid
+          type: string
+        action:
+          enum:
+            - APPROVE
+            - DECLINE
+            - CHECK_IN
+            - CHECK_OUT
+            - NO_SHOW
+            - CANCEL
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - action
+      type: object
+    BookingView:
+      properties:
+        access_grant_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        cancelled_by:
+          type:
+            - string
+            - "null"
+        check_in:
+          type: string
+        check_out:
+          type: string
+        checked_in_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        checked_out_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        conversation_ref:
+          type:
+            - string
+            - "null"
+        cost:
+          description: Immutable price snapshot
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        guest_list:
+          items:
+            $ref: '#/components/schemas/GuestView'
+          type: array
+        guests:
+          type: integer
+        hold_expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        payment_collection:
+          type: string
+        pricing_version_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        refund_due_minor:
+          type: integer
+        refund_status:
+          type:
+            - string
+            - "null"
+        refunded_minor:
+          type: integer
+        status:
+          type: string
+        total_minor:
+          type: integer
+        version:
+          type: integer
+      required:
+        - id
+        - listing_id
+        - property_id
+        - customer_ref_id
+        - status
+        - check_in
+        - check_out
+        - guests
+        - pricing_version_id
+        - cost
+        - total_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - refund_due_minor
+        - refunded_minor
+        - guest_list
+        - version
+        - created_at
+      type: object
     BudgetCategoryInput:
       additionalProperties: false
       properties:
@@ -1342,6 +1517,58 @@ components:
         - total_expected_minor
         - lines
         - version
+      type: object
+    CalendarDay:
+      properties:
+        day:
+          type: string
+        ref_id:
+          description: Booking holding the day (owner view only)
+          format: uuid
+          type:
+            - string
+            - "null"
+        source:
+          type: string
+        status:
+          description: AVAILABLE, BLOCKED, HOLD or BOOKED
+          type: string
+      required:
+        - day
+        - status
+        - source
+      type: object
+    CalendarInputInput:
+      additionalProperties: false
+      properties:
+        ranges:
+          items:
+            $ref: '#/components/schemas/CalendarRangeInput'
+          maxItems: 50
+          minItems: 1
+          type: array
+      required:
+        - ranges
+      type: object
+    CalendarRangeInput:
+      additionalProperties: false
+      properties:
+        from:
+          format: date
+          type: string
+        status:
+          enum:
+            - AVAILABLE
+            - BLOCKED
+          type: string
+        to:
+          description: Inclusive
+          format: date
+          type: string
+      required:
+        - from
+        - to
+        - status
       type: object
     CancelViewingInputInput:
       additionalProperties: false
@@ -2319,6 +2546,136 @@ components:
       required:
         - type
       type: object
+    DamageClaimActionInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - WITHDRAW
+            - RECORD_SETTLEMENT
+          type: string
+        evidence_media_ids:
+          description: 'RECORD_SETTLEMENT (off-platform): proof of the guest''s payment'
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+      required:
+        - action
+      type: object
+    DamageClaimInputInput:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DamageItemInput'
+          maxItems: 30
+          minItems: 1
+          type: array
+      required:
+        - items
+      type: object
+    DamageClaimView:
+      properties:
+        awarded_minor:
+          type:
+            - integer
+            - "null"
+        booking_id:
+          format: uuid
+          type: string
+        claimed_minor:
+          type: integer
+        currency:
+          type: string
+        guest_evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        guest_response_note:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/DamageItem'
+          type: array
+        paid_minor:
+          type: integer
+        respond_by:
+          format: date-time
+          type: string
+        settled_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        settlement:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - booking_id
+        - status
+        - items
+        - claimed_minor
+        - currency
+        - respond_by
+        - guest_evidence_media_ids
+        - paid_minor
+        - version
+      type: object
+    DamageItem:
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        description:
+          maxLength: 500
+          type: string
+        media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - description
+        - amount_minor
+        - media_ids
+      type: object
+    DamageItemInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        description:
+          maxLength: 500
+          type: string
+        media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - description
+        - amount_minor
+        - media_ids
+      type: object
     DataRoomDocument:
       properties:
         category:
@@ -3115,6 +3472,32 @@ components:
         - action
         - allowed
         - missing
+      type: object
+    GuestView:
+      properties:
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        display_name:
+          type: string
+        id:
+          format: uuid
+          type: string
+        primary:
+          type: boolean
+        verification_ref:
+          type:
+            - string
+            - "null"
+        verification_status:
+          type: string
+      required:
+        - id
+        - display_name
+        - primary
+        - verification_status
       type: object
     HistoryView:
       properties:
@@ -6231,6 +6614,61 @@ components:
       required:
         - outcome
       type: object
+    RateInputInput:
+      additionalProperties: false
+      properties:
+        end_date:
+          description: Inclusive
+          format: date
+          type: string
+        label:
+          maxLength: 80
+          type: string
+        min_nights:
+          maximum: 365
+          minimum: 1
+          type: integer
+        nightly_rate_minor:
+          minimum: 1
+          type: integer
+        start_date:
+          format: date
+          type: string
+      required:
+        - start_date
+        - end_date
+        - nightly_rate_minor
+      type: object
+    RateView:
+      properties:
+        end_date:
+          type: string
+        label:
+          type:
+            - string
+            - "null"
+        min_nights:
+          type:
+            - integer
+            - "null"
+        nightly_rate_minor:
+          type: integer
+        start_date:
+          type: string
+      required:
+        - start_date
+        - end_date
+        - nightly_rate_minor
+      type: object
+    RatesInputInput:
+      additionalProperties: false
+      properties:
+        rates:
+          items:
+            $ref: '#/components/schemas/RateInputInput'
+          maxItems: 200
+          type: array
+      type: object
     ReasonCodeInputInput:
       additionalProperties: false
       properties:
@@ -7079,6 +7517,167 @@ components:
       required:
         - party
       type: object
+    ShortletSettingsInput:
+      properties:
+        add_ons:
+          items:
+            $ref: '#/components/schemas/AddOn'
+          maxItems: 20
+          type: array
+        cancellation_policy:
+          enum:
+            - FLEXIBLE
+            - MODERATE
+            - STRICT
+            - NON_REFUNDABLE
+          type: string
+        check_in_time:
+          pattern: ^(?:([01][0-9]|2[0-3]):[0-5][0-9])$
+          type: string
+        check_out_time:
+          pattern: ^(?:([01][0-9]|2[0-3]):[0-5][0-9])$
+          type: string
+        damage_claim_window_hours:
+          description: Default 48
+          maximum: 720
+          minimum: 0
+          type: integer
+        external_calendar_ref:
+          description: External calendar feed (needs a calendar-sync adapter)
+          maxLength: 500
+          type:
+            - string
+            - "null"
+        guest_verification_required:
+          type: boolean
+        house_rules:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        instant_book:
+          type: boolean
+        max_guests:
+          maximum: 100
+          minimum: 1
+          type: integer
+        max_nights:
+          maximum: 365
+          minimum: 1
+          type: integer
+        min_nights:
+          maximum: 365
+          minimum: 1
+          type: integer
+        payment_collection:
+          description: PLATFORM needs payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        turnover_buffer_days:
+          maximum: 3
+          minimum: 0
+          type: integer
+      required:
+        - max_guests
+        - min_nights
+        - max_nights
+        - check_in_time
+        - check_out_time
+        - instant_book
+        - guest_verification_required
+        - payment_collection
+        - cancellation_policy
+      type: object
+    ShortletSettingsInputInput:
+      additionalProperties: false
+      properties:
+        add_ons:
+          items:
+            $ref: '#/components/schemas/AddOnInput'
+          maxItems: 20
+          type: array
+        cancellation_policy:
+          enum:
+            - FLEXIBLE
+            - MODERATE
+            - STRICT
+            - NON_REFUNDABLE
+          type: string
+        check_in_time:
+          pattern: ^(?:([01][0-9]|2[0-3]):[0-5][0-9])$
+          type: string
+        check_out_time:
+          pattern: ^(?:([01][0-9]|2[0-3]):[0-5][0-9])$
+          type: string
+        damage_claim_window_hours:
+          description: Default 48
+          maximum: 720
+          minimum: 0
+          type: integer
+        external_calendar_ref:
+          description: External calendar feed (needs a calendar-sync adapter)
+          maxLength: 500
+          type: string
+        guest_verification_required:
+          type: boolean
+        house_rules:
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        instant_book:
+          type: boolean
+        max_guests:
+          maximum: 100
+          minimum: 1
+          type: integer
+        max_nights:
+          maximum: 365
+          minimum: 1
+          type: integer
+        min_nights:
+          maximum: 365
+          minimum: 1
+          type: integer
+        payment_collection:
+          description: PLATFORM needs payment-service
+          enum:
+            - PLATFORM
+            - OFF_PLATFORM
+          type: string
+        turnover_buffer_days:
+          maximum: 3
+          minimum: 0
+          type: integer
+      required:
+        - max_guests
+        - min_nights
+        - max_nights
+        - check_in_time
+        - check_out_time
+        - payment_collection
+        - cancellation_policy
+      type: object
+    ShortletSettingsView:
+      properties:
+        listing_id:
+          format: uuid
+          type: string
+        settings:
+          $ref: '#/components/schemas/ShortletSettingsInput'
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - listing_id
+        - settings
+        - version
+        - updated_at
+      type: object
     SignatureView:
       properties:
         attested_by:
@@ -7519,6 +8118,129 @@ components:
         - version
         - created_at
         - updated_at
+      type: object
+    TurnoverInputInput:
+      additionalProperties: false
+      properties:
+        assignee_ref_id:
+          description: Manager assignment or artisan job reference
+          format: uuid
+          type: string
+        assignee_type:
+          enum:
+            - OWNER
+            - MANAGER
+            - ARTISAN
+          type: string
+        checklist:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        job_type:
+          enum:
+            - CLEANING
+            - INSPECTION
+            - RESTOCK
+            - MAINTENANCE_CHECK
+          type: string
+        notes:
+          maxLength: 2000
+          type: string
+        scheduled_for:
+          format: date-time
+          type: string
+      required:
+        - job_type
+        - scheduled_for
+        - assignee_type
+      type: object
+    TurnoverUpdateInput:
+      additionalProperties: false
+      properties:
+        checklist:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        evidence_media_ids:
+          description: Added to the job's evidence
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        notes:
+          maxLength: 2000
+          type: string
+        status:
+          enum:
+            - SCHEDULED
+            - IN_PROGRESS
+            - COMPLETED
+            - ISSUE_REPORTED
+            - CANCELLED
+          type: string
+      required:
+        - status
+      type: object
+    TurnoverView:
+      properties:
+        assignee_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        assignee_type:
+          type: string
+        booking_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        checklist:
+          items:
+            type: string
+          type: array
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        job_type:
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        notes:
+          type:
+            - string
+            - "null"
+        scheduled_for:
+          format: date-time
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - listing_id
+        - job_type
+        - status
+        - scheduled_for
+        - assignee_type
+        - checklist
+        - evidence_media_ids
+        - version
       type: object
     UnitInputInput:
       additionalProperties: false
@@ -10628,6 +11350,369 @@ paths:
       summary: Publish (or resume) a listing
       tags:
         - Listings
+  /api/v1/owner/listings/{listing_id}/shortlet/calendar:
+    get:
+      operationId: getShortletCalendar
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: First day (default today)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Last day, inclusive (default from + 90 days; at most 366 days)
+          in: query
+          name: to
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarDay'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Date inventory
+      tags:
+        - Short-let
+    put:
+      description: 'Held or booked days cannot be changed: the whole update is refused with 409 CALENDAR_CONFLICT.'
+      operationId: putShortletCalendar
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarDay'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Block or free days
+      tags:
+        - Short-let
+  /api/v1/owner/listings/{listing_id}/shortlet/rates:
+    get:
+      operationId: getShortletRates
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RateView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Active date rates
+      tags:
+        - Short-let
+    put:
+      description: Non-overlapping ranges override the nightly rate (and may raise the minimum stay). Existing bookings keep their price snapshot.
+      operationId: putShortletRates
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatesInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/RateView'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace the date rates
+      tags:
+        - Short-let
+  /api/v1/owner/listings/{listing_id}/shortlet/settings:
+    get:
+      operationId: getShortletSettings
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ShortletSettingsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Short-let settings
+      tags:
+        - Short-let
+    put:
+      description: Guests, stay limits, check-in/out times, instant book, guest verification, cancellation policy, add-ons, turnover buffer and damage-claim window. PLATFORM collection needs payment-service and an external calendar needs a calendar-sync provider (503 FEATURE_UNAVAILABLE otherwise).
+      operationId: putShortletSettings
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShortletSettingsInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ShortletSettingsView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Configure a short-let listing (If-Match; "0" to create)
+      tags:
+        - Short-let
+  /api/v1/owner/listings/{listing_id}/shortlet/turnover:
+    get:
+      operationId: listTurnoverJobs
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: booking_id
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/TurnoverView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Turnover jobs
+      tags:
+        - Short-let
   /api/v1/owner/listings/{listing_id}/versions:
     get:
       operationId: listListingVersions
@@ -15038,6 +16123,418 @@ paths:
       summary: Record an actual, billed, paid or adjustment item
       tags:
         - Utilities & Service Charges
+  /api/v1/owner/shortlet/bookings:
+    get:
+      operationId: listShortletBookings
+      parameters:
+        - in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            enum:
+              - HOLD
+              - PENDING_APPROVAL
+              - PENDING_PAYMENT
+              - CONFIRMED
+              - CHECKED_IN
+              - CHECKED_OUT
+              - COMPLETED
+              - CANCELLED
+              - NO_SHOW
+              - DISPUTED
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/BookingView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Bookings across my short-let listings
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/bookings/{booking_id}:
+    get:
+      operationId: getShortletBooking
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Booking with guests and price snapshot
+      tags:
+        - Short-let
+    patch:
+      description: Approval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; check-out schedules a cleaning turnover job.
+      operationId: actOnShortletBooking
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCommandInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Approve, decline, check in/out, no-show or cancel (If-Match)
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims:
+    get:
+      operationId: listDamageClaims
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/DamageClaimView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Damage claims of a booking
+      tags:
+        - Short-let
+    post:
+      description: Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.
+      operationId: raiseDamageClaim
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DamageClaimInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DamageClaimView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Raise a damage claim
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/bookings/{booking_id}/turnover:
+    post:
+      operationId: scheduleTurnover
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnoverInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TurnoverView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Schedule a turnover job
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/damage-claims/{claim_id}/action:
+    post:
+      description: Platform settlements are confirmed only by payment-service.
+      operationId: actOnDamageClaim
+      parameters:
+        - in: path
+          name: claim_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DamageClaimActionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DamageClaimView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Withdraw a claim or record an off-platform settlement
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/turnover/{job_id}:
+    patch:
+      description: Completion needs photo evidence.
+      operationId: updateTurnoverJob
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnoverUpdateInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TurnoverView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Progress a turnover job (If-Match)
+      tags:
+        - Short-let
   /api/v1/owner/statements:
     get:
       description: payment-service is the financial authority. 503 FEATURE_UNAVAILABLE while it is not configured.

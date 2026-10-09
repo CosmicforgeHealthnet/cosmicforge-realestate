@@ -184,6 +184,8 @@ type fakePayment struct {
 	requests map[string]payment.IntentRequest
 	releases map[string]*payment.Release
 	relReqs  map[string]payment.DepositReleaseRequest
+	refunds  map[string]*payment.Refund
+	refReqs  map[string]payment.RefundRequest
 	creates  int
 }
 
@@ -191,6 +193,7 @@ func (f *fakePayment) init() {
 	if f.intents == nil {
 		f.intents, f.byKey, f.requests = map[string]*payment.Intent{}, map[string]string{}, map[string]payment.IntentRequest{}
 		f.releases, f.relReqs = map[string]*payment.Release{}, map[string]payment.DepositReleaseRequest{}
+		f.refunds, f.refReqs = map[string]*payment.Refund{}, map[string]payment.RefundRequest{}
 	}
 }
 
@@ -260,6 +263,39 @@ func (f *fakePayment) GetRelease(_ context.Context, ref string) (payment.Release
 	defer f.mu.Unlock()
 	f.init()
 	return *f.releases[ref], nil
+}
+
+func (f *fakePayment) RequestRefund(_ context.Context, req payment.RefundRequest, key string) (payment.Refund, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	if r, ok := f.refunds[key]; ok {
+		return *r, nil
+	}
+	r := &payment.Refund{Ref: "rf_" + ids.New().String()[24:], Status: payment.RefundPending}
+	f.refunds[key], f.refunds[r.Ref], f.refReqs[r.Ref] = r, r, req
+	return *r, nil
+}
+
+func (f *fakePayment) GetRefund(_ context.Context, ref string) (payment.Refund, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.init()
+	return *f.refunds[ref], nil
+}
+
+// completeRefunds marks every pending refund as paid out.
+func (f *fakePayment) completeRefunds() []payment.RefundRequest {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var done []payment.RefundRequest
+	for ref, req := range f.refReqs {
+		if r := f.refunds[ref]; r.Status == payment.RefundPending {
+			r.Status, r.RefundedMinor = payment.RefundCompleted, req.AmountMinor
+			done = append(done, req)
+		}
+	}
+	return done
 }
 
 // completeReleases marks every pending release as executed.

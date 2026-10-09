@@ -1,0 +1,83 @@
+{
+  "$defs": {
+    "AvailabilityRange": {
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ShortletAvailabilityEvent": {
+      "properties": {
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "ranges": {
+          "items": {
+            "$ref": "#/$defs/AvailabilityRange"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "listing_id",
+        "property_id",
+        "source",
+        "ranges",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/shortlet.availability.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Short-let date inventory changed (owner blocks, booking holds/releases, external imports). Producer: individual-owner-service. Consumers: Marketplace. Aggregate: listing. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "listing"
+    },
+    "event_type": {
+      "const": "shortlet.availability.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/ShortletAvailabilityEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "shortlet.availability.updated.v1"
+}

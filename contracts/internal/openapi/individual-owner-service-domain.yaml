@@ -792,6 +792,132 @@ components:
         - allowed_next_statuses
         - version
       type: object
+    BookingView:
+      properties:
+        access_grant_ref:
+          format: uuid
+          type:
+            - string
+            - "null"
+        cancel_reason:
+          type:
+            - string
+            - "null"
+        cancelled_by:
+          type:
+            - string
+            - "null"
+        check_in:
+          type: string
+        check_out:
+          type: string
+        checked_in_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        checked_out_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        conversation_ref:
+          type:
+            - string
+            - "null"
+        cost:
+          description: Immutable price snapshot
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        customer_ref_id:
+          format: uuid
+          type: string
+        guest_list:
+          items:
+            $ref: '#/components/schemas/GuestView'
+          type: array
+        guests:
+          type: integer
+        hold_expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        listing_id:
+          format: uuid
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        payment_collection:
+          type: string
+        pricing_version_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        refund_due_minor:
+          type: integer
+        refund_status:
+          type:
+            - string
+            - "null"
+        refunded_minor:
+          type: integer
+        status:
+          type: string
+        total_minor:
+          type: integer
+        version:
+          type: integer
+      required:
+        - id
+        - listing_id
+        - property_id
+        - customer_ref_id
+        - status
+        - check_in
+        - check_out
+        - guests
+        - pricing_version_id
+        - cost
+        - total_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - refund_due_minor
+        - refunded_minor
+        - guest_list
+        - version
+        - created_at
+      type: object
+    CalendarDay:
+      properties:
+        day:
+          type: string
+        ref_id:
+          description: Booking holding the day (owner view only)
+          format: uuid
+          type:
+            - string
+            - "null"
+        source:
+          type: string
+        status:
+          description: AVAILABLE, BLOCKED, HOLD or BOOKED
+          type: string
+      required:
+        - day
+        - status
+        - source
+      type: object
     ChecklistSummary:
       properties:
         locked_at:
@@ -1287,6 +1413,67 @@ components:
         - listing_id
         - participants
       type: object
+    CustomerBookingActionInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - CANCEL
+            - UPDATE_VERIFICATION
+          type: string
+        guest_id:
+          format: uuid
+          type: string
+        verification_ref:
+          maxLength: 128
+          type: string
+        verification_status:
+          enum:
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - EXPIRED
+          type: string
+      required:
+        - action
+      type: object
+    CustomerBookingInputInput:
+      additionalProperties: false
+      properties:
+        check_in:
+          format: date
+          type: string
+        check_out:
+          format: date
+          type: string
+        conversation_ref:
+          description: CF Meet conversation (messages stay in CF Meet)
+          maxLength: 128
+          type: string
+        external_ref:
+          description: Marketplace idempotency reference
+          maxLength: 128
+          type: string
+        guest_list:
+          items:
+            $ref: '#/components/schemas/GuestInputInput'
+          maxItems: 100
+          minItems: 1
+          type: array
+        guests:
+          maximum: 100
+          minimum: 1
+          type: integer
+        listing_id:
+          format: uuid
+          type: string
+      required:
+        - listing_id
+        - check_in
+        - check_out
+        - guests
+        - guest_list
+      type: object
     CustomerChecklistInputInput:
       additionalProperties: false
       properties:
@@ -1301,6 +1488,26 @@ components:
             $ref: '#/components/schemas/ConditionItemInputInput'
           maxItems: 100
           type: array
+      required:
+        - decision
+      type: object
+    CustomerDamageResponseInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - DISPUTE
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          type: array
+        note:
+          maxLength: 2000
+          type: string
       required:
         - decision
       type: object
@@ -1600,6 +1807,96 @@ components:
           type: string
       required:
         - action
+      type: object
+    DamageClaimResolutionInput:
+      additionalProperties: false
+      properties:
+        awarded_minor:
+          description: Amount the guest owes (0 rejects the claim)
+          minimum: 0
+          type: integer
+        note:
+          maxLength: 1000
+          type: string
+      type: object
+    DamageClaimView:
+      properties:
+        awarded_minor:
+          type:
+            - integer
+            - "null"
+        booking_id:
+          format: uuid
+          type: string
+        claimed_minor:
+          type: integer
+        currency:
+          type: string
+        guest_evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        guest_response_note:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/DamageItem'
+          type: array
+        paid_minor:
+          type: integer
+        respond_by:
+          format: date-time
+          type: string
+        settled_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        settlement:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - booking_id
+        - status
+        - items
+        - claimed_minor
+        - currency
+        - respond_by
+        - guest_evidence_media_ids
+        - paid_minor
+        - version
+      type: object
+    DamageItem:
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        description:
+          maxLength: 500
+          type: string
+        media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - description
+        - amount_minor
+        - media_ids
       type: object
     DataRoomDocument:
       properties:
@@ -2050,6 +2347,59 @@ components:
         - mandatory
         - refundable
         - payable_to
+      type: object
+    GuestInputInput:
+      additionalProperties: false
+      properties:
+        customer_ref_id:
+          format: uuid
+          type: string
+        display_name:
+          maxLength: 120
+          type: string
+        primary:
+          type: boolean
+        verification_ref:
+          description: Customer-domain verification reference (never documents)
+          maxLength: 128
+          type: string
+        verification_status:
+          description: As attested by marketplace-service
+          enum:
+            - NOT_PROVIDED
+            - PENDING
+            - VERIFIED
+            - REJECTED
+            - EXPIRED
+          type: string
+      required:
+        - display_name
+      type: object
+    GuestView:
+      properties:
+        customer_ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        display_name:
+          type: string
+        id:
+          format: uuid
+          type: string
+        primary:
+          type: boolean
+        verification_ref:
+          type:
+            - string
+            - "null"
+        verification_status:
+          type: string
+      required:
+        - id
+        - display_name
+        - primary
+        - verification_status
       type: object
     InquiryView:
       properties:
@@ -4373,6 +4723,59 @@ paths:
       summary: Retire an agreement template version
       tags:
         - _Admin
+  /internal/v1/owner/admin/damage-claims/{claim_id}/resolution:
+    post:
+      description: The award (≤ claim) is then settled through payment-service or off-platform evidence.
+      operationId: adminResolveDamageClaim
+      parameters:
+        - in: path
+          name: claim_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DamageClaimResolutionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DamageClaimView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Decide a disputed damage claim
+      tags:
+        - _Admin
   /internal/v1/owner/admin/notice-templates:
     get:
       operationId: adminListNoticeTemplates
@@ -4925,6 +5328,183 @@ paths:
       summary: LOI as seen by the applicant
       tags:
         - _Internal
+  /internal/v1/owner/customer-shortlet-bookings:
+    get:
+      operationId: customerListBookings
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/BookingView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: The guest's bookings
+      tags:
+        - _Internal
+    post:
+      description: Holds the dates (409 DATES_UNAVAILABLE when taken). Instant-book listings go to payment (or confirmation when paid off-platform); otherwise the owner has 24 hours to approve.
+      operationId: customerRequestBooking
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerBookingInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Guest requests a stay
+      tags:
+        - _Internal
+  /internal/v1/owner/customer-shortlet-bookings/{booking_id}:
+    get:
+      operationId: customerGetBooking
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Booking as seen by the guest
+      tags:
+        - _Internal
+  /internal/v1/owner/customer-shortlet-bookings/{booking_id}/action:
+    post:
+      description: Cancellation refunds per the cancellation policy snapshot; verification status is the customer domain's attestation.
+      operationId: customerActOnBooking
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerBookingActionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BookingView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Guest cancels or updates guest verification
+      tags:
+        - _Internal
   /internal/v1/owner/customer-tenancies:
     get:
       operationId: customerListTenancies
@@ -4968,6 +5548,56 @@ paths:
       security:
         - ServiceBearer: []
       summary: The customer's tenancies
+      tags:
+        - _Internal
+  /internal/v1/owner/damage-claims/{claim_id}/customer-response:
+    post:
+      operationId: customerRespondDamageClaim
+      parameters:
+        - in: path
+          name: claim_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerDamageResponseInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DamageClaimView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Guest accepts or disputes a damage claim
       tags:
         - _Internal
   /internal/v1/owner/data-rooms/{data_room_id}:
@@ -5269,6 +5899,53 @@ paths:
       security:
         - ServiceBearer: []
       summary: Route a marketplace listing report to the owner domain
+      tags:
+        - _Internal
+  /internal/v1/owner/listings/{listing_id}/shortlet/customer-calendar:
+    get:
+      operationId: customerShortletCalendar
+      parameters:
+        - in: path
+          name: listing_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: First day (default today)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Last day, inclusive (default from + 90 days; at most 366 days)
+          in: query
+          name: to
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarDay'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Public date inventory of a short-let listing (marketplace)
       tags:
         - _Internal
   /internal/v1/owner/managed/listings/{listing_id}:

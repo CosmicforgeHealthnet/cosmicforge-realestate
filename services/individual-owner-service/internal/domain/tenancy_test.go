@@ -107,3 +107,34 @@ func TestRentFreeMonths(t *testing.T) {
 		t.Fatal("rent-free must be whole cycles")
 	}
 }
+
+func TestShortletRefundsAndOverrides(t *testing.T) {
+	in := date("2027-03-20")
+	cases := []struct {
+		policy string
+		owner  bool
+		at     string
+		want   int64
+	}{
+		{"FLEXIBLE", false, "2027-03-19", 10000}, {"FLEXIBLE", false, "2027-03-20", 5000},
+		{"MODERATE", false, "2027-03-15", 10000}, {"MODERATE", false, "2027-03-18", 5000}, {"MODERATE", false, "2027-03-20", 0},
+		{"STRICT", false, "2027-03-06", 10000}, {"STRICT", false, "2027-03-12", 5000}, {"STRICT", false, "2027-03-15", 0},
+		{"NON_REFUNDABLE", false, "2027-01-01", 0}, {"NON_REFUNDABLE", true, "2027-03-20", 10000},
+	}
+	for _, c := range cases {
+		if got := RefundBps(c.policy, c.owner, date(c.at), in); got != c.want {
+			t.Errorf("%s owner=%v at %s: %d want %d", c.policy, c.owner, c.at, got, c.want)
+		}
+	}
+	m := PriceModel{TransactionType: "SHORT_LET", Currency: "NGN", Base: 1000, BasePeriod: "NIGHT", Cycle: "PER_STAY",
+		Rules:            []Rule{{Type: "WEEKEND", Params: RuleParams{Days: []string{"FRI", "SAT"}, RateBps: 5000}}},
+		NightlyOverrides: map[string]int64{"2027-03-20": 3000}}
+	c, err := Calculate(m, Scenario{CheckIn: date("2027-03-18"), CheckOut: date("2027-03-21")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Thu 1000 + Fri 1500 (weekend) + Sat override 3000.
+	if c.TermTotal != 5500 || len(Nights(date("2027-03-18"), date("2027-03-21"))) != 3 {
+		t.Fatalf("stay total %d", c.TermTotal)
+	}
+}

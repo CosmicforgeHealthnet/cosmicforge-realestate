@@ -363,6 +363,28 @@ type ConditionItem struct {
 	RecordedAt      time.Time
 }
 
+type DamageClaim struct {
+	ID                    ids.ID
+	BookingID             ids.ID
+	PropertyID            ids.ID
+	Status                string
+	Items                 []byte
+	ClaimedMinor          int64
+	Currency              string
+	RespondBy             time.Time
+	GuestResponseNote     *string
+	GuestEvidenceMediaIds []ids.ID
+	AwardedMinor          *int64
+	Settlement            *string
+	PaymentIntentRef      *string
+	PaidMinor             int64
+	LastPaymentStatus     *string
+	SettledAt             *time.Time
+	Version               int64
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type DashboardPreference struct {
 	AccountID         ids.ID
 	Widgets           []string
@@ -1445,6 +1467,88 @@ type ServiceChargeItem struct {
 	CreatedAt        time.Time
 }
 
+type ShortletBooking struct {
+	ID                 ids.ID
+	ListingID          ids.ID
+	PropertyID         ids.ID
+	CustomerRefID      ids.ID
+	Status             string
+	CheckIn            time.Time
+	CheckOut           time.Time
+	Guests             int32
+	PricingVersionID   ids.ID
+	CostSnapshot       []byte
+	TotalMinor         int64
+	Currency           string
+	PaymentCollection  string
+	CancellationPolicy string
+	HoldExpiresAt      *time.Time
+	PaymentIntentRef   *string
+	PaidMinor          int64
+	LastPaymentStatus  *string
+	CancelledBy        *string
+	CancelReason       *string
+	RefundDueMinor     int64
+	RefundRequestRef   *string
+	RefundStatus       *string
+	RefundedMinor      int64
+	AccessGrantRef     *ids.ID
+	ConversationRef    *string
+	ExternalRef        *string
+	CheckedInAt        *time.Time
+	CheckedOutAt       *time.Time
+	LastCheckedAt      *time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type ShortletGuest struct {
+	ID                 ids.ID
+	BookingID          ids.ID
+	IsPrimary          bool
+	CustomerRefID      *ids.ID
+	DisplayName        string
+	VerificationRef    *string
+	VerificationStatus string
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type ShortletRate struct {
+	ID               ids.ID
+	ListingID        ids.ID
+	StartDate        time.Time
+	EndDate          time.Time
+	NightlyRateMinor int64
+	MinNights        *int32
+	Label            *string
+	SupersededAt     *time.Time
+	CreatedAt        time.Time
+}
+
+type ShortletSetting struct {
+	ListingID                 ids.ID
+	PropertyID                ids.ID
+	MaxGuests                 int32
+	MinNights                 int32
+	MaxNights                 int32
+	CheckInTime               string
+	CheckOutTime              string
+	InstantBook               bool
+	GuestVerificationRequired bool
+	PaymentCollection         string
+	CancellationPolicy        string
+	HouseRules                []string
+	AddOns                    []byte
+	TurnoverBufferDays        int32
+	DamageClaimWindowHours    int32
+	ExternalCalendarRef       *string
+	Version                   int64
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
+}
+
 type SignatureRequest struct {
 	ID                 ids.ID
 	AgreementID        ids.ID
@@ -1509,6 +1613,25 @@ type Tenancy struct {
 	CreatedAt                time.Time
 	UpdatedAt                time.Time
 	RentFreeMonths           int32
+}
+
+type TurnoverJob struct {
+	ID               ids.ID
+	ListingID        ids.ID
+	PropertyID       ids.ID
+	BookingID        *ids.ID
+	JobType          string
+	Status           string
+	ScheduledFor     time.Time
+	AssigneeType     string
+	AssigneeRefID    *ids.ID
+	Checklist        []byte
+	Notes            *string
+	EvidenceMediaIds []ids.ID
+	CompletedAt      *time.Time
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type UtilityAccount struct {

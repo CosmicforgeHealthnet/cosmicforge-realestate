@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "ShortletBookingEvent": {
+      "properties": {
+        "booking_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "booking_version": {
+          "type": "integer"
+        },
+        "check_in": {
+          "type": "string"
+        },
+        "check_out": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "customer_ref_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "guests": {
+          "type": "integer"
+        },
+        "hold_expires_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "listing_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "previous_status": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        },
+        "total_minor": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "booking_id",
+        "listing_id",
+        "property_id",
+        "customer_ref_id",
+        "status",
+        "previous_status",
+        "check_in",
+        "check_out",
+        "guests",
+        "total_minor",
+        "currency",
+        "booking_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/shortlet.booking.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Short-let booking state (dates, guests, total; never payment details). Producer: individual-owner-service. Consumers: Marketplace, Notification, Payment. Aggregate: shortlet_booking. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "shortlet_booking"
+    },
+    "event_type": {
+      "const": "shortlet.booking.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/ShortletBookingEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "shortlet.booking.updated.v1"
+}

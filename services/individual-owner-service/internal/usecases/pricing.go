@@ -301,6 +301,11 @@ func (s *Service) costPreview(ctx context.Context, l db.Listing, in CostPreviewI
 	if in.CheckOut != nil {
 		sc.CheckOut = *in.CheckOut
 	}
+	if l.TransactionType == "SHORT_LET" && in.CheckIn != nil && in.CheckOut != nil {
+		if err := s.applyShortletRates(ctx, l.ID, m, *in.CheckIn, *in.CheckOut); err != nil {
+			return CostPreviewView{}, err
+		}
+	}
 	c, err := domain.Calculate(*m, sc)
 	return CostPreviewView{ListingID: l.ID, PricingVersionID: pv.PricingVersionID, Cost: c}, err
 }
