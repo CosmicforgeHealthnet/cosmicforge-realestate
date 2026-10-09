@@ -67,6 +67,27 @@ func (s *Service) scopeProperty(ctx context.Context, scope string, id ids.ID) (i
 	return pid, err
 }
 
+// CheckOwnEvidence verifies files uploaded by the signed-in owner (no
+// property scope, e.g. account-level disputes).
+func (s *Service) CheckOwnEvidence(ctx context.Context, subj authz.Subject, mediaIDs []ids.ID, classes ...string) (Evidence, error) {
+	ev := Evidence{checked: map[ids.ID]media.Media{}}
+	mediaIDs = uniqueIDs(mediaIDs)
+	if len(mediaIDs) == 0 {
+		return ev, nil
+	}
+	if _, err := s.authorize(ctx, subj, authz.ActAccountDispute, ids.Nil); err != nil {
+		return ev, err
+	}
+	for _, m := range mediaIDs {
+		md, err := s.ownedMedia(ctx, m, []ids.ID{accountOf(subj)}, classes...)
+		if err != nil {
+			return ev, err
+		}
+		ev.checked[m] = md
+	}
+	return ev, nil
+}
+
 // CheckMediaEvidence verifies owner-side evidence for an action on the scope's
 // property. Called outside transactions (CommandPre).
 func (s *Service) CheckMediaEvidence(ctx context.Context, subj authz.Subject, scope string, id ids.ID, action authz.Action, mediaIDs []ids.ID, classes ...string) (Evidence, error) {

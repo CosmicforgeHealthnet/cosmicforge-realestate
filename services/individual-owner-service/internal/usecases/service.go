@@ -116,6 +116,8 @@ type DomainPolicy struct {
 	DefaultCurrency     string        // currency of owner-originated amounts without one (budgets, preventive tasks)
 	MaxReworkRounds     int32         // completion rework requests before the job must be disputed
 	MaintenanceQuoteTTL time.Duration // default validity of owner-recorded quotes
+	// Privacy retention (§11 privacy retention worker).
+	GuestDataRetention time.Duration // short-let guest details are anonymized this long after the stay ends
 }
 
 // Identity-gated actions.
@@ -139,7 +141,7 @@ func DefaultDomainPolicy() DomainPolicy {
 			"PARKING", "PET", "AGREEMENT", "LATE_CHECKOUT", "EXTRA_GUEST"},
 		DeclineReasons: []string{"INCOME_BELOW_POLICY", "INCOMPLETE_APPLICATION", "REFERENCES_UNSATISFACTORY", "OCCUPANCY_LIMIT",
 			"MOVE_IN_DATE_MISMATCH", "PROPERTY_NO_LONGER_AVAILABLE", "OTHER_LAWFUL_REASON"},
-		DefaultCurrency: "NGN", MaxReworkRounds: 3, MaintenanceQuoteTTL: 30 * 24 * time.Hour,
+		DefaultCurrency: "NGN", MaxReworkRounds: 3, MaintenanceQuoteTTL: 30 * 24 * time.Hour, GuestDataRetention: 2 * 365 * 24 * time.Hour,
 		ApplicationTTL: 14 * 24 * time.Hour, EvidenceGrantTTL: 30 * 24 * time.Hour, OfferTTL: 7 * 24 * time.Hour,
 		RentIntentLead: 7 * 24 * time.Hour, RentScheduleHorizon: 90 * 24 * time.Hour, MaxLateFeeBps: 1000, DepositReleaseDays: 30,
 		DepositResponseWindow: 14 * 24 * time.Hour, RenewalResponseTTL: 14 * 24 * time.Hour, RenewalReminderLead: 60 * 24 * time.Hour,

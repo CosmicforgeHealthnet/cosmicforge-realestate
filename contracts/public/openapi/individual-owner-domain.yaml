@@ -1491,6 +1491,41 @@ components:
         - safety_flag
         - occurred_at
       type: object
+    AuditActivityView:
+      properties:
+        action:
+          type: string
+        actor_domain:
+          type:
+            - string
+            - "null"
+        actor_type:
+          type: string
+        by_me:
+          type: boolean
+        id:
+          format: uuid
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+        result:
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          type: string
+      required:
+        - id
+        - occurred_at
+        - action
+        - actor_type
+        - by_me
+        - target_type
+        - target_id
+        - result
+      type: object
     AvailabilityInputInput:
       additionalProperties: false
       properties:
@@ -1826,6 +1861,31 @@ components:
         - day
         - status
         - source
+      type: object
+    CalendarEntry:
+      properties:
+        date:
+          type: string
+        kind:
+          description: VIEWING, RENT_DUE, TENANCY_END, CHECK_IN, CHECK_OUT, PREVENTIVE_TASK, AVAILABILITY_CONFIRMATION
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        ref_id:
+          format: uuid
+          type: string
+        ref_type:
+          type: string
+        title:
+          type: string
+      required:
+        - date
+        - kind
+        - title
+        - property_id
+        - ref_type
+        - ref_id
       type: object
     CalendarInputInput:
       additionalProperties: false
@@ -2986,6 +3046,94 @@ components:
         - amount_minor
         - media_ids
       type: object
+    DashboardPrefs:
+      properties:
+        default_property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        widgets:
+          items:
+            enum:
+              - PORTFOLIO
+              - ACTION_ITEMS
+              - CALENDAR
+              - RENT
+              - SHORTLET
+              - MAINTENANCE
+              - LEADS
+              - INSIGHTS
+            type: string
+          maxItems: 20
+          type: array
+      required:
+        - widgets
+      type: object
+    DashboardPrefsInput:
+      additionalProperties: false
+      properties:
+        default_property_id:
+          format: uuid
+          type: string
+        widgets:
+          items:
+            enum:
+              - PORTFOLIO
+              - ACTION_ITEMS
+              - CALENDAR
+              - RENT
+              - SHORTLET
+              - MAINTENANCE
+              - LEADS
+              - INSIGHTS
+            type: string
+          maxItems: 20
+          type: array
+      type: object
+    DashboardView:
+      properties:
+        action_items:
+          additionalProperties:
+            type: integer
+          description: Counts of items awaiting the owner
+          type: object
+        active_tenancies:
+          type: integer
+        arrears:
+          additionalProperties:
+            type: integer
+          type: object
+        listings_by_status:
+          additionalProperties:
+            type: integer
+          type: object
+        occupancy_bps:
+          type: integer
+        preferences:
+          $ref: '#/components/schemas/DashboardPrefs'
+        properties:
+          type: integer
+        rent_collected_30d:
+          additionalProperties:
+            type: integer
+          type: object
+        upcoming:
+          description: Next 14 days
+          items:
+            $ref: '#/components/schemas/CalendarEntry'
+          type: array
+      required:
+        - properties
+        - listings_by_status
+        - active_tenancies
+        - occupancy_bps
+        - action_items
+        - rent_collected_30d
+        - arrears
+        - upcoming
+        - preferences
+      type: object
     DataRoomDocument:
       properties:
         category:
@@ -3476,6 +3624,172 @@ components:
         - status
         - blocking
         - evidence_media_ids
+        - version
+        - created_at
+      type: object
+    DisputeEvidenceView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        note:
+          type:
+            - string
+            - "null"
+        submitted_by:
+          type: string
+      required:
+        - submitted_by
+        - created_at
+      type: object
+    DisputeInputInput:
+      additionalProperties: false
+      properties:
+        category:
+          enum:
+            - UNAUTHORIZED_MANAGER
+            - FORGED_DOCUMENT
+            - FALSE_OWNERSHIP
+            - DUPLICATE_PROPERTY
+            - PAYMENT_DIVERSION
+            - ABUSE
+            - PRIVACY
+            - SERVICE_QUALITY
+            - BILLING
+            - SAFETY
+            - OTHER
+          type: string
+        desired_outcome:
+          maxLength: 1000
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        summary:
+          maxLength: 4000
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          enum:
+            - property
+            - ownership_record
+            - listing
+            - manager_assignment
+            - tenancy
+            - rent_obligation
+            - deposit_obligation
+            - agreement
+            - sale_transaction
+            - shortlet_booking
+            - damage_claim
+            - maintenance_request
+            - professional_appointment
+            - payout_account
+            - account
+          type: string
+      required:
+        - target_type
+        - target_id
+        - category
+        - summary
+      type: object
+    DisputeUpdateInputInput:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+            - ADD_INFORMATION
+            - WITHDRAW
+          type: string
+        evidence_media_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 20
+          type: array
+        note:
+          maxLength: 2000
+          type: string
+      required:
+        - action
+      type: object
+    DisputeView:
+      properties:
+        admin_case_ref:
+          type:
+            - string
+            - "null"
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        desired_outcome:
+          type:
+            - string
+            - "null"
+        evidence:
+          items:
+            $ref: '#/components/schemas/DisputeEvidenceView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        information_request:
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        resolution_code:
+          type:
+            - string
+            - "null"
+        resolution_note:
+          type:
+            - string
+            - "null"
+        resolved_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        summary:
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          type: string
+        urgent:
+          description: Fraud/safety categories are prioritized for review
+          type: boolean
+        version:
+          type: integer
+      required:
+        - id
+        - target_type
+        - target_id
+        - category
+        - status
+        - summary
+        - urgent
+        - evidence
         - version
         - created_at
       type: object
@@ -4137,6 +4451,40 @@ components:
         - version
         - created_at
         - updated_at
+      type: object
+    InsightView:
+      properties:
+        advisory:
+          description: 'Always true: insights inform, the owner decides'
+          type: boolean
+        confidence:
+          type: number
+        expires_at:
+          format: date-time
+          type: string
+        generated_at:
+          format: date-time
+          type: string
+        inputs:
+          description: Criteria and sample size (other owners' listings are never identified)
+        insight_type:
+          type: string
+        model_name:
+          type: string
+        model_version:
+          type: string
+        result:
+          description: Embedded JSON document
+      required:
+        - insight_type
+        - model_name
+        - model_version
+        - inputs
+        - result
+        - confidence
+        - advisory
+        - generated_at
+        - expires_at
       type: object
     InvitationView:
       properties:
@@ -6347,6 +6695,65 @@ components:
         - amount_minor
         - evidence_media_ids
       type: object
+    OwnerReportView:
+      properties:
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        download_expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        download_url:
+          description: Short-lived; on GET of a ready report
+          type:
+            - string
+            - "null"
+        failure_reason:
+          type:
+            - string
+            - "null"
+        from:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        media_id:
+          description: PDF in media-document-service
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        report_type:
+          type: string
+        status:
+          type: string
+        summary:
+          description: Key figures captured when generated
+        to:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - report_type
+        - status
+        - summary
+        - created_at
+      type: object
     OwnershipSummary:
       properties:
         claim_type:
@@ -6754,6 +7161,98 @@ components:
         - emergency_rule
         - created_at
       type: object
+    PortfolioReport:
+      properties:
+        active_tenancies:
+          type: integer
+        arrears:
+          additionalProperties:
+            type: integer
+          type: object
+        deposits_held:
+          additionalProperties:
+            type: integer
+          type: object
+        from:
+          type: string
+        listings_by_status:
+          additionalProperties:
+            type: integer
+          type: object
+        maintenance_spend:
+          additionalProperties:
+            type: integer
+          type: object
+        net_income:
+          additionalProperties:
+            type: integer
+          description: Rent collected + short-let revenue − maintenance − professional fees
+          type: object
+        occupancy_bps:
+          type: integer
+        occupied_units:
+          type: integer
+        open_disputes:
+          type: integer
+        open_maintenance:
+          type: integer
+        overdue_obligations:
+          type: integer
+        professional_fees:
+          additionalProperties:
+            type: integer
+          type: object
+        properties:
+          type: integer
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        rent_collected:
+          additionalProperties:
+            type: integer
+          type: object
+        rent_due:
+          additionalProperties:
+            type: integer
+          type: object
+        rentable_units:
+          description: Lettable units, or the property itself when it has none
+          type: integer
+        shortlet:
+          $ref: '#/components/schemas/ShortletFigures'
+        sources:
+          type: string
+        to:
+          type: string
+        yield_bps:
+          description: 'Not computed: property valuations are not recorded in the owner domain'
+          type:
+            - integer
+            - "null"
+      required:
+        - from
+        - to
+        - properties
+        - rentable_units
+        - occupied_units
+        - occupancy_bps
+        - active_tenancies
+        - listings_by_status
+        - rent_due
+        - rent_collected
+        - arrears
+        - overdue_obligations
+        - deposits_held
+        - shortlet
+        - maintenance_spend
+        - professional_fees
+        - net_income
+        - open_maintenance
+        - open_disputes
+        - sources
+      type: object
     PreventiveInputInput:
       additionalProperties: false
       properties:
@@ -6987,6 +7486,133 @@ components:
         - active
         - accepted
         - policy_version
+        - created_at
+      type: object
+    PrivacyConsentInputInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - GRANTED
+            - WITHDRAWN
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        policy_version:
+          description: Version of the privacy notice shown
+          maxLength: 40
+          type: string
+        purpose:
+          enum:
+            - MARKETING_EMAIL
+            - MARKETING_SMS
+            - MARKETING_PUSH
+            - PRODUCT_ANALYTICS
+            - AI_INSIGHTS
+            - PARTNER_FINANCING
+            - PARTNER_INSURANCE
+            - PUBLIC_OWNER_PROFILE
+          type: string
+      required:
+        - purpose
+        - decision
+        - policy_version
+      type: object
+    PrivacyConsentView:
+      properties:
+        decided_at:
+          format: date-time
+          type: string
+        decision:
+          description: EXPIRED when a granted consent passed its expiry
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        policy_version:
+          type: string
+        purpose:
+          type: string
+      required:
+        - purpose
+        - decision
+        - policy_version
+        - decided_at
+      type: object
+    PrivacyRequestInputInput:
+      additionalProperties: false
+      properties:
+        details:
+          maxLength: 4000
+          type: string
+        request_type:
+          enum:
+            - ACCESS
+            - EXPORT
+            - CORRECTION
+            - DELETION
+            - OBJECTION
+            - RESTRICTION
+          type: string
+      required:
+        - request_type
+      type: object
+    PrivacyRequestView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decision_reason:
+          type:
+            - string
+            - "null"
+        details:
+          type:
+            - string
+            - "null"
+        due_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        report_id:
+          description: Export document (ACCESS/EXPORT)
+          format: uuid
+          type:
+            - string
+            - "null"
+        request_type:
+          type: string
+        retained_categories:
+          description: Records kept under legal/business holds
+          items:
+            type: string
+          type: array
+        status:
+          type: string
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - request_type
+        - status
+        - due_at
+        - retained_categories
+        - version
         - created_at
       type: object
     Problem:
@@ -7842,6 +8468,31 @@ components:
         - refunded_minor
         - version
       type: object
+    ReportExportInputInput:
+      additionalProperties: false
+      properties:
+        from:
+          format: date
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        report_type:
+          enum:
+            - PORTFOLIO
+            - FINANCIAL
+            - OCCUPANCY
+            - SHORTLET
+            - MAINTENANCE
+          type: string
+        to:
+          format: date
+          type: string
+      required:
+        - report_type
+        - from
+        - to
+      type: object
     RepresentativeInputInput:
       additionalProperties: false
       properties:
@@ -8428,6 +9079,31 @@ components:
           type: integer
       required:
         - party
+      type: object
+    ShortletFigures:
+      properties:
+        adr:
+          additionalProperties:
+            type: integer
+          description: Average daily rate
+          type: object
+        available_nights:
+          type: integer
+        nights_booked:
+          type: integer
+        occupancy_bps:
+          type: integer
+        revenue:
+          additionalProperties:
+            type: integer
+          description: Collected less refunds, by check-in date
+          type: object
+      required:
+        - nights_booked
+        - available_nights
+        - occupancy_bps
+        - revenue
+        - adr
       type: object
     ShortletSettingsInput:
       properties:
@@ -10840,6 +11516,107 @@ paths:
       summary: Record screening assessments
       tags:
         - Applications
+  /api/v1/owner/audit/activity:
+    get:
+      description: My actions, actions on my account (including privileged operator reads) and on my properties.
+      operationId: getAuditActivity
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AuditActivityView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: My audit trail
+      tags:
+        - Reports & Insights
+  /api/v1/owner/calendar:
+    get:
+      operationId: getPortfolioCalendar
+      parameters:
+        - description: First day (default today)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Last day, inclusive (default from + 90 days; at most 366 days)
+          in: query
+          name: to
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CalendarEntry'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Viewings, rent dates, tenancy ends, stays, preventive tasks and confirmations
+      tags:
+        - Reports & Insights
   /api/v1/owner/campaigns:
     get:
       description: 'Promotion references marketplace commercial capability (and payment-service for paid promotion), which have no implemented contract: 503 FEATURE_UNAVAILABLE.'
@@ -11265,6 +12042,264 @@ paths:
       summary: Approve or reject a consent request (immutable)
       tags:
         - Account & Profile
+  /api/v1/owner/dashboard:
+    get:
+      description: Portfolio counts, items awaiting the owner, rent highlights and the next 14 days.
+      operationId: getDashboard
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Owner dashboard
+      tags:
+        - Reports & Insights
+  /api/v1/owner/dashboard/preferences:
+    put:
+      operationId: putDashboardPreferences
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardPrefsInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardPrefs'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Set dashboard widgets and default property
+      tags:
+        - Reports & Insights
+  /api/v1/owner/disputes:
+    get:
+      operationId: listDisputes
+      parameters:
+        - in: query
+          name: status
+          schema:
+            enum:
+              - OPEN
+              - UNDER_REVIEW
+              - AWAITING_INFORMATION
+              - RESOLVED
+              - REJECTED
+              - WITHDRAWN
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/DisputeView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: My disputes
+      tags:
+        - Disputes & Privacy
+    post:
+      description: About a record I can act on (or my account/payout accounts). Fraud and safety categories are prioritized for operators.
+      operationId: raiseDispute
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisputeInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisputeView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Raise a dispute
+      tags:
+        - Disputes & Privacy
+  /api/v1/owner/disputes/{dispute_id}:
+    get:
+      operationId: getDispute
+      parameters:
+        - in: path
+          name: dispute_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisputeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Dispute with evidence
+      tags:
+        - Disputes & Privacy
+  /api/v1/owner/disputes/{dispute_id}/updates:
+    post:
+      operationId: updateDispute
+      parameters:
+        - in: path
+          name: dispute_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisputeUpdateInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisputeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add information or withdraw
+      tags:
+        - Disputes & Privacy
   /api/v1/owner/inquiries:
     get:
       operationId: listInquiries
@@ -13971,6 +15006,59 @@ paths:
       summary: Search managers (property-manager-service)
       tags:
         - Delegation
+  /api/v1/owner/market-insights:
+    get:
+      description: Comparable-listing statistics with model, version, inputs and confidence; advisory only, refreshed daily. Fewer than 3 comparables answers INSUFFICIENT_DATA.
+      operationId: getMarketInsights
+      parameters:
+        - description: Required
+          in: query
+          name: listing_id
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/InsightView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Advisory price and trend insights for a listing
+      tags:
+        - Reports & Insights
   /api/v1/owner/notice-templates:
     get:
       operationId: listNoticeTemplates
@@ -14787,6 +15875,262 @@ paths:
       summary: Edit, pause or retire a schedule (If-Match)
       tags:
         - Maintenance
+  /api/v1/owner/privacy/consents:
+    get:
+      operationId: listPrivacyConsents
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PrivacyConsentView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Current privacy consents
+      tags:
+        - Disputes & Privacy
+    post:
+      operationId: recordPrivacyConsent
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyConsentInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrivacyConsentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Grant or withdraw a consent
+      tags:
+        - Disputes & Privacy
+  /api/v1/owner/privacy/requests:
+    get:
+      operationId: listPrivacyRequests
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PrivacyRequestView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: My privacy requests
+      tags:
+        - Disputes & Privacy
+    post:
+      description: A recent step-up verifies the requester; otherwise verify with POST …/verify after stepping up. Access/export requests are fulfilled with a PDF export.
+      operationId: submitPrivacyRequest
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyRequestInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrivacyRequestView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Access, export, correct, delete, object or restrict
+      tags:
+        - Disputes & Privacy
+  /api/v1/owner/privacy/requests/{request_id}:
+    get:
+      operationId: getPrivacyRequest
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrivacyRequestView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: A privacy request
+      tags:
+        - Disputes & Privacy
+  /api/v1/owner/privacy/requests/{request_id}/verify:
+    post:
+      operationId: verifyPrivacyRequest
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrivacyRequestView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Verify the requester (step-up)
+      tags:
+        - Disputes & Privacy
   /api/v1/owner/professional-appointments:
     get:
       operationId: listProfessionalAppointments
@@ -17912,6 +19256,177 @@ paths:
       summary: Waive, dispute or reinstate an obligation
       tags:
         - Tenancy
+  /api/v1/owner/reports:
+    get:
+      operationId: listReports
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/OwnerReportView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Generated reports
+      tags:
+        - Reports & Insights
+  /api/v1/owner/reports/{report_id}:
+    get:
+      operationId: getReport
+      parameters:
+        - in: path
+          name: report_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnerReportView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Report status with a short-lived download link
+      tags:
+        - Reports & Insights
+  /api/v1/owner/reports/export:
+    post:
+      description: Generated asynchronously and stored in media-document-service (503 when it is not configured).
+      operationId: exportReport
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportExportInputInput'
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnerReportView'
+                required:
+                  - data
+                type: object
+          description: Accepted
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Generate a PDF report
+      tags:
+        - Reports & Insights
+  /api/v1/owner/reports/portfolio:
+    get:
+      description: Occupancy, rent due/collected/arrears, deposits held, short-let ADR/occupancy, maintenance and professional spend, net income. Money is payment-service projection per currency.
+      operationId: getPortfolioReport
+      parameters:
+        - in: query
+          name: property_id
+          schema:
+            type: string
+        - description: 'Default: 90 days before to'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: 'Default: today'
+          in: query
+          name: to
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PortfolioReport'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Portfolio performance for a period
+      tags:
+        - Reports & Insights
   /api/v1/owner/service-charge-budgets/{budget_id}:
     get:
       operationId: getServiceChargeBudget

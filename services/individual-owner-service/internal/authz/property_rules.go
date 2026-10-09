@@ -91,6 +91,9 @@ const (
 	ActFinancingConsent   Action = "owner.financing.consent"
 	ActManagerSearch      Action = "owner.manager.search"
 	ActMarketInsightsRead Action = "owner.market_insights.read"
+	ActPrivacyVerify      Action = "owner.privacy.verify"  // step-up confirms the requester
+	ActAccountDispute     Action = "owner.dispute.account" // disputes about the account itself or its payout accounts
+	ActReportsRead        Action = "owner.reports.read"    // portfolio-wide reports, dashboard, calendar, own audit trail
 )
 
 // Internal (service principal) actions.
@@ -172,6 +175,9 @@ func PropertyRules() []Rule {
 		Rule{Action: ActFinancingConsent, SelfService: true, AccountStatuses: activeOnly},
 		Rule{Action: ActManagerSearch, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActMarketInsightsRead, SelfService: true, AccountStatuses: signedIn},
+		Rule{Action: ActPrivacyVerify, SelfService: true, AccountStatuses: signedIn, StepUp: true},
+		Rule{Action: ActAccountDispute, SelfService: true, AccountStatuses: signedIn},
+		Rule{Action: ActReportsRead, SelfService: true, AccountStatuses: signedIn},
 		// Internal contracts (§9): capability-scoped per calling service.
 		Rule{Action: ActInternalListingRead, Services: []ServiceGrant{{Service: platform.MarketplaceService}, {Service: platform.AdminService}}},
 		Rule{Action: ActInternalListingReport, Services: []ServiceGrant{{Service: platform.MarketplaceService}}},

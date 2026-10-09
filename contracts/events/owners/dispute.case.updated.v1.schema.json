@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "DisputeEvent": {
+      "properties": {
+        "account_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "dispute_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "dispute_version": {
+          "type": "integer"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        },
+        "target_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "target_type": {
+          "type": "string"
+        },
+        "urgent": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "dispute_id",
+        "account_id",
+        "target_type",
+        "target_id",
+        "category",
+        "status",
+        "urgent",
+        "dispute_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/dispute.case.updated.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "Owner dispute case opened/updated/resolved (engineering addition for admin operations). Producer: individual-owner-service. Consumers: Admin. Aggregate: domain_dispute. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "domain_dispute"
+    },
+    "event_type": {
+      "const": "dispute.case.updated.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/DisputeEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "dispute.case.updated.v1"
+}

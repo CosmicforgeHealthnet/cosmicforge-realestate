@@ -15,7 +15,7 @@ func DomainRoutes() []Route {
 	for _, group := range [][]Route{accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), delegationRoutes(), listingRoutes(),
 		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(), agreementRoutes(), tenancyRoutes(), utilityRoutes(), tenancyInternalRoutes(),
 		commercialRoutes(), saleRoutes(), commercialSaleInternalRoutes(), shortletRoutes(), shortletInternalRoutes(),
-		maintenanceRoutes(), professionalRoutes(), providerInternalRoutes(),
+		maintenanceRoutes(), professionalRoutes(), providerInternalRoutes(), oversightRoutes(), oversightAdminRoutes(),
 		propertyInternalRoutes(), listingInternalRoutes()} {
 		rs = append(rs, group...)
 	}

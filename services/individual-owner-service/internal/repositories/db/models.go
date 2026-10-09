@@ -363,6 +363,18 @@ type ConditionItem struct {
 	RecordedAt      time.Time
 }
 
+type Consent struct {
+	ID            ids.ID
+	AccountID     ids.ID
+	Purpose       string
+	Decision      string
+	PolicyVersion string
+	ExpiresAt     *time.Time
+	Source        string
+	ActorID       *ids.ID
+	CreatedAt     time.Time
+}
+
 type DamageClaim struct {
 	ID                    ids.ID
 	BookingID             ids.ID
@@ -433,6 +445,23 @@ type DataRoomGrant struct {
 	CreatedAt      time.Time
 }
 
+type DataSubjectRequest struct {
+	ID                 ids.ID
+	AccountID          ids.ID
+	RequestType        string
+	Status             string
+	Details            *string
+	VerifiedAt         *time.Time
+	DueAt              time.Time
+	ReportID           *ids.ID
+	DecisionReason     *string
+	RetainedCategories []string
+	DecidedAt          *time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 type DepositObligation struct {
 	ID                   ids.ID
 	TenancyID            ids.ID
@@ -459,6 +488,36 @@ type DepositObligation struct {
 	Version              int64
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+}
+
+type DisputeEvidence struct {
+	ID          ids.ID
+	DisputeID   ids.ID
+	MediaID     *ids.ID
+	Note        *string
+	SubmittedBy string
+	CreatedAt   time.Time
+}
+
+type DomainDispute struct {
+	ID                 ids.ID
+	AccountID          ids.ID
+	PropertyID         *ids.ID
+	TargetType         string
+	TargetID           ids.ID
+	Category           string
+	Status             string
+	Summary            string
+	DesiredOutcome     *string
+	Urgent             bool
+	AdminCaseRef       *string
+	InformationRequest *string
+	ResolutionCode     *string
+	ResolutionNote     *string
+	ResolvedAt         *time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 type DueDiligenceItem struct {
@@ -860,6 +919,22 @@ type ManagerProposal struct {
 	Version            int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+type MarketInsight struct {
+	ID           ids.ID
+	AccountID    ids.ID
+	PropertyID   ids.ID
+	ListingID    *ids.ID
+	InsightType  string
+	ModelName    string
+	ModelVersion string
+	Inputs       []byte
+	Result       []byte
+	Confidence   float64
+	Advisory     bool
+	GeneratedAt  time.Time
+	ExpiresAt    time.Time
 }
 
 type MeterReading struct {
@@ -1547,6 +1622,23 @@ type RentalOffer struct {
 	Version          int64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+}
+
+type ReportSnapshot struct {
+	ID                   ids.ID
+	AccountID            ids.ID
+	ReportType           string
+	PeriodStart          *time.Time
+	PeriodEnd            *time.Time
+	PropertyID           *ids.ID
+	Status               string
+	Summary              []byte
+	MediaID              *ids.ID
+	FailureReason        *string
+	Attempts             int32
+	DataSubjectRequestID *ids.ID
+	CreatedAt            time.Time
+	CompletedAt          *time.Time
 }
 
 type SaleOffer struct {

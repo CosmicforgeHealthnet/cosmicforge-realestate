@@ -217,7 +217,7 @@ var (
 			"PARTIALLY_FULFILLED": {"FULFILLED", "CLOSED"},
 			"FULFILLED":           {"CLOSED"},
 			"DENIED_WITH_REASON":  {"CLOSED"},
-		})
+		}).Unscoped() // account-scoped
 
 	AccessGrant = lifecycle.New("access_grant", "access_grants",
 		[]string{"REQUESTED", "APPROVED", "ISSUED", "ACTIVE", "EXPIRED", "REVOKED", "COMPROMISED"},

@@ -36,6 +36,12 @@ var shortletPricing = map[string]any{"currency": "NGN", "base_amount_minor": 500
 // shortletListing publishes a SHORT_LET listing (5 photos) for a verified owner.
 func (h *harness) shortletListing(line1 string) (*owner, usecases.ListingView) {
 	h.t.Helper()
+	return h.shortletListingPriced(line1, 5000000)
+}
+
+// shortletListingPriced publishes a SHORT_LET listing at a nightly price.
+func (h *harness) shortletListingPriced(line1 string, nightly int64) (*owner, usecases.ListingView) {
+	h.t.Helper()
 	o := h.register(true)
 	h.verifyIdentity(o)
 	p := h.createProperty(o, line1)
@@ -47,7 +53,12 @@ func (h *harness) shortletListing(line1 string) (*owner, usecases.ListingView) {
 	h.expect(r, 201, "")
 	var l usecases.ListingView
 	r.data(h.t, &l)
-	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/pricing", 0, shortletPricing), 200, "")
+	pricing := map[string]any{}
+	for k, v := range shortletPricing {
+		pricing[k] = v
+	}
+	pricing["base_amount_minor"] = nightly
+	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/pricing", 0, pricing), 200, "")
 	h.expect(h.post(o, "/listings/"+l.ID.String()+"/publish", nil), 200, "")
 	return o, h.listing(o, l.ID)
 }

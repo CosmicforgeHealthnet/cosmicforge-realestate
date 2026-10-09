@@ -127,8 +127,10 @@ func lowerStatus(s string) string {
 
 // fakeMedia emulates media-document-service metadata reads.
 type fakeMedia struct {
-	mu    sync.Mutex
-	files map[ids.ID]media.Media
+	mu      sync.Mutex
+	files   map[ids.ID]media.Media
+	uploads map[ids.ID][]byte
+	byKey   map[string]ids.ID
 }
 
 func newFakeMedia() *fakeMedia { return &fakeMedia{files: map[ids.ID]media.Media{}} }
@@ -158,6 +160,24 @@ func (f *fakeMedia) DownloadURL(_ context.Context, id ids.ID, _ string) (media.D
 
 func (f *fakeMedia) ReplaceAccessPolicy(context.Context, ids.ID, string, []media.Grant, string) error {
 	return nil
+}
+
+// Upload stores a generated document (idempotent per key) and keeps its bytes
+// so tests can inspect it.
+func (f *fakeMedia) Upload(_ context.Context, req media.UploadRequest, key string) (media.Media, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.uploads == nil {
+		f.uploads, f.byKey = map[ids.ID][]byte{}, map[string]ids.ID{}
+	}
+	if id, ok := f.byKey[key]; ok {
+		return f.files[id], nil
+	}
+	id := ids.New()
+	m := media.Media{MediaID: id, OwnerDomain: string(platform.DomainIndividualOwner), OwnerType: "USER", OwnerID: req.OwnerAccountID, MediaClass: "DOCUMENT",
+		Status: "READY", MimeType: req.MimeType, AccessClassification: "PRIVATE"}
+	f.files[id], f.uploads[id], f.byKey[key] = m, req.Content, id
+	return m, nil
 }
 
 func mediaEvent(t *testing.T, m media.Media, status string) events.Envelope {

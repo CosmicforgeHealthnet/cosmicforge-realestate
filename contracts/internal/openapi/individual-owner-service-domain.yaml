@@ -129,6 +129,31 @@ components:
       required:
         - decision
       type: object
+    AdminDisputeActionInput:
+      additionalProperties: false
+      properties:
+        admin_case_ref:
+          maxLength: 128
+          type: string
+        information_request:
+          maxLength: 2000
+          type: string
+        resolution_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        resolution_note:
+          maxLength: 2000
+          type: string
+        status:
+          enum:
+            - UNDER_REVIEW
+            - AWAITING_INFORMATION
+            - RESOLVED
+            - REJECTED
+          type: string
+      required:
+        - status
+      type: object
     AgreementParticipantView:
       properties:
         display_name:
@@ -2416,6 +2441,96 @@ components:
         - version
         - created_at
       type: object
+    DisputeEvidenceView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        note:
+          type:
+            - string
+            - "null"
+        submitted_by:
+          type: string
+      required:
+        - submitted_by
+        - created_at
+      type: object
+    DisputeView:
+      properties:
+        admin_case_ref:
+          type:
+            - string
+            - "null"
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        desired_outcome:
+          type:
+            - string
+            - "null"
+        evidence:
+          items:
+            $ref: '#/components/schemas/DisputeEvidenceView'
+          type: array
+        id:
+          format: uuid
+          type: string
+        information_request:
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        resolution_code:
+          type:
+            - string
+            - "null"
+        resolution_note:
+          type:
+            - string
+            - "null"
+        resolved_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        summary:
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          type: string
+        urgent:
+          description: Fraud/safety categories are prioritized for review
+          type: boolean
+        version:
+          type: integer
+      required:
+        - id
+        - target_type
+        - target_id
+        - category
+        - status
+        - summary
+        - urgent
+        - evidence
+        - version
+        - created_at
+      type: object
     DocumentView:
       properties:
         created_at:
@@ -4155,6 +4270,90 @@ components:
         - policy_version
         - created_at
       type: object
+    PrivacyDecisionInput:
+      additionalProperties: false
+      properties:
+        outcome:
+          enum:
+            - FULFILLED
+            - PARTIALLY_FULFILLED
+            - DENIED_WITH_REASON
+          type: string
+        reason:
+          maxLength: 2000
+          type: string
+        retained_categories:
+          items:
+            enum:
+              - TENANCY_RECORDS
+              - FINANCIAL_RECORDS
+              - OWNERSHIP_RECORDS
+              - AUDIT_TRAIL
+              - DISPUTE_RECORDS
+              - LEGAL_HOLD
+              - SECURITY_LOGS
+            type: string
+          maxItems: 20
+          type: array
+      required:
+        - outcome
+        - reason
+      type: object
+    PrivacyRequestView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decision_reason:
+          type:
+            - string
+            - "null"
+        details:
+          type:
+            - string
+            - "null"
+        due_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        report_id:
+          description: Export document (ACCESS/EXPORT)
+          format: uuid
+          type:
+            - string
+            - "null"
+        request_type:
+          type: string
+        retained_categories:
+          description: Records kept under legal/business holds
+          items:
+            type: string
+          type: array
+        status:
+          type: string
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - request_type
+        - status
+        - due_at
+        - retained_categories
+        - version
+        - created_at
+      type: object
     PropertyView:
       properties:
         address:
@@ -5534,6 +5733,140 @@ paths:
       summary: Decide a disputed damage claim
       tags:
         - _Admin
+  /internal/v1/owner/admin/disputes:
+    get:
+      operationId: adminListDisputes
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/DisputeView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Owner disputes (urgent first)
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/disputes/{dispute_id}:
+    get:
+      operationId: adminGetDispute
+      parameters:
+        - in: path
+          name: dispute_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisputeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Dispute with evidence (audited privileged read)
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/disputes/{dispute_id}/status:
+    post:
+      operationId: adminUpdateDispute
+      parameters:
+        - in: path
+          name: dispute_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDisputeActionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisputeView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Review, request information, resolve or reject
+      tags:
+        - _Admin
   /internal/v1/owner/admin/maintenance/{request_id}/resolution:
     post:
       operationId: adminResolveMaintenance
@@ -5722,6 +6055,102 @@ paths:
       security:
         - ServiceBearer: []
       summary: Retire a notice template version
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/privacy-requests:
+    get:
+      operationId: adminListPrivacyRequests
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PrivacyRequestView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Open privacy requests by due date
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/privacy-requests/{request_id}/decision:
+    post:
+      description: Records retained categories under legal/business holds.
+      operationId: adminDecidePrivacyRequest
+      parameters:
+        - in: path
+          name: request_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyDecisionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrivacyRequestView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Decide a correction/deletion/objection/restriction
       tags:
         - _Admin
   /internal/v1/owner/admin/tenancies/{tenancy_id}/deposit/resolution:
