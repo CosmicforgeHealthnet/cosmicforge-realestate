@@ -182,7 +182,7 @@ func TestRouteMatrix(t *testing.T) {
 		{"/api/v1/verification/cases/x", e.verification},
 		{"/api/v1/media/uploads", e.media},
 		{"/api/v1/notifications/push-endpoints", e.notif},
-		{"/api/v1/individual-owner/properties", e.owner},
+		{"/api/v1/owner/properties", e.owner},
 	}
 	for _, c := range cases {
 		resp, _ := e.do("GET", c.path, tok, nil, "")
@@ -244,7 +244,7 @@ func TestValidTokenForwardsSignedDelegation(t *testing.T) {
 		t.Fatalf("delegation %+v", p)
 	}
 	// Domain routes receive the user's own token for re-verification.
-	e.do("GET", "/api/v1/individual-owner/me", tok, nil, "")
+	e.do("GET", "/api/v1/owner/me", tok, nil, "")
 	r, _, _ = e.owner.snapshot()
 	if r.Header.Get("Authorization") != "Bearer "+tok {
 		t.Fatal("domain route should receive the user token")
@@ -288,7 +288,7 @@ func TestTokenRejections(t *testing.T) {
 func TestCrossDomainTokenMisuse(t *testing.T) {
 	e := setup(t, nil)
 	artisanTok, _ := e.userToken(e.ar)
-	resp, env := e.do("GET", "/api/v1/individual-owner/properties", artisanTok, nil, "")
+	resp, env := e.do("GET", "/api/v1/owner/properties", artisanTok, nil, "")
 	if resp.StatusCode != 403 || env.Error.Code != apperrors.CodePermissionDenied {
 		t.Fatalf("artisan token on individual-owner route: %d %s", resp.StatusCode, env.Error.Code)
 	}
@@ -297,7 +297,7 @@ func TestCrossDomainTokenMisuse(t *testing.T) {
 		t.Fatalf("artisan token on shared service: %d", resp.StatusCode)
 	}
 	// Anonymous access to a domain's optional-auth route is allowed (domain decides).
-	if resp, _ := e.do("GET", "/api/v1/individual-owner/public-listings", "", nil, ""); resp.StatusCode != 200 {
+	if resp, _ := e.do("GET", "/api/v1/owner/public-listings", "", nil, ""); resp.StatusCode != 200 {
 		t.Fatalf("anonymous optional route: %d", resp.StatusCode)
 	}
 }
@@ -377,9 +377,9 @@ func TestRateLimiting(t *testing.T) {
 	}
 	// Anonymous public route keyed by client IP; spoofed XFF from an untrusted peer is ignored.
 	for i := 0; i < 2; i++ {
-		e.do("GET", "/api/v1/individual-owner/listings", "", map[string]string{"X-Forwarded-For": "1.2.3." + string(rune('1'+i))}, "")
+		e.do("GET", "/api/v1/owner/listings", "", map[string]string{"X-Forwarded-For": "1.2.3." + string(rune('1'+i))}, "")
 	}
-	if resp, _ := e.do("GET", "/api/v1/individual-owner/listings", "", map[string]string{"X-Forwarded-For": "9.9.9.9"}, ""); resp.StatusCode != 429 {
+	if resp, _ := e.do("GET", "/api/v1/owner/listings", "", map[string]string{"X-Forwarded-For": "9.9.9.9"}, ""); resp.StatusCode != 429 {
 		t.Fatalf("XFF spoofing bypassed IP limit: %d", resp.StatusCode)
 	}
 }
@@ -390,9 +390,9 @@ func TestAuthSensitiveRateLimitAndRedisOutage(t *testing.T) {
 		c.RateLimits[routing.CategoryAuthenticated] = ratelimit.Policy{Rate: 100, Period: time.Minute, Burst: 100}
 	})
 	for i := 0; i < 2; i++ {
-		e.do("POST", "/api/v1/individual-owner/auth/login", "", nil, `{}`)
+		e.do("POST", "/api/v1/owner/auth/login", "", nil, `{}`)
 	}
-	if resp, _ := e.do("POST", "/api/v1/individual-owner/auth/login", "", nil, `{}`); resp.StatusCode != 429 {
+	if resp, _ := e.do("POST", "/api/v1/owner/auth/login", "", nil, `{}`); resp.StatusCode != 429 {
 		t.Fatalf("login brute force not limited: %d", resp.StatusCode)
 	}
 	// Redis unavailable.
@@ -401,7 +401,7 @@ func TestAuthSensitiveRateLimitAndRedisOutage(t *testing.T) {
 	if resp, _ := e.do("GET", "/api/v1/media/x", tok, nil, ""); resp.StatusCode != 200 {
 		t.Fatalf("authenticated route should degrade to local limiter, got %d", resp.StatusCode)
 	}
-	resp, env := e.do("POST", "/api/v1/individual-owner/auth/register", "", nil, `{}`)
+	resp, env := e.do("POST", "/api/v1/owner/auth/register", "", nil, `{}`)
 	if resp.StatusCode != 503 || env.Error.Code != apperrors.CodeServiceUnavailable {
 		t.Fatalf("auth-sensitive must fail closed without Redis: %d %s", resp.StatusCode, env.Error.Code)
 	}

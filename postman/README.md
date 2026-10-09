@@ -63,6 +63,13 @@ Foundation-block variables:
 - `subject_id`, `client_reference`, `sandbox_signature` — verification (sandbox provider)
 - `endpoint_id`, `fcm_token`, `recipient_id` — push devices and notifications
 
+Individual Owner (`02 Individual Owner`) variables:
+- `individual_owner_token`, `owner_refresh_token` — captured by register/login/refresh/MFA requests
+- `owner_account_id`, `owner_account_version` (for `If-Match`), `owner_challenge_id`, `owner_mfa_token`,
+  `owner_session_id`, `owner_device_id` — captured from responses
+- `owner_device_key` — stable client device ID sent as `X-Device-ID`
+- `individual_owner_service_url` — direct internal URL for `_Admin` requests (local default `:8094`)
+
 `_Internal` requests use `service_token` (a short-lived service JWT minted by a backend
 engineer); frontend requests use `access_token` through `base_url` (the API Gateway).
 

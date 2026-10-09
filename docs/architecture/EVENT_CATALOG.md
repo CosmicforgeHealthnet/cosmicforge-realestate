@@ -52,6 +52,13 @@ All events use the platform event envelope and UUIDv7 event_id.
 - payment.refunded.v1
 - payout.completed.v1
 
+## Individual Owner account events — implemented
+
+- owner.account.activated.v1
+- owner.account.restricted.v1
+
+Schemas: `contracts/events/owners/`. Payloads carry no personal data; consumers order by `account_version`.
+
 ## Domain publication events — reserved contract names
 
 - property.created.v1

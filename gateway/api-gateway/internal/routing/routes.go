@@ -97,7 +97,7 @@ func (r Route) AllowsDomain(d platform.Domain) bool {
 // gateway never exposes functionality that does not exist yet.
 var domainPrefixes = map[platform.Domain]string{
 	platform.DomainMarketplace:          "/api/v1/marketplace/",
-	platform.DomainIndividualOwner:      "/api/v1/individual-owner/",
+	platform.DomainIndividualOwner:      "/api/v1/owner/", // ADR-0011
 	platform.DomainBusinessOperations:   "/api/v1/business-operations/",
 	platform.DomainPropertyManager:      "/api/v1/property-manager/",
 	platform.DomainArtisan:              "/api/v1/artisan/",
