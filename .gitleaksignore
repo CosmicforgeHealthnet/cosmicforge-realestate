@@ -4,3 +4,8 @@
 # to prove Secret never prints; replaced with a non-key-shaped value afterwards.
 4dca34447860c86d78467d9e9c5ca3d069c9a947:shared/go/security/security_test.go:stripe-access-token:19
 4dca34447860c86d78467d9e9c5ca3d069c9a947:shared/go/security/security_test.go:stripe-access-token:34
+# individual-owner-service (reviewed 2026-10-09): a SQL comment mentioning one-time
+# challenges and a deliberately unsigned alg=none JWT fixture used to prove rejection.
+# Both lines were reworded in the working tree afterwards.
+31ef5fcb94b2809d81d0c5e51925d5655e8c0f4b:services/individual-owner-service/migrations/00002_account_security.sql:generic-api-key:115
+31ef5fcb94b2809d81d0c5e51925d5655e8c0f4b:services/individual-owner-service/tests/integration/auth_test.go:generic-api-key:152

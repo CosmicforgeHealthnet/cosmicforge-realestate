@@ -2,6 +2,7 @@ package integration
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 	"sync"
 	"testing"
@@ -149,7 +150,9 @@ func TestAccessTokenValidation(t *testing.T) {
 	// Token without a session ID.
 	h.expect(me(call{token: mint(string(platform.IndividualOwnerService), sharedauth.DefaultAudience, h.userKey, time.Minute, ids.Nil)}), 401, "INVALID_TOKEN")
 	// alg confusion: unsigned token.
-	h.expect(me(call{token: "eyJhbGciOiJub25lIiwia2lkIjoiaW8tdXNlci0xIn0.eyJpc3MiOiJ4In0.AAAA"}), 401, "INVALID_TOKEN")
+	b64 := base64.RawURLEncoding.EncodeToString
+	unsigned := b64([]byte(`{"alg":"none","kid":"io-user-1"}`)) + "." + b64([]byte(`{"iss":"x"}`)) + ".AAAA"
+	h.expect(me(call{token: unsigned}), 401, "INVALID_TOKEN")
 	// Forged gateway actor context: actor differs from the token subject.
 	h.expect(me(call{token: o.access, actorDomain: platform.DomainIndividualOwner, actorID: ids.New()}), 401, "INVALID_TOKEN")
 	h.expect(me(call{token: o.access, actorDomain: platform.DomainMarketplace, actorID: o.id}), 401, "INVALID_TOKEN")

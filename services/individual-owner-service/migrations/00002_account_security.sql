@@ -112,7 +112,7 @@ CREATE TABLE auth_refresh_tokens (
 );
 CREATE INDEX auth_refresh_tokens_session_idx ON auth_refresh_tokens (session_id);
 
--- One-time secrets: verification/reset/OTP codes and MFA login tokens.
+-- One-time challenges (verification, reset and sign-in codes; MFA sign-in handles).
 -- secret_hash is an HMAC-SHA256 keyed with a server-side pepper so a database
 -- leak does not permit offline guessing of 6-digit codes.
 CREATE TABLE auth_challenges (
