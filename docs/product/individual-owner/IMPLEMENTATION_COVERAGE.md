@@ -91,6 +91,25 @@ types: extensions publish `shortlet.booking.updated.v1` / `shortlet.availability
 extension payment intents are projected from `payment.intent.updated.v1` and read-back. Contract change:
 `CalendarEntry.property_id` is nullable (account-level statutory items).
 
+### Section 13 closure test evidence (local, PostgreSQL 16, Redis, embedded NATS, MinIO; at `a6b4b18`)
+
+| Suite | Result |
+|---|---|
+| Owner module: gofmt, `go vet`, staticcheck, `go mod tidy` drift, `sqlc diff`, `apidocgen -check` | clean |
+| Owner module: `go test -race -count=1 ./...`, integration required (87 integration test functions incl. migration round trip with 00018, OpenAPI/Postman parity, template drift, events) | pass (152 s) |
+| Booking-race reproduction under CPU load (`-race -count=12`) | before fix 3/12 fail (40P01); after fix 12/12 pass, no deadlock logged |
+| notification-service: `go test -race -count=1 ./...` (seed migration 00004 round trip) | pass |
+| E2E with real processes (`tests/e2e`, `-race`): foundation, owner account, owner domain, owner + real producers, owner functional journey | 5/5 pass |
+| Architecture boundaries; gitleaks (full history); `go mod tidy` drift (e2e) | OK / no leaks / clean |
+| govulncheck | BLOCKED — vuln.go.dev unreachable (unchanged) |
+| GitHub Actions / staging / production | not dispatched / not attempted; nothing here certifies them |
+
+The new §13.1/13.20/13.25/13.27 behavior is LOCAL-certified (integration tests through the real HTTP
+router, PostgreSQL and workers); the existing real-process journeys still pass unchanged. Fakes stand in
+only for payment-service in the platform-payment extension and yield tests; they are not live evidence.
+
+**Verdict: SECTION 13 — LOCAL IMPLEMENTATION CLOSED; EXTERNAL INTEGRATION PENDING.**
+
 ## Final functional closure (2026-10-09, at `74a8120`)
 
 All 12 user journeys run through the real HTTP router, authorization, use cases, PostgreSQL 16 and
