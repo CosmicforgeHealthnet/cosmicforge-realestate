@@ -108,6 +108,8 @@ func NewRouter(cfg Config) http.Handler {
 			r.Post("/me/mfa/recovery-codes", h.regenerateRecoveryCodes)
 			r.Post("/me/closure", h.requestClosure)
 			r.Delete("/me/closure", h.cancelClosure)
+			// Sections 6–13 domain API (route registry).
+			h.mountRoutes(r, Owner)
 		})
 	})
 
@@ -118,6 +120,7 @@ func NewRouter(cfg Config) http.Handler {
 		r.Post("/accounts/{account_id}/suspend", h.adminTransition(authz.ActAdminSuspend, "owner.admin.suspend"))
 		r.Post("/accounts/{account_id}/reinstate", h.adminTransition(authz.ActAdminReinstate, "owner.admin.reinstate"))
 		r.Post("/accounts/{account_id}/sessions/revoke", h.adminRevokeSessions)
+		h.mountRoutes(r, Service)
 	})
 	return r
 }

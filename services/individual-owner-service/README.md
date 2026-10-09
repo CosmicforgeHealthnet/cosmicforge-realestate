@@ -9,7 +9,7 @@ Individual Property Owner. Implementation status, requirement-by-requirement, is
 **Implemented: Section 5 (authentication, owner roles and authorization) — workstream IO-1.** Property,
 listing and the later business domains (Sections 6–12, workstreams IO-2…IO-16) are not implemented yet.
 The authoritative specification is
-[`docs/product/individual-owner/INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf`](../../docs/product/individual-owner/INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf).
+[`docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf`](../../docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf).
 
 ## Account and authentication ownership
 

@@ -120,8 +120,8 @@ type AuthorityResolver interface {
 // ErrNoPropertyStore is returned by the default resolver.
 var ErrNoPropertyStore = errors.New("authz: property authority store not configured")
 
-// NoPropertyAuthority is the fail-closed resolver used until the property and
-// ownership aggregates are persisted (Section 6 contexts 04/05/21).
+// NoPropertyAuthority is a fail-closed resolver (tests and misconfiguration);
+// production uses the individual_owner_db-backed resolver in usecases.
 type NoPropertyAuthority struct{}
 
 // PropertyFacts implements AuthorityResolver.
@@ -152,6 +152,9 @@ type Rule struct {
 	Capability               Capability
 	CoOwnerConsent           bool
 	RequireVerifiedAuthority bool
+	// AllowRestricted permits the action on an admin-restricted property
+	// (reads and remediation); every other property action is blocked.
+	AllowRestricted bool
 	// Service principals allowed on internal routes.
 	Services []ServiceGrant
 	// System marks actions this service's workers may perform.
@@ -376,7 +379,7 @@ func (e *Engine) evaluateProperty(ctx context.Context, r Rule, s Subject, res Re
 		}
 		return deny(http.StatusForbidden, "PROPERTY_AUTHORITY_REQUIRED", "You do not hold the authority required for this property operation.")
 	}
-	if facts.AdminRestricted {
+	if facts.AdminRestricted && !r.AllowRestricted {
 		return deny(http.StatusForbidden, "PROPERTY_RESTRICTED", "This property is restricted by platform review.")
 	}
 	if r.RequireVerifiedAuthority && !facts.AuthorityVerified {

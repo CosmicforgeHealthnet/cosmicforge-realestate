@@ -7,7 +7,10 @@
 //     idempotent sends, exponential backoff with jitter, dead-lettering);
 //   - account-closure finalization after the cooling-off period (SKIP LOCKED);
 //   - housekeeping: expired one-time challenges, long-ended sessions,
-//     expired idempotency keys and published outbox rows.
+//     expired idempotency keys and published outbox rows;
+//   - Sections 6–13 domain jobs (usecases.DomainJobs): payout cooling-off,
+//     property imports, verification reconciliation and expiry, consent and
+//     mandate expiry, and the jobs of later contexts.
 //
 // Every loop is safe to run in several worker instances at once.
 package workers
@@ -35,6 +38,8 @@ type Config struct {
 	SessionRetention     time.Duration
 	BatchSize            int
 	Lease                time.Duration
+	DomainInterval       time.Duration
+	ImportLease          time.Duration
 }
 
 // Runner owns the loops.
@@ -47,6 +52,7 @@ type Runner struct {
 	log     *slog.Logger
 	cycles  observability.Counter
 	failure observability.Counter
+	jobs    []usecases.Job
 }
 
 // New builds a runner.
@@ -69,7 +75,11 @@ func New(cfg Config, svc *usecases.Service, relay *outbox.Worker, store *outbox.
 	if cfg.Lease <= 0 {
 		cfg.Lease = 30 * time.Second
 	}
+	if cfg.DomainInterval <= 0 {
+		cfg.DomainInterval = 30 * time.Second
+	}
 	return &Runner{cfg: cfg, svc: svc, relay: relay, store: store, idem: idem, log: log,
+		jobs:    svc.DomainJobs(usecases.JobConfig{Owner: cfg.Owner, ImportLease: cfg.ImportLease, Batch: int32(cfg.BatchSize)}),
 		cycles:  observability.NewCounter("individual-owner-service", "owner_worker_cycles_total", "Worker loop cycles"),
 		failure: observability.NewCounter("individual-owner-service", "owner_worker_failures_total", "Worker loop failures")}
 }
@@ -78,6 +88,11 @@ func New(cfg Config, svc *usecases.Service, relay *outbox.Worker, store *outbox.
 func (r *Runner) Once(ctx context.Context) error {
 	for _, fn := range []func(context.Context) error{r.dispatch, r.closures, r.housekeep} {
 		if err := fn(ctx); err != nil {
+			return err
+		}
+	}
+	for _, j := range r.jobs {
+		if err := j.Run(requestcontext.Job(ctx, "owner-"+j.Name)); err != nil {
 			return err
 		}
 	}
@@ -140,5 +155,8 @@ func (r *Runner) Run(ctx context.Context) {
 	loop("dispatch", r.cfg.DispatchInterval, r.dispatch)
 	loop("closure", r.cfg.ClosureInterval, r.closures)
 	loop("housekeeping", r.cfg.HousekeepingInterval, r.housekeep)
+	for _, j := range r.jobs {
+		loop(j.Name, r.cfg.DomainInterval, j.Run)
+	}
 	wg.Wait()
 }

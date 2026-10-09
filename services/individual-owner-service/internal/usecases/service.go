@@ -23,8 +23,11 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/authz"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/credentials"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/oauth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/repositories/db"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/audit"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/auth"
@@ -66,6 +69,38 @@ type Policy struct {
 	Activation          ActivationRule
 	RecoveryCodeCount   int
 	PasswordPolicy      passwords.Policy
+	Domain              DomainPolicy
+}
+
+// DomainPolicy holds the configurable business rules of Sections 6–13
+// (Appendix B). Defaults are conservative and recorded with POLICY_CONFIG_VERSION.
+type DomainPolicy struct {
+	// IdentityRequiredFor lists sensitive actions gated on a VERIFIED
+	// IDENTITY verification (spec §13.2 "depend on policy").
+	IdentityRequiredFor []string
+	// CoOwnerConsentThreshold: ALL (every other principal) or MAJORITY_SHARE
+	// (approving principals incl. the requester hold > 50% of shares).
+	CoOwnerConsentThreshold string
+	ConsentTTL              time.Duration
+	PayoutCoolingOff        time.Duration
+	MaxContacts             int
+	MaxImportRows           int
+	TransferInviteTTL       time.Duration
+}
+
+// Identity-gated actions.
+const (
+	GateListingPublish = "LISTING_PUBLISH"
+	GatePayout         = "PAYOUT"
+	GateSale           = "SALE"
+	GateTransfer       = "OWNERSHIP_TRANSFER"
+)
+
+// DefaultDomainPolicy is the baseline business policy.
+func DefaultDomainPolicy() DomainPolicy {
+	return DomainPolicy{IdentityRequiredFor: []string{GateListingPublish, GatePayout, GateSale, GateTransfer},
+		CoOwnerConsentThreshold: "ALL", ConsentTTL: 7 * 24 * time.Hour, PayoutCoolingOff: 48 * time.Hour,
+		MaxContacts: 10, MaxImportRows: 500, TransferInviteTTL: 14 * 24 * time.Hour}
 }
 
 // DefaultPolicy is the baseline (policy version 2026-10-01).
@@ -75,7 +110,7 @@ func DefaultPolicy() Policy {
 		CodeTTL: 10 * time.Minute, CodeMaxAttempts: 5, CodeSendLimit: 5, CodeSendWindow: time.Hour,
 		MFALoginTTL: 5 * time.Minute, MFALoginMaxAttempts: 5, MFAFallbackMethods: []string{MFASMS, MFAEmail},
 		ClosureCoolingOff: 30 * 24 * time.Hour, Activation: ActivateOnEmail, RecoveryCodeCount: 10,
-		PasswordPolicy: passwords.DefaultPolicy,
+		PasswordPolicy: passwords.DefaultPolicy, Domain: DefaultDomainPolicy(),
 	}
 }
 
@@ -98,6 +133,11 @@ type Deps struct {
 	Logger       *slog.Logger
 	Now          func() time.Time
 	ClosureHolds ClosureHoldChecker
+	// Sections 6–13 integrations. Nil means "not configured": features
+	// that depend on them answer 503 FEATURE_UNAVAILABLE (Appendix D).
+	Verification verification.API
+	Media        media.API
+	Payment      payment.API
 }
 
 // Service implements owner account use cases.
@@ -237,6 +277,8 @@ var alertText = map[string]string{
 	"CLOSURE_REQUESTED":   "account closure was requested",
 	"SESSIONS_REVOKED":    "all sessions were signed out",
 	"ACCOUNT_RESTRICTION": "your account status changed",
+	"PAYOUT_CHANGED":      "your payout details were changed",
+	"TAX_PROFILE_CHANGED": "your tax profile was changed",
 }
 
 // enqueueAlert records a durable security-alert request in tx. extraEmail

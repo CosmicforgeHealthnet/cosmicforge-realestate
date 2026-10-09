@@ -62,6 +62,14 @@ type Config struct {
 	NotificationServiceURL string
 	NotificationTimeout    time.Duration
 
+	// Sections 6–13 integrations; empty = not configured (features answer
+	// 503 FEATURE_UNAVAILABLE).
+	VerificationServiceURL string
+	MediaServiceURL        string
+	DownstreamTimeout      time.Duration
+	ImportLease            time.Duration
+	WorkerInterval         time.Duration
+
 	NATSURL       string
 	SubjectPrefix string
 	EnsureStream  bool
@@ -93,7 +101,12 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.TokenAudience = l.String("OWNER_TOKEN_AUDIENCE", sharedauth.DefaultAudience)
 	c.AccessTokenTTL = l.Duration("OWNER_ACCESS_TOKEN_TTL", sharedauth.DefaultAccessTTL)
 	kid := l.Required("OWNER_ACCESS_TOKEN_KEY_ID")
-	priv := l.Secret("OWNER_ACCESS_TOKEN_PRIVATE_KEY", true)
+	// OWNER_AUTH_PRIVATE_KEY[_FILE] is the specification's name (§19); the
+	// original OWNER_ACCESS_TOKEN_PRIVATE_KEY remains accepted.
+	priv := l.Secret("OWNER_AUTH_PRIVATE_KEY", false)
+	if priv.Reveal() == "" {
+		priv = l.Secret("OWNER_ACCESS_TOKEN_PRIVATE_KEY", true)
+	}
 	retired := l.String("OWNER_ACCESS_TOKEN_RETIRED_KEYS", "")
 	c.SessionLifetime = l.Duration("OWNER_SESSION_MAX_LIFETIME", 30*24*time.Hour)
 	c.RefreshIdleTTL = l.Duration("OWNER_REFRESH_TOKEN_IDLE_TTL", 30*24*time.Hour)
@@ -107,7 +120,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.SessionRetention = l.Duration("OWNER_ENDED_SESSION_RETENTION", 90*24*time.Hour)
 
 	p := usecases.DefaultPolicy()
-	p.Version = l.String("OWNER_SECURITY_POLICY_VERSION", p.Version)
+	p.Version = l.String("POLICY_CONFIG_VERSION", l.String("OWNER_SECURITY_POLICY_VERSION", p.Version))
 	p.MaxLoginFailures = l.Int("OWNER_LOGIN_MAX_FAILURES", p.MaxLoginFailures)
 	p.LockoutDuration = l.Duration("OWNER_LOGIN_LOCKOUT", p.LockoutDuration)
 	p.CodeTTL = l.Duration("OWNER_CODE_TTL", p.CodeTTL)
@@ -120,7 +133,19 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	p.Activation = usecases.ActivationRule(l.OneOf("OWNER_ACTIVATION_REQUIRES", string(p.Activation),
 		string(usecases.ActivateOnEmail), string(usecases.ActivateOnPhone), string(usecases.ActivateOnEmailOrPhone), string(usecases.ActivateOnEmailAndPhn)))
 	p.PasswordPolicy.MinLength = l.Int("OWNER_PASSWORD_MIN_LENGTH", p.PasswordPolicy.MinLength)
+	d := &p.Domain
+	d.IdentityRequiredFor = l.List("OWNER_IDENTITY_REQUIRED_FOR", d.IdentityRequiredFor)
+	d.CoOwnerConsentThreshold = l.OneOf("OWNER_COOWNER_CONSENT_THRESHOLD", d.CoOwnerConsentThreshold, "ALL", "MAJORITY_SHARE")
+	d.ConsentTTL = l.Duration("OWNER_CONSENT_TTL", d.ConsentTTL)
+	d.PayoutCoolingOff = l.Duration("OWNER_PAYOUT_COOLING_OFF", d.PayoutCoolingOff)
+	d.TransferInviteTTL = l.Duration("OWNER_TRANSFER_INVITE_TTL", d.TransferInviteTTL)
 	c.Policy = p
+	c.VerificationServiceURL = l.String("VERIFICATION_SERVICE_URL", "")
+	c.MediaServiceURL = l.String("MEDIA_SERVICE_URL", "")
+	c.DownstreamTimeout = l.Duration("DOWNSTREAM_TIMEOUT", 5*time.Second)
+	c.ImportLease = l.Duration("PROPERTY_IMPORT_LEASE", 2*time.Minute)
+	c.WorkerInterval = l.Duration("DOMAIN_WORKER_INTERVAL", 30*time.Second)
+	paymentURL := l.String("PAYMENT_SERVICE_URL", "")
 
 	oauthProviders := l.List("OWNER_OAUTH_PROVIDERS", nil)
 	c.NotificationServiceURL = l.Required("NOTIFICATION_SERVICE_URL")
@@ -188,6 +213,21 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		if m != usecases.MFASMS && m != usecases.MFAEmail {
 			problems = append(problems, "OWNER_MFA_FALLBACK_METHODS accepts only SMS and EMAIL")
 		}
+	}
+	if paymentURL != "" {
+		// payment-service exposes no implemented contract yet; refusing the
+		// setting prevents believing payouts are live.
+		problems = append(problems, "PAYMENT_SERVICE_URL must be empty: payment-service has no implemented contract (Appendix D)")
+	}
+	for _, g := range d.IdentityRequiredFor {
+		switch g {
+		case usecases.GateListingPublish, usecases.GatePayout, usecases.GateSale, usecases.GateTransfer:
+		default:
+			problems = append(problems, "OWNER_IDENTITY_REQUIRED_FOR accepts LISTING_PUBLISH, PAYOUT, SALE, OWNERSHIP_TRANSFER")
+		}
+	}
+	if d.ConsentTTL <= 0 || d.PayoutCoolingOff < 0 || d.TransferInviteTTL <= 0 {
+		problems = append(problems, "consent TTL, payout cooling-off and transfer invitation TTL must be positive")
 	}
 	if len(oauthProviders) > 0 {
 		// No OAuth/OIDC adapter is implemented or certified (Appendix D).

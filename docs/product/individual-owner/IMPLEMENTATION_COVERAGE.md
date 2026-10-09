@@ -5,13 +5,13 @@
 | Service | `services/individual-owner-service` · database `individual_owner_db` |
 | Documented foundation baseline | F1–F5 certified at `54425cb5df86fbb239c4faab624d786f98fb343e` |
 | Implementation commits | `31ef5fc` (Section 5 service), `606341e` (gateway prefix, Postman, e2e), `127fcba` (register), `ecf5ee4` (x/net security bump) |
-| Specification | `INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf` (this folder) |
+| Specification | `CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf` (this folder) |
 | Last updated | 2026-10-09 |
 
 ## Specification
 
 The authoritative *Individual Property Owner Platform — Full Backend Implementation Specification
-v1.0* is stored in this folder (`INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf`, text extraction alongside;
+v1.0* is stored in this folder (`CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf`, text extraction alongside;
 added 2026-10-09). Section 5 was implemented **before** the document was available, from the
 implementation directive and `docs/architecture/*`; it has since been reconciled against the
 specification below. Sections 6–12 items marked *spec* are no longer blocked on the document and

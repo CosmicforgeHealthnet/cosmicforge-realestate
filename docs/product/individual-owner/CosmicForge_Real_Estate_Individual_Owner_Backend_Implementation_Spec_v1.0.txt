@@ -1,4 +1,4 @@
-# Text extraction of INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf (pdftotext -layout).
+# Text extraction of CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf (pdftotext -layout).
 # The PDF is the authoritative copy (sha256 eccb0ece5f0b79d125f88549ae036849796f359f779ec3407c1704af710aa8af).
 # This file exists for search, review and diffs; on any discrepancy the PDF wins.
 

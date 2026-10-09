@@ -200,6 +200,116 @@
       "key": "individual_owner_service_url",
       "value": "http://localhost:8094",
       "type": "string"
+    },
+    {
+      "key": "asset_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asset_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "case_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "consent_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contact_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "import_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "media_link_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "owner_contact_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ownership_transfer_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "parcel_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "parcel_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "party_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payout_account_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payout_preferences_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "profile_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "property_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "record_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "target_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tax_profile_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transfer_case_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unit_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unit_version",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -445,7 +555,7 @@
     },
     {
       "name": "02 Individual Owner",
-      "description": "Individual Owner (individual-owner-service). Implemented: Section 5 account security only — registration, sign-in (password, phone OTP), MFA, step-up, sessions, devices, recovery and account lifecycle. Frontend requests go through the gateway with {{individual_owner_token}}. Property, listing and later owner APIs are not implemented yet and are intentionally absent.",
+      "description": "Individual Owner (individual-owner-service). Frontend requests go through the gateway with {{individual_owner_token}}; _Internal and _Admin requests call the service directly with a service JWT ({{service_token}}). Implemented: Section 5 account security (Frontend, _Admin) and the Sections 6–13 domain API generated from the route registry (profile, banking & tax, properties, ownership & verification and later contexts). Features whose dependency is not configured answer 503 FEATURE_UNAVAILABLE.",
       "item": [
         {
           "name": "Frontend",
@@ -8134,6 +8244,3553 @@
                   "body": "{\n  \"error\": {\n    \"code\": \"STEP_UP_REQUIRED\",\n    \"message\": \"Recent re-authentication is required for this operation.\",\n    \"request_id\": \"019a2b3c-9999-7000-8000-000000000009\"\n  }\n}"
                 }
               ]
+            },
+            {
+              "name": "Ownership claims in CONFLICT awaiting review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/ownership-conflicts?limit=20",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "ownership-conflicts"
+                  ]
+                },
+                "description": "Ownership claims in CONFLICT awaiting review.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Release or reject a conflicting claim",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/ownership-records/{{record_id}}/conflict-decision",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "ownership-records",
+                    "{{record_id}}",
+                    "conflict-decision"
+                  ]
+                },
+                "description": "Release or reject a conflicting claim.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"RELEASE\",\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Approve or reject an ownership transfer under review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/ownership-transfers/{{case_id}}/decision",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "ownership-transfers",
+                    "{{case_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Approve or reject an ownership transfer under review.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"APPROVE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Restrict a property (platform review)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/properties/{{property_id}}/restrict",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "restrict"
+                  ]
+                },
+                "description": "Restrict a property (platform review).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Lift a property restriction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/properties/{{property_id}}/lift-restriction",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "lift-restriction"
+                  ]
+                },
+                "description": "Lift a property restriction.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Account & Profile",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Get the owner profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('profile_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "profile"
+                  ]
+                },
+                "description": "Get the owner profile.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Replace the editable owner profile (If-Match; \"0\" creates)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('profile_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{profile_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "profile"
+                  ]
+                },
+                "description": "Replace the editable owner profile (If-Match; \"0\" creates).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_channel\": \"PUSH\",\n  \"timezone\": \"Africa/Lagos\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List additional, emergency and trusted contacts",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/profile/contacts?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "profile",
+                    "contacts"
+                  ]
+                },
+                "description": "List additional, emergency and trusted contacts.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Add a contact",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('owner_contact_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/profile/contacts",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "profile",
+                    "contacts"
+                  ]
+                },
+                "description": "Add a contact.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contact_type\": \"EMAIL\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove a contact",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/profile/contacts/{{contact_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "profile",
+                    "contacts",
+                    "{{contact_id}}"
+                  ]
+                },
+                "description": "Remove a contact.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Account status, activation rule and sensitive-action gates",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/account/status",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "account",
+                    "status"
+                  ]
+                },
+                "description": "Account status, activation rule and sensitive-action gates.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "List identity verifications (verification-service projection)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/verification?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "verification"
+                  ]
+                },
+                "description": "List identity verifications (verification-service projection).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Start an IDENTITY verification with uploaded evidence",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.verification_id') !== undefined) pm.collectionVariables.set('verification_id', String(pick(body, 'data.verification_id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/verification",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "verification"
+                  ]
+                },
+                "description": "Start an IDENTITY verification with uploaded evidence.\n\nCreates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"evidence\": [\n    {\n      \"evidence_type\": \"ID_DOCUMENT_FRONT\",\n      \"media_id\": \"{{media_id}}\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reconcile a verification by read-back",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/verification/{{verification_id}}/sync",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "verification",
+                    "{{verification_id}}",
+                    "sync"
+                  ]
+                },
+                "description": "Reconcile a verification by read-back.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Invitations addressed to my verified email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/co-owner-invitations?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "co-owner-invitations"
+                  ]
+                },
+                "description": "Invitations addressed to my verified email.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Accept a co-ownership / representation invitation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/co-owner-invitations/{{party_id}}/accept",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "co-owner-invitations",
+                    "{{party_id}}",
+                    "accept"
+                  ]
+                },
+                "description": "Accept a co-ownership / representation invitation.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Decline an invitation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/co-owner-invitations/{{party_id}}/decline",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "co-owner-invitations",
+                    "{{party_id}}",
+                    "decline"
+                  ]
+                },
+                "description": "Decline an invitation.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Co-owner consents awaiting my decision",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/consents?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "consents"
+                  ]
+                },
+                "description": "Co-owner consents awaiting my decision.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Approve or reject a consent request (immutable)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/consents/{{consent_id}}/decision",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "consents",
+                    "{{consent_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Approve or reject a consent request (immutable).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"APPROVED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ownership transfers addressed to my verified email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/ownership-transfers/incoming?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "ownership-transfers",
+                    "incoming"
+                  ]
+                },
+                "description": "Ownership transfers addressed to my verified email.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Accept an incoming ownership transfer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/ownership-transfers/{{case_id}}/accept",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "ownership-transfers",
+                    "{{case_id}}",
+                    "accept"
+                  ]
+                },
+                "description": "Accept an incoming ownership transfer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Banking & Tax",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "List payout accounts (masked)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-accounts?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-accounts"
+                  ]
+                },
+                "description": "List payout accounts (masked).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Register a payout account with payment-service",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('payout_account_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-accounts",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-accounts"
+                  ]
+                },
+                "description": "Register a payout account with payment-service. Step-up required (POST /auth/step-up first).\n\nStep-up required. Beneficiary verification and account-name matching are performed by payment-service; only the last 4 digits and a keyed fingerprint are stored. Verified accounts pass a cooling-off period before they become ACTIVE. 503 FEATURE_UNAVAILABLE while payment-service is not configured (it is not implemented yet).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"account_name\": \"Sample name\",\n  \"account_number\": \"VALUE\",\n  \"bank_code\": \"058\",\n  \"bank_name\": \"Sample name\",\n  \"currency\": \"NGN\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Refresh payment-service's verification verdict",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-accounts/{{payout_account_id}}/verify",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-accounts",
+                    "{{payout_account_id}}",
+                    "verify"
+                  ]
+                },
+                "description": "Refresh payment-service's verification verdict. Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Make an ACTIVE account the default",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-accounts/{{payout_account_id}}/make-default",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-accounts",
+                    "{{payout_account_id}}",
+                    "make-default"
+                  ]
+                },
+                "description": "Make an ACTIVE account the default. Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Remove a payout account",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-accounts/{{payout_account_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-accounts",
+                    "{{payout_account_id}}"
+                  ]
+                },
+                "description": "Remove a payout account. Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Payout account per business line",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('payout_preferences_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-preferences"
+                  ]
+                },
+                "description": "Payout account per business line.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Replace payout preferences (If-Match; \"0\" creates)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('payout_preferences_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{payout_preferences_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/payout-preferences",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "payout-preferences"
+                  ]
+                },
+                "description": "Replace payout preferences (If-Match; \"0\" creates). Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Masked tax / reporting profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('tax_profile_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/tax-profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "tax-profile"
+                  ]
+                },
+                "description": "Masked tax / reporting profile.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Replace the tax profile (If-Match; \"0\" creates)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('tax_profile_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{tax_profile_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/tax-profile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "tax-profile"
+                  ]
+                },
+                "description": "Replace the tax profile (If-Match; \"0\" creates). Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tax_id_type\": \"TIN\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Owner statements (payment-service)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/statements?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "statements"
+                  ]
+                },
+                "description": "Owner statements (payment-service).\n\npayment-service is the financial authority. 503 FEATURE_UNAVAILABLE while it is not configured.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Properties",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "List my portfolio (owned, co-owned and represented)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties"
+                  ]
+                },
+                "description": "List my portfolio (owned, co-owned and represented).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Create a persistent property record",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('property_id', String(pick(body, 'data.id')));",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('property_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties"
+                  ]
+                },
+                "description": "Create a persistent property record.\n\nCreates the property (DRAFT), address, features and the primary ownership claim. A claim on an address another owner holds is recorded with ownership status CONFLICT for platform review; the other owner is never disclosed. 409 PROPERTY_DUPLICATE for your own duplicate.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"address\": {\n    \"city\": \"Lagos\",\n    \"country_code\": \"NG\",\n    \"line1\": \"12 Admiralty Way\",\n    \"state_region\": \"Lagos\"\n  },\n  \"category\": \"RESIDENTIAL\",\n  \"property_type\": \"APARTMENT\",\n  \"title\": \"3-bedroom flat in Lekki\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Bulk import properties (asynchronous)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 202', () => pm.response.to.have.status(202));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('import_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/imports",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "imports"
+                  ]
+                },
+                "description": "Bulk import properties (asynchronous).\n\nUp to 500 rows; each row needs external_ref, the idempotent matching key (existing refs are matched, never duplicated). Poll GET /properties/imports/{import_id} for the per-row error report.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rows\": [\n    {\n      \"address\": {\n        \"city\": \"Lagos\",\n        \"country_code\": \"NG\",\n        \"line1\": \"12 Admiralty Way\",\n        \"state_region\": \"Lagos\"\n      },\n      \"category\": \"RESIDENTIAL\",\n      \"external_ref\": \"string\",\n      \"property_type\": \"APARTMENT\",\n      \"title\": \"3-bedroom flat in Lekki\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get an import job and its error report",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/imports/{{import_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "imports",
+                    "{{import_id}}"
+                  ]
+                },
+                "description": "Get an import job and its error report.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Get a property",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('property_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}"
+                  ]
+                },
+                "description": "Get a property.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Update property details (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('property_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{property_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}"
+                  ]
+                },
+                "description": "Update property details (If-Match).\n\nChanging the address of a VERIFIED property moves the ownership claim to REVERIFICATION_REQUIRED.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Archive a property without active business",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/archive",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "archive"
+                  ]
+                },
+                "description": "Archive a property without active business.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Immutable property history",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/history?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "history"
+                  ]
+                },
+                "description": "Immutable property history.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "List units",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/units?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "units"
+                  ]
+                },
+                "description": "List units.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Add a unit / room / floor",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('unit_id', String(pick(body, 'data.id')));",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('unit_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/units",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "units"
+                  ]
+                },
+                "description": "Add a unit / room / floor.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"label\": \"Flat 2B\",\n  \"unit_type\": \"BUILDING\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update or archive a unit (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('unit_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{unit_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/units/{{unit_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "units",
+                    "{{unit_id}}"
+                  ]
+                },
+                "description": "Update or archive a unit (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List land parcels",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/parcels?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "parcels"
+                  ]
+                },
+                "description": "List land parcels.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Add a land parcel",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('parcel_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/parcels",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "parcels"
+                  ]
+                },
+                "description": "Add a land parcel.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"parcel_ref\": \"string\",\n  \"title_type\": \"CERTIFICATE_OF_OCCUPANCY\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Replace a parcel (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('parcel_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{parcel_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/parcels/{{parcel_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "parcels",
+                    "{{parcel_id}}"
+                  ]
+                },
+                "description": "Replace a parcel (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"parcel_ref\": \"string\",\n  \"title_type\": \"CERTIFICATE_OF_OCCUPANCY\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Asset register",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/assets?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "assets"
+                  ]
+                },
+                "description": "Asset register.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Register an asset",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('asset_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/assets",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "assets"
+                  ]
+                },
+                "description": "Register an asset.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_type\": \"GENERATOR\",\n  \"name\": \"Sample name\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Replace an asset (If-Match)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('asset_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{asset_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/assets/{{asset_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "assets",
+                    "{{asset_id}}"
+                  ]
+                },
+                "description": "Replace an asset (If-Match).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_type\": \"GENERATOR\",\n  \"name\": \"Sample name\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List linked media",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/media?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "media"
+                  ]
+                },
+                "description": "List linked media.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Link an uploaded media file",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('media_link_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/media",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "media"
+                  ]
+                },
+                "description": "Link an uploaded media file.\n\nThe file must have been uploaded to media-document-service by you (or for the property). Bytes are never stored here.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"media_id\": \"{{media_id}}\",\n  \"purpose\": \"PHOTO\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unlink media",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/media/{{media_link_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "media",
+                    "{{media_link_id}}"
+                  ]
+                },
+                "description": "Unlink media.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Ownership & Verification",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Ownership records, parties, evidence and transfer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership"
+                  ]
+                },
+                "description": "Ownership records, parties, evidence and transfer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Attach authority documents to the claim",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership"
+                  ]
+                },
+                "description": "Attach authority documents to the claim.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"documents\": [\n    {\n      \"document_type\": \"CERTIFICATE_OF_OCCUPANCY\",\n      \"media_id\": \"{{media_id}}\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Declare the claim type (or re-claim after rejection)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/claim",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "claim"
+                  ]
+                },
+                "description": "Declare the claim type (or re-claim after rejection).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"claim_type\": \"SOLE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Submit the claim to verification-service (PROPERTY_AUTHORITY)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/verification",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "verification"
+                  ]
+                },
+                "description": "Submit the claim to verification-service (PROPERTY_AUTHORITY).\n\nRequires the claim in EVIDENCE_PENDING or REVERIFICATION_REQUIRED with at least one READY document. verification-service decides; the result arrives via verification.* events (or POST /verification/{id}/sync).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Property verification history",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/verification?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "verification"
+                  ]
+                },
+                "description": "Property verification history.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Public verification summary (projection with limitations)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/verification-summary",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "verification-summary"
+                  ]
+                },
+                "description": "Public verification summary (projection with limitations).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Invite a co-owner / representative or record a beneficial owner",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('party_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/co-owners",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "co-owners"
+                  ]
+                },
+                "description": "Invite a co-owner / representative or record a beneficial owner.\n\nInvitees accept with the invited email once verified on their own owner account (account existence is never disclosed). Adding a co-owner to a VERIFIED claim requires re-verification.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"display_name\": \"Sample name\",\n  \"party_role\": \"CO_OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove a party",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/co-owners/{{party_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "co-owners",
+                    "{{party_id}}"
+                  ]
+                },
+                "description": "Remove a party.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Consent history of the property",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/consents?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "consents"
+                  ]
+                },
+                "description": "Consent history of the property.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Request co-owner consent for an action",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.consents.0.id') !== undefined) pm.collectionVariables.set('consent_id', String(pick(body, 'data.consents.0.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/consents",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "consents"
+                  ]
+                },
+                "description": "Request co-owner consent for an action.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action_type\": \"LISTING_PUBLISH\",\n  \"target_id\": \"{{target_id}}\",\n  \"target_type\": \"property\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Latest ownership transfer case",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('ownership_transfer_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership-transfer",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership-transfer"
+                  ]
+                },
+                "description": "Latest ownership transfer case.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Open a guarded ownership transfer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('transfer_case_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership-transfer",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership-transfer"
+                  ]
+                },
+                "description": "Open a guarded ownership transfer. Step-up required (POST /auth/step-up first).\n\nRequires step-up, verified authority, identity verification (policy) and co-owner consent (OWNERSHIP_TRANSFER, target = property). The recipient accepts, the transferor submits evidence, platform review decides; the owner never changes by a direct update.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"case_type\": \"TRANSFER\",\n  \"to_email\": \"owner.example@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Submit transfer evidence for review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership-transfer/submit",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership-transfer",
+                    "submit"
+                  ]
+                },
+                "description": "Submit transfer evidence for review. Step-up required (POST /auth/step-up first).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"documents\": [\n    {\n      \"document_type\": \"CERTIFICATE_OF_OCCUPANCY\",\n      \"media_id\": \"{{media_id}}\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel an open transfer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/properties/{{property_id}}/ownership-transfer/cancel",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "ownership-transfer",
+                    "cancel"
+                  ]
+                },
+                "description": "Cancel an open transfer.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "_Internal",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Fresh public property/authority summary (marketplace read-back)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/properties/{{property_id}}/public-summary",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "properties",
+                    "{{property_id}}",
+                    "public-summary"
+                  ]
+                },
+                "description": "Fresh public property/authority summary (marketplace read-back).\n\nCallers: marketplace-service, admin-service. No owner personal data; exact coordinates only with EXACT visibility.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
             }
           ]
         }

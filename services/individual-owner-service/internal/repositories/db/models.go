@@ -121,6 +121,26 @@ type AuthSession struct {
 	StepUpMethod    *string
 }
 
+type AuthorityDocument struct {
+	ID                     ids.ID
+	OwnershipRecordID      ids.ID
+	PropertyID             ids.ID
+	MediaID                ids.ID
+	DocumentType           string
+	MediaStatus            string
+	VerificationEvidenceID *ids.ID
+	UploadedByAccount      ids.ID
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+}
+
+type DashboardPreference struct {
+	AccountID         ids.ID
+	Widgets           []string
+	DefaultPropertyID *ids.ID
+	UpdatedAt         time.Time
+}
+
 type IdempotencyRecord struct {
 	ID             ids.ID
 	Scope          string
@@ -138,6 +158,108 @@ type IdempotencyRecord struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	ExpiresAt      time.Time
+}
+
+type LandParcel struct {
+	ID              ids.ID
+	PropertyID      ids.ID
+	ParcelRef       string
+	TitleType       *string
+	AreaSqm         *int32
+	Zoning          *string
+	AccessNotes     *string
+	BoundaryGeojson []byte
+	Status          string
+	Version         int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
+type LifecycleTransition struct {
+	ID               ids.ID
+	AggregateType    string
+	AggregateID      ids.ID
+	PropertyID       *ids.ID
+	FromStatus       string
+	ToStatus         string
+	Command          string
+	Reason           *string
+	ActorType        string
+	ActorDomain      *string
+	ActorID          *ids.ID
+	CallingService   *string
+	AggregateVersion int64
+	Metadata         []byte
+	OccurredAt       time.Time
+}
+
+type ManagerActivityRef struct {
+	ID           ids.ID
+	AssignmentID ids.ID
+	PropertyID   ids.ID
+	ActivityType string
+	RefService   string
+	RefType      *string
+	RefID        *ids.ID
+	Summary      string
+	ActorDomain  *string
+	ActorID      *ids.ID
+	OccurredAt   time.Time
+}
+
+type ManagerAssignment struct {
+	ID                       ids.ID
+	PropertyID               ids.ID
+	ProposalID               *ids.ID
+	ManagerDomain            string
+	ManagerRefID             ids.ID
+	ManagerDisplayName       string
+	RoleType                 string
+	Status                   string
+	StartsAt                 time.Time
+	EndsAt                   time.Time
+	CurrentPermissionVersion int32
+	ReportSchedule           string
+	CreatedByAccount         ids.ID
+	RevokedAt                *time.Time
+	RevokeReason             *string
+	Version                  int64
+	CreatedAt                time.Time
+	UpdatedAt                time.Time
+}
+
+type ManagerPermission struct {
+	ID                  ids.ID
+	AssignmentID        ids.ID
+	VersionNo           int32
+	Capabilities        []string
+	SpendLimitMinor     int64
+	EmergencyLimitMinor int64
+	Currency            string
+	EmergencyRule       string
+	CreatedByAccount    ids.ID
+	CreatedAt           time.Time
+}
+
+type ManagerProposal struct {
+	ID                 ids.ID
+	PropertyID         ids.ID
+	ManagerDomain      string
+	ManagerRefID       ids.ID
+	ManagerDisplayName string
+	RoleType           string
+	Capabilities       []string
+	FeeType            string
+	FeeBps             *int32
+	FeeAmountMinor     *int64
+	FeeCurrency        *string
+	ProposedBy         string
+	Status             string
+	Message            *string
+	ExpiresAt          time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 type MfaRecoveryCode struct {
@@ -228,9 +350,327 @@ type OwnerAccount struct {
 	UpdatedAt          time.Time
 }
 
+type OwnerContact struct {
+	ID           ids.ID
+	AccountID    ids.ID
+	ContactType  string
+	Label        *string
+	Name         *string
+	Relationship *string
+	Email        *string
+	PhoneE164    *string
+	VerifiedAt   *time.Time
+	RemovedAt    *time.Time
+	CreatedAt    time.Time
+}
+
+type OwnerCredential struct {
+	ID              ids.ID
+	AccountID       ids.ID
+	Provider        string
+	ProviderSubject string
+	EmailAtLink     *string
+	LinkedAt        time.Time
+	RevokedAt       *time.Time
+}
+
+type OwnerProfile struct {
+	AccountID          ids.ID
+	PreferredName      *string
+	Bio                *string
+	AvatarMediaID      *ids.ID
+	PublicProfile      bool
+	Languages          []string
+	Timezone           string
+	AccessibilityNeeds []string
+	PreferredChannel   string
+	MarketingOptIn     bool
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type OwnershipChangeCase struct {
+	ID                 ids.ID
+	PropertyID         ids.ID
+	CaseType           string
+	FromRecordID       ids.ID
+	ToAccountID        *ids.ID
+	ToEmail            *string
+	ToRecordID         *ids.ID
+	Status             string
+	RequestedByAccount ids.ID
+	Reason             *string
+	DecisionNote       *string
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type OwnershipConsent struct {
+	ID                 ids.ID
+	PropertyID         ids.ID
+	PartyID            ids.ID
+	ActionType         string
+	TargetType         string
+	TargetID           ids.ID
+	RequestedByAccount ids.ID
+	Decision           string
+	DecisionNote       *string
+	DecidedAt          *time.Time
+	ExpiresAt          time.Time
+	CreatedAt          time.Time
+}
+
+type OwnershipParty struct {
+	ID                ids.ID
+	OwnershipRecordID ids.ID
+	PropertyID        ids.ID
+	PartyRole         string
+	AccountID         *ids.ID
+	InviteEmail       *string
+	DisplayName       string
+	ShareBps          *int32
+	Capabilities      []string
+	EvidenceMediaID   *ids.ID
+	Status            string
+	ValidFrom         *time.Time
+	ValidUntil        *time.Time
+	RevokedAt         *time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type OwnershipRecord struct {
+	ID                   ids.ID
+	PropertyID           ids.ID
+	ClaimantAccountID    ids.ID
+	ClaimType            string
+	Status               string
+	IsPrimary            bool
+	ConflictWithRecordID *ids.ID
+	VerificationID       *ids.ID
+	VerifiedAt           *time.Time
+	ExpiresAt            *time.Time
+	ReasonCode           *string
+	Version              int64
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type PayoutAccount struct {
+	ID                    ids.ID
+	AccountID             ids.ID
+	Status                string
+	BankCode              string
+	BankName              string
+	AccountName           string
+	AccountNumberLast4    string
+	AccountFingerprint    string
+	Currency              string
+	PaymentBeneficiaryRef *string
+	NameMatch             *string
+	VerifiedAt            *time.Time
+	CoolingOffUntil       *time.Time
+	ActivatedAt           *time.Time
+	RemovedAt             *time.Time
+	Version               int64
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type PayoutChangeRequest struct {
+	ID               ids.ID
+	AccountID        ids.ID
+	PayoutAccountID  ids.ID
+	ChangeType       string
+	Status           string
+	StepUpMethod     string
+	RequestedSession *ids.ID
+	CoolingOffUntil  time.Time
+	AppliedAt        *time.Time
+	CreatedAt        time.Time
+}
+
+type PayoutProfile struct {
+	AccountID               ids.ID
+	DefaultPayoutAccountID  *ids.ID
+	RentPayoutAccountID     *ids.ID
+	SalePayoutAccountID     *ids.ID
+	ShortletPayoutAccountID *ids.ID
+	Version                 int64
+	UpdatedAt               time.Time
+}
+
 type ProcessedEvent struct {
 	Consumer    string
 	EventID     ids.ID
 	EventType   string
 	ProcessedAt time.Time
+}
+
+type Property struct {
+	ID                ids.ID
+	OwnerAccountID    ids.ID
+	Status            string
+	Category          string
+	PropertyType      string
+	Title             string
+	Description       *string
+	Timezone          string
+	Bedrooms          *int32
+	Bathrooms         *int32
+	FloorAreaSqm      *int32
+	YearBuilt         *int32
+	TransactionReady  bool
+	RestrictionReason *string
+	ExternalRef       *string
+	ImportID          *ids.ID
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type PropertyAccess struct {
+	PropertyID   ids.ID
+	AccountID    ids.ID
+	Role         string
+	ValidFrom    *time.Time
+	ValidUntil   *time.Time
+	Capabilities []string
+}
+
+type PropertyAddress struct {
+	PropertyID    ids.ID
+	Line1         string
+	Line2         *string
+	City          string
+	StateRegion   string
+	PostalCode    *string
+	CountryCode   string
+	Latitude      *float64
+	Longitude     *float64
+	Visibility    string
+	AreaLabel     *string
+	Fingerprint   string
+	GeocodeSource string
+	GeocodedAt    *time.Time
+	UpdatedAt     time.Time
+}
+
+type PropertyAsset struct {
+	ID                  ids.ID
+	PropertyID          ids.ID
+	UnitID              *ids.ID
+	AssetType           string
+	Name                string
+	Make                *string
+	Model               *string
+	SerialNumber        *string
+	InstalledOn         *time.Time
+	WarrantyUntil       *time.Time
+	ServiceIntervalDays *int32
+	LastServicedOn      *time.Time
+	Status              string
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type PropertyFeature struct {
+	PropertyID ids.ID
+	FeatureKey string
+	Category   string
+	Value      *string
+	UpdatedAt  time.Time
+}
+
+type PropertyHistory struct {
+	ID          ids.ID
+	PropertyID  ids.ID
+	EventType   string
+	Summary     string
+	RefType     *string
+	RefID       *ids.ID
+	ActorDomain *string
+	ActorID     *ids.ID
+	OccurredAt  time.Time
+}
+
+type PropertyImport struct {
+	ID             ids.ID
+	AccountID      ids.ID
+	Status         string
+	Rows           []byte
+	TotalRows      int32
+	CreatedCount   int32
+	MatchedCount   int32
+	ErrorCount     int32
+	Errors         []byte
+	LeaseOwner     *string
+	LeaseExpiresAt *time.Time
+	Attempts       int32
+	CreatedAt      time.Time
+	CompletedAt    *time.Time
+}
+
+type PropertyMediaLink struct {
+	ID          ids.ID
+	PropertyID  ids.ID
+	MediaID     ids.ID
+	Purpose     string
+	MediaStatus string
+	Position    int32
+	Caption     *string
+	GeotagLat   *float64
+	GeotagLon   *float64
+	CapturedAt  *time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type PropertyUnit struct {
+	ID           ids.ID
+	PropertyID   ids.ID
+	ParentUnitID *ids.ID
+	UnitType     string
+	Label        string
+	FloorNumber  *int32
+	Bedrooms     *int32
+	Bathrooms    *int32
+	FloorAreaSqm *int32
+	Status       string
+	Version      int64
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type TaxProfile struct {
+	AccountID            ids.ID
+	TaxIDType            *string
+	TaxIDLast4           *string
+	TaxIDFingerprint     *string
+	ResidencyCountry     *string
+	ReportingPreferences []string
+	PolicyVersion        *string
+	Version              int64
+	UpdatedAt            time.Time
+}
+
+type VerificationLink struct {
+	ID                ids.ID
+	VerificationID    ids.ID
+	VerificationType  string
+	SubjectType       string
+	SubjectID         ids.ID
+	AccountID         ids.ID
+	PropertyID        *ids.ID
+	OwnershipRecordID *ids.ID
+	Status            string
+	ReasonCode        *string
+	DecidedAt         *time.Time
+	ExpiresAt         *time.Time
+	LastEventAt       *time.Time
+	LastSyncedAt      time.Time
+	CreatedAt         time.Time
 }

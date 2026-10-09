@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "PropertyEvent": {
+      "properties": {
+        "area_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bathrooms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "bedrooms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "category": {
+          "type": "string"
+        },
+        "changed_fields": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "floor_area_sqm": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "property_type": {
+          "type": "string"
+        },
+        "property_version": {
+          "description": "Monotonic; consumers discard stale versions",
+          "type": "integer"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "state_region": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "property_id",
+        "status",
+        "category",
+        "property_type",
+        "title",
+        "city",
+        "state_region",
+        "country_code",
+        "changed_fields",
+        "property_version",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/property.created.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "A persistent property record was created; it is not necessarily publishable. Producer: individual-owner-service. Consumers: Marketplace, Admin. Aggregate: property. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "property"
+    },
+    "event_type": {
+      "const": "property.created.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/PropertyEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "property.created.v1"
+}

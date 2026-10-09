@@ -1,0 +1,4920 @@
+# Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.
+components:
+  responses:
+    Error:
+      content:
+        application/json:
+          schema:
+            $ref: ../../schemas/error-envelope.schema.json
+      description: Platform error envelope.
+  schemas:
+    AccountStatusView:
+      properties:
+        account_id:
+          format: uuid
+          type: string
+        activation_rule:
+          type: string
+        closure_effective_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        email_verified:
+          type: boolean
+        gates:
+          items:
+            $ref: '#/components/schemas/GateView'
+          type: array
+        identity_verification_expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        identity_verification_status:
+          description: NONE or the latest IDENTITY verification status
+          type: string
+        mfa_enabled:
+          type: boolean
+        phone_verified:
+          type: boolean
+        policy_version:
+          type: string
+        status:
+          type: string
+      required:
+        - account_id
+        - status
+        - activation_rule
+        - email_verified
+        - phone_verified
+        - mfa_enabled
+        - identity_verification_status
+        - gates
+        - policy_version
+      type: object
+    AddEvidenceInputInput:
+      additionalProperties: false
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentInputInput'
+          maxItems: 20
+          minItems: 1
+          type: array
+      required:
+        - documents
+      type: object
+    AddPayoutAccountInputInput:
+      additionalProperties: false
+      properties:
+        account_name:
+          maxLength: 160
+          type: string
+        account_number:
+          description: Forwarded to payment-service; only the last 4 digits are kept
+          pattern: ^(?:[0-9]{6,20})$
+          type: string
+        bank_code:
+          examples:
+            - "058"
+          pattern: ^(?:[A-Z0-9]{2,20})$
+          type: string
+        bank_name:
+          maxLength: 120
+          type: string
+        currency:
+          examples:
+            - NGN
+          pattern: ^[A-Z]{3}$
+          type: string
+      required:
+        - bank_code
+        - bank_name
+        - account_name
+        - account_number
+        - currency
+      type: object
+    AddressInputInput:
+      additionalProperties: false
+      properties:
+        area_label:
+          description: Public neighbourhood label
+          maxLength: 120
+          type: string
+        city:
+          maxLength: 100
+          type: string
+        country_code:
+          examples:
+            - NG
+          pattern: ^[A-Z]{2}$
+          type: string
+        latitude:
+          maximum: 90
+          minimum: -90
+          type: number
+        line1:
+          maxLength: 200
+          type: string
+        line2:
+          maxLength: 200
+          type: string
+        longitude:
+          maximum: 180
+          minimum: -180
+          type: number
+        postal_code:
+          maxLength: 20
+          type: string
+        state_region:
+          maxLength: 100
+          type: string
+        visibility:
+          description: Public address precision; default APPROXIMATE
+          enum:
+            - EXACT
+            - APPROXIMATE
+            - HIDDEN
+          type: string
+      required:
+        - line1
+        - city
+        - state_region
+        - country_code
+      type: object
+    AddressView:
+      properties:
+        area_label:
+          type:
+            - string
+            - "null"
+        city:
+          type: string
+        country_code:
+          type: string
+        geocode_source:
+          type: string
+        geocoded_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        latitude:
+          type:
+            - number
+            - "null"
+        line1:
+          type: string
+        line2:
+          type:
+            - string
+            - "null"
+        longitude:
+          type:
+            - number
+            - "null"
+        postal_code:
+          type:
+            - string
+            - "null"
+        state_region:
+          type: string
+        visibility:
+          type: string
+      required:
+        - line1
+        - city
+        - state_region
+        - country_code
+        - visibility
+        - geocode_source
+      type: object
+    AssetInputInput:
+      additionalProperties: false
+      properties:
+        asset_type:
+          examples:
+            - GENERATOR
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        installed_on:
+          format: date
+          type: string
+        last_serviced_on:
+          format: date
+          type: string
+        make:
+          maxLength: 80
+          type: string
+        model:
+          maxLength: 80
+          type: string
+        name:
+          maxLength: 120
+          type: string
+        serial_number:
+          maxLength: 80
+          type: string
+        service_interval_days:
+          maximum: 3650
+          minimum: 1
+          type: integer
+        status:
+          enum:
+            - ACTIVE
+            - RETIRED
+          type: string
+        unit_id:
+          format: uuid
+          type: string
+        warranty_until:
+          format: date
+          type: string
+      required:
+        - asset_type
+        - name
+      type: object
+    AssetView:
+      properties:
+        asset_type:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        installed_on:
+          description: YYYY-MM-DD
+          type:
+            - string
+            - "null"
+        last_serviced_on:
+          type:
+            - string
+            - "null"
+        make:
+          type:
+            - string
+            - "null"
+        model:
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+        next_service_due:
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        serial_number:
+          type:
+            - string
+            - "null"
+        service_interval_days:
+          type:
+            - integer
+            - "null"
+        status:
+          type: string
+        unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+        warranty_until:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - property_id
+        - asset_type
+        - name
+        - status
+        - version
+        - created_at
+        - updated_at
+      type: object
+    ClaimInputInput:
+      additionalProperties: false
+      properties:
+        claim_type:
+          enum:
+            - SOLE
+            - JOINT
+            - FAMILY
+            - INHERITED
+            - PROBATE
+            - POWER_OF_ATTORNEY
+            - SUBLETTING_AUTHORITY
+            - LEASEHOLD
+          type: string
+      required:
+        - claim_type
+      type: object
+    CoOwnerInputInput:
+      additionalProperties: false
+      properties:
+        capabilities:
+          description: Explicit delegable capabilities (representatives and executors only)
+          items:
+            type: string
+          maxItems: 30
+          type: array
+        display_name:
+          maxLength: 160
+          type: string
+        email:
+          description: Invitee's sign-in email (not needed for BENEFICIAL_OWNER)
+          format: email
+          type: string
+        evidence_media_id:
+          description: Mandate / power-of-attorney / letters of administration
+          format: uuid
+          type: string
+        party_role:
+          enum:
+            - CO_OWNER
+            - AUTHORIZED_REPRESENTATIVE
+            - ESTATE_EXECUTOR
+            - BENEFICIAL_OWNER
+          type: string
+        share_bps:
+          description: Co-owner share; the primary owner keeps the remainder
+          maximum: 9999
+          minimum: 1
+          type: integer
+        valid_until:
+          description: Required for AUTHORIZED_REPRESENTATIVE
+          format: date-time
+          type: string
+      required:
+        - party_role
+        - display_name
+      type: object
+    ConsentDecisionInputInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - APPROVED
+            - REJECTED
+          type: string
+        note:
+          maxLength: 1000
+          type: string
+      required:
+        - decision
+      type: object
+    ConsentStatus:
+      properties:
+        action_type:
+          type: string
+        consents:
+          items:
+            $ref: '#/components/schemas/ConsentView'
+          type: array
+        satisfied:
+          type: boolean
+        target_id:
+          format: uuid
+          type: string
+        threshold:
+          type: string
+      required:
+        - action_type
+        - target_id
+        - satisfied
+        - threshold
+        - consents
+      type: object
+    ConsentView:
+      properties:
+        action_type:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decision:
+          type: string
+        decision_note:
+          type:
+            - string
+            - "null"
+        expires_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        party_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          type: string
+      required:
+        - id
+        - property_id
+        - party_id
+        - action_type
+        - target_type
+        - target_id
+        - decision
+        - expires_at
+        - created_at
+      type: object
+    ContactInputInput:
+      additionalProperties: false
+      properties:
+        contact_type:
+          enum:
+            - EMAIL
+            - PHONE
+            - EMERGENCY
+            - TRUSTED
+          type: string
+        email:
+          format: email
+          type: string
+        label:
+          maxLength: 60
+          type: string
+        name:
+          maxLength: 120
+          type: string
+        phone:
+          pattern: ^\+[1-9][0-9]{7,14}$
+          type: string
+        relationship:
+          maxLength: 60
+          type: string
+      required:
+        - contact_type
+      type: object
+    ContactView:
+      properties:
+        contact_type:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        email:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        label:
+          type:
+            - string
+            - "null"
+        name:
+          type:
+            - string
+            - "null"
+        phone:
+          type:
+            - string
+            - "null"
+        relationship:
+          type:
+            - string
+            - "null"
+        verified:
+          type: boolean
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - contact_type
+        - verified
+        - created_at
+      type: object
+    CreatePropertyInputInput:
+      additionalProperties: false
+      properties:
+        address:
+          $ref: '#/components/schemas/AddressInputInput'
+        bathrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        bedrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        category:
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - LAND
+            - MIXED_USE
+          type: string
+        claim_type:
+          description: Default SOLE
+          enum:
+            - SOLE
+            - JOINT
+            - FAMILY
+            - INHERITED
+            - PROBATE
+            - POWER_OF_ATTORNEY
+            - SUBLETTING_AUTHORITY
+            - LEASEHOLD
+          type: string
+        description:
+          maxLength: 10000
+          type: string
+        external_ref:
+          description: Owner's own reference; unique per owner (import matching key)
+          maxLength: 128
+          type: string
+        features:
+          items:
+            $ref: '#/components/schemas/FeatureInputInput'
+          maxItems: 100
+          type: array
+        floor_area_sqm:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+        property_type:
+          examples:
+            - APARTMENT
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        timezone:
+          description: IANA zone; default Africa/Lagos
+          maxLength: 64
+          pattern: ^(?:[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2})$
+          type: string
+        title:
+          maxLength: 160
+          minLength: 3
+          type: string
+        year_built:
+          maximum: 2200
+          minimum: 1600
+          type: integer
+      required:
+        - category
+        - property_type
+        - title
+        - address
+      type: object
+    DocumentInputInput:
+      additionalProperties: false
+      properties:
+        document_type:
+          examples:
+            - CERTIFICATE_OF_OCCUPANCY
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        media_id:
+          format: uuid
+          type: string
+      required:
+        - media_id
+        - document_type
+      type: object
+    DocumentView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        document_type:
+          type: string
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        media_status:
+          type: string
+        submitted_to_verification:
+          type: boolean
+      required:
+        - id
+        - media_id
+        - document_type
+        - media_status
+        - submitted_to_verification
+        - created_at
+      type: object
+    EvidenceInputInput:
+      additionalProperties: false
+      properties:
+        evidence_type:
+          examples:
+            - ID_DOCUMENT_FRONT
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+        media_id:
+          format: uuid
+          type: string
+      required:
+        - media_id
+        - evidence_type
+      type: object
+    FeatureInputInput:
+      additionalProperties: false
+      properties:
+        category:
+          enum:
+            - AMENITY
+            - UTILITY
+            - ACCESSIBILITY
+            - FACILITY
+            - CONDITION
+            - SECURITY
+          type: string
+        key:
+          examples:
+            - borehole
+          pattern: ^(?:[a-z][a-z0-9_]{1,59})$
+          type: string
+        value:
+          maxLength: 200
+          type: string
+      required:
+        - key
+        - category
+      type: object
+    FeatureView:
+      properties:
+        category:
+          type: string
+        key:
+          type: string
+        value:
+          type:
+            - string
+            - "null"
+      required:
+        - key
+        - category
+      type: object
+    GateView:
+      properties:
+        action:
+          type: string
+        allowed:
+          type: boolean
+        missing:
+          description: Unmet requirements, e.g. ACCOUNT_ACTIVE, IDENTITY_VERIFIED
+          items:
+            type: string
+          type: array
+      required:
+        - action
+        - allowed
+        - missing
+      type: object
+    HistoryView:
+      properties:
+        actor_domain:
+          type:
+            - string
+            - "null"
+        actor_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        event_type:
+          type: string
+        id:
+          format: uuid
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+        ref_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        ref_type:
+          type:
+            - string
+            - "null"
+        summary:
+          type: string
+      required:
+        - id
+        - event_type
+        - summary
+        - occurred_at
+      type: object
+    IdentityVerificationInputInput:
+      additionalProperties: false
+      properties:
+        evidence:
+          items:
+            $ref: '#/components/schemas/EvidenceInputInput'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+        - evidence
+      type: object
+    ImportError:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        row:
+          type: integer
+      required:
+        - row
+        - code
+        - message
+      type: object
+    ImportInputInput:
+      additionalProperties: false
+      properties:
+        rows:
+          description: Rows are validated during processing; failures are reported per row
+          items:
+            $ref: '#/components/schemas/ImportRowInput'
+          maxItems: 500
+          minItems: 1
+          type: array
+      required:
+        - rows
+      type: object
+    ImportRowInput:
+      additionalProperties: false
+      properties:
+        address:
+          $ref: '#/components/schemas/AddressInputInput'
+        bathrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        bedrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        category:
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - LAND
+            - MIXED_USE
+          type: string
+        claim_type:
+          description: Default SOLE
+          enum:
+            - SOLE
+            - JOINT
+            - FAMILY
+            - INHERITED
+            - PROBATE
+            - POWER_OF_ATTORNEY
+            - SUBLETTING_AUTHORITY
+            - LEASEHOLD
+          type: string
+        description:
+          maxLength: 10000
+          type: string
+        external_ref:
+          maxLength: 128
+          type: string
+        features:
+          items:
+            $ref: '#/components/schemas/FeatureInputInput'
+          maxItems: 100
+          type: array
+        floor_area_sqm:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+        property_type:
+          examples:
+            - APARTMENT
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        timezone:
+          description: IANA zone; default Africa/Lagos
+          maxLength: 64
+          pattern: ^(?:[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2})$
+          type: string
+        title:
+          maxLength: 160
+          minLength: 3
+          type: string
+        year_built:
+          maximum: 2200
+          minimum: 1600
+          type: integer
+      required:
+        - category
+        - property_type
+        - title
+        - address
+        - external_ref
+      type: object
+    ImportView:
+      properties:
+        completed_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        created_count:
+          type: integer
+        error_count:
+          type: integer
+        errors:
+          items:
+            $ref: '#/components/schemas/ImportError'
+          type: array
+        id:
+          format: uuid
+          type: string
+        matched_count:
+          description: Rows whose external_ref matched an existing property (not duplicated)
+          type: integer
+        status:
+          type: string
+        total_rows:
+          type: integer
+      required:
+        - id
+        - status
+        - total_rows
+        - created_count
+        - matched_count
+        - error_count
+        - errors
+        - created_at
+      type: object
+    InvitationView:
+      properties:
+        capabilities:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        party_id:
+          format: uuid
+          type: string
+        party_role:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        property_title:
+          type: string
+        share_bps:
+          type:
+            - integer
+            - "null"
+        valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - party_id
+        - property_id
+        - property_title
+        - party_role
+        - capabilities
+        - created_at
+      type: object
+    MediaLinkInputInput:
+      additionalProperties: false
+      properties:
+        caption:
+          maxLength: 200
+          type: string
+        captured_at:
+          format: date-time
+          type: string
+        geotag_lat:
+          maximum: 90
+          minimum: -90
+          type: number
+        geotag_lon:
+          maximum: 180
+          minimum: -180
+          type: number
+        media_id:
+          format: uuid
+          type: string
+        position:
+          maximum: 1000
+          minimum: 0
+          type: integer
+        purpose:
+          enum:
+            - PHOTO
+            - FLOOR_PLAN
+            - VIDEO
+            - VIRTUAL_TOUR
+            - INSPECTION
+            - DOCUMENT
+          type: string
+      required:
+        - media_id
+        - purpose
+      type: object
+    MediaLinkView:
+      properties:
+        caption:
+          type:
+            - string
+            - "null"
+        captured_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        geotag_lat:
+          description: Client-supplied capture metadata (untrusted; informational)
+          type:
+            - number
+            - "null"
+        geotag_lon:
+          type:
+            - number
+            - "null"
+        id:
+          format: uuid
+          type: string
+        media_id:
+          format: uuid
+          type: string
+        media_status:
+          description: 'Usability projection from media-document-service: PENDING, READY, REJECTED, DELETED'
+          type: string
+        position:
+          type: integer
+        purpose:
+          type: string
+      required:
+        - id
+        - media_id
+        - purpose
+        - media_status
+        - position
+        - created_at
+      type: object
+    OwnershipSummary:
+      properties:
+        claim_type:
+          type: string
+        conflict:
+          description: Another owner's record conflicts with this claim; admin review required
+          type: boolean
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        record_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        verified:
+          type: boolean
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - record_id
+        - claim_type
+        - status
+        - verified
+        - conflict
+      type: object
+    OwnershipView:
+      properties:
+        parties:
+          items:
+            $ref: '#/components/schemas/PartyView'
+          type: array
+        previous_records:
+          items:
+            $ref: '#/components/schemas/RecordView'
+          type: array
+        primary:
+          oneOf:
+            - $ref: '#/components/schemas/RecordView'
+            - type: "null"
+        property_id:
+          format: uuid
+          type: string
+        transfer:
+          oneOf:
+            - $ref: '#/components/schemas/TransferView'
+            - type: "null"
+      required:
+        - property_id
+        - previous_records
+        - parties
+      type: object
+    Page:
+      $ref: ../../schemas/pagination.schema.json
+    ParcelInputInput:
+      additionalProperties: false
+      properties:
+        access_notes:
+          maxLength: 2000
+          type: string
+        area_sqm:
+          maximum: 2000000000
+          minimum: 1
+          type: integer
+        boundary_geojson:
+          contentEncoding: base64
+          type: string
+        parcel_ref:
+          description: Survey plan / registry reference
+          maxLength: 120
+          type: string
+        status:
+          enum:
+            - ACTIVE
+            - ARCHIVED
+          type: string
+        title_type:
+          examples:
+            - CERTIFICATE_OF_OCCUPANCY
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        zoning:
+          maxLength: 120
+          type: string
+      required:
+        - parcel_ref
+      type: object
+    ParcelView:
+      properties:
+        access_notes:
+          type:
+            - string
+            - "null"
+        area_sqm:
+          type:
+            - integer
+            - "null"
+        boundary_geojson:
+          contentEncoding: base64
+          description: GeoJSON Polygon/MultiPolygon (owner-provided)
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        parcel_ref:
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        title_type:
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+        zoning:
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - property_id
+        - parcel_ref
+        - boundary_geojson
+        - status
+        - version
+        - created_at
+        - updated_at
+      type: object
+    PartyView:
+      properties:
+        capabilities:
+          items:
+            type: string
+          type: array
+        created_at:
+          format: date-time
+          type: string
+        display_name:
+          type: string
+        id:
+          format: uuid
+          type: string
+        invite_email:
+          type:
+            - string
+            - "null"
+        linked:
+          description: An owner account accepted the invitation
+          type: boolean
+        party_role:
+          type: string
+        share_bps:
+          description: Ownership share in basis points (10000 = 100%)
+          type:
+            - integer
+            - "null"
+        status:
+          type: string
+        valid_from:
+          format: date-time
+          type:
+            - string
+            - "null"
+        valid_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - party_role
+        - display_name
+        - status
+        - linked
+        - capabilities
+        - created_at
+      type: object
+    PayoutAccountView:
+      properties:
+        account_name:
+          type: string
+        account_number_last4:
+          type: string
+        activated_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        bank_code:
+          type: string
+        bank_name:
+          type: string
+        cooling_off_until:
+          format: date-time
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        id:
+          format: uuid
+          type: string
+        is_default:
+          type: boolean
+        name_match:
+          description: payment-service account-name match result
+          type:
+            - string
+            - "null"
+        status:
+          description: PENDING_VERIFICATION, COOLING_OFF, ACTIVE, REJECTED
+          type: string
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - status
+        - bank_code
+        - bank_name
+        - account_name
+        - account_number_last4
+        - currency
+        - is_default
+        - version
+        - created_at
+      type: object
+    PayoutPreferencesInputInput:
+      additionalProperties: false
+      properties:
+        default_payout_account_id:
+          format: uuid
+          type: string
+        rent_payout_account_id:
+          format: uuid
+          type: string
+        sale_payout_account_id:
+          format: uuid
+          type: string
+        shortlet_payout_account_id:
+          format: uuid
+          type: string
+      type: object
+    PayoutPreferencesView:
+      properties:
+        default_payout_account_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        rent_payout_account_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        sale_payout_account_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        shortlet_payout_account_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - version
+        - updated_at
+      type: object
+    PendingConsentView:
+      properties:
+        action_type:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        decision:
+          type: string
+        decision_note:
+          type:
+            - string
+            - "null"
+        expires_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        party_id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        property_title:
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          type: string
+      required:
+        - id
+        - property_id
+        - party_id
+        - action_type
+        - target_type
+        - target_id
+        - decision
+        - expires_at
+        - created_at
+        - property_title
+      type: object
+    ProfileInputInput:
+      additionalProperties: false
+      properties:
+        accessibility_needs:
+          items:
+            enum:
+              - SCREEN_READER
+              - LARGE_TEXT
+              - HIGH_CONTRAST
+              - CAPTIONS
+              - ASSISTED_USE
+              - SIMPLE_LANGUAGE
+            type: string
+          maxItems: 10
+          type: array
+        avatar_media_id:
+          format: uuid
+          type: string
+        bio:
+          maxLength: 2000
+          type: string
+        languages:
+          items:
+            pattern: ^(?:[a-z]{2}(-[A-Z]{2})?)$
+            type: string
+          maxItems: 10
+          type: array
+        marketing_opt_in:
+          type: boolean
+        preferred_channel:
+          enum:
+            - PUSH
+            - EMAIL
+            - SMS
+            - IN_APP
+          type: string
+        preferred_name:
+          maxLength: 120
+          type: string
+        public_profile:
+          type: boolean
+        timezone:
+          examples:
+            - Africa/Lagos
+          maxLength: 64
+          pattern: ^(?:[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2})$
+          type: string
+      required:
+        - timezone
+        - preferred_channel
+      type: object
+    ProfileView:
+      properties:
+        accessibility_needs:
+          items:
+            type: string
+          type: array
+        account_id:
+          format: uuid
+          type: string
+        avatar_media_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        bio:
+          type:
+            - string
+            - "null"
+        display_name:
+          type: string
+        languages:
+          items:
+            type: string
+          type: array
+        marketing_opt_in:
+          type: boolean
+        preferred_channel:
+          type: string
+        preferred_name:
+          type:
+            - string
+            - "null"
+        public_profile:
+          type: boolean
+        timezone:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          description: 0 until the profile is first saved; send it as If-Match
+          type: integer
+      required:
+        - account_id
+        - display_name
+        - public_profile
+        - languages
+        - timezone
+        - accessibility_needs
+        - preferred_channel
+        - marketing_opt_in
+        - version
+        - updated_at
+      type: object
+    PropertySummary:
+      properties:
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        is_owner:
+          description: The caller is the primary owner
+          type: boolean
+        property_type:
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - status
+        - category
+        - property_type
+        - title
+        - is_owner
+        - version
+        - created_at
+        - updated_at
+      type: object
+    PropertyView:
+      properties:
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/AddressView'
+            - type: "null"
+        bathrooms:
+          type:
+            - integer
+            - "null"
+        bedrooms:
+          type:
+            - integer
+            - "null"
+        category:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type:
+            - string
+            - "null"
+        external_ref:
+          type:
+            - string
+            - "null"
+        features:
+          items:
+            $ref: '#/components/schemas/FeatureView'
+          type: array
+        floor_area_sqm:
+          type:
+            - integer
+            - "null"
+        id:
+          format: uuid
+          type: string
+        my_role:
+          description: 'Caller''s relationship: OWNER, CO_OWNER, AUTHORIZED_REPRESENTATIVE or DELEGATED_MANAGER'
+          type: string
+        ownership:
+          oneOf:
+            - $ref: '#/components/schemas/OwnershipSummary'
+            - type: "null"
+        property_type:
+          type: string
+        restriction_reason:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        timezone:
+          type: string
+        title:
+          type: string
+        transaction_ready:
+          type: boolean
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+        year_built:
+          type:
+            - integer
+            - "null"
+      required:
+        - id
+        - status
+        - category
+        - property_type
+        - title
+        - timezone
+        - transaction_ready
+        - features
+        - my_role
+        - version
+        - created_at
+        - updated_at
+      type: object
+    PublicSummary:
+      properties:
+        area_label:
+          type:
+            - string
+            - "null"
+        authority_verified:
+          type: boolean
+        category:
+          type: string
+        city:
+          type: string
+        country_code:
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        generated_at:
+          format: date-time
+          type: string
+        latitude:
+          description: Only when the owner chose EXACT visibility
+          type:
+            - number
+            - "null"
+        limitations:
+          items:
+            type: string
+          type: array
+        longitude:
+          type:
+            - number
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        property_type:
+          type: string
+        property_version:
+          type: integer
+        ready_photo_count:
+          type: integer
+        restricted:
+          type: boolean
+        state_region:
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        verification_level:
+          type: string
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+      required:
+        - property_id
+        - status
+        - category
+        - property_type
+        - title
+        - city
+        - state_region
+        - country_code
+        - authority_verified
+        - verification_level
+        - restricted
+        - ready_photo_count
+        - limitations
+        - property_version
+        - generated_at
+      type: object
+    ReasonInputInput:
+      additionalProperties: false
+      properties:
+        reason:
+          maxLength: 500
+          type: string
+      type: object
+    RecordView:
+      properties:
+        allowed_next_statuses:
+          items:
+            type: string
+          type: array
+        claim_type:
+          type: string
+        conflict:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentView'
+          type: array
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        is_primary:
+          type: boolean
+        reason_code:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        verification_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        verified_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        version:
+          type: integer
+      required:
+        - id
+        - claim_type
+        - status
+        - is_primary
+        - conflict
+        - documents
+        - allowed_next_statuses
+        - version
+        - created_at
+        - updated_at
+      type: object
+    Removed:
+      properties:
+        id:
+          format: uuid
+          type: string
+        removed:
+          type: boolean
+      required:
+        - id
+        - removed
+      type: object
+    RequestConsentInputInput:
+      additionalProperties: false
+      properties:
+        action_type:
+          enum:
+            - LISTING_PUBLISH
+            - SALE
+            - MANAGER_ASSIGNMENT
+            - OWNERSHIP_TRANSFER
+            - PRICE_CHANGE
+            - LEASE
+          type: string
+        target_id:
+          format: uuid
+          type: string
+        target_type:
+          enum:
+            - property
+            - listing
+            - sale_transaction
+            - manager_assignment
+            - agreement
+            - price_schedule
+          type: string
+      required:
+        - action_type
+        - target_type
+        - target_id
+      type: object
+    Statement:
+      properties:
+        currency:
+          type: string
+        download_ref:
+          type: string
+        period_end:
+          format: date-time
+          type: string
+        period_start:
+          format: date-time
+          type: string
+        statement_id:
+          format: uuid
+          type: string
+      required:
+        - statement_id
+        - period_start
+        - period_end
+        - currency
+        - download_ref
+      type: object
+    TaxProfileInputInput:
+      additionalProperties: false
+      properties:
+        reporting_preferences:
+          items:
+            enum:
+              - ANNUAL_STATEMENT
+              - QUARTERLY_STATEMENT
+              - WITHHOLDING_CERTIFICATES
+            type: string
+          maxItems: 10
+          type: array
+        residency_country:
+          pattern: ^[A-Z]{2}$
+          type: string
+        tax_id:
+          description: Only a keyed fingerprint and the last 4 characters are stored
+          maxLength: 40
+          minLength: 4
+          pattern: ^(?:[A-Za-z0-9-]+)$
+          type: string
+        tax_id_type:
+          examples:
+            - TIN
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,31})$
+          type: string
+      type: object
+    TaxProfileView:
+      properties:
+        policy_version:
+          type:
+            - string
+            - "null"
+        reporting_preferences:
+          items:
+            type: string
+          type: array
+        residency_country:
+          type:
+            - string
+            - "null"
+        tax_id_last4:
+          type:
+            - string
+            - "null"
+        tax_id_type:
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - reporting_preferences
+        - version
+        - updated_at
+      type: object
+    TransferInputInput:
+      additionalProperties: false
+      properties:
+        case_type:
+          enum:
+            - TRANSFER
+            - SUCCESSION
+            - INCAPACITY
+          type: string
+        reason:
+          maxLength: 2000
+          type: string
+        to_email:
+          description: Recipient's sign-in email; the recipient must accept
+          format: email
+          type: string
+      required:
+        - case_type
+        - to_email
+      type: object
+    TransferView:
+      properties:
+        case_type:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        decision_note:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        property_id:
+          format: uuid
+          type: string
+        reason:
+          type:
+            - string
+            - "null"
+        recipient_accepted:
+          type: boolean
+        status:
+          type: string
+        to_email:
+          type:
+            - string
+            - "null"
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - case_type
+        - status
+        - recipient_accepted
+        - version
+        - created_at
+        - updated_at
+      type: object
+    UnitInputInput:
+      additionalProperties: false
+      properties:
+        bathrooms:
+          maximum: 100
+          minimum: 0
+          type: integer
+        bedrooms:
+          maximum: 100
+          minimum: 0
+          type: integer
+        floor_area_sqm:
+          maximum: 10000000
+          minimum: 1
+          type: integer
+        floor_number:
+          maximum: 300
+          minimum: -10
+          type: integer
+        label:
+          examples:
+            - Flat 2B
+          maxLength: 80
+          type: string
+        parent_unit_id:
+          format: uuid
+          type: string
+        unit_type:
+          enum:
+            - BUILDING
+            - BLOCK
+            - FLOOR
+            - UNIT
+            - ROOM
+            - SHOP
+            - OFFICE
+            - WAREHOUSE
+            - OTHER
+          type: string
+      required:
+        - unit_type
+        - label
+      type: object
+    UnitPatchInput:
+      additionalProperties: false
+      properties:
+        bathrooms:
+          maximum: 100
+          minimum: 0
+          type: integer
+        bedrooms:
+          maximum: 100
+          minimum: 0
+          type: integer
+        floor_area_sqm:
+          maximum: 10000000
+          minimum: 1
+          type: integer
+        floor_number:
+          maximum: 300
+          minimum: -10
+          type: integer
+        label:
+          maxLength: 80
+          type: string
+        status:
+          description: ARCHIVED retires the unit (blocked while it has active child units or business)
+          enum:
+            - ACTIVE
+            - ARCHIVED
+          type: string
+      type: object
+    UnitView:
+      properties:
+        bathrooms:
+          type:
+            - integer
+            - "null"
+        bedrooms:
+          type:
+            - integer
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        floor_area_sqm:
+          type:
+            - integer
+            - "null"
+        floor_number:
+          type:
+            - integer
+            - "null"
+        id:
+          format: uuid
+          type: string
+        label:
+          type: string
+        parent_unit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        property_id:
+          format: uuid
+          type: string
+        status:
+          type: string
+        unit_type:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - property_id
+        - unit_type
+        - label
+        - status
+        - version
+        - created_at
+        - updated_at
+      type: object
+    UpdatePropertyInputInput:
+      additionalProperties: false
+      properties:
+        address:
+          $ref: '#/components/schemas/AddressInputInput'
+        bathrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        bedrooms:
+          maximum: 500
+          minimum: 0
+          type: integer
+        description:
+          description: Empty string clears
+          maxLength: 10000
+          type: string
+        features:
+          description: Replaces the whole feature set
+          items:
+            $ref: '#/components/schemas/FeatureInputInput'
+          maxItems: 100
+          type: array
+        floor_area_sqm:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+        property_type:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,39})$
+          type: string
+        timezone:
+          maxLength: 64
+          pattern: ^(?:[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2})$
+          type: string
+        title:
+          maxLength: 160
+          minLength: 3
+          type: string
+        year_built:
+          maximum: 2200
+          minimum: 1600
+          type: integer
+      type: object
+    VerificationLinkView:
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        decided_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        last_synced_at:
+          format: date-time
+          type: string
+        reason_code:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+        verification_id:
+          format: uuid
+          type: string
+        verification_type:
+          type: string
+      required:
+        - verification_id
+        - verification_type
+        - status
+        - last_synced_at
+        - created_at
+      type: object
+  securitySchemes:
+    OwnerBearer:
+      bearerFormat: owner at+jwt (EdDSA)
+      scheme: bearer
+      type: http
+info:
+  description: |-
+    Owner-facing domain API of individual-owner-service (Sections 6–13 of the Individual Owner
+    Backend Implementation Specification v1.0), reached only through the API Gateway under
+    /api/v1/owner/*. Authentication, sessions and account security (Section 5) are documented in
+    individual-owner.yaml.
+
+    Conventions
+    * Authorization: Bearer <owner access token>. Every property-scoped operation is authorized
+      against the caller's relationship to that exact property (owner, co-owner, authorized
+      representative with explicit capabilities and validity window); unrelated properties answer 404.
+    * Commands that create, publish, approve, withdraw, decide or have financial/external side effects
+      require Idempotency-Key: same key + same body replays the stored response
+      (Idempotent-Replayed: true); same key + different body → 409 IDEMPOTENCY_CONFLICT.
+    * PATCH/PUT require If-Match with the quoted resource version from GET (428 when missing,
+      409 VERSION_CONFLICT when stale). Singleton resources accept If-Match: "0" to create.
+    * Operations marked step-up need a re-authentication within the step-up window (403 STEP_UP_REQUIRED).
+    * Collections use cursor pagination: {"data": [...], "page": {"next_cursor", "has_more"}}.
+    * Features whose external dependency is not configured or not implemented answer
+      503 FEATURE_UNAVAILABLE (never a simulated success).
+  title: Individual Owner — domain API (Sections 6–13)
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /api/v1/owner/account/status:
+    get:
+      operationId: getAccountStatus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AccountStatusView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Account status, activation rule and sensitive-action gates
+      tags:
+        - Account & Profile
+  /api/v1/owner/co-owner-invitations:
+    get:
+      operationId: listCoOwnerInvitations
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/InvitationView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Invitations addressed to my verified email
+      tags:
+        - Account & Profile
+  /api/v1/owner/co-owner-invitations/{party_id}/accept:
+    post:
+      operationId: acceptCoOwnerInvitation
+      parameters:
+        - in: path
+          name: party_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PartyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept a co-ownership / representation invitation
+      tags:
+        - Account & Profile
+  /api/v1/owner/co-owner-invitations/{party_id}/decline:
+    post:
+      operationId: declineCoOwnerInvitation
+      parameters:
+        - in: path
+          name: party_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PartyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Decline an invitation
+      tags:
+        - Account & Profile
+  /api/v1/owner/consents:
+    get:
+      operationId: listMyPendingConsents
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PendingConsentView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Co-owner consents awaiting my decision
+      tags:
+        - Account & Profile
+  /api/v1/owner/consents/{consent_id}/decision:
+    post:
+      operationId: decideConsent
+      parameters:
+        - in: path
+          name: consent_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentDecisionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ConsentView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Approve or reject a consent request (immutable)
+      tags:
+        - Account & Profile
+  /api/v1/owner/ownership-transfers/{case_id}/accept:
+    post:
+      operationId: acceptOwnershipTransfer
+      parameters:
+        - in: path
+          name: case_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept an incoming ownership transfer
+      tags:
+        - Account & Profile
+  /api/v1/owner/ownership-transfers/incoming:
+    get:
+      operationId: listIncomingTransfers
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/TransferView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Ownership transfers addressed to my verified email
+      tags:
+        - Account & Profile
+  /api/v1/owner/payout-accounts:
+    get:
+      operationId: listPayoutAccounts
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PayoutAccountView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List payout accounts (masked)
+      tags:
+        - Banking & Tax
+    post:
+      description: Step-up required. Step-up required. Beneficiary verification and account-name matching are performed by payment-service; only the last 4 digits and a keyed fingerprint are stored. Verified accounts pass a cooling-off period before they become ACTIVE. 503 FEATURE_UNAVAILABLE while payment-service is not configured (it is not implemented yet).
+      operationId: addPayoutAccount
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPayoutAccountInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PayoutAccountView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Register a payout account with payment-service
+      tags:
+        - Banking & Tax
+  /api/v1/owner/payout-accounts/{payout_account_id}:
+    delete:
+      description: Step-up required.
+      operationId: removePayoutAccount
+      parameters:
+        - in: path
+          name: payout_account_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Removed'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Remove a payout account
+      tags:
+        - Banking & Tax
+  /api/v1/owner/payout-accounts/{payout_account_id}/make-default:
+    post:
+      description: Step-up required.
+      operationId: makeDefaultPayoutAccount
+      parameters:
+        - in: path
+          name: payout_account_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PayoutAccountView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Make an ACTIVE account the default
+      tags:
+        - Banking & Tax
+  /api/v1/owner/payout-accounts/{payout_account_id}/verify:
+    post:
+      description: Step-up required.
+      operationId: verifyPayoutAccount
+      parameters:
+        - in: path
+          name: payout_account_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PayoutAccountView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Refresh payment-service's verification verdict
+      tags:
+        - Banking & Tax
+  /api/v1/owner/payout-preferences:
+    get:
+      operationId: getPayoutPreferences
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PayoutPreferencesView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Payout account per business line
+      tags:
+        - Banking & Tax
+    put:
+      description: Step-up required.
+      operationId: putPayoutPreferences
+      parameters:
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayoutPreferencesInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PayoutPreferencesView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace payout preferences (If-Match; "0" creates)
+      tags:
+        - Banking & Tax
+  /api/v1/owner/profile:
+    get:
+      operationId: getOwnerProfile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProfileView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Get the owner profile
+      tags:
+        - Account & Profile
+    patch:
+      operationId: updateOwnerProfile
+      parameters:
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProfileView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace the editable owner profile (If-Match; "0" creates)
+      tags:
+        - Account & Profile
+  /api/v1/owner/profile/contacts:
+    get:
+      operationId: listOwnerContacts
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ContactView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List additional, emergency and trusted contacts
+      tags:
+        - Account & Profile
+    post:
+      operationId: addOwnerContact
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a contact
+      tags:
+        - Account & Profile
+  /api/v1/owner/profile/contacts/{contact_id}:
+    delete:
+      operationId: removeOwnerContact
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Removed'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Remove a contact
+      tags:
+        - Account & Profile
+  /api/v1/owner/properties:
+    get:
+      operationId: listProperties
+      parameters:
+        - in: query
+          name: status
+          schema:
+            enum:
+              - DRAFT
+              - ACTIVE
+              - RESTRICTED
+              - TRANSFER_PENDING
+              - ARCHIVED
+            type: string
+        - in: query
+          name: category
+          schema:
+            enum:
+              - RESIDENTIAL
+              - COMMERCIAL
+              - LAND
+              - MIXED_USE
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/PropertySummary'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List my portfolio (owned, co-owned and represented)
+      tags:
+        - Properties
+    post:
+      description: Creates the property (DRAFT), address, features and the primary ownership claim. A claim on an address another owner holds is recorded with ownership status CONFLICT for platform review; the other owner is never disclosed. 409 PROPERTY_DUPLICATE for your own duplicate.
+      operationId: createProperty
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PropertyView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Create a persistent property record
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}:
+    get:
+      operationId: getProperty
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PropertyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Get a property
+      tags:
+        - Properties
+    patch:
+      description: Changing the address of a VERIFIED property moves the ownership claim to REVERIFICATION_REQUIRED.
+      operationId: updateProperty
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePropertyInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PropertyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Update property details (If-Match)
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/archive:
+    post:
+      operationId: archiveProperty
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PropertyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Archive a property without active business
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/assets:
+    get:
+      operationId: listAssets
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: include_retired
+          schema:
+            enum:
+              - "true"
+              - "false"
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/AssetView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Asset register
+      tags:
+        - Properties
+    post:
+      operationId: createAsset
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssetView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Register an asset
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/assets/{asset_id}:
+    put:
+      operationId: replaceAsset
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: asset_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssetView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace an asset (If-Match)
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/claim:
+    post:
+      operationId: claimOwnership
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnershipView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Declare the claim type (or re-claim after rejection)
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/co-owners:
+    post:
+      description: Invitees accept with the invited email once verified on their own owner account (account existence is never disclosed). Adding a co-owner to a VERIFIED claim requires re-verification.
+      operationId: addCoOwner
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoOwnerInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PartyView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Invite a co-owner / representative or record a beneficial owner
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/co-owners/{party_id}:
+    delete:
+      operationId: removeCoOwner
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: party_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PartyView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Remove a party
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/consents:
+    get:
+      operationId: listPropertyConsents
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ConsentView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Consent history of the property
+      tags:
+        - Ownership & Verification
+    post:
+      operationId: requestConsent
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestConsentInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ConsentStatus'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request co-owner consent for an action
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/history:
+    get:
+      operationId: getPropertyHistory
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/HistoryView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Immutable property history
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/media:
+    get:
+      operationId: listPropertyMedia
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/MediaLinkView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List linked media
+      tags:
+        - Properties
+    post:
+      description: The file must have been uploaded to media-document-service by you (or for the property). Bytes are never stored here.
+      operationId: linkPropertyMedia
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaLinkInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MediaLinkView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Link an uploaded media file
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/media/{media_link_id}:
+    delete:
+      operationId: unlinkPropertyMedia
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: media_link_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Removed'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Unlink media
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/ownership:
+    get:
+      operationId: getOwnership
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnershipView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Ownership records, parties, evidence and transfer
+      tags:
+        - Ownership & Verification
+    post:
+      operationId: addOwnershipEvidence
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEvidenceInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnershipView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Attach authority documents to the claim
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/ownership-transfer:
+    get:
+      operationId: getOwnershipTransfer
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Latest ownership transfer case
+      tags:
+        - Ownership & Verification
+    post:
+      description: Step-up required. Requires step-up, verified authority, identity verification (policy) and co-owner consent (OWNERSHIP_TRANSFER, target = property). The recipient accepts, the transferor submits evidence, platform review decides; the owner never changes by a direct update.
+      operationId: openOwnershipTransfer
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Open a guarded ownership transfer
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/ownership-transfer/cancel:
+    post:
+      operationId: cancelOwnershipTransfer
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Cancel an open transfer
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/ownership-transfer/submit:
+    post:
+      description: Step-up required.
+      operationId: submitOwnershipTransfer
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEvidenceInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TransferView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Submit transfer evidence for review
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/parcels:
+    get:
+      operationId: listParcels
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ParcelView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List land parcels
+      tags:
+        - Properties
+    post:
+      operationId: createParcel
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcelInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ParcelView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a land parcel
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/parcels/{parcel_id}:
+    put:
+      operationId: replaceParcel
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: parcel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcelInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ParcelView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace a parcel (If-Match)
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/units:
+    get:
+      operationId: listUnits
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: include_archived
+          schema:
+            enum:
+              - "true"
+              - "false"
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/UnitView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List units
+      tags:
+        - Properties
+    post:
+      operationId: createUnit
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnitInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UnitView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Add a unit / room / floor
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/units/{unit_id}:
+    patch:
+      operationId: updateUnit
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: path
+          name: unit_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnitPatchInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UnitView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Update or archive a unit (If-Match)
+      tags:
+        - Properties
+  /api/v1/owner/properties/{property_id}/verification:
+    get:
+      operationId: listPropertyVerifications
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/VerificationLinkView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Property verification history
+      tags:
+        - Ownership & Verification
+    post:
+      description: Requires the claim in EVIDENCE_PENDING or REVERIFICATION_REQUIRED with at least one READY document. verification-service decides; the result arrives via verification.* events (or POST /verification/{id}/sync).
+      operationId: submitPropertyVerification
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OwnershipView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Submit the claim to verification-service (PROPERTY_AUTHORITY)
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/{property_id}/verification-summary:
+    get:
+      operationId: getVerificationSummary
+      parameters:
+        - in: path
+          name: property_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PublicSummary'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Public verification summary (projection with limitations)
+      tags:
+        - Ownership & Verification
+  /api/v1/owner/properties/imports:
+    post:
+      description: Up to 500 rows; each row needs external_ref, the idempotent matching key (existing refs are matched, never duplicated). Poll GET /properties/imports/{import_id} for the per-row error report.
+      operationId: importProperties
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportInputInput'
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ImportView'
+                required:
+                  - data
+                type: object
+          description: Accepted
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Bulk import properties (asynchronous)
+      tags:
+        - Properties
+  /api/v1/owner/properties/imports/{import_id}:
+    get:
+      operationId: getPropertyImport
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ImportView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Get an import job and its error report
+      tags:
+        - Properties
+  /api/v1/owner/statements:
+    get:
+      description: payment-service is the financial authority. 503 FEATURE_UNAVAILABLE while it is not configured.
+      operationId: listStatements
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/Statement'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Owner statements (payment-service)
+      tags:
+        - Banking & Tax
+  /api/v1/owner/tax-profile:
+    get:
+      operationId: getTaxProfile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaxProfileView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Masked tax / reporting profile
+      tags:
+        - Banking & Tax
+    put:
+      description: Step-up required.
+      operationId: putTaxProfile
+      parameters:
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxProfileInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaxProfileView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Replace the tax profile (If-Match; "0" creates)
+      tags:
+        - Banking & Tax
+  /api/v1/owner/verification:
+    get:
+      operationId: listIdentityVerifications
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/VerificationLinkView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: List identity verifications (verification-service projection)
+      tags:
+        - Account & Profile
+    post:
+      description: Creates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured.
+      operationId: startIdentityVerification
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityVerificationInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VerificationLinkView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Start an IDENTITY verification with uploaded evidence
+      tags:
+        - Account & Profile
+  /api/v1/owner/verification/{verification_id}/sync:
+    post:
+      operationId: syncVerification
+      parameters:
+        - in: path
+          name: verification_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VerificationLinkView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Reconcile a verification by read-back
+      tags:
+        - Account & Profile
+security:
+  - OwnerBearer: []
+servers:
+  - url: https://api.realestate.cosmicforge.example

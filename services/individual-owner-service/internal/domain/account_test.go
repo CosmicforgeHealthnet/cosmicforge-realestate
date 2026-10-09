@@ -69,3 +69,44 @@ func TestCanAuthenticate(t *testing.T) {
 		}
 	}
 }
+
+func TestSection7MachinesAreWellFormed(t *testing.T) {
+	seen := map[string]bool{}
+	for _, m := range Machines() {
+		if seen[m.Aggregate] {
+			t.Fatalf("duplicate machine %s", m.Aggregate)
+		}
+		seen[m.Aggregate] = true
+		terminal := 0
+		for _, s := range m.States() {
+			if m.Terminal(s) {
+				terminal++
+			}
+		}
+		if terminal == 0 {
+			t.Errorf("%s has no terminal state", m.Aggregate)
+		}
+	}
+	// Spot-check canonical edges from §7.
+	cases := []struct {
+		ok       bool
+		from, to string
+		m        interface{ Can(string, string) bool }
+	}{
+		{true, "PAUSED", "PUBLISHED", Listing}, {false, "DRAFT", "PUBLISHED", Listing},
+		{true, "SENT", "ACCEPTED", RentalOffer}, {false, "ACCEPTED", "WITHDRAWN", RentalOffer},
+		{true, "SIGNING", "FULLY_SIGNED", Agreement}, {false, "EFFECTIVE", "CANCELLED", Agreement},
+		{true, "CLOSING", "COMPLETED", Sale}, {false, "COMPLETED", "CANCELLED", Sale}, {false, "OFFERING", "COMPLETED", Sale},
+		{true, "HOLD", "PENDING_PAYMENT", ShortletBooking}, {false, "COMPLETED", "CANCELLED", ShortletBooking},
+		{true, "ACTIVE", "REVOKED", ManagerAssignment}, {false, "REVOKED", "ACTIVE", ManagerAssignment},
+		{true, "ACTIVE", "COMPROMISED", AccessGrant}, {false, "REVOKED", "ACTIVE", AccessGrant},
+		{true, "DECLINED", "APPEAL", Application}, {false, "APPROVED", "DECLINED", Application},
+		{true, "REFUND_PENDING", "REFUNDED", RentObligation}, {false, "PAID", "DUE", RentObligation},
+		{true, "TRANSFER_PENDING", "TRANSFERRED", Ownership}, {false, "REJECTED", "VERIFIED", Ownership},
+	}
+	for _, c := range cases {
+		if c.m.Can(c.from, c.to) != c.ok {
+			t.Errorf("%s -> %s expected %v", c.from, c.to, c.ok)
+		}
+	}
+}

@@ -1,0 +1,78 @@
+{
+  "$defs": {
+    "VerificationChangedEvent": {
+      "properties": {
+        "authority_verified": {
+          "type": "boolean"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ownership_status": {
+          "type": "string"
+        },
+        "property_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "verification_level": {
+          "enum": [
+            "NONE",
+            "OWNER_AUTHORITY_VERIFIED"
+          ],
+          "type": "string"
+        },
+        "verified_at": {
+          "format": "date-time",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "property_id",
+        "authority_verified",
+        "ownership_status",
+        "verification_level",
+        "occurred_at"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/property.verification_changed.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "description": "The derived public authority/verification summary changed. Producer: individual-owner-service. Consumers: Marketplace. Aggregate: property. Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+  "properties": {
+    "aggregate_type": {
+      "const": "property"
+    },
+    "event_type": {
+      "const": "property.verification_changed.v1"
+    },
+    "payload": {
+      "$ref": "#/$defs/VerificationChangedEvent"
+    },
+    "producer": {
+      "const": "individual-owner-service"
+    }
+  },
+  "title": "property.verification_changed.v1"
+}

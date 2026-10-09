@@ -28,6 +28,13 @@ sql:
             go_type:
               type: time.Time
               pointer: true
+          - db_type: date
+            go_type: time.Time
+          - db_type: date
+            nullable: true
+            go_type:
+              type: time.Time
+              pointer: true
           - db_type: inet
             go_type:
               import: net/netip

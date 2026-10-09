@@ -92,6 +92,9 @@ func (c *clock) advance(d time.Duration) {
 }
 
 type harness struct {
+	verif   *fakeVerification
+	media   *fakeMedia
+	pay     *fakePayment
 	t       *testing.T
 	db      *testkit.Database
 	app     *app.App
@@ -103,7 +106,8 @@ type harness struct {
 }
 
 var callers = []platform.Service{platform.APIGateway, platform.AdminService, platform.MarketplaceService,
-	platform.PropertyManagerService, platform.NotificationService}
+	platform.PropertyManagerService, platform.NotificationService, platform.ArtisanService, platform.ProfessionalServicesService,
+	platform.BusinessOperationsService, platform.PaymentService}
 
 func testConfig(t *testing.T, dbURL string, identity *serviceauth.Identity, userKey jwt.SigningKey) *config.Config {
 	p := usecases.DefaultPolicy()
@@ -119,9 +123,13 @@ func testConfig(t *testing.T, dbURL string, identity *serviceauth.Identity, user
 	}
 }
 
-func newHarness(t *testing.T) *harness {
+func newHarness(t *testing.T, opts ...func(*harness)) *harness {
 	t.Helper()
-	h := &harness{t: t, notify: &fakeNotify{}, clock: &clock{t: time.Now().UTC().Truncate(time.Second)}, signers: map[platform.Service]*serviceauth.Signer{}}
+	h := &harness{t: t, notify: &fakeNotify{}, clock: &clock{t: time.Now().UTC().Truncate(time.Second)}, signers: map[platform.Service]*serviceauth.Signer{},
+		verif: newFakeVerification(), media: newFakeMedia()}
+	for _, o := range opts {
+		o(h)
+	}
 	h.db = testkit.NewDatabase(t, migrations.FS)
 	reg := serviceauth.NewRegistry()
 	for _, s := range callers {
@@ -136,7 +144,11 @@ func newHarness(t *testing.T) *harness {
 	cfg := testConfig(t, h.db.URL, &serviceauth.Identity{Signer: selfSigner, Verifier: verifier}, h.userKey)
 	pw, _ := passwords.NewHasher(passwords.Params{MemoryKiB: 8 * 1024, Iterations: 1, Parallelism: 1, SaltLength: 16, KeyLength: 32}, 8)
 	var err error
-	h.app, err = app.Build(context.Background(), cfg, logging.Discard(), app.Overrides{Notify: h.notify, Now: h.clock.now, Passwords: pw})
+	ov := app.Overrides{Notify: h.notify, Now: h.clock.now, Passwords: pw, Verification: h.verif, Media: h.media}
+	if h.pay != nil {
+		ov.Payment = h.pay
+	}
+	h.app, err = app.Build(context.Background(), cfg, logging.Discard(), ov)
 	if err != nil {
 		t.Fatal(err)
 	}

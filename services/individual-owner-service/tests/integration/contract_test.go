@@ -24,11 +24,52 @@ func implementedRoutes(t *testing.T, h *harness) []testkit.Route {
 	return routes
 }
 
+// The Section 5 documents are hand-written; the Sections 6–13 documents are
+// generated from the route registry. Together they must document exactly
+// the implemented routes, with no operation documented twice.
 func TestOpenAPIContractsMatchHandlers(t *testing.T) {
 	h := newHarness(t)
 	routes := implementedRoutes(t, h)
-	testkit.AssertRoutesMatchOpenAPI(t, "../../../../contracts/public/openapi/individual-owner.yaml", routes, "/api/")
-	testkit.AssertRoutesMatchOpenAPI(t, "../../../../contracts/internal/openapi/individual-owner-service.yaml", routes, "/internal/", "/.well-known/")
+	const root = "../../../../contracts/"
+	assertRoutesMatch(t, routes, []string{root + "public/openapi/individual-owner.yaml", root + "public/openapi/individual-owner-domain.yaml"}, "/api/")
+	assertRoutesMatch(t, routes, []string{root + "internal/openapi/individual-owner-service.yaml", root + "internal/openapi/individual-owner-service-domain.yaml"},
+		"/internal/", "/.well-known/")
+}
+
+func assertRoutesMatch(t *testing.T, routes []testkit.Route, specs []string, prefixes ...string) {
+	t.Helper()
+	documented := map[string]bool{}
+	for _, spec := range specs {
+		for op := range testkit.OpenAPIOperations(t, spec) {
+			if documented[op] {
+				t.Errorf("%s documented twice", op)
+			}
+			documented[op] = true
+		}
+	}
+	in := func(p string) bool {
+		for _, pre := range prefixes {
+			if strings.HasPrefix(p, pre) {
+				return true
+			}
+		}
+		return false
+	}
+	impl := map[string]bool{}
+	for _, r := range routes {
+		p := strings.TrimSuffix(r.Path, "/")
+		if in(p) {
+			impl[r.Method+" "+p] = true
+			if !documented[r.Method+" "+p] {
+				t.Errorf("implemented but undocumented: %s %s", r.Method, p)
+			}
+		}
+	}
+	for op := range documented {
+		if in(strings.SplitN(op, " ", 2)[1]) && !impl[op] {
+			t.Errorf("documented but not implemented: %s", op)
+		}
+	}
 }
 
 // Postman parity: every implemented owner route has a request in folder

@@ -16,12 +16,16 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/credentials"
 	ohttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/oauth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/workers"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events/jetstream"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/health"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/idempotency"
@@ -53,6 +57,9 @@ type Overrides struct {
 	Now          func() time.Time
 	Passwords    *passwords.Hasher
 	ClosureHolds usecases.ClosureHoldChecker
+	Verification verification.API
+	Media        media.API
+	Payment      payment.API
 }
 
 // Build wires the shared components (database, use cases, HTTP router).
@@ -107,12 +114,29 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 	}
 	a.Outbox = outbox.NewStore(pool, cfg.SubjectPrefix)
 	a.Idem = idempotency.NewStore(pool, 30*time.Second, 24*time.Hour)
-	engine := authz.New(authz.Config{Rules: authz.AccountRules(), StepUpWindow: cfg.StepUpWindow, Now: now})
+	engine := authz.New(authz.Config{Rules: authz.AllRules(), StepUpWindow: cfg.StepUpWindow, Now: now,
+		Resolver: usecases.PropertyAuthority{Pool: pool, Now: now}})
+	verif, med := ov.Verification, ov.Media
+	if verif == nil && cfg.VerificationServiceURL != "" {
+		c, err := verification.New(cfg.VerificationServiceURL, cfg.Identity.Signer, cfg.DownstreamTimeout)
+		if err != nil {
+			return fail(err)
+		}
+		verif = c
+	}
+	if med == nil && cfg.MediaServiceURL != "" {
+		c, err := media.New(cfg.MediaServiceURL, cfg.Identity.Signer, cfg.DownstreamTimeout)
+		if err != nil {
+			return fail(err)
+		}
+		med = c
+	}
 	a.Service, err = usecases.New(usecases.Deps{
 		Pool: pool, Outbox: a.Outbox, Passwords: pw, Issuer: issuer, Verifier: verifier,
 		Sessions: sessions.Config{MaxSessionLifetime: cfg.SessionLifetime, TokenIdleTTL: cfg.RefreshIdleTTL},
 		Hasher:   hasher, Sealer: sealer, TOTP: credentials.TOTP{Issuer: cfg.TOTPIssuer}, Notify: notify, OAuth: oauth.NewRegistry(),
 		Authz: engine, Policy: cfg.Policy, Logger: log, Now: now, ClosureHolds: ov.ClosureHolds,
+		Verification: verif, Media: med, Payment: ov.Payment,
 	})
 	if err != nil {
 		return fail(err)
@@ -132,7 +156,7 @@ func (a *App) Close() {
 // WorkerRunner builds the background runner around an outbox relay.
 func (a *App) WorkerRunner(relay *outbox.Worker, owner string) *workers.Runner {
 	return workers.New(workers.Config{Owner: owner, DispatchInterval: a.Cfg.DispatchPollInterval, ClosureInterval: a.Cfg.ClosureInterval,
-		SessionRetention: a.Cfg.SessionRetention}, a.Service, relay, a.Outbox, a.Idem, a.Log)
+		SessionRetention: a.Cfg.SessionRetention, DomainInterval: a.Cfg.WorkerInterval, ImportLease: a.Cfg.ImportLease}, a.Service, relay, a.Outbox, a.Idem, a.Log)
 }
 
 // Worker builds the background runner and its NATS connection.
@@ -144,7 +168,7 @@ func (a *App) Worker(ctx context.Context) (*workers.Runner, *jetstream.Conn, err
 	if a.Cfg.EnsureStream {
 		if err := conn.EnsureStream(ctx, jetstream.StreamConfig{
 			Name:     jetstream.StreamName(a.Cfg.SubjectPrefix, "owner"),
-			Subjects: []string{a.Cfg.SubjectPrefix + ".owner.>"},
+			Subjects: usecases.StreamSubjects(a.Cfg.SubjectPrefix),
 		}); err != nil {
 			conn.Close()
 			return nil, nil, fmt.Errorf("ensure stream: %w", err)
@@ -159,5 +183,34 @@ func (a *App) Worker(ctx context.Context) (*workers.Runner, *jetstream.Conn, err
 	}
 	a.Health = health.New(string(platform.IndividualOwnerService), a.Cfg.Environment, 2*time.Second,
 		health.Check{Name: "postgres", Fn: database.Ping(a.Pool)}, health.Check{Name: "nats", Fn: conn.Ready})
+	a.StartConsumers(ctx, conn)
 	return a.WorkerRunner(relay, owner), conn, nil
+}
+
+// StartConsumers starts the §10.1 durable consumers. A producer stream that
+// does not exist yet (producer not deployed) is retried in the background
+// instead of failing the worker; duplicates and redeliveries are absorbed by
+// processed_events inside each handler's transaction.
+func (a *App) StartConsumers(ctx context.Context, conn *jetstream.Conn) {
+	for _, c := range a.Service.Consumers(a.Cfg.SubjectPrefix) {
+		go func(c usecases.ConsumerSpec) {
+			for {
+				cons, err := conn.Consume(ctx, jetstream.ConsumerConfig{Stream: jetstream.StreamName(a.Cfg.SubjectPrefix, c.Stream), Durable: c.Name,
+					FilterSubjects: c.Filters, MaxDeliver: 20, Backoff: []time.Duration{time.Second, 5 * time.Second, 30 * time.Second}},
+					func(ctx context.Context, d events.Delivery) error { return c.Handle(ctx, d.Envelope) })
+				if err == nil {
+					a.Log.Info("event consumer started", "consumer", c.Name)
+					<-ctx.Done()
+					cons.Stop()
+					return
+				}
+				a.Log.Warn("event consumer not started; retrying", "consumer", c.Name, "error", err.Error())
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(30 * time.Second):
+				}
+			}
+		}(c)
+	}
 }
