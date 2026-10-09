@@ -1,0 +1,1857 @@
+# Text extraction of INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf (pdftotext -layout).
+# The PDF is the authoritative copy (sha256 eccb0ece5f0b79d125f88549ae036849796f359f779ec3407c1704af710aa8af).
+# This file exists for search, review and diffs; on any discrepancy the PDF wins.
+
+                                                                              COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+COSMICFORGE REAL ESTATE
+
+
+Individual Property Owner Platform
+Full Backend Implementation Specification
+Implementation-ready engineering blueprint
+
+  Document control                        Value
+  Specification version                   1.0
+  Product source                          Individual Property Owner Platform – Corporate Product Feature Document v5.0, 22 July 2026
+  Repository                              CosmicforgeHealthnet/cosmicforge-realestate
+  Architecture baseline                   11 database-owning microservices + API Gateway; no central identity service
+  Foundation baseline                     F1–F5 certified at development/staging SHA 54425cb5df86fbb239c4faab624d786f98fb343e
+  Target service                          services/individual-owner-service
+  Database authority                      individual_owner_db
+  Primary status                          IMPLEMENTATION SPECIFICATION – READY FOR DOMAIN BUILD
+
+
+Purpose
+This document is the authoritative backend implementation plan for the Individual Property Owner domain. It translates every
+approved V5 product area into concrete service ownership, data models, state machines, APIs, events, background workers,
+cross-service contracts, security controls, testing gates and deployment criteria.
+
+
+Traceability rule
+Product-derived requirements are preserved as product requirements. Engineering additions that are necessary to make the
+backend safe, operable and certifiable are explicitly identified as engineering additions; they do not silently change the product
+vision.
+
+
+
+
+                                                                  1
+                                                                                      COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  0. Document status, authority and reading guide
+  The V5 product document defines an Individual Property Owner platform for personally owned residential, commercial, land,
+  sale and owner-operated short-let activity. It gives the owner direct control over property records, listings, customers,
+  agreements, payments, maintenance and performance while preserving the owner as the underlying authority.
+  This backend specification turns that product vision into an implementation contract for the existing CosmicForge Real
+  Estate architecture. It is deliberately more detailed than the product document because backend engineering also requires
+  concurrency rules, idempotency, state transition guards, audit trails, failure recovery, database constraints, service
+  authentication, event contracts, background work and release certification.
+    Source / baseline                                 Role in this specification
+    Individual Property Owner Product Feature         Functional source of truth for owner-facing capabilities, journeys and ecosystem
+    Document v5.0                                     boundaries.
+    Certified shared Go foundation (F1)               UUIDv7, auth/JWT, service auth, idempotency, outbox, NATS, money, audit, HTTP, DB,
+                                                      telemetry and testing primitives.
+    Certified API Gateway (F2)                        Trusted domain issuer validation, actor propagation, rate limits, public routing and
+                                                      internal-route isolation.
+    Certified Verification Service (F3)               Identity, property authority and professional/business verification truth.
+    Certified Media & Document Service (F4)           Signed upload/download, scanning, metadata, access classification and retention.
+    Certified Notification Service (F5)               FCM push plus provider-neutral email/SMS notification delivery.
+    Current platform architecture                     Seven user-domain services, four shared services, one gateway; isolated databases; REST
+                                                      + NATS.
+
+
+
+  0.1 Product-derived requirements versus engineering additions
+    Marker                            Meaning
+    PRODUCT                           Directly required by the V5 Individual Property Owner product document.
+    FOUNDATION                        Already implemented/certified by the shared platform foundation.
+    ENGINEERING ADDITION              Required for correctness, security, reliability, integration or operability but not explicitly stated in the
+                                      product document.
+    POLICY CONFIGURATION              Business/legal policy that must be configurable because the product document does not define a universal
+                                      value.
+    DEFERRED DEPENDENCY               The domain contract is specified here, but the dependent service/provider must still be implemented.
+
+
+
+
+  1. Executive implementation mandate
+  Build `individual-owner-service` as the sole authoritative domain service for personally owned property operations. The
+  service must support a single owner or personal portfolio, direct operation without compulsory management, optional
+  property-specific delegated management, complete property history and direct customer interaction through the wider Real
+  Estate ecosystem.
+• The owner remains the primary authority for personally owned property at all times.
+• Property verification and listing publication are separate controlled transitions.
+• Every compulsory customer charge must be disclosed before commitment and versioned after acceptance.
+• Delegation is property-specific, capability-specific, time-limited, revocable and never grants payout redirection authority by
+  default.
+• Financial, tenancy, inspection, maintenance and audit records survive the end of manager, tenant, guest or listing
+  relationships.
+• The service owns domain business state but does not own payment ledger truth, verification truth, raw media bytes, system
+  notification delivery or human communications.
+
+  1.1 Definition of done for the domain
+• Every approved product capability has an owning module, data model and callable API or explicit integration contract.
+• Every mutable business lifecycle has a guarded state machine and auditable transition history.
+                                                                         2
+                                                                                   COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Every side-effecting retryable command that can duplicate money, publication, booking, signature or external action uses
+  idempotency.
+• Every business state change that must propagate to another service writes an outbox event in the same PostgreSQL
+  transaction.
+• Marketplace publication is event-driven and never makes Marketplace authoritative for source records.
+• All frontend-facing endpoints are represented in OpenAPI and Postman with examples and error cases.
+• All financial commands delegate to payment-service; the owner service stores business obligations and projections, never
+  its own independent financial ledger.
+• All human-to-human messaging/calls/video use CF Meet contexts; the owner service stores only business context
+  references and authorization.
+• All required CI, race, migration, contract, E2E, security and recovery gates pass before promotion to staging.
+
+
+  2. Service architecture and hard boundaries
+      Client apps
+         |
+         v
+      API Gateway
+         |
+         v
+      individual-owner-service ---> verification-service
+              |                  ---> media-document-service
+              |                  ---> notification-service
+              |                  ---> payment-service          [deferred full implementation]
+              |                  ---> CF Meet                  [messaging / voice / video]
+              |                  ---> marketplace-service      [events + authoritative read-back]
+              |                  ---> property-manager-service [delegation contracts]
+              |                  ---> artisan-service          [maintenance jobs]
+              |                  ---> professional-services-service [due diligence]
+              |                  ---> admin-service            [moderation / disputes / support]
+              |
+              +---- individual_owner_db
+              +---- outbox -> NATS JetStream -> consumers
+  Concern                           Owner / authority                       Individual-owner responsibility
+  Owner account/auth                individual-owner-service                Full authority: account, credentials, sessions, devices, MFA, roles
+                                                                            and permissions.
+  Property record                   individual-owner-service                Full authority for personally owned property records and portfolio
+                                                                            history.
+  Identity / property authority     verification-service                    Creates/links cases and enforces required results; does not
+  verification                                                              duplicate verification truth.
+  Media/document bytes              media-document-service                  Stores `media_id` references and business relationship/access
+                                                                            purpose.
+  Payments/ledger/refunds/payouts   payment-service                         Defines business obligations and commands payments; stores
+                                                                            payment references/projections only.
+  System notifications              notification-service                    Requests notifications and stores domain notification intent/history
+                                                                            references.
+  Human messaging/calling/video     CF Meet                                 Creates communication contexts and authorization; does not
+                                                                            implement chat/RTC.
+  Public discovery                  marketplace-service                     Publishes events/projections; remains source of truth for owner
+                                                                            listing.
+  Delegated management              owner service + property-manager-       Owner service owns mandate/permission grant; manager service
+                                    service                                 owns manager operational workspace.
+  Maintenance provider execution    artisan-service                         Owner service owns maintenance request and approval; artisan
+                                                                            service owns provider execution profile/workflow.
+  Professional execution            professional-services-service           Owner service owns appointment/mandate relationship;
+                                                                            professional service owns provider execution.
+  Moderation/disputes               admin-service + owning domain           Domain owns case-linked state/evidence; admin service owns
+                                                                            platform operator workflow.
+
+
+                                                                        3
+                                                                              COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+2.1 Non-negotiable database rule
+`individual-owner-service` receives credentials only for `individual_owner_db`. It must never read or write another
+service's database and must never depend on a foreign schema. Cross-service state is represented by typed external IDs
+and service/domain ownership metadata.
+
+2.2 Go module and internal package structure
+   ├── integrations/
+   │   ├── verification/
+   │   ├── media/
+   │   ├── notification/
+   │   ├── payment/
+   │   ├── cfmeet/
+   │   ├── marketplace/
+   │   ├── manager/
+   │   ├── artisan/
+   │   ├── professional/
+   │   ├── maps/
+   │   ├── esign/
+   │   ├── external_listings/
+   │   └── smart_access/
+
+
+3. Domain decomposition
+Module                               Scope
+Account & Owner Profile              Registration, security, identity-verification linkage, owner profile, contacts, accessibility, devices,
+                                     sessions and account closure.
+Banking, Payout & Tax Profile        Verified payout destinations, change controls, property/category payout preferences, tax/profile
+                                     statement metadata.
+Ownership & Authority                Ownership claims, co-owner consent, power-of-attorney/subletting authority, ownership change
+                                     workflow and authority evidence.
+Property & Portfolio                 Persistent property/unit/parcel records, physical attributes, assets, history and portfolio summaries.
+Property Verification Linkage        Required verification cases, evidence linkage, transaction-ready status and re-verification triggers.
+Listings & Publication               Category-specific listing drafts, content, media relationships, moderation state, publication and
+                                     archive.
+Pricing & Fees                       Versioned price books, fee lines, refundability, schedules, escalation/discount rules and customer
+                                     cost snapshots.
+Availability & Freshness             Unit/date availability, freshness confirmation, stale-listing pause and reliability signals.
+Leads & Marketing                    Inquiries, stages, qualification, follow-ups, campaigns, promoted flags and external sync.
+Viewing & Access                     Slots, requests, attendance, one-time codes, representatives, occupied-property consent and safety
+                                     reports.
+Applications & Screening             Applicant/co-applicant references, consented document sharing, screening criteria/results,
+                                     decisions, appeals and rental offers.
+Agreements & Move-In                 Agreement versions, participants, signature process, schedules, inventories, condition evidence and
+                                     possession.
+Tenancy & Rent Operations            Tenancy state, obligations, arrears projection, notices, renewal, move-out and deposit settlement
+                                     business state.
+Utilities & Service Charges          Utility accounts, meter readings, allocation rules, service-charge budgets, bills, evidence and
+                                     notices.
+Commercial Transactions              Commercial-specific use/zoning/facility terms, LOI, offers, fit-out and lease/sale workflow.
+Land Transactions                    Parcel-specific attributes, lease obligations, professional due diligence, offers, milestones and
+                                     possession/perfection tracking.
+Property Sale & Closing              Buyer offers, conditions, secure data room, due diligence, purchase agreement, milestones and
+                                     handover.
+Short-Let Operations                 Calendar inventory, stay pricing, booking operations, guest access, turnover, damage claims and
+                                     profitability projections.
+Manager Delegation                   Manager discovery reference, proposals, mandates, permissions, spend limits, reporting, revocation
+                                     and handover.
+Maintenance & Preventive Care        Requests, responsibility, quotes, approvals, provider assignments, work evidence, rework, warranty
+                                     and asset schedules.
+Professional Services                Appointments, mandates, data-room grants, quotations, reports, findings, complaints and ratings.
+
+                                                                 4
+                                                                                  COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+   Module                                 Scope
+   Communications Context                 CF Meet context authorization/links plus system notification triggers; no local chat storage.
+   Reports & Market Intelligence          Operational metrics, financial projections, property performance, comparable-market inputs and
+                                          advisory AI outputs.
+   Fraud, Privacy & Disputes              Suspicious activity, access restrictions, disputes, evidence, consent, privacy requests and
+                                          auditability.
+   Accessibility & Closure                Assisted onboarding, succession/death/incapacity process, transfers, closure and record continuity.
+   Financing                              Partner finance options, owner payout structure preference, consent, financing status references and
+                                          seller plans.
+   Insurance                              Policy/product references, requirements, claims linkage and insurance evidence.
+   Smart Access                           Access credential requests, device inventory references, grants, expiry, revocation and history.
+
+
+
+
+  4. IDs, references, money and time
+• All persistent public entity IDs are UUIDv7 generated by this service.
+• Cross-domain people/entities carry both owning domain/service and ID; matching email/phone never implies identity
+  equivalence.
+• All timestamps are UTC `timestamptz` internally and RFC3339 over APIs/events; property/booking timezone is stored as an
+  IANA name.
+• Money is `amount_minor int64 + ISO-4217 currency`; no floating point money.
+• Any accepted price/fee snapshot is immutable and linked by version ID to the resulting application/offer/booking/agreement.
+• External service references are stored with service name, external ID, lifecycle status projection and last-synced timestamp
+  where needed.
+
+
+  5. Authentication, owner roles and authorization
+  Because the platform has no central identity service, `individual-owner-service` implements its own account and
+  authentication persistence using the certified shared Go security packages.
+   Role / principal                 Purpose                                        Core authority
+   OWNER                            Primary individual owner account               Full domain authority subject to verification, co-owner
+                                                                                   consent and transaction state.
+   CO_OWNER                         Recorded co-owner participant                  Consent/vote and access limited to properties and actions
+                                                                                   explicitly associated with ownership record.
+   AUTHORIZED_REPRESENTATIVE        POA/estate/temporary representative            Capabilities and expiry derived from authority record; never
+                                                                                   broader than evidence permits.
+   WITNESS / SIGNATORY              Agreement/sale signing participant             Document-specific signing access only.
+   SERVICE_PRINCIPAL                Authenticated platform service                 Capability-policy-limited internal API access.
+   GATEWAY_DELEGATED_ACTOR          End user routed by API gateway                 Owner actor context signed by gateway; domain
+                                                                                   authorization still enforced locally.
+
+
+
+  5.1 Account/security capabilities
+• Email+password, mobile/OTP and supported OAuth/OIDC sign-in adapters.
+• Email/phone verification, password reset, recovery codes, trusted devices and active session management.
+• Ed25519 access JWT, 15-minute default, rotating hashed refresh tokens, reuse detection and remote revocation.
+• TOTP authenticator MFA; SMS/email second factor through Notification Service; step-up auth for payout changes, sensitive
+  documents and property transfers.
+• Biometric sign-in is a client capability that unlocks locally protected credentials/session; the backend never receives raw
+  biometric data.
+• Suspicious login/device alerts and security event audit.
+• Account status: PENDING_VERIFICATION, ACTIVE, RESTRICTED, SUSPENDED, CLOSURE_PENDING, CLOSED.
+
+
+                                                                       5
+                                                                                COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+ENGINEERING ADDITION — authorization decisions
+Every command is authorized against owner role, property authority, co-owner consent requirements, manager/representative
+delegation, transaction state, verification state and any active admin restriction. Authentication alone never grants business
+authority.
+
+
+
+
+6. `individual_owner_db` logical data model
+The schema is organized by bounded context. The table list below is implementation scope, not a suggestion to collapse all
+concerns into one aggregate. Each table receives created/updated timestamps and appropriate audit/outbox handling.
+Area                   Table                                  Purpose
+Account & security     owner_accounts                         Owner account identity, status, primary contacts, locale, timezone.
+Account & security     owner_credentials                      Password/OIDC credential metadata; password hash only.
+Account & security     owner_sessions                         Refresh-token family/session state, device binding, revoked/reuse state.
+Account & security     owner_devices                          Trusted devices, push endpoint references, risk flags.
+Account & security     owner_mfa_methods                      TOTP/SMS/email methods and recovery-code metadata.
+Account & security     security_events                        Login, recovery, session, MFA and suspicious-activity events.
+Profile                owner_profiles                         Public/private owner profile and preferences.
+Profile                owner_contacts                         Verified/secondary contacts, emergency/trusted contacts.
+Banking                payout_profiles                        Payout preference container; no ledger balance.
+Banking                payout_accounts                        Masked bank metadata + payment-service beneficiary/account reference and
+                                                              verification state.
+Banking                payout_change_requests                 Step-up, cooling-off and approval workflow for changes.
+Banking                tax_profiles                           Tax identifiers/profile metadata and reporting preferences.
+Ownership              ownership_records                      Property authority claim type, holder, percentages and lifecycle.
+Ownership              ownership_parties                      Owner/co-owner/estate/POA participants and shares.
+Ownership              ownership_consents                     Action-specific co-owner consent/vote records.
+Ownership              authority_documents                    Business relationship to media IDs used as evidence.
+Ownership              ownership_change_cases                 Transfer/succession/change-control process.
+Property               properties                             Persistent property root record.
+Property               property_units                         Building/block/floor/unit/room inventory hierarchy.
+Property               land_parcels                           Plot/parcel/coordinates/boundary-specific data.
+Property               property_addresses                     Normalized/structured address + visibility level.
+Property               property_features                      Amenities, utilities, accessibility, facilities and condition attributes.
+Property               property_media_links                   Relationship between property/listing purpose and media IDs.
+Property               property_assets                        Appliance/equipment register, warranty/service metadata.
+Property               property_history                       Business history snapshots/references for major property lifecycle events.
+Verification           verification_links                     Verification-service case IDs, type, status projection, expiry and subject mapping.
+Listing                listings                               Listing root by transaction/property type.
+Listing                listing_versions                       Immutable published/draft content versions.
+Listing                listing_media_links                    Listing-specific ordered media references.
+Listing                listing_publication                    Publication/moderation/source projection state.
+Pricing                price_schedules                        Base price/rate + frequency/currency/time window.
+Pricing                fee_definitions                        Mandatory/optional fee lines, refundability and payee purpose.
+Pricing                pricing_versions                       Immutable accepted customer-facing price snapshot.
+Pricing                pricing_rules                          Escalation, discount, seasonal, promotion and length-of-stay rules.
+Availability           availability_state                     Unit/property availability and last confirmation.
+Availability           availability_calendar                  Date-granular short-let / booking inventory.
+Availability           freshness_checks                       Confirmation reminders, missed checks, automatic pause history.
+Leads                  inquiries                              Customer inquiry references, source, property/listing and stage.
+Leads                  lead_activities                        Notes, follow-ups, qualification answers and stage transitions.
+Viewings               viewing_slots                          Owner/manager/representative available times.
+Viewings               viewing_requests                       Requester reference, slot, type, state, consent and instructions.
+Viewings               viewing_attendance                     Check-in/out, one-time code, no-show and evidence refs.
+Applications           rental_applications                    Application reference, listing, applicant reference, state and deadlines.
+Applications           application_participants               Co-applicant/occupant/roommate/guarantor typed references.
+Applications           application_evidence_grants            Purpose/expiry-limited access to external media/doc evidence.
+Applications           screening_policies                     Versioned owner screening criteria with fairness/human-review controls.
+Applications           screening_results                      External/internal flags, explanation and review outcome.
+Applications           application_decisions                  Owner human decision, reasons and appeal state.
+Applications           rental_offers                          Offer terms, pricing snapshot, conditions and expiry.
+Agreements             agreements                             Agreement root and business state.
+Agreements             agreement_versions                     Immutable generated/document versions.
+Agreements             agreement_participants                 Tenant/co-tenant/guarantor/co-owner/witness participants.
+Agreements             signature_requests                     E-sign provider refs, signer state, certificate media IDs.
+Agreements             move_in_checklists                     Possession checklist root.
+Agreements             condition_items                        Room/item condition and media evidence.
+
+                                                                 6
+                                                                                 COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+  Area                   Table                                  Purpose
+  Agreements             key_access_inventory                   Keys/cards/codes/lockbox/smart-access handover refs.
+  Tenancy                tenancies                              Active tenancy lifecycle and linked agreement/property.
+  Tenancy                rent_obligations                       Business due schedule and payment-service intent/reference projection.
+  Tenancy                rent_obligation_status_history         Due/paid/partial/overdue/waived/disputed/refunded projection history.
+  Tenancy                deposit_obligations                    Deposit business terms and release conditions.
+  Tenancy                renewal_cases                          Renewal proposal/counterproposal/addendum process.
+  Tenancy                notices                                Notice type, legal template/version, delivery and acknowledgement references.
+  Tenancy                move_out_cases                         Termination/move-out inspection/balance/deposit settlement process.
+  Utilities              utility_accounts                       Property utility provider/meter/responsibility data.
+  Utilities              meter_readings                         Move-in/periodic/move-out readings and media refs.
+  Utilities              utility_bills                          Imported/issued bill references and allocation status.
+  Utilities              service_charge_budgets                 Budget period/categories/expected amount.
+  Utilities              service_charge_items                   Actual/billed/paid evidence and adjustments.
+  Commercial             commercial_terms                       Zoning/use/facility/fit-out/parking/signage etc.
+  Commercial             commercial_lois                        LOI and negotiation lifecycle.
+  Land                   land_terms                             Permitted use/lease/restoration/sublease/development obligations.
+  Transactions           sale_transactions                      Property/commercial/land sale lifecycle.
+  Transactions           sale_offers                            Buyer offer/counteroffer/conditions/expiry.
+  Transactions           data_rooms                             Transaction data room root.
+  Transactions           data_room_grants                       Time/purpose-limited grants to professionals/buyers.
+  Transactions           due_diligence_items                    Legal/survey/valuation/inspection findings and resolution.
+  Transactions           closing_milestones                     Payment/consent/perfection/handover checklist.
+  Short-let              shortlet_settings                      Capacity, rules, check-in/out, fees, cancellation, add-ons.
+  Short-let              shortlet_rates                         Date/rate/seasonal pricing rules.
+  Short-let              shortlet_bookings                      Booking business state and payment refs.
+  Short-let              shortlet_guests                        Guest list references and verification projection.
+  Short-let              turnover_jobs                          Cleaning/inspection/supplies/guest-ready workflow.
+  Short-let              damage_claims                          Evidence, claimed amount, response, dispute/refund projection.
+  Delegation             manager_proposals                      Manager proposal/fee/capacity references.
+  Delegation             manager_assignments                    Property-specific manager mandate and lifecycle.
+  Delegation             manager_permissions                    Capability list and spending/emergency limits.
+  Delegation             manager_activity_refs                  Owner-visible manager activity/report references.
+  Maintenance            maintenance_requests                   Property maintenance request and responsibility.
+  Maintenance            maintenance_quotes                     Provider quote refs and comparison.
+  Maintenance            maintenance_approvals                  Owner/manager approval decision and budget.
+  Maintenance            maintenance_jobs                       Job reference to artisan execution + domain state.
+  Maintenance            maintenance_warranties                 Completion/rework/warranty relationship.
+  Maintenance            preventive_schedules                   Recurring asset inspection/service schedule.
+  Professional           professional_appointments              Professional provider appointment/mandate.
+  Professional           professional_findings                  Signed report references/findings used by owner workflow.
+  Dispute                domain_disputes                        Owner-side dispute case and target entity.
+  Dispute                dispute_evidence                       Media/document references and evidence metadata.
+  Privacy                consents                               Purpose/version/expiry consent records.
+  Privacy                data_subject_requests                  Access/correction/export/deletion/objection workflow.
+  Reports                report_snapshots                       Generated report metadata and downloadable artifact refs.
+  Reports                market_insights                        Comparable inputs, confidence, generated-at and advisory result.
+  Financing              finance_offers                         Partner offer references, consent and owner payout preference.
+  Insurance              insurance_policies                     Policy/product references, requirements and lifecycle.
+  Insurance              insurance_claims                       Claim reference/status/evidence.
+  Access                 access_devices                         Smart lock/device/inventory provider refs.
+  Access                 access_grants                          Time-limited access purpose/principal/credential status.
+  Platform               idempotency_records                    Shared-go idempotency schema in this database.
+  Platform               outbox_events                          Transactional event outbox.
+  Platform               processed_events                       Consumer de-duplication.
+  Platform               audit_events                           Append-only domain/security audit trail.
+
+
+
+
+  6.1 Required database constraints and indexes
+• Unique active account per normalized verified primary email/phone within this domain, with soft-closure semantics defined
+  explicitly.
+• Unique property ownership root per persistent property record; duplicate claims are represented as conflict cases, not
+  duplicate authoritative property rows.
+• Only one active published listing per property/unit + transaction type unless product explicitly allows parallel listing variants.
+• Pricing version referenced by accepted application/offer/booking/agreement is immutable.
+
+
+                                                                   7
+                                                                         COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Manager assignment intervals and permissions are property-scoped; assignment revocation does not delete historical
+  actions.
+• State transitions use compare-and-swap/version columns or row locks to prevent concurrent contradictory decisions.
+• External callback/event IDs are unique where consumed; duplicate delivery must be harmless.
+• Use partial indexes for open/active states and due workers; use GIN/JSONB only where schemaless attributes are genuinely
+  needed.
+• Do not store raw card data, full provider secrets, raw KYC documents or chat message content.
+
+
+  7. Canonical domain state machines
+  Account
+     PENDING_VERIFICATION -> ACTIVE -> RESTRICTED | SUSPENDED | CLOSURE_PENDING -> CLOSED
+     RESTRICTED/SUSPENDED -> ACTIVE only through authorized remediation/appeal.
+
+
+  Ownership record
+     DRAFT -> EVIDENCE_PENDING -> UNDER_VERIFICATION -> VERIFIED | REJECTED | CONFLICT
+     VERIFIED -> REVERIFICATION_REQUIRED | TRANSFER_PENDING -> VERIFIED/TRANSFERRED.
+
+
+  Property
+     DRAFT -> ACTIVE -> RESTRICTED | TRANSFER_PENDING | ARCHIVED
+     ACTIVE is not equivalent to listing publication.
+
+
+  Listing
+     DRAFT -> READY_FOR_REVIEW -> PUBLISHED -> PAUSED | WITHDRAWN | ARCHIVED
+     PAUSED -> PUBLISHED after freshness/verification checks.
+     Published listing may be system-paused for stale availability, moderation or authority expiry.
+
+
+  Availability
+     AVAILABLE | RESERVED | APPLICATION_UNDER_REVIEW | OFFER_ACCEPTED | OCCUPIED | TEMP_UNAVAILABLE | OFF_MARKET |
+     SOLD | WITHDRAWN
+
+
+  Inquiry/lead
+     NEW -> ACKNOWLEDGED -> QUALIFIED -> VIEWING | APPLICATION | OFFER | BOOKING | CLOSED_WON | CLOSED_LOST
+
+
+  Viewing
+     REQUESTED -> CONFIRMED -> CHECKED_IN -> COMPLETED
+     REQUESTED/CONFIRMED -> RESCHEDULED | CANCELLED | NO_SHOW
+
+
+  Application
+     DRAFT/RECEIVED -> SUBMITTED -> UNDER_REVIEW -> INFO_REQUESTED -> UNDER_REVIEW -> APPROVED | CONDITIONAL |
+     DECLINED | WAITLISTED | WITHDRAWN | EXPIRED
+     DECLINED may enter APPEAL/HUMAN_REVIEW where applicable.
+
+
+  Rental offer
+     DRAFT -> SENT -> ACCEPTED | DECLINED | EXPIRED | WITHDRAWN
+     ACCEPTED freezes pricing snapshot and proceeds to agreement.
+
+
+  Agreement
+     DRAFT -> REVIEW -> SIGNING -> FULLY_SIGNED -> EFFECTIVE
+     Any pre-effective state may become CANCELLED; versions immutable after signature invitation.
+
+
+
+                                                              8
+                                                                   COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+Tenancy
+   PENDING_MOVE_IN -> ACTIVE -> RENEWAL_PENDING | TERMINATION_PENDING -> MOVE_OUT_PENDING -> ENDED
+   ACTIVE may carry DISPUTE flags without collapsing lifecycle.
+
+
+Rent obligation
+   SCHEDULED -> DUE -> PARTIAL | PAID | OVERDUE | DISPUTED | WAIVED | REFUND_PENDING -> REFUNDED
+   Payment truth comes from payment-service events/read-back.
+
+
+Deposit
+   REQUIRED -> FUNDED -> HELD -> RELEASE_PENDING | DEDUCTION_PROPOSED -> PARTIAL_RELEASED | RELEASED | DISPUTED
+
+
+Notice
+   DRAFT -> ISSUED -> DELIVERED -> ACKNOWLEDGED | DELIVERY_FAILED | DISPUTED
+   Legal effective date is policy-driven and not inferred solely from app acknowledgement.
+
+
+Sale transaction
+   INQUIRY -> OFFERING -> OFFER_ACCEPTED -> DUE_DILIGENCE -> CONTRACTING -> CONDITIONS_PENDING -> CLOSING ->
+   COMPLETED
+   Any pre-completion state may become CANCELLED/FAILED/DISPUTED subject to terms.
+
+
+Short-let booking
+   INQUIRY/HOLD -> PENDING_APPROVAL | PENDING_PAYMENT -> CONFIRMED -> CHECKED_IN -> CHECKED_OUT -> COMPLETED
+   May transition to CANCELLED | NO_SHOW | DISPUTED.
+
+
+Manager assignment
+   PROPOSED -> ACCEPTED -> ACTIVE -> SUSPENDED | EXPIRING -> REVOKED | EXPIRED | TERMINATED
+   Permissions versioned; payout destination change excluded unless separately owner-authorized and step-up
+   verified.
+
+
+Maintenance request
+   OPEN -> TRIAGED -> QUOTING -> APPROVAL_PENDING -> APPROVED -> ASSIGNED -> IN_PROGRESS -> COMPLETION_REVIEW ->
+   COMPLETED
+   May enter REWORK | CANCELLED | DISPUTED.
+
+
+Professional appointment
+   REQUESTED -> QUOTING -> APPOINTED -> IN_PROGRESS -> REPORT_SUBMITTED -> ACCEPTED | DISPUTED | CANCELLED
+
+
+Data subject request
+   SUBMITTED -> VERIFIED_REQUESTER -> PROCESSING -> PARTIALLY_FULFILLED | FULFILLED | DENIED_WITH_REASON ->
+   CLOSED
+
+
+Account closure
+   REQUESTED -> BLOCKERS_CHECK -> CLOSURE_PENDING -> CLOSED
+   Open obligations/disputes/required records remain retained and accessible as policy permits.
+
+
+Smart access grant
+   REQUESTED -> APPROVED -> ISSUED -> ACTIVE -> EXPIRED | REVOKED | COMPROMISED
+
+
+
+
+                                                        9
+                                                                        COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  8. Public API surface (`/api/v1/owner/*`)
+  Exact path naming may be normalized during implementation, but the endpoint groups below are the required public
+  contract. All frontend-facing operations must be represented in OpenAPI and Postman and must use the platform error
+  envelope.
+
+  Authentication & account
+• POST /api/v1/owner/auth/register
+• POST /api/v1/owner/auth/login
+• POST /api/v1/owner/auth/refresh
+• POST /api/v1/owner/auth/logout
+• POST /api/v1/owner/auth/forgot-password
+• POST /api/v1/owner/auth/reset-password
+• POST /api/v1/owner/auth/mfa/enrol
+• POST /api/v1/owner/auth/mfa/verify
+• GET /api/v1/owner/sessions
+• DELETE /api/v1/owner/sessions/{session_id}
+• GET/PATCH /api/v1/owner/profile
+• POST /api/v1/owner/account/closure
+
+  Banking & tax
+• GET/POST /api/v1/owner/payout-accounts
+• POST /api/v1/owner/payout-accounts/{id}/verify
+• POST /api/v1/owner/payout-accounts/{id}/make-default
+• DELETE /api/v1/owner/payout-accounts/{id}
+• GET/PUT /api/v1/owner/payout-preferences
+• GET/PUT /api/v1/owner/tax-profile
+• GET /api/v1/owner/statements
+
+  Ownership & properties
+• GET/POST /api/v1/owner/properties
+• GET/PATCH /api/v1/owner/properties/{property_id}
+• POST /api/v1/owner/properties/{property_id}/claim
+• GET/POST /api/v1/owner/properties/{property_id}/ownership
+• POST /api/v1/owner/properties/{property_id}/co-owners
+• POST /api/v1/owner/properties/{property_id}/consents
+• POST /api/v1/owner/properties/{property_id}/verification
+• GET /api/v1/owner/properties/{property_id}/history
+• GET/POST /api/v1/owner/properties/{property_id}/units
+• GET/POST /api/v1/owner/properties/{property_id}/assets
+
+  Listings & pricing
+• GET/POST /api/v1/owner/listings
+
+                                                              10
+                                                                       COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• GET/PATCH /api/v1/owner/listings/{listing_id}
+• POST /api/v1/owner/listings/{listing_id}/preview
+• POST /api/v1/owner/listings/{listing_id}/publish
+• POST /api/v1/owner/listings/{listing_id}/pause
+• POST /api/v1/owner/listings/{listing_id}/withdraw
+• POST /api/v1/owner/listings/{listing_id}/copy
+• GET/PUT /api/v1/owner/listings/{listing_id}/pricing
+• GET /api/v1/owner/listings/{listing_id}/price-history
+• GET/PUT /api/v1/owner/listings/{listing_id}/availability
+• POST /api/v1/owner/listings/{listing_id}/confirm-availability
+
+  Leads & viewings
+• GET /api/v1/owner/inquiries
+• GET/PATCH /api/v1/owner/inquiries/{inquiry_id}
+• POST /api/v1/owner/inquiries/{inquiry_id}/qualify
+• GET/POST /api/v1/owner/viewing-slots
+• GET/PATCH /api/v1/owner/viewings/{viewing_id}
+• POST /api/v1/owner/viewings/{viewing_id}/approve
+• POST /api/v1/owner/viewings/{viewing_id}/reschedule
+• POST /api/v1/owner/viewings/{viewing_id}/cancel
+• POST /api/v1/owner/viewings/{viewing_id}/representative
+
+  Applications & offers
+• GET /api/v1/owner/applications
+• GET /api/v1/owner/applications/{application_id}
+• POST /api/v1/owner/applications/{application_id}/request-info
+• POST /api/v1/owner/applications/{application_id}/decision
+• POST /api/v1/owner/applications/{application_id}/offer
+• GET/PATCH /api/v1/owner/offers/{offer_id}
+• POST /api/v1/owner/offers/{offer_id}/withdraw
+
+  Agreements & tenancy
+• GET/POST /api/v1/owner/agreements
+• GET/PATCH /api/v1/owner/agreements/{agreement_id}
+• POST /api/v1/owner/agreements/{agreement_id}/invite-signers
+• POST /api/v1/owner/agreements/{agreement_id}/send-for-signature
+• GET /api/v1/owner/tenancies
+• GET /api/v1/owner/tenancies/{tenancy_id}
+• POST /api/v1/owner/tenancies/{tenancy_id}/renewal
+• POST /api/v1/owner/tenancies/{tenancy_id}/notices
+• POST /api/v1/owner/tenancies/{tenancy_id}/move-out
+• GET /api/v1/owner/tenancies/{tenancy_id}/rent-obligations
+• GET /api/v1/owner/tenancies/{tenancy_id}/deposit
+                                                                  11
+                                                                          COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  Utilities & service charge
+• GET/POST /api/v1/owner/properties/{property_id}/utilities
+• POST /api/v1/owner/properties/{property_id}/meter-readings
+• GET/POST /api/v1/owner/properties/{property_id}/service-charge-budgets
+• POST /api/v1/owner/service-charge-budgets/{budget_id}/items
+
+  Commercial / land / sale
+• GET/PUT /api/v1/owner/properties/{property_id}/commercial-terms
+• GET/POST /api/v1/owner/transactions/sales
+• GET /api/v1/owner/transactions/sales/{sale_id}
+• POST /api/v1/owner/transactions/sales/{sale_id}/offers/{offer_id}/decision
+• POST /api/v1/owner/transactions/sales/{sale_id}/data-room
+• POST /api/v1/owner/transactions/sales/{sale_id}/milestones
+• GET/PUT /api/v1/owner/properties/{property_id}/land-terms
+
+  Short-let
+• GET/PUT /api/v1/owner/properties/{property_id}/shortlet/settings
+• GET/PUT /api/v1/owner/properties/{property_id}/shortlet/calendar
+• GET/PUT /api/v1/owner/properties/{property_id}/shortlet/rates
+• GET /api/v1/owner/shortlet/bookings
+• GET/PATCH /api/v1/owner/shortlet/bookings/{booking_id}
+• POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claim
+• POST /api/v1/owner/shortlet/bookings/{booking_id}/turnover
+
+  Delegation
+• GET /api/v1/owner/managers/search
+• POST /api/v1/owner/manager-proposals
+• GET/POST /api/v1/owner/manager-assignments
+• GET/PATCH /api/v1/owner/manager-assignments/{assignment_id}
+• POST /api/v1/owner/manager-assignments/{assignment_id}/revoke
+• GET /api/v1/owner/manager-assignments/{assignment_id}/activity
+
+  Maintenance & professionals
+• GET/POST /api/v1/owner/maintenance
+• GET/PATCH /api/v1/owner/maintenance/{request_id}
+• POST /api/v1/owner/maintenance/{request_id}/request-quotes
+• POST /api/v1/owner/maintenance/{request_id}/approve
+• GET/POST /api/v1/owner/professional-appointments
+• GET/PATCH /api/v1/owner/professional-appointments/{appointment_id}
+
+  Reports, disputes, privacy
+• GET /api/v1/owner/reports/portfolio
+
+                                                               12
+                                                                                   COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• POST /api/v1/owner/reports/export
+• GET /api/v1/owner/market-insights
+• GET/POST /api/v1/owner/disputes
+• GET /api/v1/owner/disputes/{dispute_id}
+• GET/POST /api/v1/owner/privacy/requests
+• GET /api/v1/owner/audit/activity
+
+  Financing, insurance, smart access
+• GET /api/v1/owner/financing/options
+• POST /api/v1/owner/financing/consents
+• GET /api/v1/owner/insurance/options
+• GET/POST /api/v1/owner/insurance/policies
+• GET/POST /api/v1/owner/insurance/claims
+• GET/POST /api/v1/owner/access/grants
+• POST /api/v1/owner/access/grants/{grant_id}/revoke
+• GET /api/v1/owner/access/history
+
+  8.1 API command rules
+• All create/publish/approve/withdraw/decision/financial/external-side-effect commands use `Idempotency-Key` where
+  duplicate execution could be harmful.
+• PATCH requests use optimistic concurrency (`version` or `If-Match`) for business objects with concurrent
+  owner/manager/admin modification risk.
+• Sensitive actions require step-up authentication freshness; token age alone is not sufficient for payout/property-transfer
+  actions.
+• Pagination defaults to cursor-based for unbounded collections.
+• Responses expose explicit DTOs; database rows and provider responses are never returned directly.
+
+
+  9. Internal service API contracts
+  Caller/Dependency               Contract                                         Purpose
+  marketplace-service             GET /internal/v1/owner/listings/{id}             Authoritative listing read-back before high-value actions;
+                                                                                   public projection recovery.
+  marketplace-service             GET /internal/v1/owner/properties/{id}/public-   Fresh public property/authority summary.
+                                  summary
+  verification-service            POST/GET verification APIs                       Create/read IDENTITY and PROPERTY_AUTHORITY cases
+                                                                                   using existing verification-service contract.
+  media-document-service          Upload/download/status APIs                      Media/document lifecycle; owner service stores media IDs
+                                                                                   only.
+  notification-service            Send/recipient APIs                              System notifications, push endpoints and preferences.
+  payment-service                 Payment intent / obligation / refund / payout    Financial execution and ledger truth. Contract must be
+                                  APIs                                             implemented before financial modules can certify.
+  property-manager-service        Manager proposal/assignment/activity APIs        Discovery and operational manager workspace integration.
+  artisan-service                 Maintenance provider quote/job APIs              Provider execution and provider status.
+  professional-services-service   Professional search/quote/appointment/report     Due-diligence and professional work execution.
+                                  APIs
+  admin-service                   Moderation/dispute/restriction APIs              Operator actions on owner-domain entities through service
+                                                                                   API, never DB access.
+  CF Meet                         Context / participants / messaging / call APIs   Human communication context for inquiry, viewing, tenancy,
+                                                                                   maintenance and transaction.
+
+
+
+
+                                                                         13
+                                                                                   COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+10. Event catalogue and Marketplace projections
+Event                                    Producer                   Consumers                            Meaning
+owner.account.activated.v1               individual-owner-service   Notification/Admin analytics         Owner account ready.
+owner.account.restricted.v1              individual-owner-service   Gateway/Admin/Notification as        Account restriction projection.
+                                                                    needed
+property.created.v1                      individual-owner-service   Marketplace/Admin                    Persistent property created; not
+                                                                                                         necessarily publishable.
+property.updated.v1                      individual-owner-service   Marketplace/Admin                    Publicly relevant property fields changed.
+property.verification_changed.v1         individual-owner-service   Marketplace                          Derived public authority/verification
+                                                                                                         summary changed.
+listing.published.v1                     individual-owner-service   Marketplace                          Create/update search projection.
+listing.updated.v1                       individual-owner-service   Marketplace                          Refresh projection fields.
+listing.paused.v1                        individual-owner-service   Marketplace                          Hide/suspend projection.
+listing.withdrawn.v1                     individual-owner-service   Marketplace                          Remove active discovery projection.
+listing.availability_confirmed.v1        individual-owner-service   Marketplace                          Update freshness/availability.
+viewing.updated.v1                       individual-owner-service   Marketplace/Notification             Customer-visible appointment state.
+application.updated.v1                   individual-owner-service   Marketplace/Notification             Customer-facing application state.
+rental_offer.updated.v1                  individual-owner-service   Marketplace/Notification             Offer state and deadlines.
+tenancy.started.v1                       individual-owner-service   Marketplace/Payment/Notification     Occupancy begins.
+tenancy.ended.v1                         individual-owner-service   Marketplace/Payment/Notification     Occupancy ends.
+manager.assignment.created.v1            individual-owner-service   property-manager-service             Owner mandate becomes available to
+                                                                                                         manager service.
+manager.assignment.updated.v1            individual-owner-service   property-manager-service             Permissions/limits changed.
+manager.assignment.revoked.v1            individual-owner-service   property-manager-service             Immediate access revocation.
+maintenance.request.created.v1           individual-owner-service   artisan-service                      Approved/eligible work request discovery
+                                                                                                         where applicable.
+sale.transaction.updated.v1              individual-owner-service   Marketplace/Notification/Admin       Customer-visible sale state.
+shortlet.availability.updated.v1         individual-owner-service   Marketplace                          Date inventory projection.
+shortlet.booking.updated.v1              individual-owner-service   Marketplace/Notification/Payment     Booking state.
+access.grant.revoked.v1                  individual-owner-service   Smart-access adapter/Notification    Credential revocation propagation.
+
+
+
+
+10.1 Events consumed
+Consumed event family                         Owner-service action
+verification.*                                Update verification-link projections, unlock/lock publication or re-verification-dependent actions.
+media.ready/rejected/deleted                  Update media usability; automatically prevent publication if required media becomes unavailable.
+payment.* / payout.* / refund.*               Update business payment projections, receipts, obligations, deposits, booking/rent/sale status.
+                                              Never synthesize financial truth.
+notification.*                                Optional delivery history projection for owner-facing notification history.
+manager.*                                     Manager acceptance/activity/report status where the manager service is authoritative for execution.
+maintenance provider/job events               Update quote/job/completion projections.
+professional appointment/report events        Update appointment/report projections.
+marketplace report events                     Stale/duplicate/misleading listing reports routed back to authoritative owner service.
+
+
+
+
+11. Background workers and scheduled jobs
+Worker                                     Responsibility
+Outbox relay                               Publish committed domain events to NATS with leasing/retry.
+Availability freshness                     Find due confirmations; send reminders; auto-pause after policy threshold.
+Verification expiry                        Detect linked verification expiry/reverification requirement and restrict dependent capabilities.
+Payout-change cooling-off                  Activate verified payout account only after step-up + cooling-off policy passes.
+Listing expiry/quality                     Pause stale/invalid listings; reconcile missing required media/verification.
+Viewing reminders                          Schedule reminders and no-show follow-up notifications.
+Application deadlines                      Expire applications/offers/information requests when deadline passes.
+Agreement/signature reconciliation         Read back external e-sign state; never repeat ambiguous signature side effects blindly.
+Rent schedule projection                   Materialize upcoming obligations from tenancy schedule and request payment intents when due
+                                           according to policy.
+Arrears/reminder                           Trigger domain notices/notifications from payment truth and policy.
+Renewal/notices                            Generate reminders for upcoming expiry/renewal windows.
+Move-out/deposit deadlines                 Track inspection, response and refund/deduction deadlines.
+
+                                                                      14
+                                                                                   COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+  Worker                                   Responsibility
+  Short-let calendar                       Expire holds, reconcile external calendar sync, release inventory.
+  Turnover scheduler                       Create cleaning/inspection jobs after checkout or before check-in.
+  Manager mandate expiry                   Revoke expired permissions and notify manager/owner.
+  Preventive maintenance                   Create due preventive tasks from asset schedules.
+  Privacy retention                        Execute retention/deletion/anonymization jobs subject to legal/business hold flags.
+  Report generation                        Produce monthly/quarterly/annual/custom report snapshots.
+  Smart access expiry                      Revoke credentials when business relationship ends.
+
+
+
+
+  12. Cross-service and external integration contracts
+  Integration                          Contract / boundary
+  Verification Service                 Use existing `IDENTITY` and `PROPERTY_AUTHORITY` cases. Individual owner service creates cases,
+                                       attaches media evidence by ID, and enforces verified/expired/rejected outcomes.
+  Media & Document Service             All documents/media use signed upload flow. Property/listing/application/agreement/data-room
+                                       relationships store `media_id`; access grants are purpose/time scoped.
+  Notification Service                 FCM selected for push. Email/SMS remain provider-neutral. Owner service requests templates/categories
+                                       and never calls Twilio/SMTP directly.
+  Payment Service                      Only payment-service may call Paystack or other money providers. Owner service submits business
+                                       amount/context and receives payment/refund/payout/ledger references and events.
+  Marketplace Service                  Consumes owner listing/property/availability events into discovery projections. Marketplace may call
+                                       owner service for authoritative read-back.
+  Property Manager Service             Manager search/proposal data comes from manager domain. Owner service owns the mandate/grant;
+                                       manager service enforces it in operational workflows.
+  Artisan Service                      Maintenance provider discovery/quotes/execution live in artisan domain; owner service owns property
+                                       request, responsibility, approval and property history.
+  Professional Services                Professional discovery/credential/status and execution live in professional domain; owner service owns
+                                       appointment purpose, transaction link and use of findings.
+  Admin Service                        Admin moderates/reviews through internal APIs with admin actor delegation; admin cannot directly
+                                       mutate owner DB.
+  CF Meet                              Inquiry/viewing/application/tenancy/maintenance/transaction contexts use CF Meet for chat, voice and
+                                       video. Store `cfmeet_context_id` and permission state only.
+  Maps                                 Provider-neutral geocoding, reverse-geocoding, coordinates validation, directions/area metadata. Persist
+                                       normalized result + provider/source freshness.
+  Electronic signature                 Provider-neutral adapter inside owner service for signature requests/callback verification/read-back;
+                                       signed artifacts stored via media service.
+  External marketplace/calendar sync   Provider-neutral adapters; outbound sync uses idempotency and source-of-truth rules; inbound calendars
+                                       cannot overwrite authoritative business state without validation.
+  Smart access                         Provider-neutral adapter; device-specific credentials never become permanent platform authorization.
+                                       Owner-service access grants remain authority.
+  Financing / insurance partners       Consent-gated partner adapters; owner service stores business references/projections and does not
+                                       expose unnecessary tenant/buyer financial data.
+
+
+
+
+  13. Product-section implementation map (V5 sections 1–30)
+  The following subsections are the implementation contract for every product area in the Individual Property Owner V5
+  document. Each subsection states the backend realization and additions required for safe execution.
+
+  13.1 Owner Role and Dashboard
+  PRODUCT requirements
+• Portfolio summary across verification, listings, inquiries, viewings, applications, offers, leases, bookings, payments,
+  maintenance, managers, professionals, disputes and reports.
+• Calendar and quick actions scoped to owner authority.
+  Backend implementation
+• Dashboard query service backed by read models/materialized projections in individual_owner_db.
+• Calendar items derived from authoritative domain tables; no separate calendar authority.
+                                                                     15
+                                                                                       COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Quick actions execute normal domain commands with full authorization/idempotency.
+  Primary tables                                                            Primary public API groups
+  dashboard projections, calendar items, saved dashboard preferences        GET /api/v1/owner/dashboard, GET /api/v1/owner/calendar
+
+
+
+  13.2 Registration, Security and Personal Verification
+  PRODUCT requirements
+• Identity checks, recovery, multiple sign-in methods, device/session controls, MFA, re-verification, appeals, verification
+   badges, account status and data rights.
+  Backend implementation
+• Implement domain-owned auth using certified shared Go packages.
+• Create verification-service IDENTITY cases; account activation/payout-sensitive actions depend on policy.
+• OAuth providers behind adapter; biometric remains client-side authentication unlock.
+• Step-up auth freshness for bank changes/document access/property transfer.
+• Human-review/appeal records link to verification/admin workflows.
+  Primary tables                                                            Primary public API groups
+  owner_accounts, owner_credentials, owner_sessions, owner_devices,         /auth/*, /sessions, /profile, /account/status, /verification
+  owner_mfa_methods, verification_links, security_events
+
+
+
+  13.3 Owner Banking, Payout and Tax Profile
+  PRODUCT requirements
+• Multiple verified payout accounts, account-name matching, stronger approval/cooling-off for changes, payout preferences,
+  tax/reporting records.
+  Backend implementation
+• Payout account verification/beneficiary truth must come through payment-service/provider adapter, not local trust.
+• Store masked account metadata and payment-service beneficiary refs only.
+• Cooling-off worker; step-up MFA; owner notifications for changes.
+• Tax calculations/rules are configurable; do not hard-code tax law into core schema.
+  Primary tables                                                            Primary public API groups
+  payout_profiles, payout_accounts, payout_change_requests,                 /payout-accounts, /payout-preferences, /tax-profile, /statements
+  tax_profiles
+
+
+
+  13.4 Ownership and Authority Records
+  PRODUCT requirements
+• Sole/joint/family/inherited/probate/POA/subletting authority, co-owner percentages/consents, documents, beneficial
+  owner/representative, disputes/reverification, ownership transfer.
+  Backend implementation
+• Model ownership parties and evidence as first-class records.
+• Action-specific co-owner consent policy determines whether publication/price/sale/manager actions may proceed.
+• Verification-service owns PROPERTY_AUTHORITY decision; owner service owns claim/workflow.
+• Ownership transfer is a guarded case, never direct owner_id update.
+  Primary tables                                                            Primary public API groups
+  ownership_records, ownership_parties, ownership_consents,                 /properties/{id}/ownership, /co-owners, /consents, /ownership-transfer
+  authority_documents, ownership_change_cases
+
+
+                                                                       16
+                                                                                         COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  13.5 Permanent Property and Portfolio Records
+  PRODUCT requirements
+• Persistent property record, address/coordinates/unit/parcel refs, categories/features, media, asset register, complete
+  history, bulk upload.
+  Backend implementation
+• Persistent property ID survives listing/tenant/manager changes.
+• Separate property root, units and land parcels.
+• Bulk import is asynchronous with validation/error report and idempotent row matching.
+• Media bytes never stored locally; property media links reference media-service IDs.
+  Primary tables                                                              Primary public API groups
+  properties, property_units, land_parcels, property_addresses,               /properties, /properties/{id}/units, /properties/{id}/assets,
+  property_features, property_assets, property_media_links,                   /properties/imports
+  property_history
+
+
+
+  13.6 Property Verification and Listing Authenticity
+  PRODUCT requirements
+• Document/inspection/registry/survey/payout-beneficiary checks, verification levels/expiry, duplicate/conflicting claims,
+  geotag/live media, public summary.
+  Backend implementation
+• Orchestrate required verification types by property/category/transaction policy.
+• Duplicate property/media/conflicting owner claims produce conflict cases requiring admin/verification workflow.
+• Geotag/freshness metadata captured with media relation; do not treat client metadata as trusted without validation.
+• Public verification summary is a projection with limitations/expiry.
+  Primary tables                                                              Primary public API groups
+  verification_links, property_history, domain_disputes                       /properties/{id}/verification, /properties/{id}/verification-summary
+
+
+
+  13.7 Listing Creation for Every Property Category
+  PRODUCT requirements
+• Residential/commercial/land/sale/short-let listings, property vs transaction type, fields/media/inventory/pricing, draft-
+  preview-publish-pause-withdraw-copy-archive, campaigns/external sharing.
+  Backend implementation
+• One listing aggregate with category-specific typed detail tables/JSON-schema-validated extensions.
+• Publish command validates authority, verification, required media, pricing disclosure and availability.
+• Published immutable version emitted to Marketplace; edits create new version.
+• External sync is asynchronous and must not become source of truth.
+  Primary tables                                                              Primary public API groups
+  listings, listing_versions, listing_media_links, listing_publication        /listings, /listings/{id}/preview, /publish, /pause, /withdraw, /copy
+
+
+
+  13.8 Complete Price and Fee Configuration
+  PRODUCT requirements
+• Base price, mandatory charges, refundability, payment cycles, escalation/discount/seasonal rules, all-in preview, history,
+  accepted-cost freeze.
+  Backend implementation
+                                                                         17
+                                                                                       COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Price/fee model is versioned and immutable once accepted.
+• All-in cost calculator is deterministic and shared between preview and acceptance.
+• Money uses integer minor units + currency.
+• Unknown/legal fee categories require configured policy; hidden fees are rejected.
+  Primary tables                                                            Primary public API groups
+  price_schedules, fee_definitions, pricing_versions, pricing_rules         /listings/{id}/pricing, /listings/{id}/price-history, /listings/{id}/cost-
+                                                                            preview
+
+
+
+  13.9 Availability and Listing Freshness
+  PRODUCT requirements
+• Availability states, scheduled confirmations, auto-pause, report handling, unit/room/date inventory, quality measures.
+  Backend implementation
+• Freshness policy configurable by listing/category.
+• Workers send reminders then system-pause stale listing with reason.
+• Short-let uses date calendar; long-term uses state + effective dates.
+• Marketplace receives availability/freshness events.
+  Primary tables                                                            Primary public API groups
+  availability_state, availability_calendar, freshness_checks               /listings/{id}/availability, /confirm-availability
+
+
+
+  13.10 Marketing, Inquiries and Lead Management
+  PRODUCT requirements
+• Inquiries, acknowledgement, qualification, pipeline, reminders/notes/conversation history, matching, promoted listings,
+   external sync.
+  Backend implementation
+• Inquiry business state stored locally; actual human message content in CF Meet.
+• Automated acknowledgements use Notification Service or CF Meet depending on message type.
+• Promoted listing flag references Marketplace/commercial capability; payment, if any, must use payment-service.
+• Lead qualification fields must be lawful/configurable, not unrestricted owner-defined discrimination.
+  Primary tables                                                            Primary public API groups
+  inquiries, lead_activities                                                /inquiries, /inquiries/{id}/qualify, /campaigns
+
+
+
+  13.11 Viewing and Access Management
+  PRODUCT requirements
+• Viewing slots, owner/manager/representative, virtual/live/physical/open-house, codes, attendance/no-show, occupied
+  privacy, feedback/safety, remote inspection.
+  Backend implementation
+• Viewing aggregate links to CF Meet for live video.
+• One-time access credential issued through smart-access adapter or server-generated code with TTL.
+• Occupied-property consent gate before access instructions.
+• Representative authority is checked against assignment/authorization record.
+  Primary tables                                                            Primary public API groups
+  viewing_slots, viewing_requests, viewing_attendance, access_grants        /viewing-slots, /viewings/{id}/*
+
+
+                                                                       18
+                                                                                        COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  13.12 Residential Applications and Tenant Selection
+  PRODUCT requirements
+• Applications/participants, minimum necessary data, evidence request, screening criteria/alternative evidence, human
+  decision, rental offer, protected history.
+  Backend implementation
+• Applicant source record may originate Marketplace; owner service stores domain application and typed applicant refs.
+• Purpose/time-limited evidence grants via media service.
+• Screening policy version captured at decision time; automated flags never become sole final decision.
+• Decision reasons, appeal/human review and retention rules audited.
+  Primary tables                                                             Primary public API groups
+  rental_applications, application_participants,                             /applications, /applications/{id}/request-info, /decision, /offer
+  application_evidence_grants, screening_policies, screening_results,
+  application_decisions, rental_offers
+
+
+
+  13.13 Agreement and Move-In
+  PRODUCT requirements
+• Agreement template/terms, payment schedule/rules/inventory/condition/deposit, multi-party signing, e-sign, version
+  history/certificate, move-in evidence/meters/keys.
+  Backend implementation
+• Agreement templates are jurisdiction/policy-versioned; legal content managed as controlled configuration, not hard-coded
+  strings.
+• E-sign provider adapter with verified callbacks and read-back for ambiguous outcomes.
+• Signed document/certificate stored in media service.
+• Move-in condition evidence is immutable once both parties acknowledge, with dispute addendum instead of overwrite.
+  Primary tables                                                             Primary public API groups
+  agreements, agreement_versions, agreement_participants,                    /agreements, /agreements/{id}/send-for-signature, /move-in
+  signature_requests, move_in_checklists, condition_items,
+  key_access_inventory
+
+
+
+  13.14 Rent, Deposit and Financial Management
+  PRODUCT requirements
+• Supported payments, schedules, rent ledger states, late fees/reminders, deposit ledger/release,
+  payouts/reconciliation/chargebacks/refunds/statements, reports.
+  Backend implementation
+• Owner service owns rent/deposit business obligations only; payment-service owns transaction/ledger truth.
+• Every money movement initiated through payment-service idempotently.
+• Unknown provider outcomes are read back before retry.
+• Late fees and deposit release rules are policy-configured and auditable.
+• Financial projections reconcile to payment events/read-back.
+  Primary tables                                                             Primary public API groups
+  rent_obligations, deposit_obligations, payout_profiles,                    /tenancies/{id}/rent-obligations, /deposit, /statements
+  report_snapshots
+
+
+
+
+                                                                        19
+                                                                                            COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  13.15 Renewal, Rent Review, Notices and Move-Out
+  PRODUCT requirements
+• Renewal proposal/counter, rent change explanation/market context, signed addendum, notices, move-out, damage/deposit
+  deductions/refund, return-to-market.
+  Backend implementation
+• Renewal/counter is a separate versioned case; accepted terms generate addendum/agreement version.
+• Notice templates and effective dates are policy-controlled; delivery and acknowledgement recorded separately.
+• Deposit deduction requires itemized evidence; dispute freezes disputed settlement path, not necessarily unrelated funds.
+• Listing/property returns AVAILABLE only after move-out completion and owner confirmation.
+  Primary tables                                                                  Primary public API groups
+  renewal_cases, notices, move_out_cases, condition_items,                        /tenancies/{id}/renewal, /notices, /move-out
+  deposit_obligations
+
+
+
+  13.16 Utilities and Service-Charge Management
+  PRODUCT requirements
+• Utility providers/meters/responsibility, bills/receipts, shared-meter allocation/challenge, service-charge budget/actuals,
+  announcements/alerts.
+  Backend implementation
+• Utility/service-charge records are domain accounting projections, not payment ledger.
+• Meter readings may require media evidence and author attribution.
+• Allocation rules are versioned; disputes preserve original calculation.
+• Announcements use Notification Service; human replies use CF Meet.
+  Primary tables                                                                  Primary public API groups
+  utility_accounts, meter_readings, utility_bills, service_charge_budgets,        /properties/{id}/utilities, /meter-readings, /service-charge-budgets
+  service_charge_items
+
+
+
+  13.17 Commercial Property Rent and Sale
+  PRODUCT requirements
+• Commercial use/zoning/facility data, corporate applicant verification, LOI/offer/counter, fit-out/rent-
+  free/escalation/break/service-charge/insurance/subletting/repairs, lease/sale closing.
+  Backend implementation
+• Commercial applicant business verification remains external/domain cross-service reference.
+• Commercial terms captured in typed structured terms and immutable offer/contract versions.
+• Fit-out/obligation calendar is auditable and can generate maintenance/professional tasks.
+• Commercial sale reuses sale transaction engine with commercial extensions.
+  Primary tables                                                                  Primary public API groups
+  commercial_terms, commercial_lois, sale_transactions, agreements                /commercial-terms, /commercial-lois, /transactions/sales
+
+
+
+  13.18 Land Rent, Lease and Sale
+  PRODUCT requirements
+• Parcel/title/survey/boundary/access/utilities/use, lease terms/obligations, professional appointments, offers, title
+  search/charting/encumbrance, milestones/possession/perfection.
+  Backend implementation
+                                                                             20
+                                                                                    COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Land parcel root separated from generic unit inventory.
+• Survey/title evidence stored in media service and professional findings linked.
+• Perfection/registration is tracked as milestone status; backend must not claim governmental completion without
+  evidence/provider status.
+  Primary tables                                                          Primary public API groups
+  land_parcels, land_terms, professional_appointments,                    /properties/{id}/land-terms, /transactions/sales
+  sale_transactions, closing_milestones
+
+
+
+  13.19 Property Sale, Offers and Closing
+  PRODUCT requirements
+• Buyer inquiry/viewing/proof of funds/offer, counter/conditions, reservation/deposit/history, secure data room, due diligence,
+  purchase agreement, milestones/final statement/handover/perfection.
+  Backend implementation
+• Sale aggregate is separate from listing and survives listing withdrawal.
+• Data room uses purpose/time-limited media grants and access audit.
+• Buyer proof-of-funds/verification references are not copied unnecessarily into owner DB.
+• Reservation/milestone money uses payment-service.
+• Closing completion requires configured checklist and authorized evidence.
+  Primary tables                                                          Primary public API groups
+  sale_transactions, sale_offers, data_rooms, data_room_grants,           /transactions/sales, /data-room, /milestones
+  due_diligence_items, closing_milestones
+
+
+
+  13.20 Personally Operated Short-Let
+  PRODUCT requirements
+• Calendar, rates, capacity/rules/fees/cancellation/add-ons, inquiries/verification/payment/access/comms/extension,
+  turnover, damage/deposit dispute/refund, reports, external calendar sync.
+  Backend implementation
+• Date inventory supports hold/confirm race prevention with transactional locking.
+• Booking pricing snapshot immutable after confirmation except explicit modification workflow.
+• Guest human communications via CF Meet; system notifications via notification-service.
+• External calendar sync is best-effort adapter and cannot override paid/confirmed authoritative booking without conflict
+  resolution.
+  Primary tables                                                          Primary public API groups
+  shortlet_settings, shortlet_rates, availability_calendar,               /shortlet/settings, /calendar, /rates, /bookings
+  shortlet_bookings, shortlet_guests, turnover_jobs, damage_claims
+
+
+
+  13.21 Property Manager Marketplace and Delegation
+  PRODUCT requirements
+• Search/compare/proposals, assign properties/managers, capability permissions, spend/emergency limits, role types,
+  activity/performance/expenses/complaints, revoke/handover.
+  Backend implementation
+• Manager marketplace/search owned by property-manager-service; owner service stores proposal/assignment refs and
+  authoritative owner grant.
+• Capability matrix is explicit; no generic 'manager can do everything'.
+
+                                                                     21
+                                                                                      COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Revocation must immediately block internal API capability checks and emit event.
+• Manager cannot redirect owner funds; payout changes remain owner step-up flow.
+  Primary tables                                                            Primary public API groups
+  manager_proposals, manager_assignments, manager_permissions,              /managers/search, /manager-assignments
+  manager_activity_refs
+
+
+
+  13.22 Maintenance, Artisans and Preventive Care
+  PRODUCT requirements
+• Requests/priority/responsibility, quotes, approval/budget/delegation, provider
+  attendance/progress/evidence/invoice/completion/rework/warranty, pay provider, preventive schedules.
+  Backend implementation
+• Owner service owns property request/responsibility/approval; artisan service owns provider execution.
+• Payment-service pays provider only against authorized job/amount.
+• Work completion can be challenged/reworked without overwriting evidence.
+• Preventive scheduler ties tasks to property assets.
+  Primary tables                                                            Primary public API groups
+  maintenance_requests, maintenance_quotes, maintenance_approvals,          /maintenance, /maintenance/{id}/request-quotes, /approve
+  maintenance_jobs, maintenance_warranties, preventive_schedules
+
+
+
+  13.23 Professional Services and Due Diligence
+  PRODUCT requirements
+• Find/compare/appoint professionals, mandate, data-room access, pay fee, track
+  report/licence/conflict/quote/status/signed report, use findings, ratings/complaints.
+  Backend implementation
+• Professional service owns professional profile/credential execution.
+• Owner service stores appointment purpose and findings references.
+• Media grants are least-privilege and expire.
+• Professional fee payment through payment-service.
+  Primary tables                                                            Primary public API groups
+  professional_appointments, professional_findings, data_room_grants        /professional-appointments
+
+
+
+  13.24 Communication and Notifications
+  PRODUCT requirements
+• Automated notifications, in-app messaging context, profile/contact preferences, SMS/email/WhatsApp, voice/video/masked
+  contact.
+  Backend implementation
+• Notification Service handles system push/email/SMS.
+• CF Meet handles human messaging/voice/video and privacy relay.
+• WhatsApp is provider capability to be added behind notification/communication policy when selected; do not hard-code
+  now.
+• Owner DB stores communication context IDs and preference/domain metadata, not chat content.
+  Primary tables                                                            Primary public API groups
+  owner_profiles, owner_contacts                                            Notification public preference endpoints plus CF Meet context APIs
+
+
+                                                                       22
+                                                                                       COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  13.25 Owner Finance, Reports and Market Intelligence
+  PRODUCT requirements
+• Income/expenses/net/arrears/occupancy/yield, short-let ADR/profitability, price recommendations/comparables/trends,
+   reports, AI vacancy/renewal/maintenance insights, tax/statutory calendar.
+  Backend implementation
+• Reports combine owner-domain business state with payment-service financial projections using API/event data, never
+  cross-DB queries.
+• AI/market advice must store model/version/input provenance/confidence and be advisory only.
+• Do not automate tenant selection or material owner decisions solely from AI.
+• Large reports generated asynchronously and stored via media service.
+  Primary tables                                                             Primary public API groups
+  report_snapshots, market_insights                                          /reports/*, /market-insights
+
+
+
+  13.26 Fraud, Privacy, Safety and Disputes
+  PRODUCT requirements
+• Unauthorized manager/forged docs/false ownership/duplicate property/payment diversion/abuse, occupied-property
+  privacy.
+  Backend implementation
+• Domain dispute cases link to admin operations workflow and evidence.
+• Sensitive data purpose/access controls enforced through media grants and route authorization.
+• Fraud signals may restrict actions but final significant decisions require review path.
+• Every privileged read and restriction transition audited.
+  Primary tables                                                             Primary public API groups
+  domain_disputes, dispute_evidence, consents, data_subject_requests,        /disputes, /privacy/requests
+  audit_events
+
+
+
+  13.27 Accessibility, Assisted Use and Account Closure
+  PRODUCT requirements
+• Concierge onboarding/photography/scanning/remote help, death/incapacity/estate successor, transfer/role
+  removal/closure and record continuity.
+  Backend implementation
+• Assisted actions are performed under attributed support/admin actor context, never shared generic accounts.
+• Succession uses ownership-change case and verification evidence.
+• Closure checks blockers, revokes auth, preserves legally/business-required records and produces export where permitted.
+  Primary tables                                                             Primary public API groups
+  ownership_change_cases, data_subject_requests, owner_accounts              /account/closure, /ownership-transfer
+
+
+
+  13.28 Rent Financing, Mortgage and Payment-Plan Options
+  PRODUCT requirements
+• Partner rent instalment/advance, owner payout structure, finance-supported tenant status with privacy, mortgage buyer
+  conditions, seller plans, repayment/settlement/dispute, total cost disclosure.
+  Backend implementation
+• Financing is partner-integrated and consent-gated.
+                                                                        23
+                                                                                  COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+• Owner sees only minimum necessary status; sensitive applicant finance details remain with partner/customer domain.
+• Seller payment plan is versioned contractual schedule and payment-service executes money.
+• Total cost/conditions must be present in listing/offer pricing snapshots where advertised.
+  Primary tables                                                        Primary public API groups
+  finance_offers, pricing_versions, closing_milestones                  /financing/options, /financing/consents
+
+
+
+  13.29 Insurance and Property Protection
+  PRODUCT requirements
+• Insurance products/requirements, policy comparison/renewal/storage, claims/evidence/report/status/payout/complaint,
+   workmanship/fidelity cover visibility.
+  Backend implementation
+• Provider-neutral insurance adapter/partner contract.
+• Insurance product/policy truth remains partner-referenced; owner service stores policy/claim refs and business
+   requirements.
+• Premium/claim payouts use payment-service only when platform handles money.
+  Primary tables                                                        Primary public API groups
+  insurance_policies, insurance_claims                                  /insurance/options, /policies, /claims
+
+
+
+  13.30 Smart Access and Remote Property Controls
+  PRODUCT requirements
+• Time-limited access codes for viewing/tenant/guest/manager/provider, key/card/lock inventory, access history/alerts,
+  remote approval, automatic end.
+  Backend implementation
+• Access grant authority remains owner service; device adapter only executes credential provisioning/revocation.
+• Grant expiry is tied to business relation and worker-enforced.
+• Compromised credential revokes immediately and generates security notification/audit.
+• No remote access persists beyond lawful business period.
+  Primary tables                                                        Primary public API groups
+  access_devices, access_grants, key_access_inventory                   /access/grants, /access/history
+
+
+
+
+  14. Primary end-to-end journeys
+  14.1 Onboard and verify a property
+  1. Owner registers/authenticates in individual-owner-service.
+  2. Owner completes account verification; service creates IDENTITY case in verification-service.
+  3. Owner creates persistent property record and ownership claim.
+  4. Owner uploads authority documents/media through media-document-service signed upload flow.
+  5. Owner service creates PROPERTY_AUTHORITY verification case and attaches evidence refs.
+  6. Verification result event/read-back updates verification link projection.
+  7. When policy requirements pass, property becomes transaction-ready; this does not automatically publish a listing.
+  8. Owner creates listing, pricing and availability, previews full customer cost and publishes.
+  9. Publication transaction writes listing state + outbox event atomically; Marketplace consumes `listing.published.v1`.
+
+                                                                   24
+                                                                          COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+14.2 Rent a property directly
+1. Published listing is discovered through Marketplace projection.
+2. Customer inquiry/viewing/application reaches owner domain with typed marketplace actor/customer references.
+3. Owner communicates through CF Meet and system notifications are sent through Notification Service.
+4. Owner reviews purpose-limited application evidence and records human screening decision.
+5. Owner creates rental offer with immutable pricing snapshot.
+6. Accepted offer creates agreement; signatures occur through e-sign adapter; artifacts stored via media service.
+7. Rent/deposit obligations are created in owner domain and payment intents are executed by payment-service.
+8. After required initial conditions are confirmed, tenancy enters PENDING_MOVE_IN then ACTIVE.
+9. Move-in checklist, meters, keys/access and condition evidence are recorded.
+10. During tenancy, payment-service events update obligations; owner can manage maintenance, notices and renewal.
+11. Move-out/deposit settlement completes; property becomes available only after owner inspection/confirmation.
+
+14.3 Sell or lease land / commercial property
+1. Owner maintains verified parcel/commercial details and publishes correct transaction listing.
+2. Buyer/business inquiry and offer are received; required verification/proof status is referenced, not copied unnecessarily.
+3. Owner appoints professionals; data-room grants provide least-privilege document access.
+4. Due-diligence findings and conditions are tracked against sale/lease transaction.
+5. Payment milestones are requested through payment-service; unknown outcomes are reconciled.
+6. Closing/possession/perfection checklist is completed with evidence; transaction completes only when configured
+conditions pass.
+7. Marketplace availability/listing projection is withdrawn/sold accordingly.
+
+14.4 Operate a short-let
+1. Owner configures calendar inventory, rates, stay rules, fees and cancellation terms.
+2. Marketplace exposes date inventory projection.
+3. Booking hold uses transaction/locking to prevent overbooking; confirmation requires required guest verification/payment
+state.
+4. CF Meet handles guest conversation; Notification Service handles system reminders.
+5. Smart-access credential is issued for the stay period only.
+6. Turnover job is scheduled around check-out/check-in.
+7. Damage claim workflow may use deposit/payment-service and disputes without overwriting evidence.
+8. Booking completes, access expires, reports update occupancy/revenue projections.
+
+14.5 Appoint and revoke a property manager
+1. Owner searches manager profiles from property-manager-service and reviews proposal.
+2. Owner creates property-specific assignment with capabilities, spend limit, emergency rule, term and report schedule.
+3. Owner service emits assignment-created event; manager service activates operational workspace.
+4. Every manager action hitting owner service is authorized against active assignment and capability.
+5. Permission changes are versioned and immediately propagated.
+6. Revocation terminates capabilities and access grants immediately; property history remains intact.
+7. Handover/report data is retained and ownership authority never changes.
+
+                                                                 25
+                                                                              COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+15. Engineering additions required for completeness
+Why this section exists
+The V5 product document describes the desired product experience. The controls below are implementation necessities that
+make those features safe and production-operable. They are additions to the backend specification, not changes to the
+approved product vision.
+
+
+Engineering addition                   Reason
+Optimistic concurrency / fencing       Prevent two owner/manager/admin requests from making contradictory decisions on listing, pricing,
+                                       application, assignment or transaction state.
+Idempotency on commands                Required for publication, decisions, signature requests, external sync, payments, bookings, access
+                                       grants and provider actions.
+Transactional outbox                   Every cross-service event tied to a business state change is persisted atomically with that state.
+Processed-event de-duplication         All consumed NATS events are at-least-once and must be harmless when duplicated.
+Unknown outcome handling               External payment/e-sign/smart-access/calendar operations use read-back before repeating
+                                       ambiguous side effects.
+Capability-based service auth          Internal callers receive only the operations needed; valid service JWT does not equal unrestricted
+                                       access.
+Policy engine/configuration            Legal/business windows, fee rules, verification requirements, consent thresholds, retention and
+                                       notice templates are configuration/versioned data, not constants.
+Audit immutability                     Security, authority, consent, price, decision, payout, access, manager and dispute changes are
+                                       append-only attributable audit events.
+Retention/legal hold                   Deletion/anonymization jobs respect open dispute, transaction, financial and required record holds.
+Privacy purpose binding                Document access is linked to active purpose, transaction and expiry, with revocation.
+Rate limits / abuse controls           Gateway and service controls for auth, uploads, search-like actions, OTP/recovery and sensitive
+                                       commands.
+Feature flags                          Provider/partner features such as WhatsApp, financing, insurance, external listing sync and smart
+                                       access can be disabled safely per environment.
+Schema/backfill rollout                Use expand-migrate-contract pattern for backwards-compatible production migrations.
+Business clock / timezone              Property/booking local time kept explicitly to prevent due-date/check-in errors.
+Data-quality reconciliation            Workers detect orphaned external refs, stale projections, failed event delivery and status
+                                       mismatches.
+Manual review / admin escalation       Significant fraud/verification/privacy/screening conflicts have an operator path rather than silent
+                                       automatic final decisions.
+
+
+
+
+16. Security, privacy and data protection implementation
+Control                            Implementation
+Credential protection              Argon2id passwords; refresh tokens hashed; Ed25519 JWTs; secret values never logged.
+Step-up actions                    Payout-account changes, property ownership transfer, sensitive document grants, high-risk access and
+                                   selected money commands require recent MFA.
+Least privilege                    Owner/co-owner/representative/manager/service/admin access evaluated per property, capability and
+                                   business state.
+Sensitive documents                Media service access classification + short-lived signed URLs + audit; owner service stores only media
+                                   refs.
+Purpose limitation                 Application, buyer, tenant, guest and professional evidence access has purpose, grantee, expiry and
+                                   revocation.
+PII minimization                   Do not copy external verification/provider data unless needed for domain function; store normalized
+                                   result/reference.
+Audit                              Append-only actor, action, target, before/after summary, request/trace IDs; secrets and raw documents
+                                   excluded.
+Fraud                              Duplicate property/media/ownership conflicts, payment-diversion indicators and unauthorized manager
+                                   claims route to restrictions/manual review.
+Account recovery                   Recovery events invalidate risky sessions as policy dictates; remote logout supported.
+Closure                            Authentication revoked but required historical business records retained; export/deletion requests
+                                   tracked independently.
+
+
+
+
+                                                                26
+                                                                                        COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+  17. Financial architecture and Payment Service dependency
+  The product requires rent, deposits, short-let payments, sale milestones, professional/maintenance fees, refunds, payouts,
+  chargebacks and reconciliation. These capabilities cannot be certified end-to-end until `payment-service` is implemented.
+  `individual-owner-service` must nevertheless be built against a stable payment contract from the start.
+  Owner domain owns                                                           Payment service owns
+  Business obligation: what is due, why, property/tenancy/booking/sale        Payment intents, provider execution, ledger/journals, transaction truth.
+  context, configured schedule.
+  Deposit release conditions and owner/tenant dispute state.                  Actual held/received/refunded money state and settlement.
+  Payout preference selection by property/category.                           Beneficiary validation, payout execution, reconciliation and unknown-
+                                                                              outcome recovery.
+  Customer-facing price snapshot and agreement amounts.                       Collection references, receipts/transaction IDs and financial audit.
+  Refund business approval/amount/reason.                                     Refund provider execution and final money state.
+
+
+  DEFERRED DEPENDENCY
+  Financial product sections may be implemented behind interfaces/fakes in development, but they cannot receive production
+  PASS until payment-service and the relevant regulated/payment provider arrangements are implemented and certified.
+
+
+
+
+  18. Reliability, observability and recovery
+• Expose `/health`, `/ready`, `/version` for API and worker processes.
+• Use structured `slog` JSON with service/environment/request_id/trace_id and secret redaction.
+• OpenTelemetry spans around HTTP, DB transactions, NATS publish/consume and external provider calls.
+• Explicit outbound timeouts; no external network call while holding unnecessary DB locks.
+• Workers use leases, `FOR UPDATE SKIP LOCKED`, expired-lease recovery and bounded retry.
+• Readiness checks only hard dependencies required to serve traffic; optional providers may degrade by feature flag.
+• Dead-letter/manual-review strategy for poison events/jobs rather than infinite retry.
+• Reconciliation metrics for Marketplace projection lag, payment projection mismatch, external calendar conflict and
+  manager/consumer event lag.
+  Metric family                       Examples
+  HTTP                                request rate, latency, 4xx/5xx, auth failures, rate-limit events
+  DB                                  pool saturation, tx retries, lock wait, query latency
+  Events                              outbox backlog/age, publish failure, consumer lag, duplicate count
+  Workers                             claim latency, retry count, lease recovery, final failure
+  Business                            published listings, stale pauses, application decision time, occupancy, overdue obligations, booking conflicts
+  Security                            MFA failures, suspicious login, payout-change attempts, denied document grants, manager authorization
+                                      denials
+
+
+
+
+  19. Configuration and secrets
+  Variable family                                                Purpose
+  APP_ENV / LOG_LEVEL / HTTP_ADDR                                Runtime environment and API bind.
+  DATABASE_URL[_FILE] / DB_MAX_CONNS                             `individual_owner_db` only.
+  REDIS_*                                                        Rate/ephemeral coordination where service-level use is needed.
+  NATS_URL / NATS_*                                              Event streams/subjects and outbox relay.
+  SERVICE_AUTH_*                                                 Service identity and trusted peer public keys.
+  OWNER_TOKEN_ISSUER / OWNER_TOKEN_AUDIENCE /                    Domain user JWT issuer/signing.
+  OWNER_AUTH_PRIVATE_KEY[_FILE]
+  VERIFICATION_SERVICE_URL                                       Internal verification client.
+  MEDIA_SERVICE_URL                                              Internal media/document client.
+  NOTIFICATION_SERVICE_URL                                       Internal notification client.
+  PAYMENT_SERVICE_URL                                            Internal payment client; may be disabled in early dev.
+  CFMEET_*                                                       CF Meet base URL/service credentials/config gate.
+                                                                         27
+                                                                                    COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+  Variable family                                             Purpose
+  MARKETPLACE_SERVICE_URL                                     Authoritative read-back/admin operations if synchronous call required.
+  MANAGER_SERVICE_URL / ARTISAN_SERVICE_URL /                 Cross-domain dependency URLs.
+  PROFESSIONAL_SERVICE_URL
+  MAPS_PROVIDER / MAPS_*                                      Provider-neutral map/geocode configuration.
+  ESIGN_PROVIDER / ESIGN_*                                    Electronic signature adapter.
+  SMART_ACCESS_PROVIDER / SMART_ACCESS_*                      Smart lock/access adapter.
+  EXTERNAL_LISTING_PROVIDERS                                  Opt-in external listing/calendar providers.
+  POLICY_CONFIG_VERSION                                       Business/legal policy pack version.
+  OTEL_*                                                      Telemetry exporter/sampling.
+
+
+
+
+  20. Migrations, Docker, deployment and branch flow
+• Own Goose migrations under `services/individual-owner-service/migrations`.
+• Use sqlc + explicit SQL; generated code is service-local.
+• Provide `/app/api`, `/app/worker`, `/app/migrate` in a distroless non-root production image.
+• Docker is for CI/deployment; local development does not require Docker.
+• Update staging/production Compose with digest-pinned individual-owner-service image only after image workflow is green.
+• GHCR image tags may exist, but deployment consumes immutable digest.
+• Branch flow remains `feature/* -> development -> staging -> main`.
+• Development -> staging requires affected CI gates green. Staging -> main requires deployed staging migrations, readiness,
+  E2E and rollback/recovery proof.
+
+
+  21. OpenAPI and Postman frontend handoff
+  Postman remains the official human-facing frontend/QA handoff. OpenAPI remains the machine-readable contract. Swagger
+  UI is not required.
+• Populate `02 Individual Owner` in `postman/CosmicForge_RealEstate.postman_collection.json`.
+• Group requests by Authentication, Properties, Listings, Pricing, Availability, Leads, Viewings, Applications, Agreements,
+  Tenancy, Commercial/Land/Sales, Short-let, Delegation, Maintenance, Professionals, Reports/Privacy and Smart Access.
+• Every frontend route must have method/path, description, auth, headers, request body, success example, relevant error
+  examples and tests.
+• Create requests should automatically capture IDs (`property_id`, `listing_id`, `application_id`, `tenancy_id`, etc.) into
+  environment variables.
+• Internal/admin/provider webhook routes live under clearly separated `_Internal`, `_Admin`, `_Webhooks` folders and are
+   not presented as frontend endpoints.
+• CI checks route parity between implemented handlers, OpenAPI operations and Postman requests.
+
+
+  22. Test and certification matrix
+  Gate                                Required proof
+  Auth                                registration/login/refresh/logout; wrong issuer/audience/signature; session reuse; MFA; remote revoke; cross-
+                                      domain token misuse.
+  Authorization                       owner/co-owner/representative/manager/service/admin capability matrix; revoked/expired assignment;
+                                      property ownership transfer.
+  Migrations                          empty -> current; down/up where safe; constraints/indexes; sqlc diff clean.
+  Property/ownership                  duplicate claim, co-owner consent race, verification expiry, transfer workflow, bulk import idempotency.
+  Listing                             publish prerequisites, concurrent publish/update, stale auto-pause, withdrawal, Marketplace event contract.
+  Pricing                             all-in calculation, immutable accepted snapshot, mixed currency rejection, fee history.
+  Availability                        unit/date conflict, short-let double-book prevention, freshness policy.
+  Viewings                            slot collision, occupied consent, access code expiry, no-show.
+  Applications                        evidence grants, screening human decision, appeal, retention.
+
+
+                                                                      28
+                                                                                              COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+  Gate                                          Required proof
+  Agreement                                     version/signature concurrency, provider callback duplicate, unknown outcome read-back, signed artifact
+                                                linkage.
+  Financial projections                         payment event duplication/out-of-order, unknown state, refund/payout projection reconciliation; no duplicate
+                                                owner-side commands.
+  Tenancy                                       renewal/counter race, notices, move-out/deposit dispute, return-to-market gate.
+  Commercial/Land/Sale                          offer/counter state, data-room access, due diligence, closing milestones.
+  Short-let                                     hold/booking race, extension, cancellation, external calendar conflict, turnover, damage claim.
+  Delegation                                    permission limits, spend threshold, emergency rule, revocation immediate effect, manager action attribution.
+  Maintenance                                   quote/approval/rework/warranty; artisan event duplication; payment authorization.
+  Professionals                                 mandate, data-room grants, report status, revoked access.
+  Privacy                                       purpose/expiry grants, data request flow, closure holds, privileged access audit.
+  Smart access                                  grant/expiry/revoke/compromised credential and adapter outage.
+  Events/outbox                                 broker outage, crash after DB commit, crash after publish, duplicate event, poison event.
+  E2E                                           onboard+verify+publish; rent direct; sale/land; short-let; manager assignment/revocation.
+  Security                                      gitleaks, govulncheck, Trivy image/IaC, secrets absent from logs, rate-limit abuse.
+
+
+
+
+  22.1 Service PASS criteria
+• All unit/integration/contract/race tests pass with zero required skips.
+• PostgreSQL integration/migration tests run against real PostgreSQL in CI.
+• NATS recovery/de-dup tests pass.
+• Postman/OpenAPI route drift check passes.
+• Docker image builds, runs non-root, smoke tests, and has zero unresolved HIGH/CRITICAL fixed vulnerabilities according to
+  project policy.
+• Critical E2E journeys pass through real service processes and certified shared services.
+• No direct cross-service database access or direct imports of another service's internal packages.
+• Repository clean and branch heads verified before promotion.
+
+
+  23. Implementation workstreams and closure order
+  Workstream                                             Scope
+  IO-1 Service bootstrapping & local auth                Go module, config, migrations framework, API/worker/migrate binaries, local
+                                                         account/auth/session/MFA/device/security.
+  IO-2 Owner profile, banking & tax                      Profile/contact/preferences, payout refs/change controls, tax metadata, notification hooks.
+  IO-3 Ownership & property core                         Ownership parties/consents/change case, property/unit/parcel/assets/media relations, bulk
+                                                         import.
+  IO-4 Verification, listings, pricing & availability    Verification orchestration, listing versions/publication, cost engine, availability/freshness,
+                                                         Marketplace events.
+  IO-5 Leads, viewing & communication contexts           Inquiry pipeline, viewing schedule/attendance/access, CF Meet contexts, system notifications.
+  IO-6 Applications, screening, offers                   Application participants/evidence grants, criteria, decisions, appeal and offers.
+  IO-7 Agreements, signatures & move-in                  Agreement versions, e-sign adapter, condition evidence, meter/key/access handover.
+  IO-8 Tenancy, rent/deposit, renewal & move-out         Business obligations, payment-service contracts/projections, notices, renewals, deposit
+                                                         settlement.
+  IO-9 Utilities & service charges                       Meters, bills, allocation, budgets, announcements.
+  IO-10 Commercial, land & sale                          Typed terms, LOI/offers, data room, due diligence, closing/perfection.
+  IO-11 Short-let                                        Calendar/rates/booking/guest/turnover/damage/external calendar.
+  IO-12 Manager delegation                               Proposals/assignments/capabilities/limits/revocation/property-manager integration.
+  IO-13 Maintenance & professionals                      Work request/approval, artisan/professional integrations, warranty/findings.
+  IO-14 Reports, disputes, privacy & closure             Reporting, AI advisory provenance, disputes, DSR, succession/closure.
+  IO-15 Financing, insurance & smart access              Partner refs/consent, insurance claims, smart access grants/adapters.
+  IO-16 Full certification                               All contracts/Postman/events, migration/race/E2E/security/image/CI gates; staging promotion
+                                                         only after PASS.
+
+
+
+
+                                                                               29
+                                                                               COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+23.1 Workstream closure format
+   WORKSTREAM:
+   STATUS: PASS | PARTIAL | FAIL
+   COMMIT:
+   IMPLEMENTED:
+   DATABASE / MIGRATIONS:
+   PUBLIC APIs:
+   INTERNAL APIs:
+   EVENTS PUBLISHED / CONSUMED:
+   WORKERS:
+   POSTMAN / OPENAPI:
+   TESTS RUN:
+   TEST RESULT:
+   KNOWN LIMITATIONS:
+   NEXT WORKSTREAM:
+
+
+24. Final acceptance checklist
+☐ Account/auth is domain-owned and no identity-service is introduced.
+☐ Owner remains authoritative for personally owned properties; manager/representative capabilities never silently replace
+ownership.
+☐ Every V5 section 1–30 has implementation coverage.
+☐ All five primary user journeys are executable end-to-end.
+☐ All property/listing/customer/tenancy/transaction histories remain attributable and durable.
+☐ Verification, media, notification, payment and human communications respect service boundaries.
+☐ Marketplace receives projections through contracts/events; it never becomes source of truth.
+☐ Payment provider access is only through payment-service.
+☐ CF Meet is the only human messaging/voice/video authority.
+☐ Every sensitive document grant is purpose/time scoped and auditable.
+☐ Every external side-effect path is idempotent or has explicit unknown-outcome recovery.
+☐ Every business state machine rejects illegal transitions under concurrency.
+☐ Postman provides complete frontend handoff for every public endpoint.
+☐ CI includes lint, static analysis, race tests, migrations, sqlc drift, contracts, security, images and E2E.
+☐ Staging promotion uses certified commit/image digests; main remains production-approved only.
+
+
+Appendix A. Product source traceability
+Product source              Product area                                                 Backend implementation location
+Section 1                   Owner Role and Dashboard                                     §13.1 in this specification
+Section 2                   Registration, Security and Personal Verification             §13.2 in this specification
+Section 3                   Owner Banking, Payout and Tax Profile                        §13.3 in this specification
+Section 4                   Ownership and Authority Records                              §13.4 in this specification
+Section 5                   Permanent Property and Portfolio Records                     §13.5 in this specification
+Section 6                   Property Verification and Listing Authenticity               §13.6 in this specification
+Section 7                   Listing Creation for Every Property Category                 §13.7 in this specification
+Section 8                   Complete Price and Fee Configuration                         §13.8 in this specification
+Section 9                   Availability and Listing Freshness                           §13.9 in this specification
+Section 10                  Marketing, Inquiries and Lead Management                     §13.10 in this specification
+Section 11                  Viewing and Access Management                                §13.11 in this specification
+Section 12                  Residential Applications and Tenant Selection                §13.12 in this specification
+Section 13                  Agreement and Move-In                                        §13.13 in this specification
+Section 14                  Rent, Deposit and Financial Management                       §13.14 in this specification
+Section 15                  Renewal, Rent Review, Notices and Move-Out                   §13.15 in this specification
+
+                                                                     30
+                                                                                    COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+  Product source              Product area                                                    Backend implementation location
+  Section 16                  Utilities and Service-Charge Management                         §13.16 in this specification
+  Section 17                  Commercial Property Rent and Sale                               §13.17 in this specification
+  Section 18                  Land Rent, Lease and Sale                                       §13.18 in this specification
+  Section 19                  Property Sale, Offers and Closing                               §13.19 in this specification
+  Section 20                  Personally Operated Short-Let                                   §13.20 in this specification
+  Section 21                  Property Manager Marketplace and Delegation                     §13.21 in this specification
+  Section 22                  Maintenance, Artisans and Preventive Care                       §13.22 in this specification
+  Section 23                  Professional Services and Due Diligence                         §13.23 in this specification
+  Section 24                  Communication and Notifications                                 §13.24 in this specification
+  Section 25                  Owner Finance, Reports and Market Intelligence                  §13.25 in this specification
+  Section 26                  Fraud, Privacy, Safety and Disputes                             §13.26 in this specification
+  Section 27                  Accessibility, Assisted Use and Account Closure                 §13.27 in this specification
+  Section 28                  Rent Financing, Mortgage and Payment-Plan Options               §13.28 in this specification
+  Section 29                  Insurance and Property Protection                               §13.29 in this specification
+  Section 30                  Smart Access and Remote Property Controls                       §13.30 in this specification
+  Primary journeys            Onboard/verify; rent direct; sell/lease land & commercial;      §14
+                              operate short-let; appoint manager
+  Ecosystem connections       Marketplace, managers, artisans, professionals, platform        §2, §10, §12
+                              operations
+
+
+
+
+  Appendix B. Decisions intentionally left configurable
+• Exact legal agreement/notice text and jurisdiction-specific deadlines.
+• Exact co-owner consent thresholds by ownership type/action.
+• Late-fee percentages, grace periods and arrears escalation policy.
+• Deposit handling/release timing and any regulated safeguarding arrangements.
+• Verification provider/vendor and registry availability.
+• Production email/SMS/WhatsApp provider selection.
+• Electronic-signature provider selection.
+• Smart-lock/access provider selection.
+• External listing/calendar sync providers.
+• Financing and insurance partner/product availability.
+• Tax rates/statutory rules and any filing automation.
+• AI model/provider and recommendation thresholds.
+  These items are deliberately configurable or deferred because the product document defines the capability but does not
+  provide one universal business/legal value. Implementing hard-coded assumptions would make the backend less correct,
+  not more complete.
+
+
+  Appendix C. Backend implementation verdict
+  IMPLEMENTATION BASELINE
+  The certified foundation (F1–F5) is complete and available to this domain. The Individual Property Owner service itself is currently
+  scaffold-only and should be built using workstreams IO-1 through IO-16. This specification is intended to be sufficient for
+  Codex/backend engineers to implement the domain without inventing architecture or violating the already-certified platform
+  boundaries.
+
+
+
+
+                                                                       31
+                                                                                          COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+
+Appendix D. Product-to-current-platform gaps and required closure
+This appendix is mandatory. These are approved product requirements that are not fully satisfied by the current certified
+foundation or by the domain-local identity decision. They must be closed, explicitly changed by product decision, or carried
+as a known launch limitation; they must not be silently treated as implemented.
+Gap / requirement                   Current position                         Required closure                           Status
+Cross-domain single identity /      Product says one verified personal       Within this service, support               OPEN PRODUCT/ARCHITECTURE
+multi-role account                  identity can hold multiple approved      OWNER/CO_OWNER/REPRESENTATIVE              DECISION
+                                    platform roles. Current architecture     roles. For cross-domain identity, either
+                                    deliberately keeps accounts              accept separate accounts as a
+                                    domain-local with no central             deliberate product deviation or add a
+                                    identity service.                        future explicit account-linking/SSO ADR
+                                                                             without recreating shared DB coupling.
+Business context in owner           Product allows business                  Allow verified                             DESIGN RULE REQUIRED
+onboarding                          registration/TIN/director/beneficial-    organisation/representative context
+                                    owner checks when the user acts          only where it supports an individual
+                                    for an organisation. Individual-         owner authority case; route business-
+                                    owner service is for personally          owned property operations to business-
+                                    owned property; business-owned           operations-service.
+                                    property belongs to business-
+                                    operations-service.
+Production identity/KYC/liveness    Product requires                         Select and implement production            BLOCKS PRODUCTION
+provider                            NIN/passport/licence checks, selfie      verification adapter(s) behind existing    VERIFICATION
+                                    liveness and face-to-document            provider interface; certify
+                                    matching. Verification Service           callbacks/read-back, privacy, failure
+                                    currently ships sandbox provider         and manual review.
+                                    only in non-production.
+Cross-domain duplicate identity     Product calls for duplicate-identity     Perform duplicate checks within            OPEN PLATFORM CAPABILITY
+detection                           checks, but domain-local accounts        Individual Owner domain now. Any
+                                    intentionally do not share identity      cross-domain duplicate detection
+                                    tables.                                  requires privacy-preserving explicit
+                                                                             account-linking/risk contract or future
+                                                                             architecture decision.
+Notification opened /               Product requires notification history    Extend notification-service receipt        OPEN FOUNDATION
+acknowledged receipts               for delivery, opening,                   ingestion and public/internal contracts,   ENHANCEMENT
+                                    acknowledgement and failed               or explicitly narrow launch requirement.
+                                    delivery. F5 currently records           Owner service should only project
+                                    provider acceptance/failure;             statuses notification-service can
+                                    delivery/read receipt ingestion is       truthfully provide.
+                                    not implemented.
+WhatsApp notifications              Product requests consent-based           Add provider-neutral WhatsApp              DEFERRED PROVIDER
+                                    WhatsApp notifications. No               channel/capability with consent,
+                                    WhatsApp provider is                     template, secure-link, retry and opt-out
+                                    selected/implemented.                    policy when a provider is selected.
+Off-platform payment / unapproved   Product requires automatic warning       CF Meet must expose message-               CF MEET DEPENDENCY
+bank-detail warnings                when a user requests off-platform        safety/risk events or an approved
+                                    payment or sends unapproved bank         moderation hook; owner service
+                                    details. Human messages live in CF       consumes risk events and can
+                                    Meet.                                    restrict/alert without storing chat
+                                                                             content.
+Payment, deposit, refund, payout,   Product financial journeys require       Implement and certify payment-service      BLOCKS FINANCIAL PASS
+bank-name match                     provider execution and payout            before production closure of
+                                    verification. payment-service is not     rent/deposit/sale/short-let/provider-
+                                    implemented yet.                         payment flows.
+Production email/SMS                Product requires email/SMS               Select Nigerian-compatible production      DEFERRED PROVIDERS
+                                    notifications. F5 is provider-neutral;   providers, implement/configure
+                                    production providers are not             adapters, certify delivery/failure/retry
+                                    selected and default to disabled.        and secrets.
+OAuth providers                     Product names Google, Apple,             Implement OIDC/OAuth adapters with         DOMAIN IMPLEMENTATION
+                                    Facebook and LinkedIn sign-in.           account-linking safeguards, verified-
+                                    Shared auth primitives exist but         email rules, nonce/state/PKCE and
+                                    domain provider adapters are not         recovery behavior.
+                                    yet implemented.
+
+
+
+
+                                                                             32
+                                                                                            COSMICFORGE REAL ESTATE | INDIVIDUAL OWNER BACKEND
+Gap / requirement                      Current position                        Required closure                            Status
+Electronic signatures                  Product requires electronic             Implement provider-neutral e-sign           DEFERRED PROVIDER
+                                       signatures and signature certificate.   adapter with callback verification, read-
+                                       No provider selected.                   back on ambiguity, signer identity,
+                                                                               version pinning and media artifact
+                                                                               storage.
+Smart locks / digital access           Product requires remote/time-           Implement provider-neutral smart-           DEFERRED PROVIDER
+                                       limited property access where           access adapter; owner-service remains
+                                       supported. No device provider           grant authority; provider only executes
+                                       selected.                               issuance/revocation.
+External listing / social / calendar   Product allows approved external        Implement adapters as opt-in features       DEFERRED PROVIDERS
+sync                                   marketplace and calendar sync. No       with idempotent outbound sync,
+                                       providers selected.                     conflict handling and source-of-truth
+                                                                               protection.
+Financing and insurance partners       Product includes rent finance,          Keep consent/reference contracts in         DEFERRED PARTNERS
+                                       mortgage/payment plans and              owner domain; integrate providers only
+                                       insurance/protection. No partners       after commercial/regulatory partner
+                                       are selected.                           decisions.
+AI price / vacancy / renewal /         Product includes advisory AI            Add model/provider-neutral insight          DEFERRED CAPABILITY
+maintenance insights                   recommendations. No                     adapter with provenance,
+                                       model/provider governance is            model/version, confidence, monitoring,
+                                       implemented.                            opt-out where applicable and strict
+                                                                               non-final-decision controls.
+Jurisdiction-specific                  Product requires state-appropriate      Create versioned policy/template packs      POLICY CONFIGURATION
+agreements/notices/fees                agreements/notices and lawful           approved by legal/product; backend
+                                       charges but does not define the         enforces selected policy version rather
+                                       legal content or deadlines.             than hard-coding law.
+
+
+
+
+Appendix D.1 Launch rule for unresolved gaps
+• A feature with an unresolved blocking dependency must be feature-flagged or unavailable in production; the API must not
+falsely report success.
+• The UI/Postman/OpenAPI must reflect actual supported behavior, not aspirational provider capability.
+• Any deliberate deviation from the V5 product requirement must be recorded as an explicit product/architecture decision
+before production certification.
+• No deferred provider is allowed to leak its vendor-specific types into core domain business logic.
+                                                              END OF SPECIFICATION
+
+
+
+
+                                                                               33

@@ -5,24 +5,31 @@
 | Service | `services/individual-owner-service` · database `individual_owner_db` |
 | Documented foundation baseline | F1–F5 certified at `54425cb5df86fbb239c4faab624d786f98fb343e` |
 | Implementation commits | `31ef5fc` (Section 5 service), `606341e` (gateway prefix, Postman, e2e), `127fcba` (register), `ecf5ee4` (x/net security bump) |
+| Specification | `INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf` (this folder) |
 | Last updated | 2026-10-09 |
 
-## Specification availability — BLOCKING
+## Specification
 
-The authoritative document *CosmicForge Real Estate — Individual Property Owner Platform — Full
-Backend Implementation Specification v1.0* is **not present in the repository or the coding
-workspace** (no copy in `docs/product/individual-owner/` or in git history). Per the implementation
-directive, specification-dependent work was not started:
+The authoritative *Individual Property Owner Platform — Full Backend Implementation Specification
+v1.0* is stored in this folder (`INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf`, text extraction alongside;
+added 2026-10-09). Section 5 was implemented **before** the document was available, from the
+implementation directive and `docs/architecture/*`; it has since been reconciled against the
+specification below. Sections 6–12 items marked *spec* are no longer blocked on the document and
+are scheduled by the specification's workstreams (§23, IO-2…IO-16).
 
-- Section 6 exact logical table catalogue (bounded contexts 02–28),
-- Section 7 canonical states/transitions for lifecycles 2–20 and 22,
-- Section 8 exact endpoint inventory (families B–N), Section 13 route additions,
-- Section 9 internal contract details beyond the two named read-back endpoints,
-- Section 10 event payload definitions beyond the account events,
-- Appendix A/B/D details.
+### Section 5 reconciliation against spec v1.0
 
-Everything below marked *spec* is blocked on that document. Section 5 was implemented from the
-directive's own requirements plus the accepted architecture documents (`docs/architecture/*`).
+| Spec item | Implementation | Assessment |
+|---|---|---|
+| §5 principals, §5.1 capabilities, account states, §7 Account lifecycle | as recorded in the Section 5 table below | Conforms. Spec lists RESTRICTED/SUSPENDED → ACTIVE "only through authorized remediation/appeal" — implemented (resolution reference). |
+| §6 table names `owner_credentials`, `owner_sessions`, `owner_devices`, `owner_mfa_methods`, `security_events` | `owner_accounts.password_hash`, `auth_sessions` + `auth_refresh_tokens` (shared `sessions` schema reference), `auth_devices`, `mfa_totp_credentials` + `mfa_recovery_codes`, `account_security_events`, plus `auth_challenges`, `account_status_history`, `notification_dispatches` | Logical-model mapping (§6 lists *logical* tables). Physical names follow the certified shared session schema; no rename planned. `owner_credentials` (OIDC credential metadata) lands with the OAuth adapter. |
+| §8 auth paths `/auth/forgot-password`, `/auth/reset-password`, `/auth/mfa/enrol`, `/auth/mfa/verify`, `/sessions`, `/sessions/{id}`, `/profile`, `/account/closure` | `/auth/password/forgot`, `/auth/password/reset`, `/me/mfa/totp/setup`+`/confirm`, `/auth/mfa/verify`, `/me/sessions`, `/me/sessions/{id}`, `/me`, `/me/closure` | §8 permits path normalization; OpenAPI/Postman document the implemented paths. Open decision: add spec-named aliases or keep normalized paths (frontend has not integrated yet). |
+| §13.2 `/account/status`, `/verification`; IDENTITY case creation | not implemented | IO-2/IO-4 (Verification Service integration). |
+| §13.1 `/dashboard`, `/calendar` | not implemented | depend on business read models (IO-3+). |
+| §7 Account closure lifecycle `REQUESTED → BLOCKERS_CHECK → CLOSURE_PENDING → CLOSED` | account status CLOSURE_PENDING with cooling-off; blockers checker interface with no business holds yet | PARTIAL (unchanged). |
+| §19 config names `OWNER_AUTH_PRIVATE_KEY[_FILE]`, `POLICY_CONFIG_VERSION` | `OWNER_ACCESS_TOKEN_PRIVATE_KEY[_FILE]`, `OWNER_SECURITY_POLICY_VERSION` | Naming deviation; accept the spec names as aliases in IO-2. |
+| §16 step-up for payout changes, sensitive document grants, property transfer | step-up mechanism and rule flag exist | Rules are registered when those commands exist (IO-2/IO-3). |
+| §23 IO-1 Service bootstrapping & local auth | `31ef5fc` … `ecf5ee4` | **IO-1: PASS (LOCAL/CONTRACT)** except OAuth adapters (BLOCKED, Appendix D "DOMAIN IMPLEMENTATION": provider selection pending). |
 
 ## Status and certification levels
 

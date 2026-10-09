@@ -6,9 +6,10 @@ Public prefix: `/api/v1/owner/*` (ADR-0011) · Internal prefix: `/internal/v1/ow
 
 Individual Property Owner. Implementation status, requirement-by-requirement, is tracked in
 [`docs/product/individual-owner/IMPLEMENTATION_COVERAGE.md`](../../docs/product/individual-owner/IMPLEMENTATION_COVERAGE.md).
-**Implemented: Section 5 (authentication, owner roles and authorization).** Property, listing and the
-later business domains (Sections 6–12) are not implemented yet; the authoritative specification
-document is required before they are built.
+**Implemented: Section 5 (authentication, owner roles and authorization) — workstream IO-1.** Property,
+listing and the later business domains (Sections 6–12, workstreams IO-2…IO-16) are not implemented yet.
+The authoritative specification is
+[`docs/product/individual-owner/INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf`](../../docs/product/individual-owner/INDIVIDUAL_OWNER_BACKEND_SPEC_v1.0.pdf).
 
 ## Account and authentication ownership
 
