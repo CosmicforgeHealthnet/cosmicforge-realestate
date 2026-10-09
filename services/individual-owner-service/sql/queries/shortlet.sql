@@ -17,6 +17,13 @@ RETURNING *;
 -- name: GetShortletSettings :one
 SELECT * FROM shortlet_settings WHERE listing_id = $1;
 
+-- name: LockShortletSettings :one
+-- Serializes the writers that claim a listing's calendar days (booking
+-- holds, extensions, owner blocks, external imports). Without it,
+-- concurrent conflicting inserts into the bookings exclusion constraint can
+-- deadlock instead of losing cleanly.
+SELECT * FROM shortlet_settings WHERE listing_id = $1 FOR UPDATE;
+
 -- name: SettingsWithExternalCalendar :many
 SELECT * FROM shortlet_settings WHERE external_calendar_ref IS NOT NULL ORDER BY updated_at LIMIT $1;
 

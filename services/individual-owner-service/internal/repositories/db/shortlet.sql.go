@@ -1212,6 +1212,41 @@ func (q *Queries) ListTurnoverJobs(ctx context.Context, db DBTX, arg ListTurnove
 	return items, nil
 }
 
+const lockShortletSettings = `-- name: LockShortletSettings :one
+SELECT listing_id, property_id, max_guests, min_nights, max_nights, check_in_time, check_out_time, instant_book, guest_verification_required, payment_collection, cancellation_policy, house_rules, add_ons, turnover_buffer_days, damage_claim_window_hours, external_calendar_ref, version, created_at, updated_at FROM shortlet_settings WHERE listing_id = $1 FOR UPDATE
+`
+
+// Serializes the writers that claim a listing's calendar days (booking
+// holds, extensions, owner blocks, external imports). Without it,
+// concurrent conflicting inserts into the bookings exclusion constraint can
+// deadlock instead of losing cleanly.
+func (q *Queries) LockShortletSettings(ctx context.Context, db DBTX, listingID ids.ID) (ShortletSetting, error) {
+	row := db.QueryRow(ctx, lockShortletSettings, listingID)
+	var i ShortletSetting
+	err := row.Scan(
+		&i.ListingID,
+		&i.PropertyID,
+		&i.MaxGuests,
+		&i.MinNights,
+		&i.MaxNights,
+		&i.CheckInTime,
+		&i.CheckOutTime,
+		&i.InstantBook,
+		&i.GuestVerificationRequired,
+		&i.PaymentCollection,
+		&i.CancellationPolicy,
+		&i.HouseRules,
+		&i.AddOns,
+		&i.TurnoverBufferDays,
+		&i.DamageClaimWindowHours,
+		&i.ExternalCalendarRef,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const releaseBookingDays = `-- name: ReleaseBookingDays :exec
 UPDATE availability_calendar SET status = 'AVAILABLE', source = 'SYSTEM', ref_id = NULL, updated_at = $2 WHERE ref_id = $1
 `

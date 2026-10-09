@@ -396,6 +396,9 @@ func (s *Service) PutCalendar(ctx context.Context, subj authz.Subject, listingID
 			return err
 		}
 		tx, now := mustTx(ctx), s.now()
+		if _, err := s.q.LockShortletSettings(ctx, tx, listingID); err != nil && !isNoRows(err) {
+			return err
+		}
 		var ranges []AvailabilityRange
 		for i, r := range in.Ranges {
 			a, b := *schema.ParseDate(&r.From), *schema.ParseDate(&r.To)
@@ -592,7 +595,7 @@ func (s *Service) CustomerRequestBooking(ctx context.Context, subj authz.Subject
 				return err
 			}
 		}
-		st, err := s.q.GetShortletSettings(ctx, tx, l.ID)
+		st, err := s.q.LockShortletSettings(ctx, tx, l.ID)
 		if isNoRows(err) {
 			return conflict("SHORTLET_NOT_CONFIGURED", "The listing is not open for bookings.")
 		}
@@ -1789,6 +1792,9 @@ func (s *Service) runExternalCalendars(ctx context.Context, batch int32) error {
 
 func (s *Service) importExternal(ctx context.Context, st db.ShortletSetting, ranges []calendarsync.BusyRange) error {
 	tx, now := mustTx(ctx), s.now()
+	if _, err := s.q.LockShortletSettings(ctx, tx, st.ListingID); err != nil {
+		return err
+	}
 	today := dayOf(now)
 	horizon := today.AddDate(0, 0, externalCalendarWindow)
 	if _, err := tx.Exec(ctx, `UPDATE availability_calendar SET status = 'AVAILABLE', source = 'SYSTEM', updated_at = $3
