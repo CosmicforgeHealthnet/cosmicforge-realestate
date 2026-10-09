@@ -32,12 +32,14 @@ func oversightRoutes() []Route {
 			"preferred channels; until that contract exists requests are recorded and reported as BLOCKED.").Errs(409),
 		Get("/dashboard", "getDashboard", tagReports, "Owner dashboard",
 			func(c *Call) (usecases.DashboardView, error) { return c.S.Dashboard(c.Ctx, c.Subj) }).
-			Describe("Portfolio counts, items awaiting the owner, rent highlights and the next 14 days."),
+			Describe("Portfolio summary across verification, listings, leads, viewings, applications, offers, sales, bookings, managers, maintenance, " +
+				"professionals, disputes, reports and statutory dates; items awaiting the owner with quick actions; business obligations (due, arrears) " +
+				"shown apart from payment truth (collected, held); and the next 14 days."),
 		Command("PUT", "/dashboard/preferences", "putDashboardPreferences", tagReports, "Set dashboard widgets and default property", http.StatusOK,
 			func(c *Call, in *usecases.DashboardPrefs) (usecases.DashboardPrefs, error) {
 				return c.S.PutDashboardPreferences(c.Ctx, c.Subj, *in)
 			}),
-		List("/calendar", "getPortfolioCalendar", tagReports, "Viewings, rent dates, tenancy ends, stays, preventive tasks and confirmations",
+		List("/calendar", "getPortfolioCalendar", tagReports, "Owner calendar derived from domain records (viewings, rent, stays, turnover, renewals, notices, move-outs, offers, milestones, professionals, insurance, mandates, statutory dates)",
 			func(c *Call, _ Page) (pagination.Response[usecases.CalendarEntry], error) {
 				from, to, err := dateRange(c)
 				if err != nil {

@@ -25,7 +25,7 @@ func closureRoutes() []Route {
 		Command("POST", "/statutory-obligations", "createStatutoryObligation", tagReports, "Add a tax or statutory date", http.StatusCreated,
 			func(c *Call, in *usecases.StatutoryInput) (usecases.StatutoryView, error) {
 				return c.S.CreateStatutoryObligation(c.Ctx, c.Subj, *in)
-			}).Describe("The owner's own calendar of filings, rates, ground rent and licences with a reminder before the due date. Amounts are the " +
+			}).Describe("The owner's own calendar of filings, rates, ground rent and licences with a reminder before the due date. Amounts are the "+
 			"owner's informational estimates: the platform computes no tax and collects nothing here.").Capture("statutory_id", "data.id"),
 		CommandPre("POST", "/statutory-obligations/{statutory_id}/close", "closeStatutoryObligation", tagReports, "Complete (with receipts) or cancel", http.StatusOK,
 			func(c *Call, in *usecases.StatutoryCloseInput) (usecases.Evidence, error) {
@@ -56,8 +56,8 @@ func closureRoutes() []Route {
 		Command("POST", "/assistance/authorizations", "grantAssistance", tagAssistance, "Authorize support staff to assist (step-up)", http.StatusCreated,
 			func(c *Call, in *usecases.AssistanceInput) (usecases.AssistanceView, error) {
 				return c.S.GrantAssistance(c.Ctx, c.Subj, *in)
-			}).Describe("Concierge onboarding, assisted photography/scanning, accessibility support and remote help for named scopes, optional " +
-			"properties and at most 30 days. Support acts as named staff through admin-service, never with my session; every action is recorded " +
+			}).Describe("Concierge onboarding, assisted photography/scanning, accessibility support and remote help for named scopes, optional "+
+			"properties and at most 30 days. Support acts as named staff through admin-service, never with my session; every action is recorded "+
 			"and notified.").Capture("assistance_id", "data.id").Errs(403),
 		Command("POST", "/assistance/authorizations/{assistance_id}/revoke", "revokeAssistance", tagAssistance, "Revoke an authorization now", http.StatusOK,
 			func(c *Call, in *usecases.AssistanceRevokeInput) (usecases.AssistanceView, error) {
@@ -86,7 +86,7 @@ func closureAdminRoutes() []Route {
 		Command("POST", "/admin/accounts/{account_id}/assisted-properties", "adminCreateAssistedProperty", tagAdmin, "Create a DRAFT property for the owner", http.StatusCreated,
 			func(c *Call, in *usecases.AssistedPropertyInput) (usecases.AssistedPropertyView, error) {
 				return c.S.AdminCreateAssistedProperty(c.Ctx, c.Subj, c.ID("account_id"), *in)
-			}).Internal().Describe("Concierge onboarding under a PROPERTY_RECORDS authorization. The record stays DRAFT for the owner to review; " +
+			}).Internal().Describe("Concierge onboarding under a PROPERTY_RECORDS authorization. The record stays DRAFT for the owner to review; "+
 			"verification and publication remain owner actions.").Errs(403, 409, 422),
 	}
 }

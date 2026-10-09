@@ -260,3 +260,95 @@ func TestAssistedUseIsAuthorizedAttributedAndRevocable(t *testing.T) {
 		t.Fatalf("authorizations %+v", all)
 	}
 }
+
+// TestDashboardPortfolioTracksDomainState (§13.1): dashboard figures follow
+// the seeded records through booking changes, payment projections and an
+// expiring manager assignment; obligations and payment truth stay apart;
+// the calendar is derived from domain records only.
+func TestDashboardPortfolioTracksDomainState(t *testing.T) {
+	h := newHarness(t, withPayment)
+	o, l := h.shortletListingPriced("14 Dashboard Drive", 5000000)
+	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/shortlet/settings", 0, shortletSettings("PLATFORM", true, false)), 200, "")
+	now := h.clock.now()
+	dash := func() usecases.DashboardView {
+		var d usecases.DashboardView
+		h.get(o, "/dashboard").data(t, &d)
+		return d
+	}
+	d := dash()
+	if d.Portfolio.PropertyVerification["VERIFIED"] != 1 || d.Portfolio.IdentityVerification != "VERIFIED" || d.Portfolio.PropertiesByStatus["ACTIVE"] != 1 ||
+		d.Portfolio.Pipeline["upcoming_bookings"] != 0 || d.MoneyBasis == "" {
+		t.Fatalf("initial dashboard %+v", d.Portfolio)
+	}
+	keys := map[string]bool{}
+	for _, q := range d.QuickActions {
+		keys[q.Key] = true
+	}
+	if !keys["CREATE_PROPERTY"] {
+		t.Fatalf("quick actions %+v", d.QuickActions)
+	}
+
+	// A requested (unpaid) booking is pipeline, not revenue.
+	b := h.requestBooking(customer(), bookingBody(l, dayN(now, 3), dayN(now, 5), "Bisi"))
+	h.runJobs("shortlet-bookings-calendar-and-claims")
+	if d = dash(); d.Portfolio.Pipeline["upcoming_bookings"] != 1 || len(d.ShortletRevenue30d) != 0 {
+		t.Fatalf("pending booking %+v %+v", d.Portfolio.Pipeline, d.ShortletRevenue30d)
+	}
+	// Payment truth confirms it; the pre-arrival inspection appears on the calendar.
+	h.pay.settle(b.ID, b.TotalMinor, payment.IntentHeld)
+	h.clock.advance(time.Second)
+	h.runJobs("shortlet-bookings-calendar-and-claims")
+	var cal []usecases.CalendarEntry
+	h.get(o, "/calendar?from="+dayN(now, 0)+"&to="+dayN(now, 30)).data(t, &cal)
+	kinds := map[string]int{}
+	for _, e := range cal {
+		kinds[e.Kind]++
+	}
+	if kinds["CHECK_IN"] != 1 || kinds["CHECK_OUT"] != 1 || kinds["INSPECTION"] != 1 {
+		t.Fatalf("calendar %+v", kinds)
+	}
+
+	// The owner cancels: the booking leaves the pipeline and the calendar.
+	nb := h.booking(o, b.ID)
+	h.expect(h.write(o, "PATCH", "/shortlet/bookings/"+b.ID.String(), nb.Version, map[string]any{"action": "CANCEL", "reason_code": "OWNER_UNAVAILABLE"}), 200, "")
+	if d = dash(); d.Portfolio.Pipeline["upcoming_bookings"] != 0 {
+		t.Fatalf("cancelled booking %+v", d.Portfolio.Pipeline)
+	}
+	h.get(o, "/calendar?from="+dayN(now, 0)+"&to="+dayN(now, 30)).data(t, &cal)
+	for _, e := range cal {
+		if e.Kind == "CHECK_IN" || e.Kind == "INSPECTION" {
+			t.Fatalf("cancelled stay still on the calendar %+v", e)
+		}
+	}
+
+	// Manager assignment and statutory dates; the assignment expires.
+	h.activeManager(o, l.PropertyID, 1000000, 0, "NOTIFY_OWNER")
+	h.runJobs("manager-mandates")
+	h.expect(h.post(o, "/statutory-obligations", map[string]any{"obligation_type": "INCOME_TAX_FILING", "title": "Annual return", "jurisdiction": "NG",
+		"due_on": dayN(now, 20), "recurrence": "NONE"}), 201, "")
+	d = dash()
+	keys = map[string]bool{}
+	for _, q := range d.QuickActions {
+		keys[q.Key] = true
+	}
+	if d.Portfolio.Operations["active_manager_assignments"] != 1 || d.Portfolio.Operations["statutory_due_30d"] != 1 || !keys["STATUTORY_DUE"] {
+		t.Fatalf("operations %+v %+v", d.Portfolio.Operations, d.QuickActions)
+	}
+	h.get(o, "/calendar?from="+dayN(now, 0)+"&to="+dayN(now, 120)).data(t, &cal)
+	kinds = map[string]int{}
+	for _, e := range cal {
+		kinds[e.Kind]++
+		if e.Kind == "STATUTORY_DUE" && e.PropertyID != nil {
+			t.Fatalf("account-level item with a property %+v", e)
+		}
+	}
+	if kinds["STATUTORY_DUE"] != 1 || kinds["MANDATE_END"] != 1 {
+		t.Fatalf("calendar kinds %+v", kinds)
+	}
+	h.clock.advance(91 * 24 * time.Hour)
+	h.runJobs("manager-mandates", "consent-and-mandate-expiry")
+	h.relogin(o)
+	if d = dash(); d.Portfolio.Operations["active_manager_assignments"] != 0 {
+		t.Fatalf("expired assignment still counted %+v", d.Portfolio.Operations)
+	}
+}

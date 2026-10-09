@@ -28336,7 +28336,7 @@
                     "dashboard"
                   ]
                 },
-                "description": "Owner dashboard.\n\nPortfolio counts, items awaiting the owner, rent highlights and the next 14 days.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+                "description": "Owner dashboard.\n\nPortfolio summary across verification, listings, leads, viewings, applications, offers, sales, bookings, managers, maintenance, professionals, disputes, reports and statutory dates; items awaiting the owner with quick actions; business obligations (due, arrears) shown apart from payment truth (collected, held); and the next 14 days.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
               },
               "response": []
             },
@@ -28401,7 +28401,7 @@
               "response": []
             },
             {
-              "name": "Viewings, rent dates, tenancy ends, stays, preventive tasks and confirmations",
+              "name": "Owner calendar derived from domain records (viewings, rent, stays, turnover, renewals, notices, move-outs, offers, milestones, professionals, insurance, mandates, statutory dates)",
               "event": [
                 {
                   "listen": "test",
@@ -28438,7 +28438,7 @@
                     "calendar"
                   ]
                 },
-                "description": "Viewings, rent dates, tenancy ends, stays, preventive tasks and confirmations.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+                "description": "Owner calendar derived from domain records (viewings, rent, stays, turnover, renewals, notices, move-outs, offers, milestones, professionals, insurance, mandates, statutory dates).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
               },
               "response": []
             },

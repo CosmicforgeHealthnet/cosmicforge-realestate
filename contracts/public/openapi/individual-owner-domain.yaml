@@ -2192,11 +2192,14 @@ components:
         date:
           type: string
         kind:
-          description: VIEWING, RENT_DUE, TENANCY_END, CHECK_IN, CHECK_OUT, PREVENTIVE_TASK, AVAILABILITY_CONFIRMATION
+          description: VIEWING, RENT_DUE, TENANCY_END, CHECK_IN, CHECK_OUT, PREVENTIVE_TASK, MAINTENANCE_DUE, AVAILABILITY_CONFIRMATION, RENEWAL_RESPONSE_DUE, NOTICE_EFFECTIVE, MOVE_OUT, INSPECTION, TURNOVER, OFFER_EXPIRY, CLOSING_MILESTONE, PROFESSIONAL_DUE, INSURANCE_RENEWAL, MANDATE_END, STATUTORY_DUE
           type: string
         property_id:
+          description: Null for account-level items (e.g. an income tax filing)
           format: uuid
-          type: string
+          type:
+            - string
+            - "null"
         ref_id:
           format: uuid
           type: string
@@ -2208,7 +2211,6 @@ components:
         - date
         - kind
         - title
-        - property_id
         - ref_type
         - ref_id
       type: object
@@ -3428,20 +3430,45 @@ components:
         arrears:
           additionalProperties:
             type: integer
+          description: Business obligations overdue or partly paid (last 30 days)
+          type: object
+        deposits_held:
+          additionalProperties:
+            type: integer
           type: object
         listings_by_status:
           additionalProperties:
             type: integer
           type: object
+        money_basis:
+          type: string
+        obligations_due_next_30d:
+          additionalProperties:
+            type: integer
+          description: 'Business obligations: unpaid rent due in the next 30 days (not payment truth)'
+          type: object
         occupancy_bps:
           type: integer
+        portfolio:
+          $ref: '#/components/schemas/PortfolioSummary'
         preferences:
           $ref: '#/components/schemas/DashboardPrefs'
         properties:
           type: integer
+        quick_actions:
+          description: Shortcuts to normal domain commands/queries; each is authorized and idempotent as usual when called
+          items:
+            $ref: '#/components/schemas/QuickAction'
+          type: array
         rent_collected_30d:
           additionalProperties:
             type: integer
+          description: 'Payment truth: collected as reported by payment-service (or recorded off-platform evidence)'
+          type: object
+        shortlet_revenue_30d:
+          additionalProperties:
+            type: integer
+          description: 'Payment truth: collected less refunds, by check-in date'
           type: object
         upcoming:
           description: Next 14 days
@@ -3454,8 +3481,14 @@ components:
         - active_tenancies
         - occupancy_bps
         - action_items
+        - portfolio
         - rent_collected_30d
+        - shortlet_revenue_30d
         - arrears
+        - obligations_due_next_30d
+        - deposits_held
+        - money_basis
+        - quick_actions
         - upcoming
         - preferences
       type: object
@@ -8216,6 +8249,37 @@ components:
         - open_disputes
         - sources
       type: object
+    PortfolioSummary:
+      properties:
+        identity_verification:
+          description: Latest IDENTITY verification status (NOT_STARTED when none)
+          type: string
+        operations:
+          additionalProperties:
+            type: integer
+          description: Active manager assignments, open maintenance, open professional appointments, open disputes, ready reports (30 days), statutory dates due in 30 days, open stay extensions
+          type: object
+        pipeline:
+          additionalProperties:
+            type: integer
+          description: Open inquiries, upcoming viewings, open applications, sent rental offers, active sales, open sale offers, upcoming bookings, stays in progress
+          type: object
+        properties_by_status:
+          additionalProperties:
+            type: integer
+          type: object
+        property_verification:
+          additionalProperties:
+            type: integer
+          description: Latest PROPERTY_AUTHORITY status per property (NOT_STARTED when none)
+          type: object
+      required:
+        - properties_by_status
+        - property_verification
+        - identity_verification
+        - pipeline
+        - operations
+      type: object
     PreventiveInputInput:
       additionalProperties: false
       properties:
@@ -9048,6 +9112,24 @@ components:
           type: integer
       required:
         - outcome
+      type: object
+    QuickAction:
+      properties:
+        count:
+          type: integer
+        key:
+          type: string
+        label:
+          type: string
+        method:
+          type: string
+        path:
+          type: string
+      required:
+        - key
+        - label
+        - method
+        - path
       type: object
     QuoteRequestInputInput:
       additionalProperties: false
@@ -13416,7 +13498,7 @@ paths:
           $ref: '#/components/responses/Error'
       security:
         - OwnerBearer: []
-      summary: Viewings, rent dates, tenancy ends, stays, preventive tasks and confirmations
+      summary: Owner calendar derived from domain records (viewings, rent, stays, turnover, renewals, notices, move-outs, offers, milestones, professionals, insurance, mandates, statutory dates)
       tags:
         - Reports & Insights
   /api/v1/owner/campaigns:
@@ -13846,7 +13928,7 @@ paths:
         - Account & Profile
   /api/v1/owner/dashboard:
     get:
-      description: Portfolio counts, items awaiting the owner, rent highlights and the next 14 days.
+      description: Portfolio summary across verification, listings, leads, viewings, applications, offers, sales, bookings, managers, maintenance, professionals, disputes, reports and statutory dates; items awaiting the owner with quick actions; business obligations (due, arrears) shown apart from payment truth (collected, held); and the next 14 days.
       operationId: getDashboard
       responses:
         "200":

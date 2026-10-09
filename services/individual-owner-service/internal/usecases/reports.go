@@ -689,15 +689,39 @@ func (s *Service) MarketInsights(ctx context.Context, subj authz.Subject, listin
 
 // DashboardView is the owner's home summary.
 type DashboardView struct {
-	Properties       int64            `json:"properties"`
-	ListingsByStatus map[string]int64 `json:"listings_by_status"`
-	ActiveTenancies  int64            `json:"active_tenancies"`
-	OccupancyBps     int64            `json:"occupancy_bps"`
-	ActionItems      map[string]int64 `json:"action_items" doc:"Counts of items awaiting the owner"`
-	RentCollected30d Money            `json:"rent_collected_30d"`
-	Arrears          Money            `json:"arrears"`
-	Upcoming         []CalendarEntry  `json:"upcoming" doc:"Next 14 days"`
-	Preferences      DashboardPrefs   `json:"preferences"`
+	Properties         int64            `json:"properties"`
+	ListingsByStatus   map[string]int64 `json:"listings_by_status"`
+	ActiveTenancies    int64            `json:"active_tenancies"`
+	OccupancyBps       int64            `json:"occupancy_bps"`
+	ActionItems        map[string]int64 `json:"action_items" doc:"Counts of items awaiting the owner"`
+	Portfolio          PortfolioSummary `json:"portfolio"`
+	RentCollected30d   Money            `json:"rent_collected_30d" doc:"Payment truth: collected as reported by payment-service (or recorded off-platform evidence)"`
+	ShortletRevenue30d Money            `json:"shortlet_revenue_30d" doc:"Payment truth: collected less refunds, by check-in date"`
+	Arrears            Money            `json:"arrears" doc:"Business obligations overdue or partly paid (last 30 days)"`
+	ObligationsDue30d  Money            `json:"obligations_due_next_30d" doc:"Business obligations: unpaid rent due in the next 30 days (not payment truth)"`
+	DepositsHeld       Money            `json:"deposits_held"`
+	MoneyBasis         string           `json:"money_basis"`
+	QuickActions       []QuickAction    `json:"quick_actions" doc:"Shortcuts to normal domain commands/queries; each is authorized and idempotent as usual when called"`
+	Upcoming           []CalendarEntry  `json:"upcoming" doc:"Next 14 days"`
+	Preferences        DashboardPrefs   `json:"preferences"`
+}
+
+// PortfolioSummary counts the portfolio across every owner workflow.
+type PortfolioSummary struct {
+	PropertiesByStatus   map[string]int64 `json:"properties_by_status"`
+	PropertyVerification map[string]int64 `json:"property_verification" doc:"Latest PROPERTY_AUTHORITY status per property (NOT_STARTED when none)"`
+	IdentityVerification string           `json:"identity_verification" doc:"Latest IDENTITY verification status (NOT_STARTED when none)"`
+	Pipeline             map[string]int64 `json:"pipeline" doc:"Open inquiries, upcoming viewings, open applications, sent rental offers, active sales, open sale offers, upcoming bookings, stays in progress"`
+	Operations           map[string]int64 `json:"operations" doc:"Active manager assignments, open maintenance, open professional appointments, open disputes, ready reports (30 days), statutory dates due in 30 days, open stay extensions"`
+}
+
+// QuickAction is a dashboard shortcut.
+type QuickAction struct {
+	Key    string `json:"key"`
+	Label  string `json:"label"`
+	Method string `json:"method"`
+	Path   string `json:"path"`
+	Count  int64  `json:"count,omitempty"`
 }
 
 // DashboardPrefs are the owner's dashboard preferences.
@@ -718,7 +742,9 @@ func (s *Service) Dashboard(ctx context.Context, subj authz.Subject) (DashboardV
 		return DashboardView{}, err
 	}
 	v := DashboardView{Properties: f.Properties, ListingsByStatus: f.ListingsByStatus, ActiveTenancies: f.ActiveTenancies, OccupancyBps: f.OccupancyBps,
-		RentCollected30d: f.RentCollected, Arrears: f.Arrears, ActionItems: map[string]int64{}, Preferences: DashboardPrefs{Widgets: []string{}}}
+		RentCollected30d: f.RentCollected, ShortletRevenue30d: f.Shortlet.Revenue, Arrears: f.Arrears, DepositsHeld: f.DepositsHeld,
+		ObligationsDue30d: Money{}, ActionItems: map[string]int64{}, Preferences: DashboardPrefs{Widgets: []string{}},
+		MoneyBasis: "Collected and held amounts are payment-service projections (or recorded off-platform evidence); due and arrears are business obligations."}
 	counts := []struct{ key, sql string }{
 		{"new_inquiries", `SELECT count(*) FROM inquiries WHERE property_id IN (SELECT property_id FROM props) AND status = 'NEW'`},
 		{"viewing_requests", `SELECT count(*) FROM viewing_requests WHERE property_id IN (SELECT property_id FROM props) AND status = 'REQUESTED'`},
@@ -736,6 +762,28 @@ func (s *Service) Dashboard(ctx context.Context, subj authz.Subject) (DashboardV
 			return v, fmt.Errorf("dashboard %s: %w", c.key, err)
 		}
 		v.ActionItems[c.key] = n
+	}
+	if v.Portfolio, err = s.portfolioSummary(ctx, acc, now); err != nil {
+		return v, err
+	}
+	rows, err := s.dbq(ctx).Query(ctx, propsCTE+` SELECT o.currency, coalesce(sum(o.amount_minor - o.paid_minor),0)::bigint
+		FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id WHERE t.property_id IN (SELECT property_id FROM props)
+		 AND o.status IN ('SCHEDULED','DUE','PARTIAL') AND o.due_date BETWEEN $4 AND $5 GROUP BY o.currency`, acc, now, nil, dayOf(now), dayOf(now).AddDate(0, 0, 30))
+	if err != nil {
+		return v, err
+	}
+	for rows.Next() {
+		var cur string
+		var amt int64
+		if err := rows.Scan(&cur, &amt); err != nil {
+			rows.Close()
+			return v, err
+		}
+		v.ObligationsDue30d.add(cur, amt)
+	}
+	rows.Close()
+	if v.QuickActions, err = s.quickActions(ctx, subj, v); err != nil {
+		return v, err
 	}
 	if v.Upcoming, err = s.calendarEntries(ctx, acc, dayOf(now), dayOf(now).AddDate(0, 0, 14)); err != nil {
 		return v, err
@@ -771,14 +819,15 @@ func (s *Service) PutDashboardPreferences(ctx context.Context, subj authz.Subjec
 	return out, err
 }
 
-// CalendarEntry is one dated item across the portfolio.
+// CalendarEntry is one dated item across the portfolio, derived from the
+// authoritative domain records (there is no separate calendar store).
 type CalendarEntry struct {
-	Date       string `json:"date"`
-	Kind       string `json:"kind" doc:"VIEWING, RENT_DUE, TENANCY_END, CHECK_IN, CHECK_OUT, PREVENTIVE_TASK, AVAILABILITY_CONFIRMATION"`
-	Title      string `json:"title"`
-	PropertyID ids.ID `json:"property_id"`
-	RefType    string `json:"ref_type"`
-	RefID      ids.ID `json:"ref_id"`
+	Date       string  `json:"date"`
+	Kind       string  `json:"kind" doc:"VIEWING, RENT_DUE, TENANCY_END, CHECK_IN, CHECK_OUT, PREVENTIVE_TASK, MAINTENANCE_DUE, AVAILABILITY_CONFIRMATION, RENEWAL_RESPONSE_DUE, NOTICE_EFFECTIVE, MOVE_OUT, INSPECTION, TURNOVER, OFFER_EXPIRY, CLOSING_MILESTONE, PROFESSIONAL_DUE, INSURANCE_RENEWAL, MANDATE_END, STATUTORY_DUE"`
+	Title      string  `json:"title"`
+	PropertyID *ids.ID `json:"property_id" doc:"Null for account-level items (e.g. an income tax filing)"`
+	RefType    string  `json:"ref_type"`
+	RefID      ids.ID  `json:"ref_id"`
 }
 
 func (s *Service) calendarEntries(ctx context.Context, account ids.ID, from, to time.Time) ([]CalendarEntry, error) {
@@ -805,6 +854,47 @@ func (s *Service) calendarEntries(ctx context.Context, account ids.ID, from, to 
 		  UNION ALL
 		  SELECT f.due_at::date, 'AVAILABILITY_CONFIRMATION', l.title, l.property_id, 'listing', l.id
 		    FROM freshness_checks f JOIN listings l ON l.id = f.listing_id WHERE l.property_id IN (SELECT property_id FROM props) AND f.status IN ('PENDING','REMINDED')
+		  UNION ALL
+		  SELECT m.due_on, 'MAINTENANCE_DUE', m.title, m.property_id, 'maintenance_request', m.id
+		    FROM maintenance_requests m WHERE m.property_id IN (SELECT property_id FROM props) AND m.due_on IS NOT NULL AND m.status NOT IN ('COMPLETED','CANCELLED')
+		  UNION ALL
+		  SELECT r.respond_by::date, 'RENEWAL_RESPONSE_DUE', 'Renewal response due', r.property_id, 'renewal_case', r.id
+		    FROM renewal_cases r WHERE r.property_id IN (SELECT property_id FROM props) AND r.status IN ('PROPOSED','COUNTERED')
+		  UNION ALL
+		  SELECT n.effective_date, 'NOTICE_EFFECTIVE', n.notice_type, n.property_id, 'notice', n.id
+		    FROM notices n WHERE n.property_id IN (SELECT property_id FROM props) AND n.effective_date IS NOT NULL AND n.status IN ('ISSUED','DELIVERED','ACKNOWLEDGED')
+		  UNION ALL
+		  SELECT mo.move_out_date, 'MOVE_OUT', 'Move-out', mo.property_id, 'move_out_case', mo.id
+		    FROM move_out_cases mo WHERE mo.property_id IN (SELECT property_id FROM props) AND mo.status <> 'COMPLETED'
+		  UNION ALL
+		  SELECT mo.inspection_at::date, 'INSPECTION', 'Move-out inspection', mo.property_id, 'move_out_case', mo.id
+		    FROM move_out_cases mo WHERE mo.property_id IN (SELECT property_id FROM props) AND mo.status = 'INSPECTION_SCHEDULED' AND mo.inspection_at IS NOT NULL
+		  UNION ALL
+		  SELECT j.scheduled_for::date, CASE WHEN j.job_type = 'INSPECTION' THEN 'INSPECTION' ELSE 'TURNOVER' END, initcap(lower(j.job_type)), j.property_id, 'turnover_job', j.id
+		    FROM turnover_jobs j WHERE j.property_id IN (SELECT property_id FROM props) AND j.status IN ('SCHEDULED','IN_PROGRESS')
+		  UNION ALL
+		  SELECT ro.expires_at::date, 'OFFER_EXPIRY', 'Rental offer expires', ro.property_id, 'rental_offer', ro.id
+		    FROM rental_offers ro WHERE ro.property_id IN (SELECT property_id FROM props) AND ro.status = 'SENT'
+		  UNION ALL
+		  SELECT so.expires_at::date, 'OFFER_EXPIRY', 'Sale offer expires', st.property_id, 'sale_offer', so.id
+		    FROM sale_offers so JOIN sale_transactions st ON st.id = so.sale_id WHERE st.property_id IN (SELECT property_id FROM props) AND so.status IN ('SUBMITTED','COUNTERED')
+		  UNION ALL
+		  SELECT cm.due_date, 'CLOSING_MILESTONE', cm.title, st.property_id, 'closing_milestone', cm.id
+		    FROM closing_milestones cm JOIN sale_transactions st ON st.id = cm.sale_id WHERE st.property_id IN (SELECT property_id FROM props)
+		     AND cm.due_date IS NOT NULL AND cm.status IN ('PENDING','AWAITING_CONFIRMATION')
+		  UNION ALL
+		  SELECT pa.due_by, 'PROFESSIONAL_DUE', pa.purpose, coalesce(pa.property_id, st.property_id), 'professional_appointment', pa.id
+		    FROM professional_appointments pa LEFT JOIN sale_transactions st ON st.id = pa.sale_id
+		   WHERE coalesce(pa.property_id, st.property_id) IN (SELECT property_id FROM props) AND pa.due_by IS NOT NULL AND pa.status IN ('APPOINTED','IN_PROGRESS')
+		  UNION ALL
+		  SELECT ip.ends_on, 'INSURANCE_RENEWAL', ip.insurer_name, ip.property_id, 'insurance_policy', ip.id
+		    FROM insurance_policies ip WHERE ip.property_id IN (SELECT property_id FROM props) AND ip.status IN ('ACTIVE','EXPIRING')
+		  UNION ALL
+		  SELECT ma.ends_at::date, 'MANDATE_END', ma.manager_display_name, ma.property_id, 'manager_assignment', ma.id
+		    FROM manager_assignments ma WHERE ma.property_id IN (SELECT property_id FROM props) AND ma.status IN ('ACTIVE','EXPIRING','SUSPENDED')
+		  UNION ALL
+		  SELECT so.due_on, 'STATUTORY_DUE', so.title, so.property_id, 'statutory_obligation', so.id
+		    FROM statutory_obligations so WHERE so.account_id = $1 AND so.status = 'UPCOMING'
 		) e WHERE d BETWEEN $4 AND $5 ORDER BY d, kind LIMIT 500`, account, s.now(), nil, from, to)
 	if err != nil {
 		return nil, err
