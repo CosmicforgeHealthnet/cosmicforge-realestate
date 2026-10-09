@@ -71,7 +71,7 @@ equal updates per intent are ignored. Status per family:
 
 | Event (stream) | Payload | Effect |
 |---|---|---|
-| `payment.intent.updated.v1` (`payment`) | `intent_ref`, `status` (`REQUIRES_PAYMENT`, `PROCESSING`, `PARTIALLY_PAID`, `SUCCEEDED`, `HELD`, `FAILED`, `CANCELLED`, `REFUND_PENDING`, `REFUNDED`), `amount_minor`, `paid_minor`, `refunded_minor`, `updated_at` | projects rent, deposits, sale milestones, bookings, damage claims, maintenance jobs, professional fees |
+| `payment.intent.updated.v1` (`payment`) | `intent_ref`, `status` (`REQUIRES_PAYMENT`, `PROCESSING`, `PARTIALLY_PAID`, `SUCCEEDED`, `HELD`, `FAILED`, `CANCELLED`, `REFUND_PENDING`, `REFUNDED`), `amount_minor`, `paid_minor`, `refunded_minor`, `updated_at` | projects rent, deposits, sale milestones, bookings, stay extensions, damage claims, maintenance jobs, professional fees |
 | `payment.refund.updated.v1` (`payment`) | `refund_ref`, `intent_ref`, `status` (`PENDING`, `COMPLETED`, `FAILED`), `refunded_minor` | short-let refunds |
 | `manager.mandate.responded.v1` (`property_manager`) | `assignment_id`, `manager_ref_id`, `decision` (`ACCEPT`/`DECLINE`) | mandate acceptance |
 | `manager.activity.recorded.v1` (`property_manager`) | `assignment_id`, `manager_ref_id`, `activity_type`, `ref_type?`, `ref_id?`, `summary` | owner-visible activity |

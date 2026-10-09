@@ -4,7 +4,7 @@
 |---|---|
 | Service | `services/individual-owner-service` · database `individual_owner_db` |
 | Documented foundation baseline | F1–F5 certified at `54425cb5df86fbb239c4faab624d786f98fb343e` |
-| Implementation commits | Section 5: `31ef5fc`, `606341e`, `127fcba`, `ecf5ee4` · Sections 6–13: `2592eff` (ownership/property/banking), `41202cc` (delegation/listings/pricing/availability), `5e61cbc` (leads/viewings/applications/offers), `5c7aaec` (agreements/tenancy/obligations/utilities), `f802392` (commercial/land/sale), `6e986f2` (short-let), `4f55d6a` (maintenance/professionals), `3848d8c` (disputes/privacy/reports/insights/dashboard), `d297990` (financing/insurance/smart access), `659d43e` (consumers, templates, domain E2E) · Final corrections: `9dfe6a7` (spec path aliases), `27511c9` (tenant/guest recipient contract), `42ff86b` (sale-linked ownership transfer), `d19746d` (jurisdiction legal policy), `c5bb657` (event compatibility), `e0a05ec` (migration preflight), `deb5c93` (capture-file hardening) · Functional closure: `74a8120` (listing media access fix, real-service functional journey) |
+| Implementation commits | Section 5: `31ef5fc`, `606341e`, `127fcba`, `ecf5ee4` · Sections 6–13: `2592eff` (ownership/property/banking), `41202cc` (delegation/listings/pricing/availability), `5e61cbc` (leads/viewings/applications/offers), `5c7aaec` (agreements/tenancy/obligations/utilities), `f802392` (commercial/land/sale), `6e986f2` (short-let), `4f55d6a` (maintenance/professionals), `3848d8c` (disputes/privacy/reports/insights/dashboard), `d297990` (financing/insurance/smart access), `659d43e` (consumers, templates, domain E2E) · Final corrections: `9dfe6a7` (spec path aliases), `27511c9` (tenant/guest recipient contract), `42ff86b` (sale-linked ownership transfer), `d19746d` (jurisdiction legal policy), `c5bb657` (event compatibility), `e0a05ec` (migration preflight), `deb5c93` (capture-file hardening) · Functional closure: `74a8120` (listing media access fix, real-service functional journey) · Section 13 closure: `f20773d` (short-let deadlock fix), `059b012` (stay extensions, pre-arrival inspection), `167a4c3` (statutory calendar, valuations/yield, property insights, assisted use), `6077dde` (dashboard summary, quick actions, owner calendar) |
 | Specification | `CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf` (this folder) |
 | Last updated | 2026-10-09 |
 
@@ -30,6 +30,66 @@ are scheduled by the specification's workstreams (§23, IO-2…IO-16).
 | §19 config names `OWNER_AUTH_PRIVATE_KEY[_FILE]`, `POLICY_CONFIG_VERSION` | `OWNER_ACCESS_TOKEN_PRIVATE_KEY[_FILE]`, `OWNER_SECURITY_POLICY_VERSION` | Naming deviation; accept the spec names as aliases in IO-2. |
 | §16 step-up for payout changes, sensitive document grants, property transfer | step-up rules on payout/tax writes, transfers and privacy verification | PASS (LOCAL). |
 | §23 IO-1 Service bootstrapping & local auth | `31ef5fc` … `ecf5ee4` | **IO-1: PASS (LOCAL/CONTRACT)** except OAuth adapters (BLOCKED, Appendix D "DOMAIN IMPLEMENTATION": provider selection pending). |
+
+## Section 13 closure (2026-10-09, from `9f731b5`)
+
+All 30 product areas of spec §13 were re-audited against the stored specification text and the code at
+`9f731b5`, then the genuine local gaps were implemented and one functional defect fixed. Areas whose
+existing implementation and evidence were already valid were **skipped** (no code changes).
+
+| § | Product area | Status | Evidence | Remaining dependency |
+|---|---|---|---|---|
+| 13.1 | Owner role and dashboard | PASS — LOCAL (dashboard/PDF CONTRACT) | **Implemented** portfolio summary (verification, leads, viewings, applications, offers, sales, bookings, managers, maintenance, professionals, disputes, reports, statutory dates), obligations vs payment truth, quick actions, 19-kind calendar derived from domain tables (`6077dde`); `closure_test.go` TestDashboardPortfolioTracksDomainState (booking request → payment → cancellation, manager expiry), `oversight_test.go`; E2E dashboard | payment-service for platform money figures |
+| 13.2 | Registration, security, personal verification | SKIPPED — ALREADY VERIFIED (PASS — CONTRACT) | Section 5 register; `auth_test`, `mfa_test`, `lifecycle_test`; E2E owner account and real verification-service | OAuth providers; production KYC; production email/SMS |
+| 13.3 | Banking, payout, tax | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `property_test` banking/tax, cooling-off worker, step-up | payment-service (beneficiary verification, payouts) BLOCKED |
+| 13.4 | Ownership and authority | SKIPPED — ALREADY VERIFIED (PASS — LOCAL/CONTRACT) | `property_test`, `property2_test`, `sale_transfer_test`; E2E PROPERTY_AUTHORITY | — |
+| 13.5 | Property and portfolio records | SKIPPED — ALREADY VERIFIED (PASS — CONTRACT) | `property_test` (units, parcels, assets, imports, history); E2E create | maps/geocoding provider |
+| 13.6 | Property verification and authenticity | SKIPPED — ALREADY VERIFIED (PASS — CONTRACT) | real verification + media services in E2E | production KYC provider |
+| 13.7 | Listings for every category | SKIPPED — ALREADY VERIFIED (PASS — CONTRACT) | `listing_test`; E2E publish/withdraw with real media access (`74a8120`) | marketplace-service consumer |
+| 13.8 | Price and fee configuration | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `pricing_test.go`, `listing_test` | — |
+| 13.9 | Availability and freshness | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `listing_test` (freshness auto-pause), short-let calendar | — |
+| 13.10 | Marketing, inquiries, leads | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `leads_test` | CF Meet; paid promotion via payment-service |
+| 13.11 | Viewings and access | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `leads_test` (slots, codes, occupied consent, no-show) | CF Meet video; smart-lock provider |
+| 13.12 | Applications and tenant selection | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `leads_test` (screening, evidence grants, human decision, appeal, offers) | marketplace-service |
+| 13.13 | Agreements and move-in | PASS — LOCAL (e-sign BLOCKED) | `tenancy_test`, `legal_policy_test` (offline signing, move-in evidence) | certified e-sign provider; legal template approval |
+| 13.14 | Rent, deposit, financial management | PASS — LOCAL (platform money BLOCKED) | `tenancy_test`, `event_compat_test` (replay/out-of-order) | payment-service; approved jurisdiction policy for automatic late fees/deposit silence |
+| 13.15 | Renewal, notices, move-out | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `tenancy_test` | legal policy approval |
+| 13.16 | Utilities and service charge | PASS — LOCAL (tenant/guest delivery BLOCKED) | `tenancy_test` utilities, `announcements_test` | marketplace-service recipient domain |
+| 13.17 | Commercial rent and sale | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `sale_test` (LOI, terms, sale engine reuse) | payment-service |
+| 13.18 | Land rent, lease, sale | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `sale_test` (land terms, false-completion prevention) | payment-service |
+| 13.19 | Property sale, offers, closing | PASS — LOCAL (platform money BLOCKED) | `sale_test`, `sale_transfer_test` | payment-service |
+| 13.20 | Personally operated short-let | PASS — LOCAL (platform money / external calendars BLOCKED) | **Fixed** booking-race deadlock (`f20773d`, 3/12 → 12/12 under load); **implemented** stay extensions and pre-arrival inspection (`059b012`); `shortlet_test`, `shortlet_extension_test` (off-platform, platform payment, extension-vs-booking race) | payment-service; calendar-sync provider; smart-lock provider; CF Meet |
+| 13.21 | Manager marketplace and delegation | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `listing_test` delegation, `maintenance_test` limits | property-manager-service |
+| 13.22 | Maintenance and preventive care | SKIPPED — ALREADY VERIFIED (PASS — LOCAL/CONTRACT) | `maintenance_test`; E2E maintenance | artisan-service; payment-service |
+| 13.23 | Professional services and due diligence | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `maintenance_test` professionals, `sale_test` data rooms | professional-services-service; payment-service |
+| 13.24 | Communication and notifications | PASS — CONTRACT (notification-service) | real notification-service delivery in E2E; 27 owner templates drift-tested | CF Meet; WhatsApp; tenant/guest recipient domain |
+| 13.25 | Finance, reports, market intelligence | PASS — LOCAL (PDF CONTRACT) | **Implemented** statutory/tax calendar, valuations and gross yield, property insights (`167a4c3`); `closure_test.go` TestStatutoryCalendarReminderAndRecurrence, TestValuationsYieldAndPropertyInsights; `oversight_test` | payment-service projections; no AI/market provider (insights are deterministic rules, labelled so) |
+| 13.26 | Fraud, privacy, safety, disputes | SKIPPED — ALREADY VERIFIED (PASS — LOCAL) | `oversight_test` (disputes, privacy, audit), retention holds | CF Meet safety contract; legal retention classes |
+| 13.27 | Accessibility, assisted use, closure | PASS — LOCAL | **Implemented** assisted use under owner authorization with attributable admin actors (`167a4c3`); `closure_test.go` TestAssistedUseIsAuthorizedAttributedAndRevocable; closure/succession in `lifecycle_test`, `property_test` | admin-service support console |
+| 13.28 | Financing, mortgage, payment plans | BLOCKED (consent, offer references, privacy, disabled behavior PASS — LOCAL) | `partners_test` | financing partner |
+| 13.29 | Insurance and protection | PARTIAL (owner-held policies/claims PASS — LOCAL; partner BLOCKED) | `partners_test` (owner-held policies, claims, renewals) | insurance partner |
+| 13.30 | Smart access and remote controls | PASS — LOCAL (devices BLOCKED) | `partners_test` (grants, expiry, revocation, compromise, manager linkage) | smart-lock provider |
+
+Defect corrected: concurrent short-let booking holds for the same nights could deadlock in the
+`shortlet_bookings` exclusion constraint (SQLSTATE 40P01) and answer 500 instead of 409
+`DATES_UNAVAILABLE`. Calendar claimers (holds, extensions, owner blocks, external imports) now lock the
+listing's `shortlet_settings` row first. Also corrected: the damage-claim API description still said
+guest silence accepts a claim (it goes to operator review).
+
+New in this closure: migration `00018_section13_closure` (5 tables: `shortlet_booking_extensions`,
+`statutory_obligations`, `property_valuations` (append-only), `assistance_authorizations`,
+`assisted_activities` (append-only); `market_insights` gains `RENEWAL_OUTLOOK`/`MAINTENANCE_PATTERN`);
+13 public operations (`/shortlet/bookings/{id}/extensions` GET/POST, `/shortlet/extensions/{id}/decision`,
+`/statutory-obligations` GET/POST, `/statutory-obligations/{id}/close`, `/properties/{id}/valuations`
+GET/POST, `/properties/{id}/insights`, `/assistance/authorizations` GET/POST,
+`/assistance/authorizations/{id}/revoke`, `/assistance/activity`); 6 internal operations
+(`/customer-shortlet-bookings/{id}/extensions` GET/POST, `/customer-shortlet-extensions/{id}/response`,
+`/admin/accounts/{id}/assistance`, `/admin/accounts/{id}/assisted-activities`,
+`/admin/accounts/{id}/assisted-properties`); job `statutory-reminders-and-assistance-expiry`; templates
+`owner.statutory_due`, `owner.assisted_activity` (notification-service migration 00004). No new event
+types: extensions publish `shortlet.booking.updated.v1` / `shortlet.availability.updated.v1`, and
+extension payment intents are projected from `payment.intent.updated.v1` and read-back. Contract change:
+`CalendarEntry.property_id` is nullable (account-level statutory items).
 
 ## Final functional closure (2026-10-09, at `74a8120`)
 
@@ -137,7 +197,7 @@ Test evidence paths are relative to `services/individual-owner-service/` unless 
 
 ## Section 6 — Database and data model
 
-17 goose migrations (`migrations/00001`–`00017`), 132 tables, all in `individual_owner_db`; no
+18 goose migrations (`migrations/00001`–`00018`), 137 tables, all in `individual_owner_db`; no
 cross-service foreign keys (other services' records are typed UUID references). Every migration is
 round-trip tested (`TestMigrationsRoundTrip`) and `sqlc diff` is clean. Append-only tables are
 enforced by `forbid_mutation()` triggers; concurrency invariants by partial unique indexes and (short-let)
@@ -176,6 +236,9 @@ credential secrets or provider keys are stored (media/verification/payment/CF Me
 | S6-28 | Versioned jurisdiction legal policies (immutable once approved); `RESPONSE_OVERDUE` damage claims; `NO_RESPONSE` deposit responses | 00015 | PASS | LOCAL |
 | S6-29 | Payment-intent ordering watermarks | 00016 | PASS | LOCAL |
 | S6-30 | Marketplace access state of listing media | 00017 | PASS | CONTRACT (real media-document-service) |
+| S6-31 | Short-let stay extensions (own price snapshot and payment) | 00018 | PASS | LOCAL |
+| S6-32 | Statutory/tax calendar; append-only property valuations | 00018 | PASS | LOCAL |
+| S6-33 | Assistance authorizations and append-only assisted activities | 00018 | PASS | LOCAL |
 
 Deployment prerequisite: migration 00009 (and no other) needs `btree_gist`. `migrate up` runs a
 non-destructive preflight and refuses (exit 1, nothing applied) when the role cannot create it;
@@ -210,7 +273,7 @@ the same transaction.
 
 ## Section 8 — Public REST API (`/api/v1/owner/*`)
 
-331 public operations: 43 account/auth (Section 5, incl. 6 spec-path aliases) + 288 domain (incl. 7
+344 public operations: 43 account/auth (Section 5, incl. 6 spec-path aliases) + 301 domain (incl. 7
 spec-path aliases). Every operation is in OpenAPI
 (`contracts/public/openapi/individual-owner.yaml`, `individual-owner-domain.yaml`, generated by
 `cmd/apidocgen`, checked with `-check`) and Postman (`postman/CosmicForge_RealEstate.postman_collection.json`);
@@ -231,13 +294,14 @@ errors use the platform envelope. CONTRACT level is claimed only where a real-pr
 | S8-J | Tenancy, rent, deposits, renewals, notices, move-out | 29 | PASS (PLATFORM money 503 without payment-service) | LOCAL |
 | S8-K | Utilities & service charges | 15 | PASS | LOCAL |
 | S8-L | Commercial & land, sales | 23 | PASS | LOCAL |
-| S8-M | Short-let | 15 | PASS | LOCAL |
+| S8-M | Short-let (incl. stay extensions) | 18 | PASS | LOCAL |
 | S8-N | Delegation | 12 | PASS | LOCAL |
 | S8-O | Maintenance, professionals | 20 | PASS | CONTRACT (maintenance via gateway in E2E) |
-| S8-P | Reports & insights, dashboard, calendar, audit activity | 9 | PASS | CONTRACT (dashboard and PDF export via gateway in E2E) |
+| S8-P | Reports & insights, dashboard, calendar, audit activity, statutory calendar, valuations, property insights | 15 | PASS | CONTRACT (dashboard and PDF export via gateway in E2E) |
 | S8-Q | Disputes & privacy | 10 | PASS | LOCAL |
 | S8-R | Financing & insurance | 10 | PARTIAL — financing/insurance options need partners (503); owner-held insurance PASS | LOCAL |
 | S8-S | Smart access | 7 | PARTIAL — smart devices need a provider (503); keys/cards/lockboxes PASS | LOCAL |
+| S8-T | Assisted use (owner authorizations and activity) | 4 | PASS | LOCAL |
 
 Spec-path compatibility (`9dfe6a7`): the normalized paths remain for existing clients and the
 specification paths are added as aliases on the same handlers — Section 5 (`/auth/forgot-password`,
@@ -252,13 +316,13 @@ operation. New in the corrections: `/properties/{id}/announcements` (GET/POST),
 
 ## Section 9 — Internal service API contracts (`/internal/v1/owner/*`)
 
-83 internal operations (6 account + 53 internal + 24 admin), OpenAPI `contracts/internal/openapi/individual-owner-service*.yaml`.
+89 internal operations (6 account + 56 internal + 27 admin), OpenAPI `contracts/internal/openapi/individual-owner-service*.yaml`.
 
 | ID | Contract | Status | Level |
 |---|---|---|---|
 | S9-01 | Service auth, per-action service/actor grants, negative authorization | PASS | LOCAL |
-| S9-02 | Admin: account ops, moderation, ownership review, legal templates, jurisdiction legal policies (draft / second-operator approval / retire), deposit/damage/maintenance dispute resolution, owner disputes, privacy decisions | PASS | LOCAL (account ops CONTRACT) |
-| S9-03 | Marketplace: listing/public-summary read-back, cost preview, inquiries, viewings, applications, offers, sale offers, bookings, damage responses, tenant actions, data-room grantee access, listing reports | PASS | LOCAL |
+| S9-02 | Admin: account ops, moderation, ownership review, assisted use (attributed support staff under owner authorization), legal templates, jurisdiction legal policies (draft / second-operator approval / retire), deposit/damage/maintenance dispute resolution, owner disputes, privacy decisions | PASS | LOCAL (account ops CONTRACT) |
+| S9-03 | Marketplace: listing/public-summary read-back, cost preview, inquiries, viewings, applications, offers, sale offers, bookings, stay extensions, damage responses, tenant actions, data-room grantee access, listing reports | PASS | LOCAL |
 | S9-04 | Property manager: mandate response, activity, managed property/listing/maintenance/access routes | PASS | LOCAL |
 | S9-05 | Artisan / professional provider callbacks (delegated provider actor must own the record) | PASS | LOCAL |
 | S9-06 | Notification client | PASS | CONTRACT |
@@ -323,7 +387,7 @@ families 3–7 are not live-integration evidence.
 | S11-11 | Renewal/notices | `renewals-and-notices` | PASS | LOCAL |
 | S11-12 | Move-out/deposit deadlines | `deposits` | PASS | LOCAL — tenant silence accepts deductions only under an approved jurisdiction policy; otherwise manual review (`d19746d`) |
 | S11-13 | Short-let calendar | `shortlet-bookings-calendar-and-claims` | PASS (external sync BLOCKED: no provider) | LOCAL — lapsed damage-claim responses go to `RESPONSE_OVERDUE` operator review, never acceptance |
-| S11-14 | Turnover scheduler | cleaning job created at check-out | PARTIAL | pre-check-in inspection scheduling not automated |
+| S11-14 | Turnover scheduler | cleaning job at check-out; pre-arrival INSPECTION on confirmation (`059b012`) | PASS | LOCAL |
 | S11-15 | Manager mandate expiry | `manager-mandates`, `consent-and-mandate-expiry` | PASS | LOCAL |
 | S11-16 | Preventive maintenance | `maintenance-preventive-and-payments` | PASS | LOCAL |
 | S11-17 | Privacy retention | `privacy-requests-and-retention` | PARTIAL | guest anonymization with legal holds; other retention classes need the legal policy pack |
@@ -331,6 +395,7 @@ families 3–7 are not live-integration evidence.
 | S11-19 | Smart access expiry | `smart-access-expiry` | PASS | LOCAL |
 | S11-x | Sale offers/milestones, professional fees, insurance renewals, property imports, security alerts, closure, housekeeping | various | PASS | LOCAL |
 | S11-21 | Marketplace access to live listing media | `listing-media-access` | PASS | CONTRACT — grant on publication and revocation on withdrawal verified against the real media-document-service (`74a8120`) |
+| S11-22 | Statutory reminders, assistance expiry, stay-extension expiry/payments | `statutory-reminders-and-assistance-expiry`, `shortlet-bookings-calendar-and-claims` | PASS | LOCAL |
 | S11-20 | Customer (tenant/guest) notification requests | `customer-notifications` | PASS (LOCAL) · live BLOCKED | lease → call outside the transaction → record; ended relationships suppressed; recipient domain not implemented |
 
 ## Section 12 — Cross-service and external integrations
@@ -356,52 +421,24 @@ families 3–7 are not live-integration evidence.
 
 ## Section 13 — Product sections
 
-| § | Area | Status | Outstanding |
-|---|---|---|---|
-| 13.1 | Owner role and dashboard | PASS | — |
-| 13.2 | Registration, security, personal verification | PASS | OAuth BLOCKED (provider) |
-| 13.3 | Banking, payout, tax | PARTIAL | payout execution BLOCKED (payment-service) |
-| 13.4 | Ownership and authority | PASS | — |
-| 13.5 | Property and portfolio records | PASS | — |
-| 13.6 | Property verification and authenticity | PASS | production KYC provider (verification-service) |
-| 13.7 | Listings for every category | PASS | — |
-| 13.8 | Price and fee configuration | PASS | — |
-| 13.9 | Availability and freshness | PASS | — |
-| 13.10 | Marketing, inquiries, leads | PASS | CF Meet messaging BLOCKED |
-| 13.11 | Viewings and access | PASS | — |
-| 13.12 | Applications and tenant selection | PASS | — |
-| 13.13 | Agreements and move-in | PARTIAL | e-sign BLOCKED; OFFLINE signing PASS |
-| 13.14 | Rent, deposit, financial management | PARTIAL | PLATFORM collection BLOCKED (payment-service); automatic late fees and deposit silence acceptance need a legally approved jurisdiction policy (manual paths PASS) |
-| 13.15 | Renewal, rent review, notices, move-out | PASS | notice periods come from per-country template versions; jurisdiction policy approval pending (business/legal) |
-| 13.16 | Utilities and service charge | PARTIAL | tenant/guest announcements: contract PASS (LOCAL), delivery BLOCKED (recipient domain) |
-| 13.17 | Commercial rent and sale | PASS | — |
-| 13.18 | Land rent, lease, sale | PASS | — |
-| 13.19 | Property sale, offers, closing | PARTIAL | PLATFORM money BLOCKED; post-sale ownership transfer PASS (LOCAL, SALE case); unit-level title transfer not supported |
-| 13.20 | Personally operated short-let | PARTIAL | external calendar sync BLOCKED; PLATFORM money BLOCKED; refund schedules and claim windows await legal approval |
-| 13.21 | Manager marketplace and delegation | PASS | manager search content comes from property-manager-service |
-| 13.22 | Maintenance, artisans, preventive care | PASS | provider payment BLOCKED (payment-service) |
-| 13.23 | Professional services and due diligence | PASS | fee payment BLOCKED (payment-service) |
-| 13.24 | Communication and notifications | PARTIAL | CF Meet BLOCKED; WhatsApp not selected; tenant/guest delivery BLOCKED (recipient domain) |
-| 13.25 | Finance, reports, market intelligence | PARTIAL | yield needs valuations; tax/statutory calendar not built; AI vacancy/renewal insights not built (statistical price/trend insight only) |
-| 13.26 | Fraud, privacy, safety, disputes | PASS | — |
-| 13.27 | Accessibility, assisted use, closure | PARTIAL | assisted (support-actor) flows not built; succession uses ownership change cases |
-| 13.28 | Financing, mortgage, payment plans | BLOCKED | partner adapter; consent and offer handling PASS (LOCAL) |
-| 13.29 | Insurance and protection | PARTIAL | partner products/claims BLOCKED; owner-held policies/claims PASS |
-| 13.30 | Smart access and remote controls | PARTIAL | smart devices BLOCKED; manual access and grant lifecycle PASS |
+See [Section 13 closure](#section-13-closure-2026-10-09-from-9f731b5) for the 30-area matrix with
+evidence. Areas still depending on external services: 13.3 payouts, 13.13 e-sign, 13.14/13.19/13.20
+platform money, 13.20 external calendars, 13.24 CF Meet/WhatsApp/recipient domain, 13.28 financing,
+13.29 insurance partner, 13.30 smart devices.
 
-## Totals (at `74a8120` + register)
+## Totals (at Section 13 closure)
 
 | Measure | Count |
 |---|---|
-| Migrations / tables | 17 / 132 |
+| Migrations / tables | 18 / 137 |
 | State machines | 24 |
-| Public operations (auth + domain) | 43 + 288 = 331 (13 of them specification-path aliases) |
-| Internal operations | 83 |
+| Public operations (auth + domain) | 43 + 301 = 344 (13 of them specification-path aliases) |
+| Internal operations | 89 |
 | Produced event types / consumers | 26 / 7 (2 with real producers, 5 BLOCKED) |
-| Worker jobs (domain + platform) | 25 + 4 |
+| Worker jobs (domain + platform) | 26 + 4 |
 | Integration adapters | 11 (`calendarsync`, `customernotify`, `esign`, `financing`, `insurance`, `media`, `notification`, `oauth`, `payment`, `smartaccess`, `verification`) |
 | Test functions (owner module) | 80 integration / 32 unit · E2E journeys: 5 (foundation, owner account, owner domain, owner + real verification/media producers, owner functional journey with real services) |
-| Notification templates seeded | 25 owner + 4 platform |
+| Notification templates seeded | 27 owner + 4 platform |
 | Certification | LOCAL for the domain; CONTRACT where stated; STAGING/PRODUCTION not claimed |
 
 ## Open product decisions
