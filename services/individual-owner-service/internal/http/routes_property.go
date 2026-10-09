@@ -96,7 +96,9 @@ func accountRoutes() []Route {
 			func(c *Call, _ *usecases.IdentityVerificationInput, sc usecases.StartedCase) (usecases.VerificationLinkView, error) {
 				return c.S.RecordIdentityVerification(c.Ctx, c.Subj, sc)
 			}).Describe("Creates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. "+
-			"The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured.").
+			"The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured. "+
+			"Upload VERIFICATION_DOCUMENT evidence with access_classification DOMAIN_RESTRICTED: this service must confirm the file is the caller's, and "+
+			"media-document-service hides ADMIN_RESTRICTED files (its default for that class) from it, which surfaces as 422 MEDIA_NOT_FOUND.").
 			Capture("verification_id", "data.verification_id").Errs(409, 422, 503),
 		Command("POST", "/verification/{verification_id}/sync", "syncVerification", tagAccount, "Reconcile a verification by read-back", http.StatusOK,
 			func(c *Call, _ *Empty) (usecases.VerificationLinkView, error) {

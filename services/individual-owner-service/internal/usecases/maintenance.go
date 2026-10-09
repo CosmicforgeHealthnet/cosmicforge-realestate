@@ -1628,6 +1628,9 @@ func (s *Service) requestJobIntent(ctx context.Context, id ids.ID) error {
 }
 
 func (s *Service) projectJobIntent(ctx context.Context, id ids.ID, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	tx := mustTx(ctx)
 	if err := s.q.SetJobPayment(ctx, tx, db.SetJobPaymentParams{ID: id, PaidMinor: in.PaidMinor, LastPaymentStatus: &in.Status, LastCheckedAt: ptr(s.now())}); err != nil {
 		return err

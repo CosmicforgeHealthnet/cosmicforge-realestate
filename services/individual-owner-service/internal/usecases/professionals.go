@@ -668,6 +668,9 @@ func (s *Service) requestFeeIntent(ctx context.Context, id ids.ID) error {
 }
 
 func (s *Service) projectFeeIntent(ctx context.Context, id ids.ID, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	return s.q.SetAppointmentPayment(ctx, mustTx(ctx), db.SetAppointmentPaymentParams{ID: id, PaidMinor: in.PaidMinor, LastPaymentStatus: &in.Status,
 		LastCheckedAt: ptr(s.now())})
 }

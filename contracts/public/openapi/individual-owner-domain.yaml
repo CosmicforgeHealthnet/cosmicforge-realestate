@@ -24410,7 +24410,7 @@ paths:
       tags:
         - Account & Profile
     post:
-      description: Creates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured.
+      description: 'Creates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured. Upload VERIFICATION_DOCUMENT evidence with access_classification DOMAIN_RESTRICTED: this service must confirm the file is the caller''s, and media-document-service hides ADMIN_RESTRICTED files (its default for that class) from it, which surfaces as 422 MEDIA_NOT_FOUND.'
       operationId: startIdentityVerification
       parameters:
         - in: header

@@ -1384,6 +1384,12 @@ type OwnershipRecord struct {
 	UpdatedAt            time.Time
 }
 
+type PaymentIntentWatermark struct {
+	IntentRef       string
+	SourceUpdatedAt time.Time
+	RecordedAt      time.Time
+}
+
 type PayoutAccount struct {
 	ID                    ids.ID
 	AccountID             ids.ID

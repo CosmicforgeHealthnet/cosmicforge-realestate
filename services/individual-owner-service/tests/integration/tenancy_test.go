@@ -247,7 +247,7 @@ func TestResidentialLeaseLifecycle(t *testing.T) {
 	if obl[0].Status != "PARTIAL" || obl[0].PaidMinor != 100000000 {
 		t.Fatalf("partial %+v", obl[0])
 	}
-	if err := h.app.Service.ProjectPaymentIntent(ctx, ids.New(), payment.Intent{Ref: ref, Status: payment.IntentSucceeded, AmountMinor: 380000000, PaidMinor: 380000000}); err != nil {
+	if err := h.app.Service.ProjectPaymentIntent(ctx, ids.New(), payment.Intent{Ref: ref, Status: payment.IntentSucceeded, AmountMinor: 380000000, PaidMinor: 380000000, UpdatedAt: time.Now()}); err != nil {
 		t.Fatal(err)
 	}
 	if err := h.app.Service.ProjectPaymentIntent(ctx, ids.New(), payment.Intent{Ref: "pi_unknown", Status: payment.IntentSucceeded}); err == nil {

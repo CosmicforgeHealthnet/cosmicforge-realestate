@@ -63,7 +63,11 @@ dispatch, closure finalization, housekeeping and the Section 11 domain jobs list
 ## Consumed events (consumer contract)
 
 Payloads this service accepts from producers that do not publish yet. Each delivery must carry the
-producer's service name in the envelope `producer`; handlers are idempotent per `event_id`.
+producer's service name in the envelope `producer`; handlers are idempotent per `event_id`. Only the
+listed `.v1` types are applied; other types or versions, and payloads with a `schema_version` other
+than 1, are terminated without effect. `payment.intent.updated.v1` requires `updated_at`: older or
+equal updates per intent are ignored. Status per family:
+[`docs/product/individual-owner/EVENT_COMPATIBILITY.md`](../../docs/product/individual-owner/EVENT_COMPATIBILITY.md).
 
 | Event (stream) | Payload | Effect |
 |---|---|---|

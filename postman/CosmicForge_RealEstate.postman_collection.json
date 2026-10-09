@@ -11332,7 +11332,7 @@
                     "verification"
                   ]
                 },
-                "description": "Start an IDENTITY verification with uploaded evidence.\n\nCreates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "description": "Start an IDENTITY verification with uploaded evidence.\n\nCreates a verification-service IDENTITY case (subject USER), attaches the media evidence, submits and requests processing. The decision arrives asynchronously (verification.* events). 503 FEATURE_UNAVAILABLE when verification-service is not configured. Upload VERIFICATION_DOCUMENT evidence with access_classification DOMAIN_RESTRICTED: this service must confirm the file is the caller's, and media-document-service hides ADMIN_RESTRICTED files (its default for that class) from it, which surfaces as 422 MEDIA_NOT_FOUND.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"evidence\": [\n    {\n      \"evidence_type\": \"ID_DOCUMENT_FRONT\",\n      \"media_id\": \"{{media_id}}\"\n    }\n  ]\n}",

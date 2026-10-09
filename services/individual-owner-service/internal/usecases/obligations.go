@@ -213,6 +213,9 @@ func dayOf(t time.Time) time.Time {
 
 // projectRentIntent applies payment-service's view of an obligation's intent.
 func (s *Service) projectRentIntent(ctx context.Context, o db.RentObligation, in payment.Intent, source string, eventID *ids.ID) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	tx, now := mustTx(ctx), s.now()
 	if err := s.q.SetObligationPayment(ctx, tx, db.SetObligationPaymentParams{ID: o.ID, PaidMinor: in.PaidMinor, RefundedMinor: in.RefundedMinor,
 		LastPaymentStatus: &in.Status, LastCheckedAt: &now}); err != nil {
@@ -538,6 +541,9 @@ func (s *Service) resolveDeposit(ctx context.Context, subj authz.Subject, tenanc
 
 // projectDepositIntent applies payment-service's view of the funding intent.
 func (s *Service) projectDepositIntent(ctx context.Context, d db.DepositObligation, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	now := s.now()
 	if err := s.q.SetDepositFunding(ctx, mustTx(ctx), db.SetDepositFundingParams{ID: d.ID, FundedMinor: in.PaidMinor, LastPaymentStatus: &in.Status,
 		LastCheckedAt: &now}); err != nil {
@@ -1102,6 +1108,26 @@ func (s *Service) cancelDepositIntent(ctx context.Context, id ids.ID) error {
 		}
 		return nil
 	})
+}
+
+// intentIsFresh advances the intent's ordering watermark. It reports false
+// for an update not newer than the last one applied (late or replayed
+// delivery, stale read-back); the caller then leaves every projection as is.
+func (s *Service) intentIsFresh(ctx context.Context, in payment.Intent) (bool, error) {
+	if in.Ref == "" || in.UpdatedAt.IsZero() {
+		return false, apperrors.InvalidRequest("payment intent ref and updated_at are required (ordering watermark).")
+	}
+	tag, err := mustTx(ctx).Exec(ctx, `INSERT INTO payment_intent_watermarks (intent_ref, source_updated_at, recorded_at) VALUES ($1, $2, $3)
+		ON CONFLICT (intent_ref) DO UPDATE SET source_updated_at = EXCLUDED.source_updated_at, recorded_at = EXCLUDED.recorded_at
+		 WHERE payment_intent_watermarks.source_updated_at < EXCLUDED.source_updated_at`, in.Ref, in.UpdatedAt, s.now())
+	if err != nil {
+		return false, err
+	}
+	if tag.RowsAffected() == 0 {
+		s.Logger.InfoContext(ctx, "stale payment intent update ignored", "intent_ref", in.Ref, "updated_at", in.UpdatedAt)
+		return false, nil
+	}
+	return true, nil
 }
 
 // ProjectPaymentIntent applies a payment-service intent outcome delivered by

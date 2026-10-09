@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,6 +13,8 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	"github.com/johannesboyne/gofakes3"
+	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 
@@ -25,14 +28,21 @@ import (
 
 // startOwnerPlatform runs individual-owner-service (api + worker) with the
 // real notification-service and the real gateway. The gateway trusts owner
-// access tokens only through the owner service's published JWKS.
-func startOwnerPlatform(t *testing.T) *platformEnv {
+// access tokens only through the owner service's published JWKS. With
+// producers, the real verification-service and media-document-service run
+// too and the owner consumes their events from JetStream.
+func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	t.Helper()
+	withProducers := len(producers) > 0 && producers[0]
 	testkit.PostgresAdminURL(t)
 	p := &platformEnv{t: t, internal: map[platform.Service]string{}, signers: map[platform.Service]*serviceauth.Signer{}}
 	keys := map[platform.Service]key{}
 	var registry []map[string]any
-	for _, s := range []platform.Service{platform.APIGateway, platform.NotificationService, platform.IndividualOwnerService, platform.AdminService} {
+	services := []platform.Service{platform.APIGateway, platform.NotificationService, platform.IndividualOwnerService, platform.AdminService}
+	if withProducers {
+		services = append(services, platform.VerificationService, platform.MediaDocumentService)
+	}
+	for _, s := range services {
 		k := newKey(string(s) + "-e2e")
 		keys[s] = k
 		registry = append(registry, map[string]any{"service": s, "keys": []map[string]string{{"kid": k.kid, "public_key": security.EncodeEd25519PublicKey(k.priv.Public().(ed25519.PublicKey))}}})
@@ -51,8 +61,15 @@ func startOwnerPlatform(t *testing.T) *platformEnv {
 			"OUTBOX_POLL_INTERVAL": "100ms", "DISPATCH_POLL_INTERVAL": "100ms"}
 	}
 	dbs := map[platform.Service]string{}
-	for _, s := range []platform.Service{platform.NotificationService, platform.IndividualOwnerService} {
-		dbs[s] = testkit.NewDatabase(t, nil).URL
+	for _, s := range services[1:] {
+		if s == platform.AdminService {
+			continue
+		}
+		db := testkit.NewDatabase(t, nil)
+		dbs[s] = db.URL
+		if s == platform.IndividualOwnerService {
+			p.ownerDB = db
+		}
 	}
 	t.Cleanup(p.stop)
 	launch := func(s platform.Service, extra ...string) {
@@ -74,23 +91,42 @@ func startOwnerPlatform(t *testing.T) *platformEnv {
 	}
 	p.captureFile = filepath.Join(t.TempDir(), "notifications.jsonl")
 	launch(platform.NotificationService, "NOTIFY_DEV_CAPTURE_FILE", p.captureFile)
+	var producerEnv []string
+	gatewayUpstreams := map[string]string{}
+	if withProducers {
+		s3 := s3mem.New()
+		_ = s3.CreateBucket("cf-media")
+		s3srv := httptest.NewServer(gofakes3.New(s3).Server())
+		t.Cleanup(s3srv.Close)
+		launch(platform.MediaDocumentService, "STORAGE_ENDPOINT", s3srv.URL, "STORAGE_REGION", "us-east-1", "STORAGE_BUCKET", "cf-media",
+			"STORAGE_PATH_STYLE", "true", "STORAGE_ACCESS_KEY_ID", "e2e-access", "STORAGE_SECRET_ACCESS_KEY", "e2e-secret",
+			"MEDIA_SCANNER", "dev", "SCAN_POLL_INTERVAL", "100ms")
+		launch(platform.VerificationService, "MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService],
+			"SANDBOX_KYC_CALLBACK_SECRET", "e2e-sandbox-secret", "PROVIDER_POLL_INTERVAL", "200ms")
+		producerEnv = []string{"VERIFICATION_SERVICE_URL", p.internal[platform.VerificationService], "MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService]}
+		gatewayUpstreams["GATEWAY_UPSTREAM_MEDIA_DOCUMENT_SERVICE_URL"] = p.internal[platform.MediaDocumentService]
+	}
 	userKey := newKey("io-at-e2e")
-	launch(platform.IndividualOwnerService,
+	launch(platform.IndividualOwnerService, append([]string{
 		"NOTIFICATION_SERVICE_URL", p.internal[platform.NotificationService],
 		"OWNER_ACCESS_TOKEN_KEY_ID", userKey.kid, "OWNER_ACCESS_TOKEN_PRIVATE_KEY", security.EncodeEd25519Seed(userKey.priv),
 		"OWNER_CODE_PEPPER", strings.Repeat("e2e-pepper-", 4), "OWNER_MFA_ENCRYPTION_KEY_ID", "mfa-e2e",
-		"OWNER_MFA_ENCRYPTION_KEY", base64.StdEncoding.EncodeToString(make([]byte, 32)), "CLOSURE_POLL_INTERVAL", "1s")
+		"OWNER_MFA_ENCRYPTION_KEY", base64.StdEncoding.EncodeToString(make([]byte, 32)), "CLOSURE_POLL_INTERVAL", "1s"}, producerEnv...)...)
 
 	issuers, _ := json.Marshal([]map[string]any{{"issuer": platform.IndividualOwnerService, "domain": platform.DomainIndividualOwner,
 		"jwks_url": p.internal[platform.IndividualOwnerService] + "/.well-known/jwks.json"}})
 	gwAddr := freeAddr(t)
 	p.gateway = "http://" + gwAddr
 	gk := keys[platform.APIGateway]
-	p.start("api-gateway", "api-gateway-api", map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "HTTP_ADDR": gwAddr,
+	gwEnv := map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "HTTP_ADDR": gwAddr,
 		"REDIS_ADDR": redisAddr, "GATEWAY_TRUSTED_ISSUERS": string(issuers),
 		"SERVICE_AUTH_KEY_ID": gk.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(gk.priv),
 		"GATEWAY_UPSTREAM_INDIVIDUAL_OWNER_SERVICE_URL": p.internal[platform.IndividualOwnerService],
-		"GATEWAY_UPSTREAM_NOTIFICATION_SERVICE_URL":     p.internal[platform.NotificationService]})
+		"GATEWAY_UPSTREAM_NOTIFICATION_SERVICE_URL":     p.internal[platform.NotificationService]}
+	for k, v := range gatewayUpstreams {
+		gwEnv[k] = v
+	}
+	p.start("api-gateway", "api-gateway-api", gwEnv)
 	waitReady(t, p.gateway)
 	return p
 }

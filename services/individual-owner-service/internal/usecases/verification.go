@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"slices"
 	"time"
 
@@ -321,11 +322,32 @@ type apperrorsUnknownVerification struct{}
 
 func (apperrorsUnknownVerification) Error() string { return "verification link not found yet" }
 
+// verificationEventStatus maps the verification-service v1 event types
+// (contracts/events/verification) to the status their payload must carry.
+var verificationEventStatus = map[string]string{
+	"verification.submitted.v1": "SUBMITTED", "verification.processing.v1": "PROCESSING",
+	"verification.manual_review_required.v1": "MANUAL_REVIEW", "verification.verified.v1": "VERIFIED",
+	"verification.rejected.v1": "REJECTED", "verification.expired.v1": "EXPIRED",
+}
+
 // ApplyVerificationEvent applies one verification.* delivery exactly once.
+// Only verification-service's known v1 types are applied; another producer,
+// an unknown type or version, or a payload that disagrees with its type is
+// rejected without touching state.
 func (s *Service) ApplyVerificationEvent(ctx context.Context, e events.Envelope) error {
+	if err := checkUpstream(e, platform.VerificationService, "verification"); err != nil {
+		return err
+	}
+	want, ok := verificationEventStatus[e.EventType]
+	if !ok {
+		return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
+	}
 	var p verificationPayload
 	if err := json.Unmarshal(e.Payload, &p); err != nil {
 		return events.Permanent(err)
+	}
+	if p.Status != want || p.VerificationID.IsZero() {
+		return events.Permanent(fmt.Errorf("%s: payload status %q does not match the event type", e.EventType, p.Status))
 	}
 	if p.Subject.Domain != string(platform.DomainIndividualOwner) {
 		return nil // another domain's case
@@ -573,8 +595,21 @@ func (s *Service) InternalPublicSummary(ctx context.Context, subj authz.Subject,
 // ConsumerMedia is the durable consumer name for media.* events.
 const ConsumerMedia = "individual-owner-service--media"
 
-// ApplyMediaEvent updates media usability projections exactly once.
+// mediaEventStatus maps the consumed media-document-service v1 event types
+// (contracts/events/media) to their payload status.
+var mediaEventStatus = map[string]string{"media.ready.v1": "READY", "media.rejected.v1": "REJECTED", "media.deleted.v1": "DELETED"}
+
+// ApplyMediaEvent updates media usability projections exactly once. A
+// deleted file never becomes usable again and a rejected one never becomes
+// READY, whatever order deliveries arrive in.
 func (s *Service) ApplyMediaEvent(ctx context.Context, e events.Envelope) error {
+	if err := checkUpstream(e, platform.MediaDocumentService, "media"); err != nil {
+		return err
+	}
+	want, ok := mediaEventStatus[e.EventType]
+	if !ok {
+		return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
+	}
 	var p struct {
 		MediaID ids.ID `json:"media_id"`
 		Owner   struct {
@@ -584,6 +619,9 @@ func (s *Service) ApplyMediaEvent(ctx context.Context, e events.Envelope) error 
 	}
 	if err := json.Unmarshal(e.Payload, &p); err != nil {
 		return events.Permanent(err)
+	}
+	if p.Status != want || p.MediaID.IsZero() {
+		return events.Permanent(fmt.Errorf("%s: payload status %q does not match the event type", e.EventType, p.Status))
 	}
 	if p.Owner.Domain != string(platform.DomainIndividualOwner) {
 		return nil

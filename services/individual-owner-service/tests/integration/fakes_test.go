@@ -108,7 +108,11 @@ func verificationEvent(t *testing.T, c verification.Case) events.Envelope {
 	if c.ExpiresAt != nil {
 		payload["expires_at"] = c.ExpiresAt
 	}
-	e, err := events.New(context.Background(), platform.VerificationService, "verification."+lowerStatus(c.Status)+".v1", "verification", c.VerificationID, payload)
+	typ := "verification." + lowerStatus(c.Status) + ".v1"
+	if c.Status == "MANUAL_REVIEW" {
+		typ = "verification.manual_review_required.v1"
+	}
+	e, err := events.New(context.Background(), platform.VerificationService, typ, "verification", c.VerificationID, payload)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +229,7 @@ func (f *fakePayment) CreateIntent(_ context.Context, req payment.IntentRequest,
 		return *f.intents[ref], nil
 	}
 	f.creates++
-	in := &payment.Intent{Ref: "pi_" + ids.New().String()[24:], Status: payment.IntentRequiresPayment, AmountMinor: req.AmountMinor}
+	in := &payment.Intent{Ref: "pi_" + ids.New().String()[24:], Status: payment.IntentRequiresPayment, AmountMinor: req.AmountMinor, UpdatedAt: time.Now()}
 	f.intents[in.Ref], f.byKey[key], f.requests[in.Ref] = in, in.Ref, req
 	return *in, nil
 }
@@ -247,7 +251,7 @@ func (f *fakePayment) CancelIntent(_ context.Context, ref, _ string) (payment.In
 	f.init()
 	in := f.intents[ref]
 	if in.PaidMinor == 0 {
-		in.Status = payment.IntentCancelled
+		in.Status, in.UpdatedAt = payment.IntentCancelled, time.Now()
 	}
 	return *in, nil
 }
@@ -259,7 +263,7 @@ func (f *fakePayment) settle(reference ids.ID, paid int64, status string) string
 	f.init()
 	for ref, r := range f.requests {
 		if r.ReferenceID == reference {
-			f.intents[ref].PaidMinor, f.intents[ref].Status = paid, status
+			f.intents[ref].PaidMinor, f.intents[ref].Status, f.intents[ref].UpdatedAt = paid, status, time.Now()
 			return ref
 		}
 	}

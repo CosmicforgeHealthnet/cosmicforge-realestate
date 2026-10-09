@@ -154,11 +154,15 @@ SELECT * FROM property_media_links WHERE id = $1 AND property_id = $2;
 DELETE FROM property_media_links WHERE id = $1 AND property_id = $2;
 
 -- name: SetPropertyMediaStatus :many
+-- DELETED is terminal and REJECTED never becomes READY (out-of-order safe).
 UPDATE property_media_links SET media_status = $2, updated_at = $3 WHERE media_id = $1 AND media_status <> $2
+   AND media_status <> 'DELETED' AND NOT (media_status = 'REJECTED' AND $2 = 'READY')
 RETURNING property_id;
 
 -- name: SetAuthorityDocumentStatus :many
+-- DELETED is terminal and REJECTED never becomes READY (out-of-order safe).
 UPDATE authority_documents SET media_status = $2, updated_at = $3 WHERE media_id = $1 AND media_status <> $2
+   AND media_status <> 'DELETED' AND NOT (media_status = 'REJECTED' AND $2 = 'READY')
 RETURNING property_id;
 
 -- name: CountReadyPropertyPhotos :one

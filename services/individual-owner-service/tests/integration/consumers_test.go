@@ -52,7 +52,7 @@ func TestEventConsumersApplyOnceThroughUseCases(t *testing.T) {
 	if err := svc.ApplyPaymentEvent(ctx, envelope(t, platform.MarketplaceService, "payment.intent.updated.v1", map[string]any{"intent_ref": ref})); !events.IsPermanent(err) {
 		t.Fatalf("foreign producer accepted: %v", err)
 	}
-	unknown := envelope(t, platform.PaymentService, "payment.intent.updated.v1", map[string]any{"intent_ref": "pi_unknown", "status": "SUCCEEDED", "paid_minor": 1})
+	unknown := envelope(t, platform.PaymentService, "payment.intent.updated.v1", map[string]any{"intent_ref": "pi_unknown", "status": "SUCCEEDED", "paid_minor": 1, "updated_at": time.Now()})
 	if err := svc.ApplyPaymentEvent(ctx, unknown); err == nil || events.IsPermanent(err) {
 		t.Fatalf("unknown intent must be retried: %v", err)
 	}

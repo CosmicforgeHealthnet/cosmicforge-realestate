@@ -106,6 +106,8 @@ type platformEnv struct {
 	procs    []*proc
 	// captureFile receives notification-service dev-provider messages.
 	captureFile string
+	// ownerDB is individual-owner-service's database (owner platform only).
+	ownerDB *testkit.Database
 }
 
 type proc struct {

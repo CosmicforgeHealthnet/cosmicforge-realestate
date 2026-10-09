@@ -2944,6 +2944,7 @@ func (q *Queries) PropertyPrincipalAccounts(ctx context.Context, db DBTX, arg Pr
 
 const setAuthorityDocumentStatus = `-- name: SetAuthorityDocumentStatus :many
 UPDATE authority_documents SET media_status = $2, updated_at = $3 WHERE media_id = $1 AND media_status <> $2
+   AND media_status <> 'DELETED' AND NOT (media_status = 'REJECTED' AND $2 = 'READY')
 RETURNING property_id
 `
 
@@ -2953,6 +2954,7 @@ type SetAuthorityDocumentStatusParams struct {
 	UpdatedAt   time.Time
 }
 
+// DELETED is terminal and REJECTED never becomes READY (out-of-order safe).
 func (q *Queries) SetAuthorityDocumentStatus(ctx context.Context, db DBTX, arg SetAuthorityDocumentStatusParams) ([]ids.ID, error) {
 	rows, err := db.Query(ctx, setAuthorityDocumentStatus, arg.MediaID, arg.MediaStatus, arg.UpdatedAt)
 	if err != nil {
@@ -3094,6 +3096,7 @@ func (q *Queries) SetPartyShare(ctx context.Context, db DBTX, arg SetPartyShareP
 
 const setPropertyMediaStatus = `-- name: SetPropertyMediaStatus :many
 UPDATE property_media_links SET media_status = $2, updated_at = $3 WHERE media_id = $1 AND media_status <> $2
+   AND media_status <> 'DELETED' AND NOT (media_status = 'REJECTED' AND $2 = 'READY')
 RETURNING property_id
 `
 
@@ -3103,6 +3106,7 @@ type SetPropertyMediaStatusParams struct {
 	UpdatedAt   time.Time
 }
 
+// DELETED is terminal and REJECTED never becomes READY (out-of-order safe).
 func (q *Queries) SetPropertyMediaStatus(ctx context.Context, db DBTX, arg SetPropertyMediaStatusParams) ([]ids.ID, error) {
 	rows, err := db.Query(ctx, setPropertyMediaStatus, arg.MediaID, arg.MediaStatus, arg.UpdatedAt)
 	if err != nil {

@@ -1647,6 +1647,9 @@ func (s *Service) requestBookingIntent(ctx context.Context, id ids.ID) error {
 // projectBookingIntent applies payment truth: a fully paid booking is
 // confirmed; money arriving after cancellation is refunded.
 func (s *Service) projectBookingIntent(ctx context.Context, id ids.ID, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	tx, now := mustTx(ctx), s.now()
 	b, err := s.q.GetBookingForUpdate(ctx, tx, id)
 	if err != nil {
@@ -1742,6 +1745,9 @@ func (s *Service) requestClaimIntent(ctx context.Context, id ids.ID) error {
 }
 
 func (s *Service) projectClaimIntent(ctx context.Context, id ids.ID, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	tx, now := mustTx(ctx), s.now()
 	if err := s.q.SetClaimPayment(ctx, tx, db.SetClaimPaymentParams{ID: id, PaidMinor: in.PaidMinor, LastPaymentStatus: &in.Status, UpdatedAt: now}); err != nil {
 		return err

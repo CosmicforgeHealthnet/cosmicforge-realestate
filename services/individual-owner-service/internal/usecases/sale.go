@@ -1650,6 +1650,9 @@ func (s *Service) reconcileMilestone(ctx context.Context, id ids.ID, cancel bool
 
 // projectMilestoneIntent applies payment truth to a platform milestone.
 func (s *Service) projectMilestoneIntent(ctx context.Context, id ids.ID, in payment.Intent) error {
+	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
+		return err
+	}
 	tx, now := mustTx(ctx), s.now()
 	if err := s.q.SetMilestonePayment(ctx, tx, db.SetMilestonePaymentParams{ID: id, PaidMinor: in.PaidMinor, LastPaymentStatus: &in.Status, LastCheckedAt: &now}); err != nil {
 		return err

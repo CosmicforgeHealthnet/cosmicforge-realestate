@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/authz"
@@ -27,7 +28,8 @@ import (
 //
 // The payload shapes below are this service's consumer contract
 // (docs: services/individual-owner-service/README.md "Consumed events"); the
-// producers' own schemas do not exist yet.
+// producers' own schemas do not exist yet, so live integration of these
+// families is BLOCKED (docs/product/individual-owner/EVENT_COMPATIBILITY.md).
 
 const (
 	ConsumerPayment      = "individual-owner-service--payment"
@@ -69,12 +71,37 @@ func (s *Service) consumerOutcome(ctx context.Context, consumer string, e events
 	return err
 }
 
+// checkUpstream enforces the producer identity and envelope version of an
+// upstream delivery. Violations are permanent: they are logged and never
+// applied, so they cannot change state.
+func checkUpstream(e events.Envelope, producer platform.Service, aggregate string) error {
+	if e.Producer != string(producer) {
+		return events.Permanent(fmt.Errorf("%s: unexpected producer %q", e.EventType, e.Producer))
+	}
+	if aggregate != "" && e.AggregateType != aggregate {
+		return events.Permanent(fmt.Errorf("%s: unexpected aggregate type %q", e.EventType, e.AggregateType))
+	}
+	var v struct {
+		SchemaVersion *int `json:"schema_version"`
+	}
+	if err := json.Unmarshal(e.Payload, &v); err != nil {
+		return events.Permanent(err)
+	}
+	if v.SchemaVersion != nil && *v.SchemaVersion != 1 {
+		return events.Permanent(fmt.Errorf("%s: unsupported payload schema_version %d", e.EventType, *v.SchemaVersion))
+	}
+	return nil
+}
+
 // consume parses, checks the producer, then applies a delivery once.
 func consume[P any](s *Service, consumer string, producer platform.Service, e events.Envelope, pre func(context.Context, P) (Evidence, error),
 	apply func(context.Context, P, Evidence) error) func(context.Context) error {
 	return func(ctx context.Context) error {
-		if e.Producer != string(producer) {
-			return events.Permanent(fmt.Errorf("%s: unexpected producer %q", e.EventType, e.Producer))
+		if err := checkUpstream(e, producer, ""); err != nil {
+			return err
+		}
+		if !slices.Contains(consumedEvents[consumer], e.EventType) {
+			return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 		}
 		var p P
 		if err := json.Unmarshal(e.Payload, &p); err != nil {
@@ -128,8 +155,8 @@ func (s *Service) ApplyPaymentEvent(ctx context.Context, e events.Envelope) erro
 	switch e.EventType {
 	case "payment.intent.updated.v1":
 		return consume(s, ConsumerPayment, platform.PaymentService, e, nil, func(ctx context.Context, p PaymentIntentEvent, _ Evidence) error {
-			if p.IntentRef == "" || p.Status == "" || p.PaidMinor < 0 {
-				return apperrors.InvalidRequest("intent_ref, status and a non-negative paid_minor are required.")
+			if p.IntentRef == "" || p.Status == "" || p.PaidMinor < 0 || p.UpdatedAt.IsZero() {
+				return apperrors.InvalidRequest("intent_ref, status, updated_at and a non-negative paid_minor are required.")
 			}
 			return s.ProjectPaymentIntent(ctx, e.EventID, payment.Intent{Ref: p.IntentRef, Status: p.Status, AmountMinor: p.AmountMinor, PaidMinor: p.PaidMinor,
 				RefundedMinor: p.RefundedMinor, UpdatedAt: p.UpdatedAt})
@@ -139,7 +166,7 @@ func (s *Service) ApplyPaymentEvent(ctx context.Context, e events.Envelope) erro
 			return s.projectRefund(ctx, p)
 		})(ctx)
 	}
-	return nil
+	return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 }
 
 // projectRefund applies a refund outcome to the booking that requested it.
@@ -204,7 +231,7 @@ func (s *Service) ApplyManagerEvent(ctx context.Context, e events.Envelope) erro
 			return err
 		})(ctx)
 	}
-	return nil
+	return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 }
 
 // ---- artisan.* ----
@@ -246,7 +273,7 @@ func (s *Service) ApplyArtisanEvent(ctx context.Context, e events.Envelope) erro
 				return err
 			})(ctx)
 	}
-	return nil
+	return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 }
 
 // ---- professional.* ----
@@ -261,7 +288,7 @@ type ProfessionalUpdateEvent struct {
 // ApplyProfessionalEvent applies professional quotes, starts and reports.
 func (s *Service) ApplyProfessionalEvent(ctx context.Context, e events.Envelope) error {
 	if e.EventType != "professional.engagement.updated.v1" {
-		return nil
+		return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 	}
 	actor := func(p ids.ID) authz.Subject {
 		return serviceActor(platform.ProfessionalServicesService, platform.DomainProfessionalServices, p)
@@ -288,7 +315,7 @@ type ListingReportedEvent struct {
 // back to the authoritative listing.
 func (s *Service) ApplyMarketplaceEvent(ctx context.Context, e events.Envelope) error {
 	if e.EventType != "marketplace.listing.reported.v1" {
-		return nil
+		return events.Permanent(fmt.Errorf("unsupported event type or version %q", e.EventType))
 	}
 	return consume(s, ConsumerMarketplace, platform.MarketplaceService, e, nil, func(ctx context.Context, p ListingReportedEvent, _ Evidence) error {
 		if err := schema.Validate(p.ListingReportInput); err != nil {
