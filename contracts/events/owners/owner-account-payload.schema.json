@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/owner-account-payload.schema.json",
+  "title": "owner.account.* payload",
+  "description": "Common payload of individual-owner-service account lifecycle events. No personal data (email, phone, name) is ever included. Consumers must ignore unknown fields and use account_version to discard stale/out-of-order deliveries.",
+  "type": "object",
+  "required": ["schema_version", "account_id", "status", "previous_status", "reason_code", "account_version", "changed_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "account_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
+    "status": {"enum": ["PENDING_VERIFICATION", "ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSURE_PENDING", "CLOSED"]},
+    "previous_status": {"enum": ["PENDING_VERIFICATION", "ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSURE_PENDING", "CLOSED"]},
+    "reason_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,63}$"},
+    "account_version": {"type": "integer", "minimum": 1},
+    "changed_at": {"type": "string", "format": "date-time"}
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/owner.account.activated.v1.schema.json",
+  "title": "owner.account.activated.v1",
+  "description": "An owner account became ACTIVE: required contact verification completed (from PENDING_VERIFICATION) or an admin reinstatement with an authorized resolution (from RESTRICTED/SUSPENDED). Producer: individual-owner-service. Subject: realestate.owner.account.activated.v1. Aggregate: owner_account.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "owner.account.activated.v1"},
+    "producer": {"const": "individual-owner-service"},
+    "aggregate_type": {"const": "owner_account"},
+    "payload": {
+      "allOf": [{"$ref": "owner-account-payload.schema.json"}],
+      "properties": {
+        "status": {"const": "ACTIVE"},
+        "previous_status": {"enum": ["PENDING_VERIFICATION", "RESTRICTED", "SUSPENDED"]}
+      }
+    }
+  }
+}

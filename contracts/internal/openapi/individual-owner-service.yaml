@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: individual-owner-service — internal API
+  version: 1.0.0
+  description: |
+    Service-to-service API of individual-owner-service (owner of `individual_owner_db`).
+    Authentication: `Authorization: Bearer <service JWT>` (`aud: individual-owner-service`).
+    A valid service token is necessary but never sufficient: each operation has an explicit
+    capability policy.
+
+    Capabilities (implemented):
+    * `account.admin.*` — admin-service only, and only with a delegated actor from the `admin`
+      domain (attributable to a specific admin account). Commands require `Idempotency-Key`
+      and may carry `If-Match: "<account version>"`. Admin actions go through the account
+      state machine; there is no direct state write.
+
+    Not yet implemented (blocked on the Individual Owner specification, Sections 6–9):
+    `GET /internal/v1/owner/listings/{id}`, `GET /internal/v1/owner/properties/{id}/public-summary`
+    and the property/listing/manager contracts.
+
+    `/.well-known/jwks.json` publishes the public keys of owner access tokens for the API
+    Gateway's trusted-issuer configuration (`jwks_url`).
+servers:
+  - url: http://individual-owner-service:8080
+security:
+  - ServiceBearer: []
+paths:
+  /.well-known/jwks.json:
+    get:
+      operationId: getOwnerJWKS
+      security: []
+      responses:
+        "200":
+          description: Ed25519 (OKP) public keys of current and retired access-token signing keys.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [keys]
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      required: [kty, crv, x, kid]
+                      properties:
+                        kty: {const: OKP}
+                        crv: {const: Ed25519}
+                        x: {type: string}
+                        kid: {type: string}
+                        use: {const: sig}
+                        alg: {const: EdDSA}
+  /internal/v1/owner/accounts/{account_id}:
+    get:
+      operationId: adminGetOwnerAccount
+      description: Operator projection including status history. Recorded as a privileged read.
+      parameters: [{$ref: "#/components/parameters/AccountID"}]
+      responses:
+        "200": {$ref: "#/components/responses/AdminAccount"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /internal/v1/owner/accounts/{account_id}/restrict:
+    post:
+      operationId: adminRestrictOwnerAccount
+      description: ACTIVE -> RESTRICTED. Emits owner.account.restricted.v1.
+      parameters: [{$ref: "#/components/parameters/AccountID"}, {$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/IfMatch"}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/AdminTransition"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AdminAccount"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /internal/v1/owner/accounts/{account_id}/suspend:
+    post:
+      operationId: adminSuspendOwnerAccount
+      description: PENDING_VERIFICATION|ACTIVE|RESTRICTED|CLOSURE_PENDING -> SUSPENDED. Revokes every session. Emits owner.account.restricted.v1.
+      parameters: [{$ref: "#/components/parameters/AccountID"}, {$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/IfMatch"}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/AdminTransition"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AdminAccount"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/owner/accounts/{account_id}/reinstate:
+    post:
+      operationId: adminReinstateOwnerAccount
+      description: RESTRICTED|SUSPENDED -> ACTIVE (or SUSPENDED -> RESTRICTED with target_status). Requires resolution_reference (authorized remediation). Emits owner.account.activated.v1 when ACTIVE.
+      parameters: [{$ref: "#/components/parameters/AccountID"}, {$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/IfMatch"}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/AdminTransition"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AdminAccount"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /internal/v1/owner/accounts/{account_id}/sessions/revoke:
+    post:
+      operationId: adminRevokeOwnerSessions
+      parameters: [{$ref: "#/components/parameters/AccountID"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [reason_code], properties: {reason_code: {type: string, pattern: "^[A-Z][A-Z0-9_]{1,63}$"}}}}}}
+      responses:
+        "200": {description: Sessions revoked., content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {revoked_sessions: {type: integer}}}}}}}}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    ServiceBearer: {type: http, scheme: bearer, bearerFormat: "service+jwt (EdDSA)"}
+  parameters:
+    AccountID: {name: account_id, in: path, required: true, schema: {type: string, format: uuid}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+    IfMatch: {name: If-Match, in: header, required: false, schema: {type: string}}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content: {application/json: {schema: {$ref: "../../schemas/error-envelope.schema.json"}}}
+    AdminAccount:
+      description: Account operator projection.
+      content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/AdminAccount"}}}}}
+  schemas:
+    AdminTransition:
+      type: object
+      required: [reason_code]
+      properties:
+        reason_code: {type: string, pattern: "^[A-Z][A-Z0-9_]{1,63}$"}
+        note: {type: string, maxLength: 1000}
+        resolution_reference: {type: string, pattern: "^[A-Za-z0-9._:/-]{3,128}$"}
+        target_status: {enum: [ACTIVE, RESTRICTED]}
+    AdminAccount:
+      type: object
+      properties:
+        account_id: {type: string, format: uuid}
+        status: {enum: [PENDING_VERIFICATION, ACTIVE, RESTRICTED, SUSPENDED, CLOSURE_PENDING, CLOSED]}
+        email: {type: string}
+        email_verified: {type: boolean}
+        phone: {type: [string, "null"]}
+        phone_verified: {type: boolean}
+        display_name: {type: string}
+        mfa_enabled: {type: boolean}
+        version: {type: integer}
+        status_reason: {type: [string, "null"]}
+        status_changed_at: {type: string, format: date-time}
+        failed_login_count: {type: integer}
+        locked_until: {type: [string, "null"], format: date-time}
+        status_history:
+          type: array
+          items:
+            type: object
+            properties:
+              from_status: {type: [string, "null"]}
+              to_status: {type: string}
+              reason_code: {type: string}
+              actor_type: {enum: [USER, SERVICE, SYSTEM]}
+              actor_domain: {type: [string, "null"]}
+              actor_id: {type: [string, "null"]}
+              resolution_reference: {type: [string, "null"]}
+              account_version: {type: integer}
+              occurred_at: {type: string, format: date-time}

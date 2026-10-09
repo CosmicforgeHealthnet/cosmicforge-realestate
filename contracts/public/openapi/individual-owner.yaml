@@ -1,0 +1,586 @@
+openapi: 3.1.0
+info:
+  title: Individual Owner — client API
+  version: 1.0.0
+  description: |
+    Owner-facing API of individual-owner-service (owner of `individual_owner_db`), reached only
+    through the API Gateway under `/api/v1/owner/*`. Implemented scope: Section 5 — domain-owned
+    accounts, authentication, sessions, devices, MFA, step-up, recovery and the account lifecycle.
+    Property, listing and later business APIs (Sections 6–8) are NOT part of this version.
+
+    Authentication
+    * Credential-presenting routes (`/auth/register`, `/auth/login`, OTP, MFA, refresh, password
+      recovery) take no access token.
+    * All other routes require `Authorization: Bearer <owner access token>` (EdDSA `at+jwt`,
+      issuer `individual-owner-service`, 15-minute lifetime). The gateway verifies it at the edge;
+      the service re-verifies it, checks that the gateway-asserted actor equals the token subject
+      and that the session is still live, so revocation is immediate.
+    * Refresh tokens rotate on every use; presenting a rotated token revokes the whole session
+      (`REFRESH_TOKEN_REUSED`). Concurrent presentations of one refresh token succeed at most once.
+
+    Step-up: commands marked "step-up" need a re-authentication within the last 5 minutes (a fresh
+    sign-in counts). Otherwise they fail with `403 STEP_UP_REQUIRED`; call `POST /auth/step-up`.
+    Accounts with an authenticator app must step up with a second factor.
+
+    Optional client headers (informational, never used for authorization): `X-Device-ID` (stable
+    installation ID, 8–128 visible ASCII), `X-Device-Name`, `X-Device-Platform` (IOS|ANDROID|WEB|OTHER).
+    Sign-ins from unrecognized devices raise a security alert once an account has known devices.
+
+    One-time codes are delivered by notification-service. `delivery_status` reports acceptance by
+    notification-service only — never delivery to the person. When notification-service cannot
+    accept a code the API answers `503 NOTIFICATION_UNAVAILABLE` instead of pretending it was sent.
+    Login-OTP and password-recovery requests never reveal whether an account exists.
+servers:
+  - url: https://api.realestate.cosmicforge.example
+security:
+  - OwnerBearer: []
+paths:
+  /api/v1/owner/auth/register:
+    post:
+      operationId: registerOwner
+      summary: Register an owner account (PENDING_VERIFICATION) and start a session
+      description: Sends an email verification code. Verifying the required contact (policy, default EMAIL) activates the account. Token-issuing commands are not idempotently replayed (bearer secrets are never stored); a retried registration returns 409.
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/RegisterRequest"}}}}
+      responses:
+        "201":
+          description: Account created and signed in.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    allOf: [{$ref: "#/components/schemas/AuthResult"}]
+                    properties:
+                      email_verification: {$ref: "#/components/schemas/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/login:
+    post:
+      operationId: loginOwner
+      summary: Sign in with email and password
+      description: Returns AUTHENTICATED with tokens, or MFA_REQUIRED with an `mfa_token`. Unknown email and wrong password are indistinguishable. Repeated failures lock sign-in temporarily (429 ACCOUNT_TEMPORARILY_LOCKED with Retry-After).
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/LoginRequest"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AuthResult"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/otp/request:
+    post:
+      operationId: requestLoginOTP
+      summary: Request an SMS sign-in code for a verified phone
+      description: Always 202 with a challenge, whether or not the phone belongs to an account.
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/PhoneRequest"}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/otp/verify:
+    post:
+      operationId: verifyLoginOTP
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/CodeRequest"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AuthResult"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/mfa/send:
+    post:
+      operationId: sendMFACode
+      summary: Send an SMS or EMAIL second-factor code for a pending sign-in
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/MFARequest"}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/mfa/verify:
+    post:
+      operationId: verifyMFA
+      summary: Complete a sign-in with TOTP, RECOVERY_CODE, SMS or EMAIL
+      description: TOTP codes are single-use (replays fail); recovery codes are single-use. Failed attempts are bounded per sign-in and count toward the account lockout.
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/MFARequest"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/AuthResult"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/refresh:
+    post:
+      operationId: refreshTokens
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [refresh_token], properties: {refresh_token: {type: string}}}}}}
+      responses:
+        "200":
+          description: Rotated token pair.
+          content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/TokenPair"}}}}}
+        "401": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/password/forgot:
+    post:
+      operationId: forgotPassword
+      description: Exactly one of email or phone. Always 202; never reveals whether an account exists.
+      security: []
+      requestBody: {required: true, content: {application/json: {schema: {type: object, properties: {email: {type: string, format: email}, phone: {$ref: "#/components/schemas/E164"}}}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/password/reset:
+    post:
+      operationId: resetPassword
+      description: Sets a new password and revokes every session. MFA still applies at the next sign-in.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challenge_id, code, new_password]
+              properties:
+                challenge_id: {$ref: "#/components/schemas/UUIDv7"}
+                code: {type: string}
+                new_password: {type: string, minLength: 10, maxLength: 128}
+      responses:
+        "200": {description: Password reset., content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {status: {const: PASSWORD_RESET}}}}}}}}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/oauth/providers:
+    get:
+      operationId: listOAuthProviders
+      description: Configured external sign-in providers. Empty until a certified OAuth/OIDC adapter exists.
+      security: []
+      responses:
+        "200": {description: Providers., content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {providers: {type: array, items: {type: string}}}}}}}}}
+  /api/v1/owner/auth/oauth/{provider}/start:
+    post:
+      operationId: startOAuth
+      description: Explicitly unavailable — no provider adapter is configured (503 OAUTH_PROVIDER_UNAVAILABLE).
+      security: []
+      parameters: [{$ref: "#/components/parameters/Provider"}]
+      responses:
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/oauth/{provider}/callback:
+    post:
+      operationId: completeOAuth
+      description: Explicitly unavailable — no provider adapter is configured (503 OAUTH_PROVIDER_UNAVAILABLE).
+      security: []
+      parameters: [{$ref: "#/components/parameters/Provider"}]
+      responses:
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/logout:
+    post:
+      operationId: logout
+      responses:
+        "204": {description: Current session ended.}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/logout-all:
+    post:
+      operationId: logoutAll
+      responses:
+        "200": {$ref: "#/components/responses/RevokedCount"}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/step-up:
+    post:
+      operationId: stepUp
+      summary: Re-authenticate the current session
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/StepUpRequest"}}}}
+      responses:
+        "200":
+          description: Step-up recorded.
+          content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/StepUp"}}}}}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/auth/step-up/challenge:
+    post:
+      operationId: sendStepUpCode
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [method], properties: {method: {enum: [SMS, EMAIL]}}}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "401": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me:
+    get:
+      operationId: getMyAccount
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "401": {$ref: "#/components/responses/Error"}
+    patch:
+      operationId: updateMyAccount
+      description: Requires `If-Match` with the quoted account version (ETag). Unknown fields are rejected.
+      parameters: [{$ref: "#/components/parameters/IfMatch"}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, properties: {display_name: {type: string, minLength: 1, maxLength: 120}, locale: {type: string, pattern: "^[a-z]{2}(-[A-Z]{2})?$"}}}}}}
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "428": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/email/verification:
+    post:
+      operationId: sendEmailVerification
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "401": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/email/verification/confirm:
+    post:
+      operationId: confirmEmail
+      description: Confirms an EMAIL_VERIFICATION or EMAIL_CHANGE code. May activate the account.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/CodeRequest"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/email/change:
+    post:
+      operationId: startEmailChange
+      description: Step-up. Sends a code to the new address; the old address is alerted on success.
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [email], properties: {email: {type: string, format: email}}}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/phone/verification:
+    post:
+      operationId: sendPhoneVerification
+      description: Adding a first phone needs no step-up; replacing a verified phone requires step-up.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/PhoneRequest"}}}}
+      responses:
+        "202": {$ref: "#/components/responses/Challenge"}
+        "400": {$ref: "#/components/responses/Error"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+        "503": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/phone/verification/confirm:
+    post:
+      operationId: confirmPhone
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "#/components/schemas/CodeRequest"}}}}
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "400": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/password:
+    post:
+      operationId: changePassword
+      description: Requires the current password; ends every other session.
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [current_password, new_password], properties: {current_password: {type: string}, new_password: {type: string, minLength: 10, maxLength: 128}}}}}}
+      responses:
+        "204": {description: Password changed.}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+        "429": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/sessions:
+    get:
+      operationId: listMySessions
+      description: Active sessions (bounded to 100), most recently used first.
+      responses:
+        "200": {description: Sessions., content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {$ref: "#/components/schemas/Session"}}}}}}}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/sessions/{session_id}:
+    delete:
+      operationId: revokeMySession
+      description: Remote sign-out; takes effect immediately for that session's access tokens. Idempotent.
+      parameters: [{name: session_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}]
+      responses:
+        "204": {description: Revoked.}
+        "401": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/devices:
+    get:
+      operationId: listMyDevices
+      responses:
+        "200": {description: Devices., content: {application/json: {schema: {type: object, properties: {data: {type: array, items: {$ref: "#/components/schemas/Device"}}}}}}}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/devices/{device_id}/trust:
+    post:
+      operationId: trustMyDevice
+      description: Step-up. Trust is informational and never bypasses MFA.
+      parameters: [{$ref: "#/components/parameters/DeviceID"}]
+      responses:
+        "200": {description: Trusted., content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/Device"}}}}}}
+        "403": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/devices/{device_id}:
+    delete:
+      operationId: revokeMyDevice
+      description: Forgets the device and ends its sessions.
+      parameters: [{$ref: "#/components/parameters/DeviceID"}]
+      responses:
+        "204": {description: Revoked.}
+        "404": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/security-events:
+    get:
+      operationId: listMySecurityEvents
+      parameters:
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        "200":
+          description: Page of security history (newest first).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, page]
+                properties:
+                  data: {type: array, items: {$ref: "#/components/schemas/SecurityEvent"}}
+                  page: {$ref: "../../schemas/pagination.schema.json"}
+        "400": {$ref: "#/components/responses/Error"}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/mfa:
+    get:
+      operationId: getMyMFA
+      responses:
+        "200": {description: MFA status., content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/MFAStatus"}}}}}}
+        "401": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/mfa/totp/setup:
+    post:
+      operationId: setupTOTP
+      description: Step-up. Creates a pending authenticator credential; the secret is shown once.
+      responses:
+        "201": {description: Pending credential., content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/TOTPSetup"}}}}}}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/mfa/totp/confirm:
+    post:
+      operationId: confirmTOTP
+      description: Step-up. Activates the authenticator and returns 10 single-use recovery codes, shown once.
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [code], properties: {code: {type: string, pattern: "^[0-9]{6}$"}}}}}}
+      responses:
+        "200": {$ref: "#/components/responses/RecoveryCodes"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+        "422": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/mfa/totp:
+    delete:
+      operationId: disableTOTP
+      description: Step-up with a second factor. Also invalidates recovery codes.
+      responses:
+        "204": {description: Disabled.}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/mfa/recovery-codes:
+    post:
+      operationId: regenerateRecoveryCodes
+      description: Step-up. Replaces all recovery codes.
+      responses:
+        "200": {$ref: "#/components/responses/RecoveryCodes"}
+        "403": {$ref: "#/components/responses/Error"}
+  /api/v1/owner/me/closure:
+    post:
+      operationId: requestAccountClosure
+      description: Step-up. Moves the account to CLOSURE_PENDING; it closes after the cooling-off period (default 30 days) unless cancelled or held. Not available while RESTRICTED or SUSPENDED.
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "403": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+    delete:
+      operationId: cancelAccountClosure
+      responses:
+        "200": {$ref: "#/components/responses/Account"}
+        "403": {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    OwnerBearer: {type: http, scheme: bearer, bearerFormat: "at+jwt (EdDSA) issued by individual-owner-service"}
+  parameters:
+    IfMatch: {name: If-Match, in: header, required: true, schema: {type: string, examples: ['"3"']}}
+    Provider: {name: provider, in: path, required: true, schema: {type: string}}
+    DeviceID: {name: device_id, in: path, required: true, schema: {$ref: "#/components/schemas/UUIDv7"}}
+  responses:
+    Error:
+      description: Platform error envelope.
+      content: {application/json: {schema: {$ref: "../../schemas/error-envelope.schema.json"}}}
+    AuthResult:
+      description: Sign-in step result.
+      content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/AuthResult"}}}}}
+    Challenge:
+      description: Issued one-time challenge (the code is never returned).
+      content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/Challenge"}}}}}
+    Account:
+      description: The caller's account. ETag carries the version.
+      headers: {ETag: {schema: {type: string}}}
+      content: {application/json: {schema: {type: object, properties: {data: {$ref: "#/components/schemas/Account"}}}}}
+    RevokedCount:
+      description: Number of sessions revoked.
+      content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {revoked_sessions: {type: integer}}}}}}}
+    RecoveryCodes:
+      description: Recovery codes, shown exactly once.
+      content: {application/json: {schema: {type: object, properties: {data: {type: object, properties: {recovery_codes: {type: array, items: {type: string}}}}}}}}
+  schemas:
+    UUIDv7: {type: string, format: uuid}
+    E164: {type: string, pattern: "^\\+[1-9][0-9]{7,14}$"}
+    AccountStatus: {enum: [PENDING_VERIFICATION, ACTIVE, RESTRICTED, SUSPENDED, CLOSURE_PENDING, CLOSED]}
+    RegisterRequest:
+      type: object
+      required: [email, password, display_name]
+      properties:
+        email: {type: string, format: email, maxLength: 254}
+        password: {type: string, minLength: 10, maxLength: 128}
+        phone: {$ref: "#/components/schemas/E164"}
+        display_name: {type: string, minLength: 1, maxLength: 120}
+        locale: {type: string, default: en}
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: {type: string}
+        password: {type: string}
+    PhoneRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone: {$ref: "#/components/schemas/E164"}
+    CodeRequest:
+      type: object
+      required: [challenge_id, code]
+      properties:
+        challenge_id: {$ref: "#/components/schemas/UUIDv7"}
+        code: {type: string, maxLength: 32}
+    MFARequest:
+      type: object
+      required: [mfa_token, method]
+      properties:
+        mfa_token: {type: string}
+        method: {enum: [TOTP, RECOVERY_CODE, SMS, EMAIL]}
+        code: {type: string}
+    StepUpRequest:
+      type: object
+      required: [method]
+      properties:
+        method: {enum: [PASSWORD, TOTP, RECOVERY_CODE, SMS, EMAIL]}
+        password: {type: string}
+        code: {type: string}
+        challenge_id: {$ref: "#/components/schemas/UUIDv7"}
+    Account:
+      type: object
+      required: [account_id, status, email, email_verified, phone, phone_verified, display_name, locale, mfa_enabled, version, created_at, updated_at]
+      properties:
+        account_id: {$ref: "#/components/schemas/UUIDv7"}
+        status: {$ref: "#/components/schemas/AccountStatus"}
+        email: {type: string}
+        email_verified: {type: boolean}
+        phone: {type: [string, "null"]}
+        phone_verified: {type: boolean}
+        display_name: {type: string}
+        locale: {type: string}
+        mfa_enabled: {type: boolean}
+        closure_effective_at: {type: [string, "null"], format: date-time}
+        version: {type: integer}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    TokenPair:
+      type: object
+      required: [token_type, access_token, access_token_expires_at, expires_in, refresh_token, refresh_token_expires_at, session_id]
+      properties:
+        token_type: {const: Bearer}
+        access_token: {type: string}
+        access_token_expires_at: {type: string, format: date-time}
+        expires_in: {type: integer}
+        refresh_token: {type: string, description: "Opaque cfrt_ token; store securely; rotates on every refresh."}
+        refresh_token_expires_at: {type: string, format: date-time}
+        session_id: {$ref: "#/components/schemas/UUIDv7"}
+    AuthResult:
+      type: object
+      required: [status]
+      properties:
+        status: {enum: [AUTHENTICATED, MFA_REQUIRED]}
+        account: {$ref: "#/components/schemas/Account"}
+        tokens: {$ref: "#/components/schemas/TokenPair"}
+        mfa:
+          type: object
+          properties:
+            mfa_token: {type: string}
+            methods: {type: array, items: {enum: [TOTP, RECOVERY_CODE, SMS, EMAIL]}}
+            expires_at: {type: string, format: date-time}
+    Challenge:
+      type: object
+      required: [challenge_id, channel, expires_at]
+      properties:
+        challenge_id: {$ref: "#/components/schemas/UUIDv7"}
+        channel: {enum: [EMAIL, SMS]}
+        destination_hint: {type: string}
+        expires_at: {type: string, format: date-time}
+        delivery_status: {enum: [PENDING, ACCEPTED, FAILED, UNKNOWN], description: "Acceptance by notification-service only; omitted where it could reveal account existence."}
+    StepUp:
+      type: object
+      properties:
+        step_up_at: {type: string, format: date-time}
+        method: {type: string}
+        expires_at: {type: string, format: date-time}
+    Session:
+      type: object
+      properties:
+        session_id: {$ref: "#/components/schemas/UUIDv7"}
+        current: {type: boolean}
+        device_id: {type: [string, "null"]}
+        device_name: {type: [string, "null"]}
+        device_platform: {type: [string, "null"]}
+        user_agent: {type: [string, "null"]}
+        ip_address: {type: [string, "null"]}
+        auth_method: {enum: [PASSWORD, PHONE_OTP, OAUTH]}
+        mfa_method: {type: [string, "null"]}
+        created_at: {type: string, format: date-time}
+        last_refreshed_at: {type: string, format: date-time}
+        expires_at: {type: string, format: date-time}
+        step_up_at: {type: [string, "null"], format: date-time}
+    Device:
+      type: object
+      properties:
+        device_id: {$ref: "#/components/schemas/UUIDv7"}
+        name: {type: [string, "null"]}
+        platform: {enum: [IOS, ANDROID, WEB, OTHER]}
+        trusted: {type: boolean}
+        trusted_at: {type: [string, "null"], format: date-time}
+        first_seen_at: {type: string, format: date-time}
+        last_seen_at: {type: string, format: date-time}
+        last_ip: {type: [string, "null"]}
+    SecurityEvent:
+      type: object
+      properties:
+        event_id: {$ref: "#/components/schemas/UUIDv7"}
+        event_type: {type: string, examples: [LOGIN_SUCCEEDED, NEW_DEVICE_LOGIN, PASSWORD_CHANGED, MFA_ENABLED]}
+        session_id: {type: [string, "null"]}
+        device_id: {type: [string, "null"]}
+        ip_address: {type: [string, "null"]}
+        user_agent: {type: [string, "null"]}
+        metadata: {type: object}
+        occurred_at: {type: string, format: date-time}
+    MFAStatus:
+      type: object
+      properties:
+        totp_enabled: {type: boolean}
+        recovery_codes_remaining: {type: integer}
+        fallback_methods: {type: array, items: {enum: [SMS, EMAIL]}}
+    TOTPSetup:
+      type: object
+      properties:
+        credential_id: {$ref: "#/components/schemas/UUIDv7"}
+        secret: {type: string, description: Base32 secret, shown once.}
+        otpauth_uri: {type: string}

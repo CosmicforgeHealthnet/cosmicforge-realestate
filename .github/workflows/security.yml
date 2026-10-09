@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service]
+        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

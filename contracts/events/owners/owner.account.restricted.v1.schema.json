@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/owners/owner.account.restricted.v1.schema.json",
+  "title": "owner.account.restricted.v1",
+  "description": "An owner account was restricted (business mutations blocked, self-service allowed) or suspended (all sessions revoked, sign-in blocked) by an attributable admin actor. Producer: individual-owner-service. Subject: realestate.owner.account.restricted.v1. Aggregate: owner_account.",
+  "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}],
+  "properties": {
+    "event_type": {"const": "owner.account.restricted.v1"},
+    "producer": {"const": "individual-owner-service"},
+    "aggregate_type": {"const": "owner_account"},
+    "actor": {"properties": {"domain": {"const": "admin"}}},
+    "payload": {
+      "allOf": [{"$ref": "owner-account-payload.schema.json"}],
+      "properties": {"status": {"enum": ["RESTRICTED", "SUSPENDED"]}}
+    }
+  },
+  "required": ["actor"]
+}
