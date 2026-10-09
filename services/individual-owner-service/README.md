@@ -6,8 +6,13 @@ Public prefix: `/api/v1/owner/*` (ADR-0011) · Internal prefix: `/internal/v1/ow
 
 Individual Property Owner. Implementation status, requirement-by-requirement, is tracked in
 [`docs/product/individual-owner/IMPLEMENTATION_COVERAGE.md`](../../docs/product/individual-owner/IMPLEMENTATION_COVERAGE.md).
-**Implemented: Section 5 (authentication, owner roles and authorization) — workstream IO-1.** Property,
-listing and the later business domains (Sections 6–12, workstreams IO-2…IO-16) are not implemented yet.
+**Implemented:** Section 5 (authentication, roles, authorization) and the Sections 6–13 business domains —
+ownership, properties, listings, pricing, availability, leads, viewings, applications, agreements, tenancy,
+rent/deposits, utilities, commercial/land/sale, short-let, delegation, maintenance, professionals, disputes,
+privacy, reports/insights/dashboard, financing, insurance and smart access. Features that depend on services
+or providers that do not exist yet (payment-service, e-signature, calendar sync, smart locks, financing/
+insurance partners, CF Meet, maps) answer `503 FEATURE_UNAVAILABLE`; see the coverage register for the
+exact status and certification level of every item.
 The authoritative specification is
 [`docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf`](../../docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf).
 
@@ -33,8 +38,9 @@ microservice. Reusable primitives come from `shared/go` (`auth`, `jwt`, `passwor
 
 ## Binaries
 
-`/app/api` (HTTP), `/app/worker` (outbox relay to NATS JetStream, security-alert dispatch, closure
-finalization, housekeeping), `/app/migrate up|down-to|status|version`.
+`/app/api` (HTTP), `/app/worker` (outbox relay to NATS JetStream, §10.1 event consumers, security-alert
+dispatch, closure finalization, housekeeping and the Section 11 domain jobs listed by
+`usecases.DomainJobs`), `/app/migrate up|down-to|status|version`.
 
 ## Configuration
 
@@ -50,6 +56,28 @@ finalization, housekeeping), `/app/migrate up|down-to|status|version`.
 | `NATS_URL` | worker | JetStream (`REALESTATE_OWNER`, `realestate.owner.>`) |
 | `OWNER_SECURITY_POLICY_VERSION` and `OWNER_*` policy knobs | no | lockout, code TTL/attempts/limits, MFA fallbacks, activation rule (`EMAIL` default), closure cooling-off (30 days) |
 | `OWNER_OAUTH_PROVIDERS` | must be empty | no OAuth/OIDC adapter is certified; startup fails otherwise |
+| `VERIFICATION_SERVICE_URL`, `MEDIA_SERVICE_URL` | recommended | identity/authority verification and evidence/media; dependent features answer 503 when unset |
+| `PAYMENT_SERVICE_URL`, `ESIGN_PROVIDER`, `EXTERNAL_CALENDAR_PROVIDER`, `FINANCING_PROVIDER`, `INSURANCE_PROVIDER`, `SMART_ACCESS_PROVIDER` | must be empty | no implemented contract/adapter yet; startup fails otherwise so nobody believes the feature is live |
+| `DOMAIN_WORKER_INTERVAL`, `PROPERTY_IMPORT_LEASE` | no | Section 11 job cadence and import lease |
+
+## Consumed events (consumer contract)
+
+Payloads this service accepts from producers that do not publish yet. Each delivery must carry the
+producer's service name in the envelope `producer`; handlers are idempotent per `event_id`.
+
+| Event (stream) | Payload | Effect |
+|---|---|---|
+| `payment.intent.updated.v1` (`payment`) | `intent_ref`, `status` (`REQUIRES_PAYMENT`, `PROCESSING`, `PARTIALLY_PAID`, `SUCCEEDED`, `HELD`, `FAILED`, `CANCELLED`, `REFUND_PENDING`, `REFUNDED`), `amount_minor`, `paid_minor`, `refunded_minor`, `updated_at` | projects rent, deposits, sale milestones, bookings, damage claims, maintenance jobs, professional fees |
+| `payment.refund.updated.v1` (`payment`) | `refund_ref`, `intent_ref`, `status` (`PENDING`, `COMPLETED`, `FAILED`), `refunded_minor` | short-let refunds |
+| `manager.mandate.responded.v1` (`property_manager`) | `assignment_id`, `manager_ref_id`, `decision` (`ACCEPT`/`DECLINE`) | mandate acceptance |
+| `manager.activity.recorded.v1` (`property_manager`) | `assignment_id`, `manager_ref_id`, `activity_type`, `ref_type?`, `ref_id?`, `summary` | owner-visible activity |
+| `artisan.quote.submitted.v1` (`artisan`) | `request_id`, `provider_ref` + the provider-quote body of `POST /internal/v1/owner/maintenance/{id}/provider-quotes` | quote on a platform request |
+| `artisan.job.event_recorded.v1` (`artisan`) | `job_id`, `provider_ref` + the job-event body of `…/maintenance-jobs/{id}/provider-events` | attendance/progress/completion/invoice/payment ack/withdrawal |
+| `professional.engagement.updated.v1` (`professional_services`) | `appointment_id`, `professional_ref` + the body of `…/professional-appointments/{id}/provider-updates` | quote/decline/start/signed report |
+| `marketplace.listing.reported.v1` (`marketplace`) | `listing_id`, `report_type`, `report_ref?` | freshness check / review |
+
+Consumed subjects must not fall inside the owner stream's subjects (one stream per subject); a test
+enforces it.
 
 ## Non-negotiable boundaries
 
@@ -67,4 +95,8 @@ finalization, housekeeping), `/app/migrate up|down-to|status|version`.
 export CF_TEST_POSTGRES_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable
 GOWORK=off go test -race ./...          # unit + PostgreSQL integration + NATS + contract parity
 sqlc diff -f sql/sqlc.yaml               # generated code is current
+go run ./cmd/apidocgen -check            # OpenAPI, Postman and event schemas are current
 ```
+
+Fakes for payment, e-sign, calendar sync, financing and smart access exist only in
+`tests/integration` and never count as certification of those integrations.
