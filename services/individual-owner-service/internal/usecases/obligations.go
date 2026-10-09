@@ -1164,6 +1164,11 @@ func (s *Service) ProjectPaymentIntent(ctx context.Context, eventID ids.ID, in p
 		} else if !isNoRows(err) {
 			return err
 		}
+		if id, err := s.q.GetExtensionByIntent(ctx, tx, &in.Ref); err == nil {
+			return s.projectExtensionIntent(ctx, id, in)
+		} else if !isNoRows(err) {
+			return err
+		}
 		if id, err := s.q.GetClaimByIntent(ctx, tx, &in.Ref); err == nil {
 			return s.projectClaimIntent(ctx, id, in)
 		} else if !isNoRows(err) {

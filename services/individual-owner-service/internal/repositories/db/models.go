@@ -205,6 +205,37 @@ type ApplicationParticipant struct {
 	CreatedAt                  time.Time
 }
 
+type AssistanceAuthorization struct {
+	ID           ids.ID
+	AccountID    ids.ID
+	Scopes       []string
+	PropertyIds  []ids.ID
+	Channel      string
+	Reason       *string
+	Status       string
+	ExpiresAt    time.Time
+	RevokedAt    *time.Time
+	RevokeReason *string
+	Version      int64
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type AssistedActivity struct {
+	ID                 ids.ID
+	AccountID          ids.ID
+	AuthorizationID    ids.ID
+	SupportService     string
+	SupportActorDomain string
+	SupportActorID     ids.ID
+	ActivityType       string
+	Scope              string
+	PropertyID         *ids.ID
+	MediaIds           []ids.ID
+	Note               string
+	CreatedAt          time.Time
+}
+
 type AuditEvent struct {
 	AuditID        ids.ID
 	OccurredAt     time.Time
@@ -1682,6 +1713,20 @@ type PropertyUnit struct {
 	UpdatedAt    time.Time
 }
 
+type PropertyValuation struct {
+	ID                        ids.ID
+	PropertyID                ids.ID
+	ValueMinor                int64
+	Currency                  string
+	ValuedOn                  time.Time
+	Basis                     string
+	ProfessionalAppointmentID *ids.ID
+	EvidenceMediaIds          []ids.ID
+	Note                      *string
+	RecordedByAccount         ids.ID
+	CreatedAt                 time.Time
+}
+
 type RenewalCase struct {
 	ID                  ids.ID
 	TenancyID           ids.ID
@@ -1942,6 +1987,35 @@ type ShortletBooking struct {
 	UpdatedAt          time.Time
 }
 
+type ShortletBookingExtension struct {
+	ID                ids.ID
+	BookingID         ids.ID
+	ListingID         ids.ID
+	PropertyID        ids.ID
+	RequestedBy       string
+	Awaiting          *string
+	Status            string
+	PreviousCheckOut  time.Time
+	NewCheckOut       time.Time
+	BufferEnd         time.Time
+	PreviousBufferEnd time.Time
+	PricingVersionID  ids.ID
+	CostSnapshot      []byte
+	AmountMinor       int64
+	Currency          string
+	PaymentCollection string
+	PaymentIntentRef  *string
+	PaidMinor         int64
+	LastPaymentStatus *string
+	LastCheckedAt     *time.Time
+	RespondBy         time.Time
+	DeclineReason     *string
+	AppliedAt         *time.Time
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
 type ShortletGuest struct {
 	ID                 ids.ID
 	BookingID          ids.ID
@@ -2004,6 +2078,31 @@ type SignatureRequest struct {
 	Version            int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+type StatutoryObligation struct {
+	ID                   ids.ID
+	AccountID            ids.ID
+	PropertyID           *ids.ID
+	ObligationType       string
+	Title                string
+	Jurisdiction         string
+	Authority            *string
+	Reference            *string
+	DueOn                time.Time
+	Recurrence           string
+	EstimatedAmountMinor *int64
+	Currency             *string
+	ReminderDays         int32
+	Status               string
+	RemindedAt           *time.Time
+	CompletedAt          *time.Time
+	EvidenceMediaIds     []ids.ID
+	Notes                *string
+	PreviousID           *ids.ID
+	Version              int64
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 type TaxProfile struct {

@@ -236,9 +236,14 @@ func TestShortletBookingRaceApprovalStayAndDamageClaim(t *testing.T) {
 	r = h.get(o, lp+"/turnover?booking_id="+won.ID.String())
 	h.expect(r, 200, "")
 	r.data(t, &jobs)
-	if len(jobs) != 1 || jobs[0].JobType != "CLEANING" || jobs[0].Status != "SCHEDULED" {
+	// Confirmation scheduled the pre-arrival inspection; check-out the cleaning.
+	if len(jobs) == 2 && jobs[0].JobType == "CLEANING" {
+		jobs[0], jobs[1] = jobs[1], jobs[0]
+	}
+	if len(jobs) != 2 || jobs[0].JobType != "INSPECTION" || jobs[1].JobType != "CLEANING" || jobs[1].Status != "SCHEDULED" {
 		t.Fatalf("turnover %+v", jobs)
 	}
+	jobs = jobs[1:]
 	tp := "/shortlet/turnover/" + jobs[0].ID.String()
 	h.expect(h.write(o, "PATCH", tp, jobs[0].Version, map[string]any{"status": "COMPLETED"}), 422, "EVIDENCE_REQUIRED")
 	photo := h.media.put(o.id, "IMAGE", "READY")

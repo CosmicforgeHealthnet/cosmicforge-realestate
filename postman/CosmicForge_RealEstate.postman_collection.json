@@ -765,6 +765,11 @@
       "key": "jurisdiction_policy_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "extension_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -15994,6 +15999,177 @@
               "response": []
             },
             {
+              "name": "The guest's stay extensions",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/customer-shortlet-bookings/{{booking_id}}/extensions?limit=20",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "customer-shortlet-bookings",
+                    "{{booking_id}}",
+                    "extensions"
+                  ]
+                },
+                "description": "The guest's stay extensions.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Checked-in guest asks for a later check-out",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('extension_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/customer-shortlet-bookings/{{booking_id}}/extensions",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "customer-shortlet-bookings",
+                    "{{booking_id}}",
+                    "extensions"
+                  ]
+                },
+                "description": "Checked-in guest asks for a later check-out.\n\nClaims the added nights; the owner accepts or declines within the approval window.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"new_check_out\": \"2026-12-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Guest accepts or declines the owner's extension proposal",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/customer-shortlet-extensions/{{extension_id}}/response",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "customer-shortlet-extensions",
+                    "{{extension_id}}",
+                    "response"
+                  ]
+                },
+                "description": "Guest accepts or declines the owner's extension proposal.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Guest cancels or updates guest verification",
               "event": [
                 {
@@ -25861,10 +26037,184 @@
                     "{{booking_id}}"
                   ]
                 },
-                "description": "Approve, decline, check in/out, no-show or cancel (If-Match).\n\nApproval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; check-out schedules a cleaning turnover job.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "description": "Approve, decline, check in/out, no-show or cancel (If-Match).\n\nApproval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; confirmation schedules a pre-arrival inspection and check-out a cleaning turnover job; check-out cancels an open extension.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"action\": \"APPROVE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Stay extensions of a booking",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/shortlet/bookings/{{booking_id}}/extensions?limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "shortlet",
+                    "bookings",
+                    "{{booking_id}}",
+                    "extensions"
+                  ]
+                },
+                "description": "Stay extensions of a booking.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Propose a later check-out to the checked-in guest",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.id') !== undefined) pm.collectionVariables.set('extension_id', String(pick(body, 'data.id')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/shortlet/bookings/{{booking_id}}/extensions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "shortlet",
+                    "bookings",
+                    "{{booking_id}}",
+                    "extensions"
+                  ]
+                },
+                "description": "Propose a later check-out to the checked-in guest.\n\nClaims the added nights and moved turnover days (409 DATES_UNAVAILABLE when taken). The added nights get their own immutable price snapshot from the same cost engine; per-stay fees and the deposit are not charged again. The guest accepts through marketplace.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"new_check_out\": \"2026-12-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Accept or decline a guest's extension request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/shortlet/extensions/{{extension_id}}/decision",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "shortlet",
+                    "extensions",
+                    "{{extension_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Accept or decline a guest's extension request.\n\nOff-platform stays are extended on acceptance; on-platform stays once payment-service reports the added amount paid (503 FEATURE_UNAVAILABLE without payment-service).\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"ACCEPT\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -26107,7 +26457,7 @@
                     "damage-claims"
                   ]
                 },
-                "description": "Raise a damage claim.\n\nItemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "description": "Raise a damage claim.\n\nItemized with photo evidence, within the listing's claim window after check-out. The guest answers within the jurisdiction policy's response window (default 72 hours) by accepting or disputing; silence never accepts it: an unanswered claim goes to operator review. Settlement follows the booking's payment collection.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"items\": [\n    {\n      \"amount_minor\": 1,\n      \"description\": \"string\",\n      \"media_ids\": [\n        \"019a2b3c-0000-7000-8000-000000000001\"\n      ]\n    }\n  ]\n}",
@@ -26562,7 +26912,7 @@
                     "damage-claim"
                   ]
                 },
-                "description": "Raise a damage claim (specification path).\n\nSpecification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "description": "Raise a damage claim (specification path).\n\nSpecification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing's claim window after check-out. The guest answers within the jurisdiction policy's response window (default 72 hours) by accepting or disputing; silence never accepts it: an unanswered claim goes to operator review. Settlement follows the booking's payment collection.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"items\": [\n    {\n      \"amount_minor\": 1,\n      \"description\": \"string\",\n      \"media_ids\": [\n        \"019a2b3c-0000-7000-8000-000000000001\"\n      ]\n    }\n  ]\n}",

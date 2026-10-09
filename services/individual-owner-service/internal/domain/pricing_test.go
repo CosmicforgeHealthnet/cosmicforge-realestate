@@ -82,6 +82,24 @@ func TestShortLetSeasonWeekendLongStay(t *testing.T) {
 	}
 }
 
+func TestShortLetExtensionPricesOnlyAddedNights(t *testing.T) {
+	m := PriceModel{TransactionType: "SHORT_LET", Currency: "NGN", Base: 50_000_00, BasePeriod: "NIGHT", Cycle: "PER_STAY", Deposit: 100_000_00, MinNights: 2,
+		Fees: []Fee{{Code: "cleaning", Category: "CLEANING", Label: "Cleaning", Calculation: "FIXED", AmountMinor: i64(15_000_00), Frequency: "PER_STAY", Mandatory: true, PayableTo: "OWNER"},
+			{Code: "levy", Category: "SERVICE", Label: "Levy", Calculation: "FIXED", AmountMinor: i64(1_000_00), Frequency: "PER_NIGHT", Mandatory: true, PayableTo: "OWNER"}}}
+	// One added night (Mon): below the stay minimum, without per-stay fees or deposit.
+	c, err := Calculate(m, Scenario{CheckIn: time.Date(2026, 3, 2, 0, 0, 0, 0, time.UTC), CheckOut: time.Date(2026, 3, 3, 0, 0, 0, 0, time.UTC), Extension: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Nights != 1 || c.UpfrontTotal != 50_000_00+1_000_00 || c.RefundableTotal != 0 || len(c.Lines) != 2 {
+		t.Fatalf("extension %+v", c)
+	}
+	// The same dates as a new stay are refused (minimum) and would carry fees.
+	if _, err := Calculate(m, Scenario{CheckIn: time.Date(2026, 3, 2, 0, 0, 0, 0, time.UTC), CheckOut: time.Date(2026, 3, 3, 0, 0, 0, 0, time.UTC)}); err == nil {
+		t.Fatal("new one-night stay accepted below the minimum")
+	}
+}
+
 func TestPriceModelValidation(t *testing.T) {
 	bad := []PriceModel{
 		{TransactionType: "SALE", Currency: "NGN", Base: 1, BasePeriod: "YEAR", Cycle: "ONE_TIME"},

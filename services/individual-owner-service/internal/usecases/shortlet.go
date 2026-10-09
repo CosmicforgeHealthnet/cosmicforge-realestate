@@ -490,6 +490,8 @@ type BookingView struct {
 	CheckedInAt       *time.Time      `json:"checked_in_at"`
 	CheckedOutAt      *time.Time      `json:"checked_out_at"`
 	GuestList         []GuestView     `json:"guest_list"`
+	Extensions        []ExtensionView `json:"extensions,omitempty" doc:"Stay extensions, each with its own immutable price snapshot (single-booking reads)"`
+	ExtensionsMinor   int64           `json:"extensions_total_minor" doc:"Sum of applied extensions (separate from total_minor, the original accepted snapshot)"`
 	Version           int64           `json:"version"`
 	CreatedAt         time.Time       `json:"created_at"`
 }
@@ -510,7 +512,18 @@ func (s *Service) bookingView(ctx context.Context, b db.ShortletBooking) (Bookin
 		v.GuestList = append(v.GuestList, GuestView{ID: g.ID, DisplayName: g.DisplayName, CustomerRefID: g.CustomerRefID, Primary: g.IsPrimary,
 			VerificationRef: g.VerificationRef, VerificationStatus: g.VerificationStatus})
 	}
-	return v, err
+	if err != nil {
+		return v, err
+	}
+	if v.Extensions, err = s.extensionViews(ctx, b.ID); err != nil {
+		return v, err
+	}
+	for _, e := range v.Extensions {
+		if e.Status == "APPLIED" {
+			v.ExtensionsMinor += e.AmountMinor
+		}
+	}
+	return v, nil
 }
 
 // ShortletBookingEvent is shortlet.booking.updated.v1.
@@ -728,7 +741,58 @@ func (s *Service) confirmBooking(ctx context.Context, id ids.ID) error {
 	if err := s.q.ConfirmBookingDays(ctx, tx, db.ConfirmBookingDaysParams{RefID: &id, UpdatedAt: now}); err != nil {
 		return err
 	}
-	return s.q.SetBookingStay(ctx, tx, db.SetBookingStayParams{ID: id, Now: now})
+	if err := s.q.SetBookingStay(ctx, tx, db.SetBookingStayParams{ID: id, Now: now}); err != nil {
+		return err
+	}
+	return s.schedulePreArrivalInspection(ctx, id)
+}
+
+// preArrivalLead is how long before the check-in time the pre-arrival
+// inspection is scheduled.
+const preArrivalLead = 3 * time.Hour
+
+// schedulePreArrivalInspection schedules the turnover inspection before a
+// confirmed stay (§14.4 step 6: turnover around check-out and check-in;
+// cleaning after check-out is scheduled at check-out). Idempotent: one
+// INSPECTION per booking (turnover_jobs_booking_uniq).
+func (s *Service) schedulePreArrivalInspection(ctx context.Context, bookingID ids.ID) error {
+	tx, now := mustTx(ctx), s.now()
+	b, err := s.q.GetBooking(ctx, tx, bookingID)
+	if err != nil {
+		return err
+	}
+	st, err := s.q.GetShortletSettings(ctx, tx, b.ListingID)
+	if err != nil {
+		return err
+	}
+	p, err := s.q.GetProperty(ctx, tx, b.PropertyID)
+	if err != nil {
+		return err
+	}
+	at := checkInAt(b.CheckIn, st.CheckInTime, p.Timezone).Add(-preArrivalLead)
+	if at.Before(now) {
+		at = now
+	}
+	_, err = s.q.InsertTurnoverJob(ctx, tx, db.InsertTurnoverJobParams{ID: ids.New(), ListingID: b.ListingID, PropertyID: b.PropertyID, BookingID: &b.ID,
+		JobType: "INSPECTION", ScheduledFor: at, AssigneeType: "OWNER", Notes: ptr("Pre-arrival inspection (scheduled automatically on confirmation)"),
+		Checklist: jsonb([]string{"Unit clean and ready", "Amenities and add-ons in place", "Access method works", "No unresolved damage"}), CreatedAt: now})
+	if isNoRows(err) {
+		return nil
+	}
+	return err
+}
+
+// checkInAt is the local check-in time of a stay as an instant.
+func checkInAt(day time.Time, hhmm, tz string) time.Time {
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		loc = time.UTC
+	}
+	t, err := time.Parse("15:04", hhmm)
+	if err != nil {
+		t = time.Date(0, 1, 1, 14, 0, 0, 0, time.UTC)
+	}
+	return time.Date(day.Year(), day.Month(), day.Day(), t.Hour(), t.Minute(), 0, 0, loc)
 }
 
 // releaseBooking cancels/ends a booking and frees its dates.
@@ -871,6 +935,9 @@ func (s *Service) ActOnBooking(ctx context.Context, subj authz.Subject, id ids.I
 				err = s.q.SetBookingStay(ctx, tx, db.SetBookingStayParams{ID: id, CheckedInAt: &now, AccessGrantRef: in.AccessGrantRef, Now: now})
 			}
 		case "CHECK_OUT":
+			if err = s.cancelOpenExtensions(ctx, id, "GUEST_CHECKED_OUT"); err != nil {
+				return err
+			}
 			if err = s.bookingTo(ctx, id, "CHECKED_OUT", "check_out", ""); err == nil {
 				err = s.q.SetBookingStay(ctx, tx, db.SetBookingStayParams{ID: id, CheckedOutAt: &now, Now: now})
 			}
@@ -1529,6 +1596,9 @@ func (s *Service) RunShortletJobs(ctx context.Context, batch int32) error {
 		}
 	}
 	if err := s.runExternalCalendars(ctx, batch); err != nil {
+		return err
+	}
+	if err := s.runExtensionJobs(ctx, batch); err != nil {
 		return err
 	}
 	if s.Payment == nil {

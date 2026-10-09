@@ -1838,6 +1838,14 @@ components:
         customer_ref_id:
           format: uuid
           type: string
+        extensions:
+          description: Stay extensions, each with its own immutable price snapshot (single-booking reads)
+          items:
+            $ref: '#/components/schemas/ExtensionView'
+          type: array
+        extensions_total_minor:
+          description: Sum of applied extensions (separate from total_minor, the original accepted snapshot)
+          type: integer
         guest_list:
           items:
             $ref: '#/components/schemas/GuestView'
@@ -1898,6 +1906,7 @@ components:
         - refund_due_minor
         - refunded_minor
         - guest_list
+        - extensions_total_minor
         - version
         - created_at
       type: object
@@ -4121,6 +4130,102 @@ components:
           type: string
       required:
         - evidence_type
+      type: object
+    ExtensionDecisionInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - DECLINE
+          type: string
+        reason_code:
+          description: Required to decline
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+      type: object
+    ExtensionInputInput:
+      additionalProperties: false
+      properties:
+        new_check_out:
+          description: Later than the current check-out
+          format: date
+          type: string
+      required:
+        - new_check_out
+      type: object
+    ExtensionView:
+      properties:
+        amount_minor:
+          type: integer
+        applied_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        awaiting:
+          description: 'Who must answer: GUEST or OWNER (null once answered)'
+          type:
+            - string
+            - "null"
+        booking_id:
+          format: uuid
+          type: string
+        cost:
+          description: Immutable price snapshot of the added nights
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decline_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        new_check_out:
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        payment_collection:
+          type: string
+        previous_check_out:
+          type: string
+        pricing_version_id:
+          format: uuid
+          type: string
+        requested_by:
+          description: GUEST or OWNER
+          type: string
+        respond_by:
+          format: date-time
+          type: string
+        status:
+          description: REQUESTED, PAYMENT_PENDING, APPLIED, DECLINED, EXPIRED, CANCELLED
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - booking_id
+        - requested_by
+        - status
+        - previous_check_out
+        - new_check_out
+        - pricing_version_id
+        - cost
+        - amount_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - respond_by
+        - version
+        - created_at
       type: object
     FeatureInputInput:
       additionalProperties: false
@@ -21824,7 +21929,7 @@ paths:
       tags:
         - Short-let
     patch:
-      description: Approval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; check-out schedules a cleaning turnover job.
+      description: Approval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; confirmation schedules a pre-arrival inspection and check-out a cleaning turnover job; check-out cancels an open extension.
       operationId: actOnShortletBooking
       parameters:
         - in: path
@@ -21878,7 +21983,7 @@ paths:
         - Short-let
   /api/v1/owner/shortlet/bookings/{booking_id}/damage-claim:
     post:
-      description: Specification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.
+      description: 'Specification path (Section 8) for POST /api/v1/owner/shortlet/bookings/{booking_id}/damage-claims; identical behaviour. Itemized with photo evidence, within the listing''s claim window after check-out. The guest answers within the jurisdiction policy''s response window (default 72 hours) by accepting or disputing; silence never accepts it: an unanswered claim goes to operator review. Settlement follows the booking''s payment collection.'
       operationId: raiseDamageClaimSpecPath
       parameters:
         - in: path
@@ -21981,7 +22086,7 @@ paths:
       tags:
         - Short-let
     post:
-      description: Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; no answer accepts the claim. Settlement follows the booking's payment collection.
+      description: 'Itemized with photo evidence, within the listing''s claim window after check-out. The guest answers within the jurisdiction policy''s response window (default 72 hours) by accepting or disputing; silence never accepts it: an unanswered claim goes to operator review. Settlement follows the booking''s payment collection.'
       operationId: raiseDamageClaim
       parameters:
         - in: path
@@ -22030,6 +22135,109 @@ paths:
       security:
         - OwnerBearer: []
       summary: Raise a damage claim
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/bookings/{booking_id}/extensions:
+    get:
+      operationId: listStayExtensions
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ExtensionView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Stay extensions of a booking
+      tags:
+        - Short-let
+    post:
+      description: Claims the added nights and moved turnover days (409 DATES_UNAVAILABLE when taken). The added nights get their own immutable price snapshot from the same cost engine; per-stay fees and the deposit are not charged again. The guest accepts through marketplace.
+      operationId: proposeStayExtension
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensionInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExtensionView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Propose a later check-out to the checked-in guest
       tags:
         - Short-let
   /api/v1/owner/shortlet/bookings/{booking_id}/turnover:
@@ -22133,6 +22341,59 @@ paths:
       security:
         - OwnerBearer: []
       summary: Withdraw a claim or record an off-platform settlement
+      tags:
+        - Short-let
+  /api/v1/owner/shortlet/extensions/{extension_id}/decision:
+    post:
+      description: Off-platform stays are extended on acceptance; on-platform stays once payment-service reports the added amount paid (503 FEATURE_UNAVAILABLE without payment-service).
+      operationId: decideStayExtension
+      parameters:
+        - in: path
+          name: extension_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensionDecisionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExtensionView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Accept or decline a guest's extension request
       tags:
         - Short-let
   /api/v1/owner/shortlet/turnover/{job_id}:

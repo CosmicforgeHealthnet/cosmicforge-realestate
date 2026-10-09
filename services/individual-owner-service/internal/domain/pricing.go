@@ -71,6 +71,10 @@ type Scenario struct {
 	TermMonths int32     `json:"term_months,omitempty" v:"min=1,max=600"`
 	CheckIn    time.Time `json:"check_in,omitzero"`
 	CheckOut   time.Time `json:"check_out,omitzero"`
+	// Extension prices added nights of an existing short-let stay: the
+	// stay's per-stay/one-time fees and deposit were already charged, and the
+	// stay minimum applies to the whole stay, not the added nights.
+	Extension bool `json:"-"`
 }
 
 // LineItem is one cost line.
@@ -311,7 +315,7 @@ func Calculate(m PriceModel, sc Scenario) (Cost, error) {
 		if nights < 1 || nights > 365 {
 			return Cost{}, invalid("check_out", "a stay is 1–365 nights")
 		}
-		if m.MinNights > 0 && nights < m.MinNights {
+		if m.MinNights > 0 && nights < m.MinNights && !sc.Extension {
 			return Cost{}, apperrors.Unprocessable("STAY_BELOW_MINIMUM", fmt.Sprintf("The minimum stay is %d nights.", m.MinNights))
 		}
 		c.Nights, c.Cycle, c.CycleCount = nights, "PER_STAY", 1
@@ -345,7 +349,13 @@ func Calculate(m PriceModel, sc Scenario) (Cost, error) {
 		c.Lines = append(c.Lines, LineItem{Code: "accommodation", Label: fmt.Sprintf("Accommodation (%d nights)", nights), Category: "ACCOMMODATION",
 			AmountMinor: subtotal, Mandatory: true, Timing: "STAY", PayableTo: "OWNER"})
 		c.TermTotal = subtotal
+		if sc.Extension {
+			c.Assumptions = append(c.Assumptions, "extension of an existing stay: per-stay and one-time fees and the deposit are not charged again")
+		}
 		for _, f := range m.Fees {
+			if sc.Extension && f.Frequency != "PER_NIGHT" {
+				continue
+			}
 			mult := int64(1)
 			if f.Frequency == "PER_NIGHT" {
 				mult = int64(nights)
@@ -364,7 +374,7 @@ func Calculate(m PriceModel, sc Scenario) (Cost, error) {
 				}
 			}
 		}
-		if m.Deposit > 0 {
+		if m.Deposit > 0 && !sc.Extension {
 			c.Lines = append(c.Lines, LineItem{Code: "deposit", Label: "Refundable security deposit", Category: "DEPOSIT", AmountMinor: m.Deposit,
 				Mandatory: true, Refundable: true, Timing: "STAY", PayableTo: "OWNER"})
 			c.RefundableTotal += m.Deposit

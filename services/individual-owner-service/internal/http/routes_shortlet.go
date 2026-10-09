@@ -94,7 +94,22 @@ func shortletRoutes() []Route {
 			func(c *Call, in *usecases.BookingCommand) (usecases.BookingView, error) {
 				return c.S.ActOnBooking(c.Ctx, c.Subj, bid(c), c.Version, *in)
 			}).Describe("Approval and check-in need a verified primary guest when the listing requires it. An owner cancellation refunds everything paid; "+
-			"check-out schedules a cleaning turnover job.").Errs(409, 422),
+			"confirmation schedules a pre-arrival inspection and check-out a cleaning turnover job; check-out cancels an open extension.").Errs(409, 422),
+		List("/shortlet/bookings/{booking_id}/extensions", "listStayExtensions", tagShortlet, "Stay extensions of a booking",
+			func(c *Call, _ Page) (pagination.Response[usecases.ExtensionView], error) {
+				return slice(c.S.ListExtensions(c.Ctx, c.Subj, bid(c)))
+			}),
+		Command("POST", "/shortlet/bookings/{booking_id}/extensions", "proposeStayExtension", tagShortlet, "Propose a later check-out to the checked-in guest", http.StatusCreated,
+			func(c *Call, in *usecases.ExtensionInput) (usecases.ExtensionView, error) {
+				return c.S.RequestExtension(c.Ctx, c.Subj, bid(c), *in)
+			}).Describe("Claims the added nights and moved turnover days (409 DATES_UNAVAILABLE when taken). The added nights get their own immutable price "+
+			"snapshot from the same cost engine; per-stay fees and the deposit are not charged again. The guest accepts through marketplace.").
+			Capture("extension_id", "data.id").Errs(409, 422),
+		Command("POST", "/shortlet/extensions/{extension_id}/decision", "decideStayExtension", tagShortlet, "Accept or decline a guest's extension request", http.StatusOK,
+			func(c *Call, in *usecases.ExtensionDecision) (usecases.ExtensionView, error) {
+				return c.S.DecideExtension(c.Ctx, c.Subj, c.ID("extension_id"), *in)
+			}).Describe("Off-platform stays are extended on acceptance; on-platform stays once payment-service reports the added amount paid "+
+			"(503 FEATURE_UNAVAILABLE without payment-service).").Errs(409, 503),
 		Command("POST", "/shortlet/bookings/{booking_id}/turnover", "scheduleTurnover", tagShortlet, "Schedule a turnover job", http.StatusCreated,
 			func(c *Call, in *usecases.TurnoverInput) (usecases.TurnoverView, error) {
 				return c.S.ScheduleTurnover(c.Ctx, c.Subj, bid(c), *in)
@@ -115,8 +130,8 @@ func shortletRoutes() []Route {
 			ownerEvidence[usecases.DamageClaimInput](usecases.ScopeBooking, "booking_id", authz.Do(authz.CapShortletBookings), []string{"IMAGE"}),
 			func(c *Call, in *usecases.DamageClaimInput, ev usecases.Evidence) (usecases.DamageClaimView, error) {
 				return c.S.RaiseDamageClaim(c.Ctx, c.Subj, bid(c), *in, ev)
-			}).Describe("Itemized with photo evidence, within the listing's claim window after check-out. The guest has 72 hours to accept or dispute; "+
-			"no answer accepts the claim. Settlement follows the booking's payment collection.").Capture("damage_claim_id", "data.id").Errs(409, 422),
+			}).Describe("Itemized with photo evidence, within the listing's claim window after check-out. The guest answers within the jurisdiction policy's response window (default 72 hours) by accepting or disputing; "+
+			"silence never accepts it: an unanswered claim goes to operator review. Settlement follows the booking's payment collection.").Capture("damage_claim_id", "data.id").Errs(409, 422),
 		CommandPre("POST", "/shortlet/damage-claims/{claim_id}/action", "actOnDamageClaim", tagShortlet, "Withdraw a claim or record an off-platform settlement", http.StatusOK,
 			ownerEvidence[usecases.DamageClaimAction](usecases.ScopeDamageClaim, "claim_id", authz.Do(authz.CapShortletBookings), evidenceClasses),
 			func(c *Call, in *usecases.DamageClaimAction, ev usecases.Evidence) (usecases.DamageClaimView, error) {
@@ -147,6 +162,18 @@ func shortletInternalRoutes() []Route {
 			}).Internal(),
 		Get("/customer-shortlet-bookings/{booking_id}", "customerGetBooking", tagInternal, "Booking as seen by the guest",
 			func(c *Call) (usecases.BookingView, error) { return c.S.CustomerGetBooking(c.Ctx, c.Subj, bid(c)) }).Internal(),
+		List("/customer-shortlet-bookings/{booking_id}/extensions", "customerListStayExtensions", tagInternal, "The guest's stay extensions",
+			func(c *Call, _ Page) (pagination.Response[usecases.ExtensionView], error) {
+				return slice(c.S.CustomerListExtensions(c.Ctx, c.Subj, bid(c)))
+			}).Internal(),
+		Command("POST", "/customer-shortlet-bookings/{booking_id}/extensions", "customerRequestStayExtension", tagInternal, "Checked-in guest asks for a later check-out", http.StatusCreated,
+			func(c *Call, in *usecases.ExtensionInput) (usecases.ExtensionView, error) {
+				return c.S.CustomerRequestExtension(c.Ctx, c.Subj, bid(c), *in)
+			}).Internal().Describe("Claims the added nights; the owner accepts or declines within the approval window.").Capture("extension_id", "data.id").Errs(409, 422),
+		Command("POST", "/customer-shortlet-extensions/{extension_id}/response", "customerRespondStayExtension", tagInternal, "Guest accepts or declines the owner's extension proposal", http.StatusOK,
+			func(c *Call, in *usecases.ExtensionDecision) (usecases.ExtensionView, error) {
+				return c.S.CustomerRespondExtension(c.Ctx, c.Subj, c.ID("extension_id"), *in)
+			}).Internal().Errs(409, 503),
 		Command("POST", "/customer-shortlet-bookings/{booking_id}/action", "customerActOnBooking", tagInternal, "Guest cancels or updates guest verification", http.StatusOK,
 			func(c *Call, in *usecases.CustomerBookingAction) (usecases.BookingView, error) {
 				return c.S.CustomerActOnBooking(c.Ctx, c.Subj, bid(c), *in)

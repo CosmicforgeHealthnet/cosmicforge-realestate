@@ -1047,6 +1047,14 @@ components:
         customer_ref_id:
           format: uuid
           type: string
+        extensions:
+          description: Stay extensions, each with its own immutable price snapshot (single-booking reads)
+          items:
+            $ref: '#/components/schemas/ExtensionView'
+          type: array
+        extensions_total_minor:
+          description: Sum of applied extensions (separate from total_minor, the original accepted snapshot)
+          type: integer
         guest_list:
           items:
             $ref: '#/components/schemas/GuestView'
@@ -1107,6 +1115,7 @@ components:
         - refund_due_minor
         - refunded_minor
         - guest_list
+        - extensions_total_minor
         - version
         - created_at
       type: object
@@ -2599,6 +2608,102 @@ components:
         - purpose
         - status
         - access_count
+      type: object
+    ExtensionDecisionInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - ACCEPT
+            - DECLINE
+          type: string
+        reason_code:
+          description: Required to decline
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+      type: object
+    ExtensionInputInput:
+      additionalProperties: false
+      properties:
+        new_check_out:
+          description: Later than the current check-out
+          format: date
+          type: string
+      required:
+        - new_check_out
+      type: object
+    ExtensionView:
+      properties:
+        amount_minor:
+          type: integer
+        applied_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        awaiting:
+          description: 'Who must answer: GUEST or OWNER (null once answered)'
+          type:
+            - string
+            - "null"
+        booking_id:
+          format: uuid
+          type: string
+        cost:
+          description: Immutable price snapshot of the added nights
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        decline_reason:
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        new_check_out:
+          type: string
+        paid_minor:
+          description: As reported by payment-service
+          type: integer
+        payment_collection:
+          type: string
+        previous_check_out:
+          type: string
+        pricing_version_id:
+          format: uuid
+          type: string
+        requested_by:
+          description: GUEST or OWNER
+          type: string
+        respond_by:
+          format: date-time
+          type: string
+        status:
+          description: REQUESTED, PAYMENT_PENDING, APPLIED, DECLINED, EXPIRED, CANCELLED
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - booking_id
+        - requested_by
+        - status
+        - previous_check_out
+        - new_check_out
+        - pricing_version_id
+        - cost
+        - amount_minor
+        - currency
+        - payment_collection
+        - paid_minor
+        - respond_by
+        - version
+        - created_at
       type: object
     FeatureView:
       properties:
@@ -7201,6 +7306,161 @@ paths:
       security:
         - ServiceBearer: []
       summary: Guest cancels or updates guest verification
+      tags:
+        - _Internal
+  /internal/v1/owner/customer-shortlet-bookings/{booking_id}/extensions:
+    get:
+      operationId: customerListStayExtensions
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            default: 20
+            maximum: 100
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ExtensionView'
+                    type: array
+                  page:
+                    $ref: '#/components/schemas/Page'
+                required:
+                  - data
+                  - page
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: The guest's stay extensions
+      tags:
+        - _Internal
+    post:
+      description: Claims the added nights; the owner accepts or declines within the approval window.
+      operationId: customerRequestStayExtension
+      parameters:
+        - in: path
+          name: booking_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensionInputInput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExtensionView'
+                required:
+                  - data
+                type: object
+          description: Created
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "422":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Checked-in guest asks for a later check-out
+      tags:
+        - _Internal
+  /internal/v1/owner/customer-shortlet-extensions/{extension_id}/response:
+    post:
+      operationId: customerRespondStayExtension
+      parameters:
+        - in: path
+          name: extension_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensionDecisionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExtensionView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "503":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Guest accepts or declines the owner's extension proposal
       tags:
         - _Internal
   /internal/v1/owner/customer-tenancies:

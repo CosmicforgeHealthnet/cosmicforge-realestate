@@ -277,6 +277,7 @@ type CostPreviewInput struct {
 	TermMonths int32      `json:"term_months,omitempty" v:"min=1,max=600" doc:"Leases; default = minimum term or 12"`
 	CheckIn    *time.Time `json:"check_in,omitempty" doc:"Short-let"`
 	CheckOut   *time.Time `json:"check_out,omitempty"`
+	extension  bool       // added nights of an existing stay (see domain.Scenario)
 }
 
 // CostPreviewView is the all-in cost with the pricing version it used.
@@ -294,7 +295,7 @@ func (s *Service) costPreview(ctx context.Context, l db.Listing, in CostPreviewI
 	if pv == nil {
 		return CostPreviewView{}, precondition("PRICING_NOT_SET", "The listing has no price yet.")
 	}
-	sc := domain.Scenario{TermMonths: in.TermMonths}
+	sc := domain.Scenario{TermMonths: in.TermMonths, Extension: in.extension}
 	if in.CheckIn != nil {
 		sc.CheckIn = *in.CheckIn
 	}
