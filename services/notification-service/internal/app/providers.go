@@ -17,7 +17,7 @@ import (
 var (
 	pushProviders = map[string]func(context.Context, *config.Config) (channels.PushProvider, error){
 		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.PushProvider, error) {
-			return &channels.Capture{ChannelName: domain.ChannelPush, File: c.DevCaptureFile}, nil
+			return devCapture(domain.ChannelPush, c.DevCaptureFile)
 		},
 		config.ProviderFCM: func(ctx context.Context, c *config.Config) (channels.PushProvider, error) {
 			ts, err := channels.FCMTokenSourceFromJSON(ctx, []byte(c.FCM.CredentialsJSON.Reveal()))
@@ -29,7 +29,7 @@ var (
 	}
 	emailProviders = map[string]func(context.Context, *config.Config) (channels.EmailProvider, error){
 		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.EmailProvider, error) {
-			return &channels.Capture{ChannelName: domain.ChannelEmail, File: c.DevCaptureFile}, nil
+			return devCapture(domain.ChannelEmail, c.DevCaptureFile)
 		},
 		// Optional adapter; no production email provider has been selected.
 		config.ProviderSMTP: func(_ context.Context, c *config.Config) (channels.EmailProvider, error) {
@@ -39,7 +39,7 @@ var (
 	}
 	smsProviders = map[string]func(context.Context, *config.Config) (channels.SMSProvider, error){
 		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.SMSProvider, error) {
-			return &channels.Capture{ChannelName: domain.ChannelSMS, File: c.DevCaptureFile}, nil
+			return devCapture(domain.ChannelSMS, c.DevCaptureFile)
 		},
 		// Optional Twilio-compatible adapter; no production SMS provider has been selected.
 		config.ProviderTwilio: func(_ context.Context, c *config.Config) (channels.SMSProvider, error) {
@@ -48,6 +48,17 @@ var (
 		},
 	}
 )
+
+// devCapture is the dev provider; its optional capture file is validated
+// (created 0600, no symlink, owned by this user) before the service starts.
+func devCapture(ch domain.Channel, file string) (*channels.Capture, error) {
+	if file != "" {
+		if err := channels.PrepareCaptureFile(file); err != nil {
+			return nil, err
+		}
+	}
+	return &channels.Capture{ChannelName: ch, File: file}, nil
+}
 
 // ProviderNames lists the registered adapter names per channel.
 func ProviderNames() map[domain.Channel][]string {

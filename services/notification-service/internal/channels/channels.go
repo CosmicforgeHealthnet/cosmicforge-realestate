@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -146,6 +145,17 @@ type Capture struct {
 	failures []error
 }
 
+// PrepareCaptureFile creates the dev capture file (0600) or validates an
+// existing one at startup, so a misconfigured path fails fast instead of on
+// the first send.
+func PrepareCaptureFile(path string) error {
+	f, err := openCaptureFile(path)
+	if err != nil {
+		return err
+	}
+	return f.Close()
+}
+
 // NewCapture returns a capture sender for ch.
 func NewCapture(ch domain.Channel) *Capture { return &Capture{ChannelName: ch} }
 
@@ -179,7 +189,7 @@ func (c *Capture) Send(ctx context.Context, m Message) (Result, error) {
 	c.sent = append(c.sent, m)
 	if c.File != "" {
 		line, _ := json.Marshal(map[string]string{"channel": string(c.ChannelName), "destination": m.Destination, "subject": m.Subject, "body": m.Body})
-		f, err := os.OpenFile(c.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+		f, err := openCaptureFile(c.File)
 		if err != nil {
 			return Result{}, err
 		}

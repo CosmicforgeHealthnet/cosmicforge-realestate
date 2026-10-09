@@ -3,6 +3,7 @@ package config
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -180,11 +181,20 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 				problems = append(problems, name+"=dev is not allowed in production")
 			}
 		}
-		if c.DevCaptureFile != "" {
-			problems = append(problems, "NOTIFY_DEV_CAPTURE_FILE is not allowed in production")
-		}
 		if c.SMTP != nil && !c.SMTP.RequireTLS {
 			problems = append(problems, "SMTP_REQUIRE_TLS=false is not allowed in production")
+		}
+	}
+	// The capture file holds message bodies (one-time codes): local and
+	// end-to-end tooling only, never staging or production.
+	if c.DevCaptureFile != "" {
+		switch {
+		case !devDefault:
+			problems = append(problems, "NOTIFY_DEV_CAPTURE_FILE is only allowed with APP_ENV=development or test (never in "+c.Environment+")")
+		case !filepath.IsAbs(c.DevCaptureFile):
+			problems = append(problems, "NOTIFY_DEV_CAPTURE_FILE must be an absolute path")
+		case c.PushProvider != ProviderDev && c.EmailProvider != ProviderDev && c.SMSProvider != ProviderDev:
+			problems = append(problems, "NOTIFY_DEV_CAPTURE_FILE requires a dev provider")
 		}
 	}
 	if c.Twilio != nil && c.Twilio.From == "" && c.Twilio.MessagingServiceSID == "" {

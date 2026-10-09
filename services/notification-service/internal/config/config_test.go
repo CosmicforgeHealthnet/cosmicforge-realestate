@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -100,5 +101,34 @@ func TestProductionRefusesCaptureAndWorkerNeedsNATS(t *testing.T) {
 	m["NOTIFY_SEND_TIMEOUT"] = "5m"
 	if _, err := load(m, ModeAPI); err == nil || strings.Contains(err.Error(), "u:p@") {
 		t.Fatalf("expected failure without leaking DSN: %v", err)
+	}
+}
+
+func TestCaptureFileOnlyForLocalDevAndTest(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "capture.jsonl")
+	for _, env := range []string{"development", "test"} {
+		m := base(t, env)
+		m["NOTIFY_DEV_CAPTURE_FILE"] = path
+		if _, err := load(m, ModeWorker); err != nil {
+			t.Fatalf("%s: %v", env, err)
+		}
+	}
+	for _, env := range []string{"staging", "production"} {
+		m := base(t, env)
+		m["NOTIFY_PUSH_PROVIDER"], m["NOTIFY_DEV_CAPTURE_FILE"] = "disabled", path
+		if _, err := load(m, ModeWorker); err == nil || !strings.Contains(err.Error(), "NOTIFY_DEV_CAPTURE_FILE is only allowed") {
+			t.Fatalf("%s must refuse the capture file: %v", env, err)
+		}
+	}
+	m := base(t, "development")
+	m["NOTIFY_DEV_CAPTURE_FILE"] = "relative.jsonl"
+	if _, err := load(m, ModeWorker); err == nil || !strings.Contains(err.Error(), "absolute path") {
+		t.Fatalf("relative path accepted: %v", err)
+	}
+	m = base(t, "development")
+	m["NOTIFY_DEV_CAPTURE_FILE"] = path
+	m["NOTIFY_PUSH_PROVIDER"], m["NOTIFY_EMAIL_PROVIDER"], m["NOTIFY_SMS_PROVIDER"] = "disabled", "disabled", "disabled"
+	if _, err := load(m, ModeWorker); err == nil || !strings.Contains(err.Error(), "requires a dev provider") {
+		t.Fatalf("capture file without a dev provider accepted: %v", err)
 	}
 }

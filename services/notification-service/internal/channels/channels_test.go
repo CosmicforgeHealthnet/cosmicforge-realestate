@@ -356,3 +356,65 @@ func TestCaptureFileAppendsJSONLines(t *testing.T) {
 		t.Fatal("in-memory capture")
 	}
 }
+
+func TestCaptureFileIsPrivateAndNeverFollowsLinks(t *testing.T) {
+	dir := t.TempDir()
+	send := func(path string) error {
+		c := &Capture{ChannelName: "EMAIL", File: path}
+		_, err := c.SendEmail(context.Background(), Message{DeliveryID: ids.New(), Destination: "a@example.com", Body: "Your code is 654321"})
+		return err
+	}
+	fresh := filepath.Join(dir, "fresh.jsonl")
+	if err := PrepareCaptureFile(fresh); err != nil {
+		t.Fatal(err)
+	}
+	if fi, err := os.Stat(fresh); err != nil || fi.Mode().Perm() != 0o600 {
+		t.Fatalf("created mode %v (%v)", fi.Mode().Perm(), err)
+	}
+	if err := send(fresh); err != nil {
+		t.Fatal(err)
+	}
+
+	// An existing file readable by others is refused, not silently used.
+	wide := filepath.Join(dir, "wide.jsonl")
+	if err := os.WriteFile(wide, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(wide, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := PrepareCaptureFile(wide); err == nil || !strings.Contains(err.Error(), "group or others") {
+		t.Fatalf("world-readable file accepted: %v", err)
+	}
+	if err := send(wide); err == nil {
+		t.Fatal("send wrote to a world-readable file")
+	}
+
+	// A symbolic link (e.g. planted in a shared directory) is never followed.
+	target := filepath.Join(dir, "target")
+	if err := os.WriteFile(target, []byte("keep"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(dir, "link.jsonl")
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+	if err := PrepareCaptureFile(link); err == nil || !strings.Contains(err.Error(), "symbolic link") {
+		t.Fatalf("symlink accepted: %v", err)
+	}
+	if err := send(link); err == nil {
+		t.Fatal("send followed a symlink")
+	}
+	if raw, _ := os.ReadFile(target); string(raw) != "keep" {
+		t.Fatalf("link target modified: %q", raw)
+	}
+
+	// Not a regular file.
+	if err := PrepareCaptureFile(dir); err == nil {
+		t.Fatal("directory accepted")
+	}
+	// Errors never carry the message body.
+	if err := send(link); err != nil && strings.Contains(err.Error(), "654321") {
+		t.Fatalf("error leaks the body: %v", err)
+	}
+}
