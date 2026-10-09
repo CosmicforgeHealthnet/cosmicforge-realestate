@@ -16,8 +16,8 @@ import (
 // cases, dispatch, retry classification) does not change.
 var (
 	pushProviders = map[string]func(context.Context, *config.Config) (channels.PushProvider, error){
-		config.ProviderDev: func(context.Context, *config.Config) (channels.PushProvider, error) {
-			return channels.NewCapture(domain.ChannelPush), nil
+		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.PushProvider, error) {
+			return &channels.Capture{ChannelName: domain.ChannelPush, File: c.DevCaptureFile}, nil
 		},
 		config.ProviderFCM: func(ctx context.Context, c *config.Config) (channels.PushProvider, error) {
 			ts, err := channels.FCMTokenSourceFromJSON(ctx, []byte(c.FCM.CredentialsJSON.Reveal()))
@@ -28,8 +28,8 @@ var (
 		},
 	}
 	emailProviders = map[string]func(context.Context, *config.Config) (channels.EmailProvider, error){
-		config.ProviderDev: func(context.Context, *config.Config) (channels.EmailProvider, error) {
-			return channels.NewCapture(domain.ChannelEmail), nil
+		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.EmailProvider, error) {
+			return &channels.Capture{ChannelName: domain.ChannelEmail, File: c.DevCaptureFile}, nil
 		},
 		// Optional adapter; no production email provider has been selected.
 		config.ProviderSMTP: func(_ context.Context, c *config.Config) (channels.EmailProvider, error) {
@@ -38,8 +38,8 @@ var (
 		},
 	}
 	smsProviders = map[string]func(context.Context, *config.Config) (channels.SMSProvider, error){
-		config.ProviderDev: func(context.Context, *config.Config) (channels.SMSProvider, error) {
-			return channels.NewCapture(domain.ChannelSMS), nil
+		config.ProviderDev: func(_ context.Context, c *config.Config) (channels.SMSProvider, error) {
+			return &channels.Capture{ChannelName: domain.ChannelSMS, File: c.DevCaptureFile}, nil
 		},
 		// Optional Twilio-compatible adapter; no production SMS provider has been selected.
 		config.ProviderTwilio: func(_ context.Context, c *config.Config) (channels.SMSProvider, error) {

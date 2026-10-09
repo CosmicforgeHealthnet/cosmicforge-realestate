@@ -86,6 +86,11 @@ func (s *Service) Consumers(prefix string) []ConsumerSpec {
 		{Name: ConsumerVerification, Stream: "verification", Filters: []string{prefix + ".verification.>"}, Handle: s.ApplyVerificationEvent},
 		{Name: ConsumerMedia, Stream: "media", Filters: []string{prefix + ".media.ready.v1", prefix + ".media.rejected.v1", prefix + ".media.deleted.v1"},
 			Handle: s.ApplyMediaEvent},
+		{Name: ConsumerPayment, Stream: "payment", Filters: filters(prefix, ConsumerPayment), Handle: s.ApplyPaymentEvent},
+		{Name: ConsumerManager, Stream: "property_manager", Filters: filters(prefix, ConsumerManager), Handle: s.ApplyManagerEvent},
+		{Name: ConsumerArtisan, Stream: "artisan", Filters: filters(prefix, ConsumerArtisan), Handle: s.ApplyArtisanEvent},
+		{Name: ConsumerProfessional, Stream: "professional_services", Filters: filters(prefix, ConsumerProfessional), Handle: s.ApplyProfessionalEvent},
+		{Name: ConsumerMarketplace, Stream: "marketplace", Filters: filters(prefix, ConsumerMarketplace), Handle: s.ApplyMarketplaceEvent},
 	}
 }
 

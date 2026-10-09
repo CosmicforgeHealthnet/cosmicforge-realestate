@@ -1323,13 +1323,11 @@ func (s *Service) CustomerActOnAgreement(ctx context.Context, subj authz.Subject
 
 // Owner notification templates of the tenancy contexts.
 const (
-	TemplateAgreementSigned   = "owner.agreement_signed"    // property_title
-	TemplateRentOverdue       = "owner.rent_overdue"        // property_title, due_date
-	TemplateRenewalDue        = "owner.tenancy_renewal_due" // property_title, end_date
-	TemplateTenantNotice      = "owner.tenant_notice"       // property_title, notice_type
-	TemplateTenantResponse    = "owner.tenant_response"     // property_title, subject
-	TemplateDepositSettlement = "owner.deposit_settlement"  // property_title, status
-	TemplateMoveInReady       = "owner.move_in_ready"       // property_title
+	TemplateAgreementSigned = "owner.agreement_signed"    // property_title
+	TemplateRentOverdue     = "owner.rent_overdue"        // property_title, due_date
+	TemplateRenewalDue      = "owner.tenancy_renewal_due" // property_title, end_date
+	TemplateTenantNotice    = "owner.tenant_notice"       // property_title, notice_type
+	TemplateTenantResponse  = "owner.tenant_response"     // property_title, subject
 )
 
 func init() {

@@ -12,8 +12,10 @@ package channels
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -136,9 +138,12 @@ type Registry map[domain.Channel]Sender
 // fail. Configuration refuses it in production.
 type Capture struct {
 	ChannelName domain.Channel
-	mu          sync.Mutex
-	sent        []Message
-	failures    []error
+	// File, when set, also appends each message as a JSON line (local and
+	// end-to-end test tooling only; the dev provider is refused in production).
+	File     string
+	mu       sync.Mutex
+	sent     []Message
+	failures []error
 }
 
 // NewCapture returns a capture sender for ch.
@@ -172,6 +177,20 @@ func (c *Capture) Send(ctx context.Context, m Message) (Result, error) {
 		return Result{}, err
 	}
 	c.sent = append(c.sent, m)
+	if c.File != "" {
+		line, _ := json.Marshal(map[string]string{"channel": string(c.ChannelName), "destination": m.Destination, "subject": m.Subject, "body": m.Body})
+		f, err := os.OpenFile(c.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+		if err != nil {
+			return Result{}, err
+		}
+		_, err = f.Write(append(line, '\n'))
+		if cerr := f.Close(); err == nil {
+			err = cerr
+		}
+		if err != nil {
+			return Result{}, err
+		}
+	}
 	return Result{ProviderMessageID: "cap-" + m.DeliveryID.String(), HTTPStatus: 200}, nil
 }
 

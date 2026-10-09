@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -71,7 +72,8 @@ func startOwnerPlatform(t *testing.T) *platformEnv {
 		waitReady(t, "http://"+apiAddr)
 		waitReady(t, "http://"+workerAddr)
 	}
-	launch(platform.NotificationService)
+	p.captureFile = filepath.Join(t.TempDir(), "notifications.jsonl")
+	launch(platform.NotificationService, "NOTIFY_DEV_CAPTURE_FILE", p.captureFile)
 	userKey := newKey("io-at-e2e")
 	launch(platform.IndividualOwnerService,
 		"NOTIFICATION_SERVICE_URL", p.internal[platform.NotificationService],

@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
 	testkit "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/testing"
 )
 
@@ -146,6 +149,61 @@ func TestPostmanMatchesHandlers(t *testing.T) {
 		}
 		if !found {
 			t.Errorf("Postman request without implemented route: %s", q)
+		}
+	}
+}
+
+// TestOwnerTemplatesSeeded guards against sending a template key that
+// notification-service does not have (its seed is the template contract).
+func TestOwnerTemplatesSeeded(t *testing.T) {
+	keyRe := regexp.MustCompile(`"(owner\.[a-z_]+)"`)
+	used := map[string]bool{}
+	files, _ := filepath.Glob("../../internal/usecases/*.go")
+	for _, f := range files {
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range regexp.MustCompile(`Template[A-Za-z]+\s*=\s*"owner\.[a-z_]+"`).FindAllString(string(src), -1) {
+			used[keyRe.FindStringSubmatch(m)[1]] = true
+		}
+	}
+	seed, err := os.ReadFile("../../../notification-service/migrations/00003_seed_owner_templates.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	seeded := map[string]bool{}
+	for _, m := range regexp.MustCompile(`'(owner\.[a-z_]+)'`).FindAllStringSubmatch(string(seed), -1) {
+		seeded[m[1]] = true
+	}
+	if len(used) < 20 {
+		t.Fatalf("found only %d owner templates", len(used))
+	}
+	for k := range used {
+		if !seeded[k] {
+			t.Errorf("template %s is sent but not seeded in notification-service", k)
+		}
+	}
+	for k := range seeded {
+		if !used[k] {
+			t.Errorf("template %s is seeded but never sent", k)
+		}
+	}
+}
+
+// TestConsumedSubjectsOutsideOwnerStream: a subject can belong to one
+// JetStream stream only, so events this service consumes must not match
+// the owner stream's subjects.
+func TestConsumedSubjectsOutsideOwnerStream(t *testing.T) {
+	svc := (&usecases.Service{})
+	owned := usecases.StreamSubjects("realestate")
+	for _, c := range svc.Consumers("realestate") {
+		for _, f := range c.Filters {
+			for _, o := range owned {
+				if strings.HasPrefix(f, strings.TrimSuffix(o, ">")) {
+					t.Errorf("consumer %s filter %s overlaps owner stream subject %s", c.Name, f, o)
+				}
+			}
 		}
 	}
 }

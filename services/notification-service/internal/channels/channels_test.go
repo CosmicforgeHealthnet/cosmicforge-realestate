@@ -10,6 +10,8 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -330,5 +332,27 @@ func TestChannelAdaptersRouteToProviderInterfaces(t *testing.T) {
 	}
 	if Push(c).Channel() != "PUSH" || Email(c).Channel() != "EMAIL" || SMS(c).Channel() != "SMS" || len(c.Sent()) != 3 {
 		t.Fatal("adapter channels")
+	}
+}
+
+func TestCaptureFileAppendsJSONLines(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "capture.jsonl")
+	c := &Capture{ChannelName: "EMAIL", File: path}
+	for _, body := range []string{"Your code is 123456", "second"} {
+		if _, err := c.SendEmail(context.Background(), Message{DeliveryID: ids.New(), Destination: "a@example.com", Subject: "s", Body: body}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(raw)), "\n")
+	var first map[string]string
+	if len(lines) != 2 || json.Unmarshal([]byte(lines[0]), &first) != nil || first["body"] != "Your code is 123456" || first["destination"] != "a@example.com" {
+		t.Fatalf("capture file %q", raw)
+	}
+	if len(c.Sent()) != 2 {
+		t.Fatal("in-memory capture")
 	}
 }

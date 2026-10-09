@@ -104,6 +104,8 @@ type platformEnv struct {
 	users    *auth.Issuer
 	nats     *testkit.NATSServer
 	procs    []*proc
+	// captureFile receives notification-service dev-provider messages.
+	captureFile string
 }
 
 type proc struct {

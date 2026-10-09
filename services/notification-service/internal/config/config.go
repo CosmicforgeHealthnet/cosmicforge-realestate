@@ -82,7 +82,10 @@ type Config struct {
 
 	PushProvider  string
 	EmailProvider string
-	SMSProvider   string
+	// DevCaptureFile appends dev-provider messages to a JSON-lines file
+	// (local/E2E tooling; requires a dev provider, never production).
+	DevCaptureFile string
+	SMSProvider    string
 
 	// Adapter settings; nil unless that adapter is selected.
 	FCM    *FCMConfig
@@ -131,6 +134,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	}
 	c.PushProvider = l.OneOf("NOTIFY_PUSH_PROVIDER", pushDef, ProviderFCM, ProviderDev, ProviderDisabled)
 	c.EmailProvider = l.OneOf("NOTIFY_EMAIL_PROVIDER", otherDef, ProviderDev, ProviderDisabled, ProviderSMTP)
+	c.DevCaptureFile = l.String("NOTIFY_DEV_CAPTURE_FILE", "")
 	c.SMSProvider = l.OneOf("NOTIFY_SMS_PROVIDER", otherDef, ProviderDev, ProviderDisabled, ProviderTwilio)
 	if c.PushProvider == ProviderFCM {
 		c.FCM = &FCMConfig{ProjectID: l.Required("FCM_PROJECT_ID"), CredentialsJSON: l.Secret("FCM_CREDENTIALS_JSON", true),
@@ -175,6 +179,9 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 			if p == ProviderDev {
 				problems = append(problems, name+"=dev is not allowed in production")
 			}
+		}
+		if c.DevCaptureFile != "" {
+			problems = append(problems, "NOTIFY_DEV_CAPTURE_FILE is not allowed in production")
 		}
 		if c.SMTP != nil && !c.SMTP.RequireTLS {
 			problems = append(problems, "SMTP_REQUIRE_TLS=false is not allowed in production")
