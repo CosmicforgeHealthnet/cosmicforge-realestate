@@ -155,7 +155,15 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 		return fail(err)
 	}
 	a.Health = health.New(string(platform.IndividualOwnerService), cfg.Environment, 2*time.Second,
+		// Payment wallet provisioning is asynchronous and never blocks readiness.
 		health.Check{Name: "postgres", Fn: database.Ping(pool)})
+	if cfg.PaymentWalletServiceURL != "" {
+		wc, err := payment.NewWalletProvisioner(cfg.PaymentWalletServiceURL, cfg.Identity.Signer, cfg.PaymentLegalEntity, cfg.Policy.Domain.DefaultCurrency)
+		if err != nil {
+			return fail(err)
+		}
+		a.Service.SetWalletRegistration(wc)
+	}
 	a.Router = ohttp.NewRouter(ohttp.Config{Service: a.Service, Idempotency: a.Idem, Verifier: cfg.Identity.Verifier, Health: a.Health, Logger: log, JWKS: a.JWKS})
 	return a, nil
 }

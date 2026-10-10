@@ -21,7 +21,9 @@ func TestGeneratedFilesAreCurrent(t *testing.T) {
 	}
 	for _, path := range SortedKeys(files) {
 		cur, err := os.ReadFile(filepath.Join(root, path))
-		if err != nil || !bytes.Equal(cur, files[path]) {
+		// Git may check text contracts out as CRLF on Windows. Compare their
+		// canonical content so line endings do not report semantic drift.
+		if err != nil || !bytes.Equal(bytes.ReplaceAll(cur, []byte("\r\n"), []byte("\n")), files[path]) {
 			t.Errorf("%s is stale; run: go run ./cmd/apidocgen", path)
 		}
 	}

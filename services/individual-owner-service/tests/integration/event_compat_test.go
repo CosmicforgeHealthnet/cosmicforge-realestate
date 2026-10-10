@@ -90,7 +90,25 @@ func TestUpstreamFixturesMatchProducerSchemas(t *testing.T) {
 	}
 	// No upstream schema exists for the remaining families: their consumer
 	// contracts are this service's own and live integration is BLOCKED.
-	for _, dir := range []string{"payments", "property-managers", "artisans", "professionals", "marketplace"} {
+	// Section 1-3 finance.* events describe collection/pending ledger facts.
+	// They must never masquerade as this consumer's later payment.* held or
+	// refund lifecycle facts. Validate the foundation envelope and reject it.
+	wallet := ids.New()
+	foundation := producerEvent(t, platform.PaymentService, "finance.wallet.opened.v1", "wallet", wallet, map[string]any{"wallet_id": wallet, "identity_id": ids.New(), "domain": "individual-owner", "role": "OWNER", "legal_entity": "cosmicforge-ng", "currency": "NGN", "state": "ACTIVE"})
+	testkit.ValidateJSONSchema(t, upstreamContracts+"payments/finance.wallet.opened.v1.schema.json", envelopeJSON(t, foundation))
+	if err := svc.ApplyPaymentEvent(ctx, foundation); !events.IsPermanent(err) {
+		t.Fatalf("foundation fact must not assert business payment approval: %v", err)
+	}
+	entries, err := os.ReadDir(upstreamContracts + "payments")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "payment.") {
+			t.Fatalf("payment lifecycle schema now exists: add consumer fixtures and compatibility mapping: %s", entry.Name())
+		}
+	}
+	for _, dir := range []string{"property-managers", "artisans", "professionals", "marketplace"} {
 		if n := countSchemas(t, upstreamContracts+dir); n != 0 {
 			t.Fatalf("%s now publishes %d schemas: add producer-schema fixtures and update EVENT_COMPATIBILITY.md", dir, n)
 		}

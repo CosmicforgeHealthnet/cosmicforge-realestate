@@ -5,6 +5,7 @@ toolchain go1.26.9
 use (
 	./gateway/api-gateway
 	./services/individual-owner-service
+	./services/payment-service
 	./services/media-document-service
 	./services/notification-service
 	./services/verification-service

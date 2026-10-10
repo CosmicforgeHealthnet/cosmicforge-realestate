@@ -1,0 +1,30 @@
+"""Summarize saved go test -json evidence; never promote simulators to sandbox."""
+import json
+from collections import defaultdict
+from pathlib import Path
+
+root = Path(__file__).resolve().parents[2]
+summary = {}
+for name in ["final-test-results.jsonl", "payment-final-test-results.jsonl"]:
+    suites = defaultdict(lambda: {"tests": 0, "subtests": 0, "failed": [], "skipped": [], "packages_failed": [], "elapsed_seconds": 0.0})
+    for line in (root / "docs/product/payments" / name).read_text(encoding="utf-8-sig").splitlines():
+        e = json.loads(line)
+        package = e.get("Package", "")
+        family = "payment-service" if "/payment-service/" in package else "individual-owner-service" if "/individual-owner-service/" in package else "api-gateway"
+        s = suites[family]
+        test = e.get("Test")
+        if e["Action"] == "pass" and test:
+            s["subtests" if "/" in test else "tests"] += 1
+        if e["Action"] == "fail":
+            s["failed" if test else "packages_failed"].append(test or package)
+        if e["Action"] == "skip" and test:
+            s["skipped"].append(test)
+        if e["Action"] == "pass" and not test:
+            s["elapsed_seconds"] += e.get("Elapsed", 0)
+    summary[name] = dict(suites)
+
+out = root / "docs/product/payments/test-summary.json"
+out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+print(json.dumps(summary, indent=2))
+if any(s["failed"] or s["packages_failed"] or s["skipped"] for suites in summary.values() for s in suites.values()):
+    raise SystemExit("Final certification contains failures or skipped tests")

@@ -117,6 +117,7 @@ func (s *Service) DomainJobs(cfg JobConfig) []Job {
 		cfg.ImportLease = 2 * time.Minute
 	}
 	return []Job{
+		{Name: "wallet-registration", Run: s.DeliverWalletRegistrations},
 		{Name: "payout-cooling-off", Run: func(ctx context.Context) error {
 			_, err := s.ActivateCooledPayoutAccounts(ctx, cfg.Batch)
 			return err

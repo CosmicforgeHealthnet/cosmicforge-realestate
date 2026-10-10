@@ -16,20 +16,26 @@ consumes it (tests/e2e). Staging and production are not certified.
 |---|---|---|---|---|---|---|
 | 1 | `verification.*` (`individual-owner-service--verification`) | verification-service (implemented) | `submitted`, `processing`, `manual_review_required`, `verified`, `rejected`, `expired` | `contracts/events/verification/*.v1.schema.json` | `verificationPayload` | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`verified`) |
 | 2 | `media.*` (`individual-owner-service--media`) | media-document-service (implemented) | `ready`, `rejected`, `deleted` | `contracts/events/media/*.v1.schema.json` | `ApplyMediaEvent` payload | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`deleted`) |
-| 3 | `payment.*` (`individual-owner-service--payment`) | payment-service (**not implemented**) | `intent.updated`, `refund.updated` | none published | `PaymentIntentEvent`, `PaymentRefundEvent` (README "Consumed events") | LOCAL PASS · live **BLOCKED** |
+| 3 | `payment.*` (`individual-owner-service--payment`) | payment-service (Sections 1–3 foundation implemented) | `intent.updated`, `refund.updated` | `finance.*` foundation schemas published; no `payment.*` lifecycle schemas yet | `PaymentIntentEvent`, `PaymentRefundEvent` (README "Consumed events") | LOCAL PASS · full lifecycle integration deferred to Section 4+ |
 | 4 | `manager.*` (`individual-owner-service--property-manager`) | property-manager-service (**not implemented**) | `mandate.responded`, `activity.recorded` | none published | `ManagerResponseEvent`, `ManagerActivityEvent` | LOCAL PASS · live **BLOCKED** |
 | 5 | `artisan.*` (`individual-owner-service--artisan`) | artisan-service (**not implemented**) | `quote.submitted`, `job.event_recorded` | none published | `ArtisanQuoteEvent`, `ArtisanJobEvent` | LOCAL PASS · live **BLOCKED** |
 | 6 | `professional.*` (`individual-owner-service--professional-services`) | professional-services-service (**not implemented**) | `engagement.updated` | none published | `ProfessionalUpdateEvent` | LOCAL PASS · live **BLOCKED** |
 | 7 | `marketplace.*` (`individual-owner-service--marketplace`) | marketplace-service (**not implemented**) | `listing.reported` | none published | `ListingReportedEvent` | LOCAL PASS · live **BLOCKED** |
 
-Families 3–7 have no producer code and no schema directory
-(`contracts/events/{payments,property-managers,artisans,professionals,marketplace}`
-are empty). Their payload shapes are this service's consumer contract, so
+The payment foundation publishes eight `finance.*.v1` schemas under
+`contracts/events/payments`, covering internal wallet, collection and pending
+ledger facts. A verified collection is not a held/released business payment;
+the owner consumer deliberately rejects those types. Automatic Owner wallet
+registration instead uses the signed, durable wallet registration adapter.
+The owner `payment.intent.updated.v1` and `payment.refund.updated.v1` lifecycle
+contracts remain reserved for Section 4 onward. Families 4–7 have no producer
+code or schema files. Their payload shapes are this service's consumer contract, so
 the producer teams must adopt them or negotiate a change. The real-process run
 confirms this: the owner worker logs `stream not found` for those five
 consumers and retries. It does not fail and it does not fabricate data.
-`TestUpstreamFixturesMatchProducerSchemas` fails as soon as one of those
-directories gains a schema, which forces a fixture and matrix update.
+`TestUpstreamFixturesMatchProducerSchemas` validates the foundation envelope
+and its safe rejection, and detects newly published `payment.*` lifecycle
+schemas or schemas for families 4–7, forcing a compatibility update.
 
 ## Safety rules (all families)
 

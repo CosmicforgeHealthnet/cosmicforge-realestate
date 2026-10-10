@@ -182,6 +182,7 @@ func TestRouteMatrix(t *testing.T) {
 		{"/api/v1/verification/cases/x", e.verification},
 		{"/api/v1/media/uploads", e.media},
 		{"/api/v1/notifications/push-endpoints", e.notif},
+		{"/api/v1/payments/wallets/me", e.webhook},
 		{"/api/v1/owner/properties", e.owner},
 	}
 	for _, c := range cases {
@@ -195,7 +196,7 @@ func TestRouteMatrix(t *testing.T) {
 		}
 	}
 	// Unconfigured domain services are not routed (no fabricated functionality).
-	for _, p := range []string{"/api/v1/artisan/jobs", "/api/v1/payments/x", "/api/v1/unknown/x", "/api/v2/verification/x", "/"} {
+	for _, p := range []string{"/api/v1/artisan/jobs", "/api/v1/unknown/x", "/api/v2/verification/x", "/"} {
 		resp, env := e.do("GET", p, tok, nil, "")
 		if resp.StatusCode != 404 || env.Error.Code != apperrors.CodeRouteNotFound {
 			t.Fatalf("%s -> %d %s", p, resp.StatusCode, env.Error.Code)

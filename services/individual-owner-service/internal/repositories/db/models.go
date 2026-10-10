@@ -2299,3 +2299,15 @@ type ViewingSlot struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+type WalletRegistrationDelivery struct {
+	AccountID       ids.ID
+	RegistrationRef string
+	Attempts        int32
+	NextAttemptAt   time.Time
+	LeaseToken      *ids.ID
+	LeaseUntil      *time.Time
+	DeliveredAt     *time.Time
+	LastErrorCode   *string
+	CreatedAt       time.Time
+}

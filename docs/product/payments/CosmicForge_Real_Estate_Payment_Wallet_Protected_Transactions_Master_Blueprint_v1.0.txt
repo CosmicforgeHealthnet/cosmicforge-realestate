@@ -1,0 +1,946 @@
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   1
+COSMICFORGE
+REAL ESTATE
+PAYMENT, WALLET &
+PROTECTED TRANSACTIONS
+MASTER ARCHITECTURE & BUSINESS-RULE BLUEPRINT
+Version 1.0  |  10 October 2026
+Document control Details
+Owner CosmicForge Tech Limited / CosmicForge Real Estate
+product leadership
+Authority Eight Real Estate Product Feature Documents v5.0, dated
+22 July 2026, plus recorded stakeholder decisions
+State Baseline technical design approved for specification;
+financial-provider and legal release gates OPEN
+Primary market Nigeria first; other jurisdictions only through separately
+approved policy packs
+Purpose
+Comprehensive reference for Payment Service
+requirements, integration contracts, implementation
+phases and certification
+This document specifies product intent and system design. It is not evidence of a licensed escrow service, a Paystack-approved
+use case, a live stored-value product or production-readiness.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   2
+Document authority and reading guide
+This is the proposed controlled master blueprint for the shared CosmicForge Real Estate Financial Core. It
+consolidates the user-approved architectural decisions and the payment-related feature requirements of all eight
+product documents. It does not supersede the source documents: where a conflict is found, log it and obtain
+product/legal approval before changing either implementation or source requirements.
+Status label Interpretation
+LOCKED — PRODUCT A business/technical direction explicitly agreed in this
+conversation.
+REQUIRED — SOURCE Capability expressly specified by one or more source product
+documents.
+DESIGN — ENGINEERING Recommended design detail requiring architecture review
+and test evidence.
+OPEN — BUSINESS Rates, thresholds, default rules or authorities not yet
+approved.
+GATED — EXTERNAL Depends on written provider approval, licensed operating
+model or legal review.
+DEFERRED Intentionally outside this core implementation phase, with
+safe future interfaces reserved.
+Source documents, all v5.0 — 22 July 2026
+ID Source Payment-relevant chapters
+00 CosmicForge Real Estate Platform
+Corporate Product Overview
+§10 full cost; §11 protected payments;
+§12 deposits; §23 disputes; §27 journeys
+01 Unified Property Marketplace
+§11 tenancy; §16 purchase; §17 off-plan;
+§18–20 hospitality/payment; §29
+financing
+02 Individual Property Owner §3 payout; §8 costs; §14 rent/deposit;
+§15 renewals; §19 sale; §20 short-let
+03 Business Property Operations
+§4 enterprise finance; §9–16
+rent/sale/development/hospitality; §23
+reporting
+04 Property Manager §5 permissions; §17 fees and payouts;
+§21 disputes
+05 Artisan and Property Service Provider §6 quotation; §8 evidence; §13 invoices,
+payments and earnings
+06 Professional Property Services §4 fees; §12 staged work; §16
+fees/invoices/payouts
+07 Platform Administration and
+Operations
+§10 costs; §11
+payments/payouts/reconciliation; §12
+deposits; §13 fraud; §15 disputes
+The existing Individual Owner backend implementation specification and KarryGo Payment Service source audit are
+supporting engineering references, not overriding product authorities.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   3
+Executive decisions — locked baseline
+•  One authoritative Real Estate Payment Service and ledger serves every role and application; no independent
+per-app ledger.
+•  Every registered public user receives an internal wallet identity automatically; external virtual accounts
+require consent, eligibility and provider approval.
+•  Funds are collected, safeguarded and moved by approved regulated third parties. CosmicForge owns
+orchestrated payment logic, records, allocations, authorization and policies.
+•  Paystack is the preferred first integration, but the platform is provider-neutral at its domain boundary.
+Collection, custody, wallet funding, refunds and payout rails may differ.
+•  Paystack Manual Payouts is the preferred settlement arrangement where approved. Merchant balance alone
+is not proof of permissible buyer-seller escrow or user stored value.
+•  Beneficiary splits are computed and version-locked inside the CosmicForge ledger; unreleased shares are
+visible as pending/protected and never withdrawable.
+•  Withdrawal eligibility follows verifiable contractual milestones, dispute/lien holds, beneficiary validation,
+settled backing and wallet limits.
+•  All receiving user roles can withdraw eligible available earnings through an approved payout provider;
+funding and customer withdrawal are separately permissioned.
+•  Initial rental charges are separated from rent. Subsequent rent payments do not automatically repeat one-off
+platform/onboarding/legal fees.
+•  Recurring platform revenue defaults to a disclosed owner-side commission on rent collections (rate NOT
+fixed), or a separately approved owner subscription.
+•  Continuing/periodic tenancy and fixed-term agreement journeys are both supported; payment of the next
+rent installment does not automatically require a new contract.
+•  Customer wallet top-up and authorized spend are core; saved-bank-account auto-debit, card mandates and
+automated recurring rent scheduling are deferred to later phases.
+•  No go-live until approved legal/regulatory funds-handling structure, Paystack/provider commercial
+agreement, and financial certification are evidenced.
+1. Scope, boundaries and operating principles
+1.1 Financial Core ownership
+•  Wallet identity/accounting; durable payment intent and collection confirmation; double-entry books;
+settlement/custody reconciliation; calculation and reservation of beneficiary allocations.
+•  Contractual release policies; holds, disputed portions, release approvals; refunds, chargebacks, negative-
+balance controls; verified payout accounts and withdrawals.
+•  Provider registry/adapters; provider selection and liquidity; financial records, statements, receipts, audit
+trails, risk controls, finance-operations APIs and event publication.
+•  Recurring rental-obligation interface (not automatic saved-bank debit in v1); role-bound accounts and tax/fee
+breakdown metadata.
+1.2 What other services own
+Owning service Authoritative facts Payment Core consumes
+Marketplace
+Payer identity/context, rental applications, booking selection,
+accepted all-in quote, customer consent, tenant/guest
+presence and dispute requests.
+Individual Owner Owner and property authority, tenancy/lease/offer, signed
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   4
+Owning service Authoritative facts Payment Core consumes
+version, move-in/out and inspection evidence, mandate
+restrictions, price approval.
+Business Operations
+Corporate legal owner, branch and staff approvals,
+developer project/phase, corporate asset and hospitality
+folios.
+Property Manager Active owner mandate, manager scope/rate/dates, property
+limits; cannot change owner beneficiary.
+Artisan/Provider Accepted quote, milestones, attendance, completion
+evidence, materials and approved extras.
+Professional Appointment/mandate, conflict check, signed report or
+deliverable, approved fee and completion.
+Administration/Disputes
+Approved finance policy, compliance decisions, fraud blocks,
+dispute case and release decision, dual-control
+authorizations.
+Verification/Identity (shared) Payer/beneficiary KYB/KYC badges and validity; no
+independent Payment Core assertion of identity truth.
+1.3 Non-negotiable boundaries
+•  No app or human actor may directly update spendable money; only ledger-posted, policy-authorized
+operations change financial balances.
+•  A business event must be authenticated, source-bound, versioned, evidence-linked, and idempotent before
+affecting protected allocations.
+•  Payout beneficiary must be verified against legal owner or separately documented entitlement, not the listing
+creator or manager.
+•  No provider-scoped balances are assumed fungible across merchants, providers, legal entities, currencies or
+regulated custodial accounts.
+•  No claims that funds "never leave Paystack": in manual payout arrangements funds reside in a Paystack-
+identified commercial/banking structure, subject to settlement timing, terms and restrictions.
+•  Production transfer and fund-holding actions default to disabled pending commercial, regulatory and tested
+operational approval.
+2. User wallet model — every role
+LOCKED — PRODUCT: A wallet identity is created when an eligible user account is registered. A wallet is a ledger-
+based account view, not an individual bank account or guaranteed deposit-taking facility. The wallet must be
+able to display pending and available money appropriately; withdrawal/funding functions are capability-gated.
+Role Core wallet use Withdrawal policy
+Tenant / buyer / guest / seeker
+Top-ups, available wallet spend,
+refunded and credited balances,
+payment/history.
+Eligible refundable/available balances
+only; approved wallet operating model
+required.
+Individual owner / co-owner Rent/sale/stay allocations, pending
+proceeds, property-linked history.
+Only verified share and payout
+destination.
+Corporate owner / developer /
+hospitality
+Branch/project/asset-level payable and
+available balances.
+KYB, delegated approvers, multi-party
+approval limits.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   5
+Role Core wallet use Withdrawal policy
+Independent manager / manager
+company
+Contractually earned manager fees;
+mandate-bound visibility.
+Fees only; never owner revenue or
+owner payout control.
+Artisan / service company Approved deposit, milestone, service
+payments, pending/available earnings.
+Verified business/person, dispute and
+warranty policies.
+Professional / professional firm Milestone appointment/report fees and
+reimbursements.
+Verification and verified payee for
+authorized fees.
+Admin/platform Internal operational views; platform
+revenue and reserve accounts.
+Corporate treasury workflow only; not
+a public user wallet.
+2.1 Ledger balance views
+View Definition Can withdraw?
+Payment pending Customer payment not verified/settled
+or not yet matched to an obligation. No
+Pending earnings
+Provisional or confirmed allocation to a
+named beneficiary; underlying
+payment not yet releasable.
+No
+Protected / held
+Funded transaction amount or liability
+reserved for conditions, security
+deposit or legal custody.
+No
+Available
+Verified, funded and released amount
+without applicable freeze or
+outstanding risk reserve.
+Yes, with limits/approvals
+Disputed / frozen
+Amount subject to dispute, chargeback,
+fraud, statutory restriction or other
+permitted hold.
+No
+Withdrawal pending
+Previously available amount now
+reserved for transfer; actual provider
+outcome pending.
+No
+Refund pending Amount reserved for a refund or
+remedy; not otherwise spendable. No
+2.2 Accounting controls
+•  Integer minor units and ISO currency code; currency-specific ledgers; no floating point in financial
+persistence.
+•  Immutable balanced journals; compensating transactions for corrections; immutable authorization/policy
+snapshot for every posting.
+•  A unified financial identity with separate legal-party, user-role, property/project, funding-provider,
+beneficiary and transaction accounts.
+•  Liability-ledger segregation for customer available balances, merchant settlement, protected funds, payout
+pending, refundable deposits, provider payable and platform revenue.
+•  Funds coverage = reconciled third-party cash/settled receivable by custody pool minus explicit operational
+reserves, compared to customer and beneficiary liabilities. No unfunded release.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   6
+3. Financial providers and custody architecture
+3.1 Provider-neutral roles
+Provider capability Example interface / purpose
+Collection InitializeCharge, VerifyCharge, CancelCharge,
+ReceiveWebhook
+Dedicated virtual account CreateCustomer, ValidateCustomer, AssignDVA,
+RequeryDVA, DeactivateDVA
+Settlement/balance FetchSettlement, FetchBalance, ListTransactions, Reconcile
+Safeguarding/custody Reserve/Release/Refund under legally approved custody
+arrangement; custody proof/reconciliation
+Transfer/payout VerifyBank, CreateRecipient, InitiateTransfer,
+VerifyTransfer, FinalizeOTP where applicable
+Refund/chargeback InitiateRefund, VerifyRefund, FetchDisputes, FetchReversals
+Mandates — later CreateConsent, AuthorizeMandate, SuspendMandate,
+AttemptDebit, RevokeMandate
+3.2 Preferred Paystack configuration
+DESIGN — ENGINEERING: Use Paystack checkout/cards/bank transfer and eligible Paystack-Titan DVAs for
+collections. Seek Paystack Manual Payouts for corporate merchant balances and Paystack Transfers for
+beneficiary payouts. Approval and risk acceptance must be obtained first. The preferred flow is Customer  →
+Paystack collection  reconciled Paystack settlement/balance  ledger pending/protected allocation  → → →
+authorized release  payable/available  Paystack transfer to verified bank.→ →
+GATED — EXTERNAL: Manual Payouts govern merchant settlements; they are not equivalent to licensed third-
+party escrow. Paystack eligibility guidance lists escrow services as unsupported under standard terms. High-
+value sales, deposits and long-duration custody require documented banking/legal structure, approved provider
+product and contractual restrictions. Do not launch merely because an endpoint succeeds in test mode.
+3.3 Provider routing policy and migration
+•  Route based on transaction category, geography/currency, verification, legal custody capability, amount,
+uptime, pricing, liquidity pool, fees and tenant/provider constraints.
+•  Select and persist route before charging; never auto-retry through another provider while a prior charge or
+transfer outcome is unknown.
+•  For a transaction with collected funds at Provider A, payout from Provider B only after explicit approved
+inter-provider funding, balance reconciliation and migration ledger journal.
+•  A provider switch affects new transactions by default; in-flight transactions remain bound to original
+provider/custody pool unless a controlled migration is approved.
+•  Provider credentials, webhooks, modes and capabilities are per legal entity/environment, securely stored and
+rotated. Country/currency support is declarative.
+3.4 Virtual account provisioning policy
+LOCKED — PRODUCT: Every public user gets a wallet record; a Paystack-Titan DVA is provisioned only for
+eligible users who expressly consent, meet Paystack identity requirements and have a supported business use
+case. DVA is a collection address, not proof of separately held beneficiary funds. DVA maps one external
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   7
+identifier to an internal wallet owner and legally appropriate merchant context. Suspended/reassigned accounts
+require matching and review.
+4. Payment lifecycle, beneficiary allocations and disbursements
+4.1 Canonical transaction sequence
+1. Business service locks a full disclosed quote and agreement/policy version; finance confirms permitted
+jurisdiction/transaction type.
+2. Core creates immutable payment intent and chosen provider route; identifies each charge component and its
+payer.
+3. Paystack/PSP collects; Core confirms signature/event + verified amount/currency/reference/recipient and
+records clearing versus settled funding.
+4. Split engine validates beneficiary authority and computes a versioned allocation snapshot with
+fee/processing/tax treatment.
+5. After financial confirmation, allocations appear pending/protected; no early internal spend or external payout.
+6. Owning business service emits validated milestone completion evidence; release engine checks policy,
+disputes, account ownership and actual funding.
+7. Release eligible portions to beneficiary available balances; keep security deposits, future milestones, reserves
+and disputed amounts separately.
+8. Withdrawal locks available funds, uses verified destination, authenticates step-up and risk/approval, then
+triggers external transfer.
+9. Webhook and read-back settle terminal outcome; ledger reservations are released/consumed only on
+confirmed result; notify all affected parties.
+4.2 Allocation invariants
+•  Gross customer payable = sum(disclosed line items) and must equal accepted quote and collected amount,
+within explicitly defined permitted adjustments.
+•  Sum of all beneficiary shares, authorized retained taxes/fees, protected deposits and reconciled processing
+allocations = payable, with no unexplained residual.
+•  All beneficiary shares are frozen to the accepted version; changing recipient or percentages requires new
+approvals and a traceable correction.
+•  A beneficiary share has independent hold/release/dispute state; one disputed share must not automatically
+block clean portions if contract/law allows release.
+•  Co-owner percentages, managers and corporate revenue shares come only from verified ownership/legal
+mandates and approved beneficiary records.
+•  No auto-release purely on elapsed time where evidence or legal obligations remain outstanding; timeout
+actions require a policy and, where needed, human review.
+4.3 Wallet example — short-let (illustration only)
+Component Illustrative amount Ledger/release handling
+Host share NGN 85,000
+Pending until relevant stay/booking
+release condition; separate damage
+deposit.
+Platform service fee NGN 10,000 Platform revenue only when earned
+under disclosed policy.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   8
+Component Illustrative amount Ledger/release handling
+Manager fee NGN 5,000 Pending under verified active mandate
+and fee terms.
+Total NGN 100,000
+All allocations reconcile to confirmed
+charge; provider processing fees
+handled per explicit fee policy.
+5. Category-specific financial policy catalogue
+REQUIRED — SOURCE and DESIGN — ENGINEERING: All listed families get separate policy keys, supported
+charging schedules, cost components, beneficiary sets, conditions, cancellation/refund and dispute rules.
+Described triggers below are proposed; exact legally binding timelines and defaults need approved jurisdiction-
+and contract-specific policy packs.
+5.1 Residential initial rent
+Payer: Tenant.  Components: Rent; one-time legal/onboarding/platform charges; separately refundable deposit;
+disclosed service/utility charges.
+Potential beneficiaries: Owner/co-owners; authorized professional for actual legal work; platform; authorized
+manager only for contracted fee.  Release/cancellation policy: Signed agreement + accepted quote + agreed
+commencement/possession evidence; deposit retained under separate policy.
+5.2 Residential subsequent rent
+Payer: Tenant.  Components: Current contractual rent and separately lawful agreed recurring items, NOT initial
+one-time charges.
+Potential beneficiaries: Owner/co-owners; platform owner-side commission; authorized manager fee.
+Release/cancellation policy: Due rent, valid tenancy, compliant rent review/payment terms; no fresh legal fee
+absent new service.
+5.3 Fixed/periodic tenancy renewal
+Payer: Tenant.  Components: Installment or revised disclosed rent per lawful approved agreement.
+Potential beneficiaries: Owner; manager; platform as separately disclosed owner charge.  Release/cancellation
+policy: Continuing tenancy can remain under signed agreement; material changes require appropriate
+notice/consent/addendum.
+5.4 Residential security deposit
+Payer: Tenant.  Components: Refundable deposit only, separate from rent.
+Potential beneficiaries: Tenant refund; owner only for approved evidenced deductions; provider if ordered
+remedy.  Release/cancellation policy: Move-in/out evidence, allowed claims, tenant challenge, dispute resolution
+and statutory deadlines.
+5.5 Commercial rent / lease
+Payer: Individual/corporate lessee.  Components: Rent; fit-out; service charge; approved refundable deposit.
+Potential beneficiaries: Business owner; manager; platform; documented counterparties.  Release/cancellation
+policy: Executed lease, commencement, corporate signatories, escalation and jurisdiction rules.
+5.6 Land lease or temporary use
+Payer: Land lessee.  Components: Reservation, occupation, installments, restoration deposit if agreed.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   9
+Potential beneficiaries: Verified landowner(s); platform; appointed professional if fee earned.
+Release/cancellation policy: Legal use/authority, possession and milestones; separate refundable restoration
+reserve.
+5.7 Residential or commercial purchase
+Payer: Buyer.  Components: Reservation, deposit, staged/final sale, professional and registrational fees.
+Potential beneficiaries: Verified seller(s), professional(s), platform, lawful third parties.  Release/cancellation
+policy: Title/due diligence, closing checklist, conditions precedent, handover and registration logic.
+5.8 Land purchase
+Payer: Buyer.  Components: Reservations, consideration, survey/title/closing expenses.
+Potential beneficiaries: Verified landowner(s), surveyor/lawyer if separately instructed, platform.
+Release/cancellation policy: Verified survey/title, encumbrance review, possession and relevant closing terms.
+5.9 Off-plan/developer unit
+Payer: Buyer.  Components: Reservation, construction installments, handover payment and reserves.
+Potential beneficiaries: Verified developer; authorized project parties; platform; professionals.
+Release/cancellation policy: Independently certified construction milestones, project allocation,
+snagging/remedies.
+5.10 Short-let / serviced apartment
+Payer: Guest.  Components: Accommodation, cleaning, booking fees, refundable damage deposit, add-ons.
+Potential beneficiaries: Owner/host/operator; manager; cleaning provider; platform.  Release/cancellation policy:
+Cancellation/refund plan, check-in/stay completion/checkout; damage reserve separate.
+5.11 Hotel / resort
+Payer: Guest/corporate booker.  Components: Room/board, services, extras, taxes, deposit and penalties if lawful.
+Potential beneficiaries: Hotel/operator; service partners; platform.  Release/cancellation policy: Rate-plan terms,
+confirmed folio, check-in/out, authorized extras, no-show policy.
+5.12 Event venue / temporary property use
+Payer: Event customer.  Components: Reservation, event charge, damage/cleaning reserve.
+Potential beneficiaries: Owner/operator; service providers; platform.  Release/cancellation policy: Event
+completion, verified cleanup/damages and permitted deductions.
+5.13 Maintenance / artisan
+Payer: Tenant/owner/business responsible payer.  Components: Call-out, materials, labor, milestone fees,
+approved extras.
+Potential beneficiaries: Artisan/company, authorized materials supplier, platform.  Release/cancellation policy:
+Approved quote, access, attendance, evidence, acceptance/rework/warranty policy.
+5.14 Professional services
+Payer: Buyer/owner/business.  Components: Retainer/appointment, milestone/report/visit fees, reimbursable
+expenses.
+Potential beneficiaries: Licensed professional or firm; platform.  Release/cancellation policy: Verified
+mandate/conflict check, signed deliverable, review/acceptance condition.
+5.15 Property manager fees
+Payer: Owner/business.  Components: Per unit, fixed, %, booking, inspection or approved additional service.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   10
+Potential beneficiaries: Mandated manager/company; platform if separately earned.  Release/cancellation policy:
+Mandate validity, fee agreement, period/service evidence; never transfer owner revenues to manager.
+5.16 Utilities / service charges
+Payer: Responsible tenant/owner/business.  Components: Verified bills, shared-meter allocation, approved
+service budgets.
+Potential beneficiaries: Actual utility/service supplier, authorized operator, platform if separately agreed.
+Release/cancellation policy: Invoice/bill verification, service obligations, challenge and adjustment.
+5.17 Promoted listings / subscriptions
+Payer: Owner/business.  Components: Advert or subscription disclosed fee.
+Potential beneficiaries: Platform and contracted marketing provider if any.  Release/cancellation policy:
+Publish/service period, cancellation, refund and accounting recognition.
+5.18 Mortgage / insurance / financed payments
+Payer: Customer/financing or insurance partner.  Components: Premiums/loan installments and fees only when
+licensed partner approves.
+Potential beneficiaries: Licensed partners and expressly eligible counterparties.  Release/cancellation policy:
+Partner contracts and approvals; not Core self-originated lending/insurance.
+6. Residential rent — locked pricing and contract logic
+6.1 Initial vs recurring charge rule
+LOCKED — PRODUCT: One-time agreement preparation, onboarding and first-time platform charges are not
+repeated solely because the next rent installment is due. Normal recurring rent is not automatically
+accompanied by a new legal or agreement fee. Genuine new legal service may be charged only when actually
+instructed, legally permissible, quoted and accepted.
+Illustrative original invoice Amount Illustrative next annual
+invoice Amount
+Annual rent NGN 1,000,000 Contractual rent NGN 1,000,000
+Combined one-time
+platform/legal charges NGN 200,000 Recharged initial
+legal/platform fees NGN 0
+Initial total (excluding any
+distinct deposit) NGN 1,200,000 Recurring tenant payment
+(absent other agreed items) NGN 1,000,000
+OPEN — BUSINESS: The composition of the initial NGN 200,000 is an illustration from stakeholder discussion, not
+an approved tariff. Any security deposit, tax or service charge must be separately disclosed, not assumed
+included.
+6.2 Platform recurring revenue
+LOCKED — PRODUCT: The preferred standard is a transparently contracted owner-side platform service
+commission deducted from the owner's rent proceeds or a documented owner subscription. The tenant should
+not face repetition of original onboarding/legal fees. The legal fee is payable only for actual agreed legal work.
+Illustration only: on NGN 1,000,000 annual rent, a hypothetical 2% owner-side fee would allocate NGN 20,000 to
+CosmicForge and NGN 980,000 to the owner before other contracted manager fees and provider charges. The 2%
+is NOT an approved or hardcoded rate.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   11
+6.3 Rent cycle vs contract continuity
+•  Fixed-term tenancy and continuing/periodic tenancy must both be supported. A rent installment is not the
+same as execution of a fresh agreement or renewal of a fixed term.
+•  A continuing agreement may govern recurring rent until changed or terminated under applicable law; retain
+versioned original terms, permitted rent reviews, notice periods and obligations.
+•  Where law/contract requires fresh agreement or addendum for a material change, use reviewed templates
+and approvals. No automatic legal charge without service and consent.
+•  Payment schedule may be annual, semiannual, quarterly, monthly or another lawful agreed interval; the
+base rent obligation has an immutable reference and due date.
+•  Recurring wallet auto-pay requires opt-in and revocable mandate, but execution of scheduled payment
+instructions and saved-bank-account charging remain DEFERRED.
+6.4 Sample rent ledger event sequence
+LeaseActive  RentObligationDue  WalletFundingOrCheckout  PaymentVerified  RentSplitPending  → → → → →
+ReleaseEvidenceAccepted  OwnerCommissionAllocated  OwnerAvailable + PlatformEarned  → → →
+ReceiptsAndStatement. Deposit logic is a separate linked but non-nettable ledger stream.
+7. Refundable deposits, reserves, disputes and cancellations
+7.1 Deposit segregation
+Security deposits, hospitality damage deposits and restoration deposits have distinct ledger liabilities, payout
+rules and custody references. They cannot be treated as rent, platform revenue or owner available earnings
+merely when received. Record ingress, inspection/condition evidence, deduction claim and tenant challenge
+separately.
+7.2 Dispute workflow
+•  Dispute intake binds payment, beneficiary shares, property/job/booking, authority, documentary evidence,
+deadline and review officer.
+•  Freeze only contested amounts where feasible; allow uncontested portions to progress under approved
+policy.
+•  Decisions require separated case-worker and payout authority where thresholds dictate; every override logs
+reason, signer and evidence.
+•  Support outcome: release to entitled party, return to payer, partial award, reserve extension, rework or legal
+escalation.
+•  Cases and property records remain linked after account closure for lawful retention; explicit statutory
+deposit refund deadlines and escalations must be configured by jurisdiction.
+7.3 Refund, chargeback and reversal correctness
+•  Track every refund attempt independently, allow multiple partial refunds with cumulative caps and race
+protection; do not prematurely mark original payment refunded.
+•  Reversed/charged-back charges must correctly adjust external funding, liabilities, recoverable amounts and
+reserves without deleting financial history.
+•  Refund provider results of timeout/unknown outcome remain reserved pending read-back; never issue blind
+duplicate refund or a balance refund at the same time.
+•  Refund destination must obey instrument and legal/provider rules; wallet refund is not always
+interchangeable with original card/bank reversal.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   12
+8. Provider payouts and safe available balances
+8.1 Verified beneficiary and mandate
+•  Individual owners: beneficiary must match legal authority or documented verified payout authority; co-
+owner shares follow signed entitlement and consent.
+•  Manager payouts derive only from an active, property-specific management mandate and fee schedule;
+managers cannot redirect owner disbursements.
+•  Business payouts follow corporate identity, branch/project mapping, approved bank destination, financial
+approval chain and limits.
+•  Artisan and professional payouts go to the verified individual/firm named on completed work or signed
+appointment, not to arbitrary staff.
+•  Change of payout bank requires step-up, identity revalidation, cooling-off and notification; high-value actions
+can require dual approval.
+8.2 Payout state machine
+REQUESTED  RISK_REVIEW / MANUAL_APPROVAL (if configured)  RESERVED  SUBMITTED  PROCESSING /→ → → →
+OTP_REQUIRED / UNKNOWN_OUTCOME  CONFIRMED_PAID or CONFIRMED_FAILED / REVERSED. No terminal →
+outcome without verified external evidence; never restore funds on a mere timeout. All retries preserve provider
+transfer reference and idempotency.
+8.3 Liquidity safety rule
+AvailableBalanceDisplayed can be positive only when the policy-authorized amount is recorded as earned and
+backed by reconciled custodial or settlement funds (or an explicitly authorized prefunding arrangement). Actual
+withdrawal may wait for settlement/rail availability; show separate status instead of false immediate payout.
+9. Customer funding and future recurring rent automation
+9.1 Core customer top-up and spend
+•  Customer can initiate an approved wallet top-up via PSP checkout or assigned DVA; wallet credit occurs only
+after verified amount/reference/customer attribution.
+•  Wallet payment of accepted rent/booking/service obligation is atomic and idempotent; debit customer
+available and credit transaction protected liability.
+•  Available customer funds are not automatically treated as earning for owners; settlement and business
+release conditions still apply.
+•  Customer wallet withdrawal/refund capabilities are separate and must not be shown as operational until
+provider/compliance approval and backend certification.
+9.2 Recurring payment design reservation — DEFERRED
+Future work will support an opt-in autopay mandate on available wallet balance, low-balance notifications,
+installment scheduling, payment retries and escalation. A stored bank account must NEVER be charged without
+an authorized mandate and compliant debit rail. Saved-card authorization and direct-debit provider integrations
+are explicitly out of scope for core v1 and must be separately reviewed. Do not implement fake or client-side
+simulated success.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   13
+10. Financial states, posting invariants and reliability
+10.1 Payment intent lifecycle
+CREATED  REQUIRES_ACTION / PENDING_PROVIDER  VERIFIED_COLLECTED  AWAITING_SETTLEMENT  → → → →
+FUNDED_PROTECTED / FAILED / CANCELLED / UNKNOWN_OUTCOME. Partial capture/partial funding requires
+explicit schema and policies. Provider webhooks alone are inputs, not indisputable authorization.
+10.2 Beneficiary allocation lifecycle
+PROPOSED  LOCKED  PENDING_FUNDING  FUNDED_HELD  PARTIALLY_RELEASED / AVAILABLE  → → → → →
+WITHDRAWAL_RESERVED  PAID; alternative DISPUTED / REFUND_RESERVED / CANCELLED states. Allocation →
+cannot become AVAILABLE without policy + sufficient backing + verified beneficiary.
+10.3 Durability and operational safeguards
+•  Transactional outbox/inbox, signature validation, event deduplication without suppressing retry of failed
+events, bounded backoff and dead-letter queues.
+•  Unknown external outcomes recover by read-back, not by cancellation; idempotency keys persist original
+request fingerprint and final outcome.
+•  Row locks/advisory locks for balances/transactions; at-most-once economic effects despite at-least-once
+delivery; no phantom success.
+•  Double-entry integrity checked per currency/legal entity; payout/refund transfer references unique and
+reconciled.
+•  Backups, point-in-time recovery, secrets rotation, service-to-service authorization, audit retention, alerting
+and incident response.
+•  Daily automatic reconciliation plus intraday checks when needed; provider balance, pending settlements,
+fees, chargebacks, reserves, liabilities and unmatched credits.
+11. Domain model — implementation-level entity catalogue
+Entity / aggregate Core fields / invariants
+FinancialIdentity party_id, legal_entity, user_roles, KYB/KYC state, activation;
+immutable cross-service identity mapping.
+Wallet / LedgerAccount wallet_id, owner, account_type, currency, legal_entity,
+custody_pool, balances derived from journals.
+Journal / JournalEntry journal_id, idempotency fingerprint, account, side,
+amount_minor, currency, source, status, audit.
+Provider / ProviderCapability provider_id, approved merchant, currency/market,
+collection/custody/payout capabilities, activation state.
+ProviderAccount / VirtualAccount customer mapping, external ref, consent, assign/status, bank
+code, masked account, validation expiry.
+PaymentIntent / ChargeAttempt actor, obligation, full-price snapshot, amount, method, provider
+route, external ref, verification.
+Settlement / CustodyPool provider, legal account, settlement batch, balance, source of
+funds, liquidity availability, restrictions.
+Quote / ChargeLine rent, fees, taxes, deposit, service charges, refundability, one-
+time/recurring flag, source authority.
+AllocationPlan / BeneficiaryShare versioned share basis, beneficiary, entitlement evidence,
+percentage/fixed, net/gross, release profile.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   14
+Entity / aggregate Core fields / invariants
+ReleasePolicy / ReleaseRequest jurisdiction, type, conditions, evidence, approvals, frozen
+amounts, earliest lawful release.
+Agreement / ObligationRef linked business agreement, contract version, periodic rent, due
+dates, unchanged fee fingerprint.
+DepositLiability / DeductionCase deposit purpose, refundable principal, evidence, claims, tenant
+responses, deadline and decision.
+Dispute / FinancialHold case, contested shares, authority, status, evidence, expiry and
+authorized disposition.
+PayoutAccount / Transfer verified payee, masked bank, cooling-off, approval, reference,
+state, retries and finality.
+RefundAttempt / Chargeback original collection ref, cumulative refundable amount, reserved
+amount, provider outcomes, ledger offsets.
+Invoice / Receipt / Statement party, transaction, fee-line evidence, versions, tax, signed receipt,
+export.
+WebhookInbox / Outbox / Reconciliation signature, event status, failure/retry, external provider
+statements, unmatched exception.
+MandatePlaceholder (deferred) customer opt-in, scopes, scheduling and revocation contract only;
+no live direct debit in v1.
+11.1 Minimum invariant set
+1. Every posted journal balances separately by currency and legal entity.
+2. No ledger debit can make a restricted available balance negative absent an explicitly approved credit facility.
+3. No amount may simultaneously be both protected and freely available to the same beneficiary.
+4. Per-transaction beneficiary allocations reconcile exactly to verified line items and approved adjustments.
+5. Cumulative captures, refunds, releases and payouts never exceed their respective funded or entitled amounts.
+6. Provider funds never silently bridge legal entities, currencies, custody pools or in-flight transfers.
+7. An approved bank-change cooldown or dispute blocks relevant withdrawals.
+8. Cash/settlement and customer liability coverage exceptions immediately produce holds and operator alerts.
+12. Contracts, APIs, events and service integration map
+DESIGN — ENGINEERING: Names below are canonical contract proposals and must be reconciled with the real
+repository before adoption. OpenAPI schemas, authorization and event versions take precedence over code
+snippets or endpoint-name guesses.
+12.1 Payment Service API families
+Surface Example operations (proposal) Caller / condition
+Customer wallet GET /wallets/me; GET /transactions;
+POST /topups; POST /topups/{id}/verify
+Authenticated payer; verify ownership
+and idempotency.
+Funding/quote POST /payment-intents; GET /payment-
+intents/{id}; POST /wallet-payments
+Business service or restricted payment
+orchestration.
+Beneficiary earnings GET /wallets/me/earnings; GET
+/allocations/{id}
+Authorized owner, manager, artisan,
+professional or company context.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   15
+Surface Example operations (proposal) Caller / condition
+Beneficiary payouts GET/POST /payout-accounts; POST
+/withdrawals; GET /withdrawals/{id}
+Verified payee; step-up, mandate, cooling-
+off and risk policy.
+Release controls POST /internal/releases/request; GET
+/internal/releases/{id}
+Source-bound HMAC/mTLS; milestone
+evidence, policy checks.
+Dispute/deposit
+POST /internal/holds; POST
+/internal/deposit-decisions; POST
+/internal/refunds
+Authorized support/finance/business
+service; dual-control rules.
+Provider integration POST /webhooks/{provider}; GET
+/internal/provider-status/{ref}
+Signature/auth verified and durable
+processing.
+Finance operations
+GET /admin/reconciliation; POST
+/admin/freeze; POST /admin/approve-
+withdrawal
+Least privilege; maker-checker where
+required.
+12.2 Canonical event catalogue (proposal)
+•  finance.wallet.opened.v1; finance.virtual_account.assigned.v1; finance.wallet.topup_verified.v1
+•  finance.payment.intent_created.v1; finance.payment.collected.v1; finance.payment.funded.v1;
+finance.payment.unknown_outcome.v1
+•  finance.allocation.locked.v1; finance.allocation.pending.v1; finance.allocation.released.v1
+•  finance.deposit.held.v1; finance.deposit.deduction_proposed.v1; finance.deposit.refunded.v1
+•  finance.dispute.hold_applied.v1; finance.dispute.resolved.v1
+•  finance.refund.requested.v1; finance.refund.completed.v1; finance.chargeback.recorded.v1
+•  finance.withdrawal.requested.v1; finance.withdrawal.under_review.v1; finance.withdrawal.completed.v1;
+finance.withdrawal.failed.v1
+•  finance.reconciliation.exception_detected.v1; finance.reconciliation.closed.v1
+12.3 Business service integration strategy
+Real Estate Individual Owner is the first public user-domain backend. Future Marketplace, Business, Manager,
+Artisan, Professional and Admin services are not assumed to exist today. The Payment Core must publish
+durable documented contracts, locally test stubs/adapters and deferred integration registers. Missing future
+services are NOT defects of the core; unsupported fake success responses are defects.
+13. Provider approval, licensing and consumer protection gates
+13.1 Paystack-specific gating items
+Gate Needed proof before live use
+Business activation Nigerian registered merchant approved and assigned
+appropriate business classification.
+Manual Payouts
+Written enrollment and activation of manual merchant
+settlement, approved allowed balance use and settlement
+arrangements.
+Paystack-Titan DVA
+Merchant feature access, per-user consent/KYC, limits,
+account owner designation, allowed funding use and
+reconciliation.
+Wallet/top-up Paystack and licensed partner permit our customer stored-
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   16
+Gate Needed proof before live use
+value/use and withdrawals for all targeted user categories.
+Protected funds/escrow Written approval or alternative regulated trustee/custodian
+model for third-party conditional-release business.
+High-value real estate Provider approval/limits for land, sales, off-plan and large
+deposits; unusual activity/source-of-funds controls.
+Payouts Transfers enabled, beneficiary verification, limits,
+approval/OTP requirements and status read-back.
+International/diaspora Distinct approved provider/risk framework; do not assume
+Paystack international eligibility for real estate.
+Legal jurisdiction
+Nigeria state-specific rent, deposit, escrow, legal fee, taxes,
+title-transfer and termination policy packs approved by
+counsel.
+13.2 Conditions that must not be implied
+•  Paystack merchant balance is not a trust account simply because it can be manually disbursed.
+•  An in-app "wallet" does not by itself authorize CosmicForge to issue redeemable stored-value, hold customer
+deposits or operate money transmission.
+•  A tenant prepaid annual rent is not automatically lawful to hold for an arbitrary period; follow actual
+contract and local law.
+•  The ledger can reserve pending amounts even before custody is live, but must not label them "safeguarded"
+or "escrow protected" unless the corresponding custody arrangement exists.
+•  No shared Paystack balance funding model may use one customer/transaction's restricted funds to pay a
+different party.
+14. Engineering delivery workstreams
+Workstream Scope Evidence expected
+F1 — Discovery/authority
+Map existing repo, shared foundations,
+payment contracts, source trace register,
+legal gates.
+Inventory and no-duplication plan.
+F2 — Ledger/wallets
+Financial identity, wallet accounts,
+immutable journals, consistent balances
+and account permissions.
+DB/race/migration and invariant tests.
+F3 — Provider adapters
+Provider routing framework, Paystack
+checkout, verification, webhooks, manual-
+balance reconciliation and DVA.
+Provider contract tests and sandbox
+traces.
+F4 — Quotes and splits
+All-in cost lines, one-time vs recurring
+flags, split engine, beneficial ownership
+and fee rules.
+Cross-category allocation fixtures.
+F5 — Custody and release
+Protected pools, per-transaction milestone
+evidence, partial release and disputed
+holds.
+Policy replay/evidence authorization tests.
+F6 — Transfers/refunds
+Payout accounts, approvals, OTP where
+supported, unknown outcome, refunds
+and chargebacks.
+Negative/adversarial case suites.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   17
+Workstream Scope Evidence expected
+F7 — Recurring rent obligations
+Installment ledger, rent due data contract,
+customer wallet payment (manual);
+deferral hooks for auto-pay.
+Initial vs recurring rent regression.
+F8 — Finance/admin Statements, approvals, risk, fraud cases,
+reconciliation dashboards and audit. Daily balance coverage certification.
+F9 — Cross-service certification Owner live/stub integration first; future
+services contract-driven.
+Real DB, Paystack test environment, E2E
+and security gates.
+F10 — Staging/go-live Deploy, alerting, provider approval, legal
+policy activation and production sign-off. Signed readiness/certification packet.
+14.1 Hard gates for every workstream
+•  Stop or mark blocked on missing authoritative provider documentation or business policy; never invent
+provider abilities, legal authority or external service implementations.
+•  Test with real PostgreSQL, test provider accounts and event callbacks; execute concurrency and unknown-
+outcome scenarios, not only mocked unit tests.
+•  No production secrets in the repository; no development fallback secrets in staging/production; RBAC by
+source service and legal entity.
+•  Record exact file paths, migrations, OpenAPI/Postman, event schemas, test results, commits and unresolved
+dependencies per workstream.
+•  Do not remove, duplicate or overwrite owner-side payment/domain logic already implemented. Integrate it
+using explicit service contracts.
+15. Acceptance scenarios and required test evidence
+Case Expected invariant / externally visible behavior
+A01: Tenant initial rent
+NGN 1,200,000 illustrated as NGN 1m rent + NGN 200k distinct
+one-time lines; correct authorized beneficiaries and separate
+deposit if any.
+A02: Tenant subsequent rent
+Only NGN 1m rent due absent separate lawful recurring items;
+one-time fee not repeated; any owner commission deducted only
+per contract.
+A03: Continuing tenancy Next rent payment does not force fresh agreement or legal
+invoice; revision/termination require lawful agreement process.
+A04: Multiple roles Same identity can be customer and owner; ledger/source
+permissions remain separated.
+A05: Multi-beneficiary short-let Correct owner/manager/platform allocations; each pending until
+relevant milestone; release separately.
+A06: Split dispute Freeze disputed share and permit compliant release of
+undisputed shares.
+A07: Co-owned property Verified co-owner percentages/mandate control beneficiary
+shares; unapproved manager cannot redirect.
+A08: Deposit claim Deposit protected separately; itemized
+evidence/deduction/challenge/partial refund and deadlines work.
+A09: Off-plan milestones Cannot release uncertified construction installment;
+reversal/withdrawal subject to project contract.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   18
+Case Expected invariant / externally visible behavior
+A10: Payment timeout Unknown external charge status; read-back before alternate
+provider route. Never double-charge.
+A11: Webhook failure Failed event retried durably; duplicate webhook creates no
+duplicate credit.
+A12: Transfer timeout Withdrawal balance remains reserved until confirmed; no
+double payout.
+A13: Failed transfer State guards compensate precisely once; final balance restored
+only on definitive failure.
+A14: Payout account change Strong verification, cooldown, notification and high-value
+approvals enforced.
+A15: Provider swap New transaction routes change; in-flight funds remain correctly
+assigned to original provider/custody pool.
+A16: Accounting proof Balanced entries + provider settlement/custody reconciliation
+show adequate coverage for all liabilities.
+A17: No Paystack approval Protected buyer-seller escrow and unrestricted wallets remain
+non-production; safe unavailability clearly displayed.
+A18: Role withdrawal
+All eligible receiving roles can withdraw only their verified
+available share; customer refunds/withdrawal subject to
+approval.
+A19: DVA consent No account issued by default without recorded consent and
+provider validation.
+A20: Deferred autopay No saved bank charge occurs; future mandate fields do not
+trigger live debit.
+A21: Source isolation One business service cannot complete another service's
+transaction or release its funds.
+A22: Reconciliation exception Money mismatch freezes risky releases and creates audited
+finance-ops queue with resolution.
+16. Decision register, pending approvals and change control
+16.1 Locked decisions
+Decision ID Approved product baseline
+D-001 Every user-role account has an internal wallet identity; eligible
+money visibility and withdrawal are role/capability governed.
+D-002 One Payment Core owns ledger and all
+split/release/refund/withdrawal accounting.
+D-003 Multiple providers through adapters; Paystack first where
+commercially and legally approved.
+D-004 Manual Paystack settlements preferred; no routine bounce from
+company operating bank to Paystack.
+D-005 Held allocations visible to users but unavailable for withdrawal
+until respective release conditions.
+D-006 All-in disclosure and beneficiary-specific split and release rules
+per transaction family.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   19
+Decision ID Approved product baseline
+D-007 No recurring initial legal/onboarding/platform fees on normal
+rent payments.
+D-008 Preferred owner-paid recurring platform commission or agreed
+owner subscription; no undisclosed deductions.
+D-009
+Support fixed-term and continuing rental agreements; payment
+of the next installment does not necessarily require new
+contract.
+D-010 Core top-ups and manual wallet payments now; saved-bank/card
+automatic charging later.
+D-011 Future user-domain services contract-first; do not treat their
+absence as incomplete current implementation.
+D-012 Regulatory and provider-approved custody is a hard live-money
+gate.
+16.2 Pending business/legal decisions
+Open ID Decision needed / owner
+O-001 Exact platform commission by product, payer and jurisdiction;
+pricing committee/finance.
+O-002 Who bears PSP processing fees, withholding/tax and failed-
+transfer charges; finance/legal.
+O-003 Exact rent release milestone: possession, signed agreement,
+grace window, verified handover; legal/product.
+O-004 Per-state fixed-term/periodic agreement templates,
+deposit/notice/advance-rent restrictions; Nigeria counsel.
+O-005 Per-category refund/no-show/cancellation/release deadlines and
+dispute escalation; product/legal.
+O-006 Lawful custody/escrow structure; banking/legal/compliance +
+Paystack written approval.
+O-007 Payout thresholds, dual approval, reserve ratios, co-owner rules
+and provider limits; finance/risk.
+O-008 DVA provisioning policy, customer withdrawal permission,
+Paystack capacity and consents; payments/compliance.
+O-009 International/diaspora PSP and permitted cross-border
+payments; compliance/providers.
+O-010 Service boundary: Real Estate-only initial deployment vs future
+CosmicForge-wide financial platform; architecture.
+O-011 Accepted fee/legal invoicing workflows for genuine new
+agreement vs simple recurring rent; legal/product.
+O-012 Exact settlement SLA and liquidity reservation policy by
+provider; treasury/providers.
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   20
+16.3 Change control and source precedence
+•  Every change gets decision ID, rationale, impacted source chapter, migration/contract impact, tests,
+migration strategy, approval authority and effective date.
+•  No change to legal custody, recurring platform fees, beneficiary entitlement or deposit rules without explicit
+approval and versioned customer disclosure.
+•  This blueprint is a shared platform architecture standard; domain owners remain authoritative for legal
+business facts and evidence.
+•  Mark implementation statuses individually: NOT STARTED, IMPLEMENTED LOCALLY, CONTRACT PASS, E2E
+PASS, STAGING PASS, PRODUCTION APPROVED, EXTERNAL BLOCKED.
+17. Source-to-requirement traceability
+Requirement Product documents Sections in this blueprint
+Full cost transparency, no hidden charges 00 §10; 01 §20; 02 §8; 07 §10 §4, §5, §6
+Protected money, staged release and split
+payment 00 §11; 01 §16/§20; 03 §4/§12; 07 §11 §3–§5, §7, §10
+Security deposits, deductions, disputes 00 §12/§23; 01 §11/§20; 02 §14–15; 07
+§12/§15 §5, §7
+Owner/beneficiary verification 00 §6/§8; 02 §3–4; 03 §4–6 §2, §4, §8
+Corporate multi-party financial controls 03 §3–4; 07 §1/§11 §2, §8, §13
+Manager mandate and fee limitations 04 §5/§17; 02 §21; 03 §19 §2, §5, §8
+Artisan milestones and invoices 05 §6/§8/§13 §5, §7
+Professional fees and reports 06 §4/§12/§16 §5, §7
+Reporting and reconciliation 00 §11; 03 §4; 07 §11/§25 §8, §10, §15
+Rent installments and lawful renewal 01 §11/§20; 02 §14–15; 03 §9 §6, §9
+Multi-provider, Paystack Manual Payouts,
+every-user wallets
+Stakeholder approved design additions —
+not explicitly specified in product v5.0 §2, §3, §16
+Owner-side recurring commission instead
+of repeated legal fees
+Stakeholder approved design addition —
+not fixed in product v5.0 §6, §16
+18. External-provider reference register
+Current provider documentation consulted on 10 October 2026. This register is contextual product research, not
+an approved commercial agreement.
+Paystack Manual Payouts — https://support.paystack.com/en/articles/2131074
+Registered merchant settlement into merchant Paystack balance; requires approval.
+Paystack Dedicated Virtual Accounts — https://paystack.com/docs/payments/dedicated-virtual-accounts/
+Explicit user consent and applicable identity requirements; collections to merchant.
+Paystack Transfers — https://paystack.com/docs/transfers/single-transfers/
+Recipient creation, transfer reference, initiation and terminal status.
+Paystack Transfer Recipients — https://paystack.com/docs/transfers/creating-transfer-recipients/
+Verified external recipient creation.
+Paystack Split Payments — https://paystack.com/docs/payments/split-payments/
+COSMICFORGE REAL ESTATE   /   FINANCIAL ARCHITECTURE
+CONFIDENTIAL — CONTROLLED MASTER BLUEPRINT   •   v1.0   |   21
+Automatic settlement splitting; NOT our protected-release mechanism.
+Paystack Webhooks — https://paystack.com/docs/payments/webhooks/
+HMAC signature, asynchronous events and durable processing.
+Paystack Verify Payments — https://paystack.com/docs/payments/verify-payments/
+Backend read-back and exactly-once digital value fulfillment.
+Paystack Ineligible Businesses — https://support.paystack.com/en/articles/2127042
+Standard terms list escrow services as unsupported.
+Paystack International Eligibility — https://support.paystack.com/en/articles/2127682
+Real estate listed under international-payment ineligible categories.
+Final architecture sign-off statement
+This document locks the user-approved product architecture for a centralized, provider-neutral CosmicForge
+Real Estate Payment Service. It explicitly includes every public user wallet, internal beneficiary allocations,
+transparent multi-party splits, milestone-based release, deposit separation, verified withdrawals, tenant top-ups,
+distinct initial and recurring rent costs, continuing tenancy support and deferred saved-bank auto-debit.
+No software implementation or live financial activation is authorized merely by this document. Before coding,
+the engineering agent must audit the target repository and write a source-to-contract coverage plan. Before live
+money, the business must obtain provider acceptance, lawful custody/stored-value permissions, state-specific
+policy approval, verified settlement arrangements and real financial E2E certification.
+END OF CONTROLLED MASTER BLUEPRINT — COSMICFORGE REAL ESTATE FINANCIAL CORE v1.0

@@ -1,0 +1,3843 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Payment Service internal foundation",
+    "version": "1.0.0",
+    "description": "Blueprint v1.0 Sections 1-3. Live custody, collections and payouts disabled. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
+  },
+  "paths": {
+    "/internal/v1/wallets/ensure": {
+      "post": {
+        "summary": "POST /wallets/ensure",
+        "operationId": "POST_internal_v1_wallets_ensure",
+        "description": "Account authority for the requested domain; registration evidence required. Idempotent by domain/account/role/entity/currency.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Wallet"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Provision"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/wallets/{id}": {
+      "get": {
+        "summary": "GET /wallets/{id}",
+        "operationId": "GET_internal_v1_wallets_id",
+        "description": "Source-bound delegated wallet owner.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Wallet"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/wallets/{id}/balances": {
+      "get": {
+        "summary": "GET /wallets/{id}/balances",
+        "operationId": "GET_internal_v1_wallets_id_balances",
+        "description": "Source-bound delegated wallet owner; provider pools remain distinct; deposits included in PROTECTED once.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Balance"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/wallets/{id}/transactions": {
+      "get": {
+        "summary": "GET /wallets/{id}/transactions",
+        "operationId": "GET_internal_v1_wallets_id_transactions",
+        "description": "Source-bound delegated wallet owner; use last entry_id as after cursor, limit 1-100.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/History"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/financial-identities/link": {
+      "post": {
+        "summary": "POST /financial-identities/link",
+        "operationId": "POST_internal_v1_financial_identities_link",
+        "description": "Verification service only; verified cross-domain legal-party evidence. Existing identities are never merged.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "linked": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "linked"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Link"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/financial-identities/{id}/verification": {
+      "put": {
+        "summary": "PUT /financial-identities/{id}/verification",
+        "operationId": "PUT_internal_v1_financial_identities_id_verification",
+        "description": "Verification service only; authoritative status with expiry/revocation; idempotent update.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "recorded": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "recorded"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Verification"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/payment-intents": {
+      "post": {
+        "summary": "POST /payment-intents",
+        "operationId": "POST_internal_v1_payment_intents",
+        "description": "Domain authority with delegated wallet owner, accepted evidence and policy. Durable Idempotency-Key; conflicting fingerprints rejected. Test mode only.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Intent"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/payment-intents/{id}": {
+      "get": {
+        "summary": "GET /payment-intents/{id}",
+        "operationId": "GET_internal_v1_payment_intents_id",
+        "description": "Original source service and delegated wallet owner.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Intent"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/payment-intents/{id}/verify": {
+      "post": {
+        "summary": "POST /payment-intents/{id}/verify",
+        "operationId": "POST_internal_v1_payment_intents_id_verify",
+        "description": "Original source service and delegated wallet owner. Idempotent economic effect; read-back validates reference/amount/currency/merchant/intent/mode. Does not settle or release funds.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Intent"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/virtual-accounts": {
+      "post": {
+        "summary": "POST /virtual-accounts",
+        "operationId": "POST_internal_v1_virtual_accounts",
+        "description": "Domain authority with delegated wallet owner; consent and authoritative KYC, approved test merchant. Idempotent by wallet/provider with fingerprint; repeat unknown customer request performs read-back.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DVA"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DVAInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/virtual-accounts/{id}": {
+      "get": {
+        "summary": "GET /virtual-accounts/{id}",
+        "operationId": "GET_internal_v1_virtual_accounts_id",
+        "description": "Source-bound delegated wallet owner; masked account only.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DVA"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/virtual-accounts/{id}/sync": {
+      "post": {
+        "summary": "POST /virtual-accounts/{id}/sync",
+        "operationId": "POST_internal_v1_virtual_accounts_id_sync",
+        "description": "Domain authority with delegated owner. Provider identification before assignment; requery/fetch for existing account. Unknown assignment uses read-back.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DVA"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/virtual-accounts/{id}/deactivate": {
+      "post": {
+        "summary": "POST /virtual-accounts/{id}/deactivate",
+        "operationId": "POST_internal_v1_virtual_accounts_id_deactivate",
+        "description": "Domain authority with delegated owner; provider deactivation followed by status read-back.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DVA"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/provider-inbox/{id}/replay": {
+      "post": {
+        "summary": "POST /provider-inbox/{id}/replay",
+        "operationId": "POST_internal_v1_provider_inbox_id_replay",
+        "description": "Admin service only; audit evidence required; active worker lease cannot be overridden; original references retained.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "requeued": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "requeued"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/custody-pools/{id}/coverage": {
+      "get": {
+        "summary": "GET /custody-pools/{id}/coverage",
+        "operationId": "GET_internal_v1_custody_pools_id_coverage",
+        "description": "Admin service only; raw merchant observations never represented as individual wallet money or licensed custody.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Coverage"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/provider-accounts/{id}/reconcile": {
+      "post": {
+        "summary": "POST /provider-accounts/{id}/reconcile",
+        "operationId": "POST_internal_v1_provider_accounts_id_reconcile",
+        "description": "Admin service only; external merchant balance read-back; mismatches restrict the pool and publish an exception.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "reconciled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "reconciled"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/provider-accounts/{id}/settlements": {
+      "post": {
+        "summary": "POST /provider-accounts/{id}/settlements",
+        "operationId": "POST_internal_v1_provider_accounts_id_settlements",
+        "description": "Admin service only; immutable external settlement batch observation. Does not credit settled cash or change an intent to SETTLED.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "observed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "observed"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettlementRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/financial-identities/{id}/state": {
+      "put": {
+        "summary": "PUT /financial-identities/{id}/state",
+        "operationId": "PUT_internal_v1_financial_identities_id_state",
+        "description": "Admin service only; evidence and policy required. Restoration requires two distinct recorded approvers. Closure rejects outstanding liabilities/intents and retains history.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "recorded": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "recorded"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityControl"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/payout-account-references": {
+      "post": {
+        "summary": "POST /payout-account-references",
+        "operationId": "POST_internal_v1_payout_account_references",
+        "description": "Verification service only; current authoritative verification, exact beneficiary reference, jurisdiction and expiry. Records bank verification only; no financial entitlement or payout execution. Eligible remains false.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PayoutReference"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayoutReferenceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/wallets/{id}/payout-account-references": {
+      "get": {
+        "summary": "GET /wallets/{id}/payout-account-references",
+        "operationId": "GET_internal_v1_wallets_id_payout_account_references",
+        "description": "Source-bound delegated wallet owner; bank reference only, no raw bank details. Recording a reference does not authorize withdrawals.",
+        "security": [
+          {
+            "ServiceJWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative result (test mode; capability status is explicit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PayoutReference"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Platform error envelope; financial safety/error codes in x-error-codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Provision": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "party_kind": {
+            "type": "string",
+            "enum": [
+              "PERSON",
+              "ORGANIZATION"
+            ]
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Validated ISO 4217 currency; integer minor units."
+          },
+          "registration_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain",
+          "account_id",
+          "role",
+          "party_kind",
+          "legal_entity",
+          "currency",
+          "registration_ref"
+        ],
+        "additionalProperties": false
+      },
+      "Wallet": {
+        "type": "object",
+        "properties": {
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Validated ISO 4217 currency; integer minor units."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RESTRICTED",
+              "CLOSED"
+            ]
+          }
+        },
+        "required": [
+          "wallet_id",
+          "identity_id",
+          "domain",
+          "role",
+          "legal_entity",
+          "currency",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PAYMENT_PENDING",
+              "PENDING_EARNINGS",
+              "PROTECTED",
+              "AVAILABLE",
+              "FROZEN",
+              "WITHDRAWAL_PENDING",
+              "REFUND_PENDING"
+            ]
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_minor": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Exact aggregate minor units without JSON precision loss."
+          },
+          "withdrawable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "pool_id",
+          "amount_minor",
+          "withdrawable"
+        ],
+        "additionalProperties": false
+      },
+      "History": {
+        "type": "object",
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "journal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "DEBIT",
+              "CREDIT"
+            ]
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Validated ISO 4217 currency; integer minor units."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "entry_id",
+          "journal_id",
+          "operation_ref",
+          "kind",
+          "side",
+          "amount_minor",
+          "currency",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "identity_id",
+          "domain",
+          "account_id",
+          "evidence_ref"
+        ],
+        "additionalProperties": false
+      },
+      "Verification": {
+        "type": "object",
+        "properties": {
+          "verification_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "REVOKED",
+              "EXPIRED"
+            ]
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "verification_ref",
+          "state",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "IntentInput": {
+        "type": "object",
+        "properties": {
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Validated ISO 4217 currency; integer minor units."
+          },
+          "country": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "requires_custody": {
+            "type": "boolean"
+          },
+          "provider_constraint": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "required_liquidity_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "Required reconciled provider liquidity for routing; zero for collection-only requests. Configuration is policy input, not custody proof."
+          }
+        },
+        "required": [
+          "wallet_id",
+          "amount_minor",
+          "currency",
+          "country",
+          "category",
+          "evidence_ref",
+          "policy_version",
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "Intent": {
+        "type": "object",
+        "properties": {
+          "intent_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Validated ISO 4217 currency; integer minor units."
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "provider_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "SUBMITTING",
+              "INITIALIZED",
+              "PENDING",
+              "PROCESSING",
+              "VERIFIED_SUCCESS",
+              "VERIFIED_FAILURE",
+              "UNKNOWN_OUTCOME",
+              "RECONCILIATION_EXCEPTION"
+            ]
+          },
+          "settlement_state": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "SETTLED",
+              "EXCEPTION"
+            ]
+          },
+          "checkout_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "intent_id",
+          "wallet_id",
+          "amount_minor",
+          "currency",
+          "legal_entity",
+          "provider_account_id",
+          "pool_id",
+          "reference",
+          "state",
+          "settlement_state"
+        ],
+        "additionalProperties": false
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "minLength": 1
+          },
+          "first_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "first_name",
+          "last_name"
+        ],
+        "additionalProperties": false
+      },
+      "Validation": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "const": "NG"
+          },
+          "type": {
+            "const": "bank_account"
+          },
+          "account_number": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bvn": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bank_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "country",
+          "type",
+          "account_number",
+          "bvn",
+          "bank_code"
+        ],
+        "additionalProperties": false
+      },
+      "DVAInput": {
+        "type": "object",
+        "properties": {
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "consent_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consent_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consent_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verification_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/Validation"
+          }
+        },
+        "required": [
+          "wallet_id",
+          "provider_account_id",
+          "consent_ref",
+          "consent_version",
+          "consent_at",
+          "consent_expires_at",
+          "verification_ref",
+          "customer",
+          "validation"
+        ],
+        "additionalProperties": false
+      },
+      "DVA": {
+        "type": "object",
+        "properties": {
+          "virtual_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "CUSTOMER_UNKNOWN",
+              "VALIDATION_REQUIRED",
+              "ASSIGNING",
+              "ASSIGNMENT_UNKNOWN",
+              "ACTIVE",
+              "RESTRICTED",
+              "REJECTED",
+              "INACTIVE"
+            ]
+          },
+          "account_mask": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bank_code": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "virtual_account_id",
+          "wallet_id",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Evidence": {
+        "type": "object",
+        "properties": {
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "evidence_ref"
+        ],
+        "additionalProperties": false
+      },
+      "SettlementRequest": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "reference"
+        ],
+        "additionalProperties": false
+      },
+      "Coverage": {
+        "type": "object",
+        "properties": {
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settled_cash_minor": {
+            "type": "string"
+          },
+          "receivable_minor": {
+            "type": "string"
+          },
+          "liability_minor": {
+            "type": "string"
+          },
+          "reserve_minor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "restricted": {
+            "type": "boolean"
+          },
+          "custody_approved": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pool_id",
+          "settled_cash_minor",
+          "receivable_minor",
+          "liability_minor",
+          "reserve_minor",
+          "restricted",
+          "custody_approved"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "request_id": {
+                "type": "string"
+              },
+              "details": {
+                "type": "array"
+              },
+              "outcome": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "IdentityControl": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "enum": [
+              "ACTIVE",
+              "RESTRICTED",
+              "CLOSED"
+            ]
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "state",
+          "evidence_ref",
+          "policy_version"
+        ],
+        "additionalProperties": false
+      },
+      "PayoutReferenceInput": {
+        "type": "object",
+        "properties": {
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "beneficiary_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "wallet_id",
+          "beneficiary_ref",
+          "verification_ref",
+          "jurisdiction",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "PayoutReference": {
+        "type": "object",
+        "properties": {
+          "payout_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "beneficiary_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eligible": {
+            "const": false
+          }
+        },
+        "required": [
+          "payout_account_id",
+          "wallet_id",
+          "beneficiary_ref",
+          "verification_ref",
+          "jurisdiction",
+          "expires_at",
+          "eligible"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ServiceJWT": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Ed25519 service JWT"
+      },
+      "UserJWT": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "domain access JWT"
+      }
+    }
+  },
+  "x-error-codes": [
+    "ACTOR_REQUIRED",
+    "AUTHORITATIVE_VERIFICATION_REQUIRED",
+    "BUSINESS_EVIDENCE_REQUIRED",
+    "CHARGE_CONTEXT_MISMATCH",
+    "CLOSED_IDENTITY_RETAINED",
+    "CONTROL_EVIDENCE_REQUIRED",
+    "DUAL_APPROVAL_REQUIRED",
+    "DVA_ASSIGNMENT_RECONCILIATION_REQUIRED",
+    "DVA_CONSENT_REQUIRED",
+    "DVA_CUSTOMER_RECONCILIATION_REQUIRED",
+    "DVA_DEACTIVATION_PENDING",
+    "DVA_INVALID_ACCOUNT",
+    "DVA_MAPPING_CONFLICT",
+    "DVA_NOT_ELIGIBLE",
+    "DVA_OWNER_MISMATCH",
+    "DVA_PROVIDER_IDENTITY_PENDING",
+    "DVA_REASSIGNMENT_REQUIRES_APPROVAL",
+    "DVA_VALIDATION_REQUIRED",
+    "FINANCIAL_IDENTITY_RESTRICTED",
+    "IDEMPOTENCY_CONFLICT",
+    "IDENTITY_KIND_CONFLICT",
+    "IDENTITY_LINK_CONFLICT",
+    "IDENTITY_NOT_FOUND",
+    "INBOX_LEASE_ACTIVE",
+    "INSUFFICIENT_FUNDS",
+    "INTENT_NOT_FOUND",
+    "INVALID_CURSOR",
+    "INVALID_ID",
+    "INVALID_PAGE_LIMIT",
+    "INVALID_PAYOUT_REFERENCE",
+    "INVALID_POSTING",
+    "INVALID_PROVIDER_POLICY",
+    "INVALID_VERIFICATION_REFERENCE",
+    "INVALID_WALLET_REGISTRATION",
+    "INVALID_WEBHOOK_SIGNATURE",
+    "LEDGER_DIMENSION_MISMATCH",
+    "LINK_EVIDENCE_REQUIRED",
+    "NO_ELIGIBLE_PROVIDER",
+    "OUTSTANDING_FINANCIAL_OBLIGATIONS",
+    "PAYLOAD_TOO_LARGE",
+    "PAYOUT_REFERENCE_CONFLICT",
+    "POOL_CONTEXT_IMMUTABLE",
+    "PRODUCTION_CAPABILITY_DISABLED",
+    "PROVIDER_APPROVAL_REQUIRED",
+    "PROVIDER_BALANCE_UNAVAILABLE",
+    "PROVIDER_CONFIRMATION_PENDING",
+    "PROVIDER_CONTEXT_IMMUTABLE",
+    "PROVIDER_MIGRATION_EVIDENCE_REQUIRED",
+    "PROVIDER_UNAVAILABLE",
+    "REPLAY_EVIDENCE_REQUIRED",
+    "ROLE_LEGAL_PARTY_MISMATCH",
+    "SETTLEMENT_CONTEXT_MISMATCH",
+    "SETTLEMENT_UNAVAILABLE",
+    "SOURCE_NOT_AUTHORIZED",
+    "UNBALANCED_JOURNAL",
+    "UNFUNDED_RELEASE",
+    "UNKNOWN_PROVIDER_STATUS",
+    "UNMATCHED_DVA_COLLECTION",
+    "VERIFIED_BENEFICIARY_REQUIRED",
+    "VIRTUAL_ACCOUNT_NOT_FOUND",
+    "WALLET_NOT_FOUND"
+  ]
+}

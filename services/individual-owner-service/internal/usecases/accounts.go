@@ -92,6 +92,9 @@ func (s *Service) Register(ctx context.Context, in RegisterInput, ci ClientInfo)
 			return err
 		}
 		ctx = withAccountActor(ctx, acc.AccountID)
+		if _, err := tx.Exec(ctx, `INSERT INTO wallet_registration_delivery(account_id,registration_ref) VALUES($1,$2)`, acc.AccountID, "owner-registration:"+acc.AccountID.String()); err != nil {
+			return err
+		}
 		if err := s.q.InsertStatusHistory(ctx, tx, db.InsertStatusHistoryParams{HistoryID: ids.New(), AccountID: acc.AccountID, ToStatus: acc.Status,
 			ReasonCode: "REGISTERED", ActorType: audit.ActorUser, ActorDomain: strp("individual-owner"), ActorID: &acc.AccountID,
 			AccountVersion: acc.Version, OccurredAt: acc.CreatedAt}); err != nil {

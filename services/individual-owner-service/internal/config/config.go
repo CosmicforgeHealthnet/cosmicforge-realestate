@@ -64,11 +64,13 @@ type Config struct {
 
 	// Sections 6–13 integrations; empty = not configured (features answer
 	// 503 FEATURE_UNAVAILABLE).
-	VerificationServiceURL string
-	MediaServiceURL        string
-	DownstreamTimeout      time.Duration
-	ImportLease            time.Duration
-	WorkerInterval         time.Duration
+	VerificationServiceURL  string
+	MediaServiceURL         string
+	PaymentWalletServiceURL string
+	PaymentLegalEntity      string
+	DownstreamTimeout       time.Duration
+	ImportLease             time.Duration
+	WorkerInterval          time.Duration
 
 	NATSURL       string
 	SubjectPrefix string
@@ -142,6 +144,8 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.Policy = p
 	c.VerificationServiceURL = l.String("VERIFICATION_SERVICE_URL", "")
 	c.MediaServiceURL = l.String("MEDIA_SERVICE_URL", "")
+	c.PaymentWalletServiceURL = l.String("PAYMENT_WALLET_SERVICE_URL", "")
+	c.PaymentLegalEntity = l.String("PAYMENT_LEGAL_ENTITY", "cosmicforge-ng")
 	c.DownstreamTimeout = l.Duration("DOWNSTREAM_TIMEOUT", 5*time.Second)
 	c.ImportLease = l.Duration("PROPERTY_IMPORT_LEASE", 2*time.Minute)
 	c.WorkerInterval = l.Duration("DOMAIN_WORKER_INTERVAL", 30*time.Second)

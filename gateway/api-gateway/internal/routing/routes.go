@@ -124,6 +124,8 @@ func Build(upstreams map[platform.Service]*url.URL, webhooks map[string]platform
 	}
 
 	// Shared platform services (F3–F5).
+	_ = add(Route{Name: "payments", Prefix: "/api/v1/payments/", Service: platform.PaymentService,
+		Auth: AuthRequired, Category: CategoryAuthenticated})
 	_ = add(Route{Name: "verification", Prefix: "/api/v1/verification/", Service: platform.VerificationService,
 		Auth: AuthRequired, Category: CategoryAuthenticated})
 	_ = add(Route{Name: "media", Prefix: "/api/v1/media/", Service: platform.MediaDocumentService,

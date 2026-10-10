@@ -204,6 +204,7 @@ type Deps struct {
 
 // Service implements owner account use cases.
 type Service struct {
+	walletRegistration WalletRegistrationClient
 	Deps
 	q       *db.Queries
 	audit   *audit.Recorder

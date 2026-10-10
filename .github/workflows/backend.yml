@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, tests/e2e]
+        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service, tests/e2e]
     defaults:
       run:
         working-directory: ${{ matrix.module }}
@@ -75,7 +75,7 @@ jobs:
       - run: go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
       - name: sqlc diff
         run: |
-          for svc in verification-service media-document-service notification-service individual-owner-service; do
+          for svc in verification-service media-document-service notification-service individual-owner-service payment-service; do
             echo "== $svc"
             (cd "services/$svc" && "$(go env GOPATH)/bin/sqlc" diff -f sql/sqlc.yaml)
           done
@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service]
+        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service]
     services:
       postgres:
         image: postgres:16-alpine
