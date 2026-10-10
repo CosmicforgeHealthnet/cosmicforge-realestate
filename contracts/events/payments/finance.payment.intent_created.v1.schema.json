@@ -67,7 +67,8 @@
               "VERIFIED_SUCCESS",
               "VERIFIED_FAILURE",
               "UNKNOWN_OUTCOME",
-              "RECONCILIATION_EXCEPTION"
+              "RECONCILIATION_EXCEPTION",
+              "CANCELLED"
             ]
           },
           "settlement_state": {

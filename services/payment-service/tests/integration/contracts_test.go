@@ -64,6 +64,7 @@ func TestOpenAPIAndPostmanRouteParity(t *testing.T) {
 			u = strings.TrimPrefix(u, base)
 		}
 		u = strings.ReplaceAll(u, "{{entity_id}}", "{id}")
+		u = strings.ReplaceAll(u, "{{pool_id}}", "{pool}")
 		key := it.Request.Method + " " + u
 		if !implemented[key] {
 			t.Errorf("Postman stale %s", key)
@@ -116,7 +117,7 @@ func TestAuthoritativeResponsesAndOutboxEventSchemas(t *testing.T) {
 		})
 	}
 	claimed, e := f.s.Outbox.Claim(context.Background(), "schema-worker", 100, time.Minute)
-	if e != nil || len(claimed) != 4 {
+	if e != nil || len(claimed) != 6 {
 		t.Fatal(len(claimed), e)
 	}
 	for _, row := range claimed {

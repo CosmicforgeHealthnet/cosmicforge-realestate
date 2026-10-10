@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
@@ -23,11 +24,13 @@ import (
 )
 
 type Paystack struct {
-	base     string
-	secret   security.Secret
-	client   *http.Client
-	merchant int64
-	mode     string
+	base            string
+	secret          security.Secret
+	client          *http.Client
+	merchant        int64
+	mode            string
+	webhookMu       sync.RWMutex
+	webhookPrevious []security.Secret
 }
 
 func NewPaystack(base string, secret security.Secret, merchant int64, mode string, client *http.Client) (*Paystack, error) {
@@ -47,7 +50,21 @@ func NewPaystack(base string, secret security.Secret, merchant int64, mode strin
 		copyClient.Timeout = 15 * time.Second
 	}
 	copyClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
-	return &Paystack{strings.TrimSuffix(base, "/"), secret, &copyClient, merchant, mode}, nil
+	return &Paystack{base: strings.TrimSuffix(base, "/"), secret: secret, client: &copyClient, merchant: merchant, mode: mode}, nil
+}
+func (p *Paystack) SetWebhookOverlap(keys []security.Secret) error {
+	if len(keys) > 2 {
+		return ErrMismatch
+	}
+	for _, key := range keys {
+		if !strings.HasPrefix(key.Reveal(), "sk_"+p.mode+"_") {
+			return ErrMismatch
+		}
+	}
+	p.webhookMu.Lock()
+	defer p.webhookMu.Unlock()
+	p.webhookPrevious = append([]security.Secret(nil), keys...)
+	return nil
 }
 func (p *Paystack) call(ctx context.Context, method, path string, in, out any) error {
 	start := time.Now()
@@ -122,6 +139,7 @@ func (p *Paystack) InitializeCharge(ctx context.Context, in ChargeRequest) (Init
 }
 
 type chargeWire struct {
+	ID        int64           `json:"id"`
 	Reference string          `json:"reference"`
 	Status    string          `json:"status"`
 	Currency  string          `json:"currency"`
@@ -195,12 +213,22 @@ func (p *Paystack) ReceiveWebhook(body []byte, signature string) (Callback, erro
 	}
 	mac := hmac.New(sha512.New, []byte(p.secret.Reveal()))
 	mac.Write(body)
-	if !hmac.Equal(mac.Sum(nil), sig) {
+	valid := hmac.Equal(mac.Sum(nil), sig)
+	p.webhookMu.RLock()
+	for _, key := range p.webhookPrevious {
+		m := hmac.New(sha512.New, []byte(key.Reveal()))
+		m.Write(body)
+		valid = hmac.Equal(m.Sum(nil), sig) || valid
+	}
+	p.webhookMu.RUnlock()
+	if !valid {
 		return Callback{}, ErrSignature
 	}
 	var x struct {
 		Event string `json:"event"`
 		Data  struct {
+			ID           int64  `json:"id"`
+			MerchantNote string `json:"merchant_note"`
 			Reference    string `json:"reference"`
 			CustomerCode string `json:"customer_code"`
 			Customer     struct {
@@ -212,6 +240,15 @@ func (p *Paystack) ReceiveWebhook(body []byte, signature string) (Callback, erro
 		return Callback{}, ErrSignature
 	}
 	ref := x.Data.Reference
+	if strings.HasPrefix(x.Event, "refund.") {
+		ref = x.Data.MerchantNote
+		if ref == "" && x.Data.ID > 0 {
+			ref = strconv.FormatInt(x.Data.ID, 10)
+		}
+	}
+	if strings.HasPrefix(x.Event, "charge.dispute.") && x.Data.ID > 0 {
+		ref = "dispute:" + strconv.FormatInt(x.Data.ID, 10)
+	}
 	if ref == "" {
 		ref = x.Data.CustomerCode
 	}

@@ -96,6 +96,7 @@ func (p *Paystack) normalizeTransfer(x transferWire) (Transfer, error) {
 		t.State = "OTP_REQUIRED"
 	case "reversed":
 		t.State = "REVIEW_REQUIRED"
+		t.Reversed = true
 	}
 	return t, nil
 }
@@ -138,20 +139,29 @@ func (p *Paystack) SettlementTransactions(ctx context.Context, ref string) ([]Ch
 	if _, e := strconv.ParseInt(ref, 10, 64); e != nil {
 		return nil, ErrMismatch
 	}
-	var xs []chargeWire
-	e := p.call(ctx, "GET", "/settlement/"+url.PathEscape(ref)+"/transactions?perPage=100", nil, &xs)
-	if e != nil {
-		return nil, e
-	}
 	out := []Charge{}
-	for _, x := range xs {
-		c, e := p.normalize(ctx, x)
-		if e != nil {
+	seen := map[string]bool{}
+	for page := 1; page <= 1000; page++ {
+		var xs []chargeWire
+		if e := p.call(ctx, "GET", "/settlement/"+url.PathEscape(ref)+"/transactions?perPage=100&page="+strconv.Itoa(page), nil, &xs); e != nil {
 			return nil, e
 		}
-		out = append(out, c)
+		for _, x := range xs {
+			c, e := p.normalize(ctx, x)
+			if e != nil {
+				return nil, e
+			}
+			if seen[c.Reference] {
+				return nil, ErrMismatch
+			}
+			seen[c.Reference] = true
+			out = append(out, c)
+		}
+		if len(xs) < 100 {
+			return out, nil
+		}
 	}
-	return out, nil
+	return nil, ErrUnknown
 }
 
 var _ Payout = (*Paystack)(nil)

@@ -38,6 +38,8 @@ type ProviderConfig struct {
 	PayoutApprovalRef       string   `json:"payout_approval_ref"`
 	PayoutFeeApproved       bool     `json:"payout_fee_approved"`
 	PayoutFeeMinor          int64    `json:"payout_fee_minor"`
+	RefundApproved          bool     `json:"refund_approved"`
+	RefundApprovalRef       string   `json:"refund_approval_ref"`
 	MinMinor                int64    `json:"min_minor"`
 	MaxMinor                int64    `json:"max_minor"`
 	Priority                int      `json:"priority"`
@@ -47,6 +49,7 @@ type ProviderConfig struct {
 	CredentialsRef          string   `json:"credentials_ref"`
 	ApprovalRef             string   `json:"approval_ref"`
 	WebhookRef              string   `json:"webhook_ref"`
+	WebhookPreviousRefs     []string `json:"webhook_previous_refs"`
 	SettlementAccountRef    string   `json:"settlement_account_ref"`
 }
 type Adapter struct {
@@ -54,14 +57,33 @@ type Adapter struct {
 	DVA        providers.DedicatedAccounts
 	Settlement providers.SettlementProvider
 	Payout     providers.Payout
+	Refund     providers.RefundProvider
+	Reversal   providers.ReversalProvider
 }
 type Service struct {
 	*core.Service
 	Environment      string
 	mu               sync.RWMutex
+	recoveryPolicy   RecoveryPolicy
 	adapters         map[ids.ID]Adapter
 	Log              *slog.Logger
 	transferReadback func(context.Context, ids.ID, string) error
+	remedyReadback   func(context.Context, ids.ID, string, string) error
+}
+
+func (s *Service) SetRemedyReadback(fn func(context.Context, ids.ID, string, string) error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.remedyReadback = fn
+}
+func (s *Service) remedyCallback(ctx context.Context, id ids.ID, event, ref string) error {
+	s.mu.RLock()
+	fn := s.remedyReadback
+	s.mu.RUnlock()
+	if fn == nil {
+		return core.Fail(503, "REMEDY_READBACK_UNAVAILABLE")
+	}
+	return fn(ctx, id, event, ref)
 }
 
 func (s *Service) SetTransferReadback(fn func(context.Context, ids.ID, string) error) {
@@ -80,7 +102,7 @@ func (s *Service) transferCallback(ctx context.Context, provider ids.ID, ref str
 }
 
 func New(c *core.Service, environment string) *Service {
-	return &Service{Service: c, Environment: environment, adapters: map[ids.ID]Adapter{}, Log: slog.Default()}
+	return &Service{Service: c, Environment: environment, adapters: map[ids.ID]Adapter{}, recoveryPolicy: RecoveryPolicy{MaxAttempts: 12, BaseSeconds: 5, MaxBackoffSeconds: 3600, LeaseSeconds: 30}, Log: slog.Default()}
 }
 func (s *Service) Adapter(id ids.ID) (Adapter, error) {
 	s.mu.RLock()
@@ -306,7 +328,7 @@ func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) 
 	}
 	// Persist SUBMITTING before an external side effect. A crash leaves an
 	// unknown attempt; no retry path performs another initialization.
-	tag, e := s.DB.Exec(ctx, `UPDATE payment_intents SET state='SUBMITTING',updated_at=now() WHERE intent_id=$1 AND state='REQUESTED'`, i.ID)
+	tag, e := s.ChangeProviderState(internal(ctx), "COLLECTION", i.ID, "REQUESTED", "SUBMITTING", "")
 	if e != nil {
 		return i, e
 	}
@@ -327,7 +349,7 @@ func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) 
 		state = "UNKNOWN_OUTCOME"
 		checkout = ""
 	}
-	_, e = s.DB.Exec(ctx, `UPDATE payment_intents SET state=$2,checkout_url=nullif($3,''),updated_at=now() WHERE intent_id=$1 AND state='SUBMITTING'`, i.ID, state, checkout)
+	_, e = s.ChangeProviderState(internal(ctx), "COLLECTION", i.ID, "SUBMITTING", state, checkout)
 	if e != nil {
 		return i, e
 	}
@@ -421,8 +443,14 @@ func (s *Service) VerifyIntent(ctx context.Context, id ids.ID) (Intent, error) {
 	if e != nil {
 		return i, e
 	}
-	if state == "VERIFIED_SUCCESS" {
-		if c.State == "VERIFIED_FAILURE" {
+	if state == "CANCELLED" {
+		return i, core.Fail(409, "CANCELLED_INTENT_READBACK_REVIEW_REQUIRED")
+	}
+	if state == "VERIFIED_FAILURE" && c.State == "VERIFIED_FAILURE" {
+		return s.readIntent(ctx, tx, id)
+	}
+	if state == "VERIFIED_SUCCESS" || state == "VERIFIED_FAILURE" {
+		if state == "VERIFIED_SUCCESS" && c.State == "VERIFIED_FAILURE" || state == "VERIFIED_FAILURE" && c.State == "VERIFIED_SUCCESS" {
 			_, e = tx.Exec(ctx, `UPDATE custody_pools SET restricted=true WHERE pool_id=$1`, i.PoolID)
 			if e != nil {
 				return i, e
@@ -492,6 +520,11 @@ func (s *Service) VerifyIntent(ctx context.Context, id ids.ID) (Intent, error) {
 		if e != nil {
 			return i, e
 		}
+		if state != c.State {
+			if e = s.Emit(ctx, tx, "finance.provider_state_changed.v1", "provider_attempt", id, StateChange{id, "COLLECTION", state, c.State}); e != nil {
+				return i, e
+			}
+		}
 	} else {
 		return i, core.Fail(409, "UNKNOWN_PROVIDER_STATUS")
 	}
@@ -519,7 +552,7 @@ func (s *Service) RecoverUnknown(ctx context.Context) error {
 	if e := core.Require(ctx, platform.PaymentService); e != nil {
 		return e
 	}
-	rows, e := s.DB.Query(ctx, `SELECT intent_id FROM payment_intents WHERE state IN ('REQUESTED','SUBMITTING','UNKNOWN_OUTCOME','PENDING','PROCESSING') AND updated_at<now()-interval '5 seconds' ORDER BY updated_at LIMIT 50`)
+	rows, e := s.DB.Query(ctx, `SELECT intent_id FROM payment_intents WHERE state IN ('REQUESTED','SUBMITTING','UNKNOWN_OUTCOME','PENDING','PROCESSING') AND NOT EXISTS(SELECT 1 FROM original_readback_jobs j WHERE j.kind='COLLECTION' AND j.aggregate_id=intent_id AND (j.state IN ('DEAD','COMPLETED') OR j.next_attempt_at>now() OR j.lease_until>now())) AND updated_at<now()-interval '5 seconds' ORDER BY updated_at LIMIT 50`)
 	if e != nil {
 		return e
 	}
@@ -537,7 +570,17 @@ func (s *Service) RecoverUnknown(ctx context.Context) error {
 	}
 	rows.Close()
 	for _, id := range idsToRead {
-		_, _ = s.VerifyIntent(ctx, id)
+		token, claimed, e := s.ClaimReadback(ctx, "COLLECTION", id)
+		if e != nil {
+			return e
+		}
+		if !claimed {
+			continue
+		}
+		out, readErr := s.VerifyIntent(ctx, id)
+		if e = s.FinishReadback(ctx, "COLLECTION", id, token, readErr == nil && (out.State == "VERIFIED_SUCCESS" || out.State == "VERIFIED_FAILURE" || out.State == "RECONCILIATION_EXCEPTION")); e != nil {
+			return e
+		}
 	}
 	return nil
 }

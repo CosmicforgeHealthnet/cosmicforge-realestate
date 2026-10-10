@@ -133,7 +133,17 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 	if err != nil {
 		return ids.ID{}, err
 	}
-	if restrictedWallet {
+	compensatingDebit := p.Authorization["confirmed_reversal_ref"] != "" || p.Authorization["approved_recovery_ref"] != ""
+	for _, entry := range p.Entries {
+		var kind string
+		if err = tx.QueryRow(ctx, `SELECT kind FROM ledger_accounts WHERE account_id=$1`, entry.AccountID).Scan(&kind); err != nil {
+			return ids.Nil, err
+		}
+		if kind == "AVAILABLE" && entry.Side != "DEBIT" {
+			compensatingDebit = false
+		}
+	}
+	if restrictedWallet && !compensatingDebit {
 		return ids.ID{}, Fail(403, "FINANCIAL_IDENTITY_RESTRICTED")
 	}
 	if restricted {
@@ -142,7 +152,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 			if err = tx.QueryRow(ctx, `SELECT kind FROM ledger_accounts WHERE account_id=$1`, e.AccountID).Scan(&kind); err != nil {
 				return ids.ID{}, err
 			}
-			if kind == "AVAILABLE" {
+			if kind == "AVAILABLE" && !compensatingDebit {
 				return ids.ID{}, Fail(409, "UNFUNDED_RELEASE")
 			}
 		}
@@ -160,7 +170,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 		}
 	}
 	var invalid bool
-	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM account_balances WHERE pool_id=$1 AND kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','SETTLED_CASH','PROVIDER_RECEIVABLE') AND balance_minor<0)`, p.PoolID).Scan(&invalid)
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM account_balances WHERE pool_id=$1 AND kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','PROVIDER_PAYABLE','RECOVERABLE','SETTLED_CASH','PROVIDER_RECEIVABLE') AND balance_minor<0)`, p.PoolID).Scan(&invalid)
 	if err != nil {
 		return ids.ID{}, err
 	}
@@ -174,7 +184,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 	}
 	if newAvailable {
 		var covered bool
-		err = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor >= COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','AVAILABLE','PROTECTED','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, p.PoolID).Scan(&covered)
+		err = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor >= COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','AVAILABLE','PROTECTED','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','PROVIDER_PAYABLE')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, p.PoolID).Scan(&covered)
 		if err != nil {
 			return ids.ID{}, err
 		}
@@ -189,7 +199,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 }
 func (s *Service) Account(ctx context.Context, tx pgx.Tx, wallet *ids.ID, pool ids.ID, kind, entity, currency, dimension string) (ids.ID, error) {
 	side := "CREDIT"
-	if kind == "PROVIDER_RECEIVABLE" || kind == "SETTLED_CASH" || kind == "PROCESSING_EXPENSE" {
+	if kind == "PROVIDER_RECEIVABLE" || kind == "SETTLED_CASH" || kind == "PROCESSING_EXPENSE" || kind == "RECOVERABLE" {
 		side = "DEBIT"
 	}
 	id := ids.New()

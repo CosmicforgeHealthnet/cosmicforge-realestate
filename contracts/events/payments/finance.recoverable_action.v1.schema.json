@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.recoverable_action.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/RecoverableAction"
+    }
+  },
+  "components": {
+    "schemas": {
+      "RecoverableAction": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "recoverable_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "risk_ref": {
+            "type": "string"
+          },
+          "source_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "recoverable_id",
+          "action",
+          "amount_minor",
+          "authority_ref",
+          "risk_ref",
+          "approvers",
+          "evidence_ids"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

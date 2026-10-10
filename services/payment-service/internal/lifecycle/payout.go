@@ -79,15 +79,19 @@ func (s *Service) BindDestination(ctx context.Context, in Destination) error {
 }
 
 type WithdrawalApproval struct {
-	ID              ids.ID    `json:"approval_id"`
-	LineID          ids.ID    `json:"line_id"`
-	WalletID        ids.ID    `json:"wallet_id"`
-	PayoutAccountID ids.ID    `json:"payout_account_id"`
-	AmountMinor     int64     `json:"amount_minor"`
-	StepUpRef       string    `json:"step_up_ref"`
-	RiskRef         string    `json:"risk_ref"`
-	Approvers       []string  `json:"approvers"`
-	ExpiresAt       time.Time `json:"expires_at"`
+	ID               ids.ID    `json:"approval_id"`
+	LineID           ids.ID    `json:"line_id"`
+	WalletID         ids.ID    `json:"wallet_id"`
+	PayoutAccountID  ids.ID    `json:"payout_account_id"`
+	AmountMinor      int64     `json:"amount_minor"`
+	ApprovalChainRef string    `json:"approval_chain_ref,omitempty"`
+	BranchProjectRef string    `json:"branch_project_ref,omitempty"`
+	ConsentRef       string    `json:"consent_ref,omitempty"`
+	WorkMandateRef   string    `json:"work_mandate_ref,omitempty"`
+	StepUpRef        string    `json:"step_up_ref"`
+	RiskRef          string    `json:"risk_ref"`
+	Approvers        []string  `json:"approvers"`
+	ExpiresAt        time.Time `json:"expires_at"`
 }
 
 func (s *Service) ApproveWithdrawal(ctx context.Context, in WithdrawalApproval) error {
@@ -104,6 +108,9 @@ func (s *Service) ApproveWithdrawal(ctx context.Context, in WithdrawalApproval) 
 	}
 	if in.ID.ValidateV7() != nil || in.AmountMinor <= 0 || p.WithdrawalLimitMinor == 0 || in.AmountMinor > p.WithdrawalLimitMinor || in.StepUpRef == "" || in.RiskRef == "" || !in.ExpiresAt.After(time.Now()) || (p.HumanReview || (p.DualApprovalAboveMinor > 0 && in.AmountMinor >= p.DualApprovalAboveMinor)) && !dual(in.Approvers) {
 		return core.Fail(403, "WITHDRAWAL_APPROVAL_REQUIRED")
+	}
+	if e = s.payoutPartyControl(ctx, s.DB, in); e != nil {
+		return e
 	}
 	var owns bool
 	e = s.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM allocation_lines l JOIN payout_account_refs b USING(wallet_id) WHERE l.line_id=$1 AND l.wallet_id=$2 AND b.payout_account_id=$3 AND b.expires_at>=$4)`, in.LineID, in.WalletID, in.PayoutAccountID, in.ExpiresAt).Scan(&owns)
@@ -182,9 +189,17 @@ func (s *Service) Payout(ctx context.Context, id ids.ID) (Payout, error) {
 			return Payout{}, e
 		}
 	}
+	var reversed bool
+	if e = s.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM financial_reversals WHERE payout_id=$1)`, id).Scan(&reversed); e != nil {
+		return Payout{}, e
+	}
+	if reversed {
+		p.State = "REVERSED"
+	}
 	return p, nil
 }
 func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payout, error) {
+	ctx = beneficiaryContext(ctx)
 	if s.Environment == "production" {
 		return Payout{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
@@ -276,6 +291,15 @@ func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payo
 	if wallet == nil || *wallet != in.WalletID || available == nil || !has([]string{"AVAILABLE", "WITHDRAWAL_RESERVED"}, state) || in.AmountMinor > released-reserved {
 		return Payout{}, core.Fail(409, "AVAILABLE_FUNDS_REQUIRED")
 	}
+	if e = s.outstandingRecovery(ctx, tx, in.WalletID); e != nil {
+		return Payout{}, e
+	}
+	if e = s.payoutPartyControl(ctx, tx, approval); e != nil {
+		return Payout{}, e
+	}
+	if e = s.currentDestination(ctx, tx, in.WalletID, in.PayoutAccountID); e != nil {
+		return Payout{}, e
+	}
 	var current bool
 	e = tx.QueryRow(ctx, `SELECT true FROM beneficiary_authorities WHERE authority_id=$1 AND NOT revoked AND expires_at>now() FOR SHARE`, authority).Scan(&current)
 	if errors.Is(e, pgx.ErrNoRows) {
@@ -301,7 +325,7 @@ func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payo
 		return Payout{}, e
 	}
 	var feeCovered bool
-	e = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor-COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE')),0) >= $2 + COALESCE((SELECT sum((route_snapshot->>'payout_fee_minor')::numeric) FROM payout_attempts WHERE pool_id=$1 AND state NOT IN ('CONFIRMED_PAID','CONFIRMED_FAILED')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, a.PoolID, config.PayoutFeeMinor).Scan(&feeCovered)
+	e = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor-COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','PROVIDER_PAYABLE')),0) >= $2 + COALESCE((SELECT sum((route_snapshot->>'payout_fee_minor')::numeric) FROM payout_attempts WHERE pool_id=$1 AND state NOT IN ('CONFIRMED_PAID','CONFIRMED_FAILED')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, a.PoolID, config.PayoutFeeMinor).Scan(&feeCovered)
 	if e != nil {
 		return Payout{}, e
 	}
@@ -325,7 +349,7 @@ func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payo
 		return out, e
 	}
 	// One CAS and one external submission. Repeated commands/recovery only read back.
-	tag, e := s.DB.Exec(ctx, `UPDATE payout_attempts SET state='SUBMITTING',updated_at=now() WHERE payout_id=$1 AND state='RESERVED'`, out.ID)
+	tag, e := s.ChangeProviderState(trusted(ctx), "PAYOUT", out.ID, "RESERVED", "SUBMITTING", "")
 	if e != nil {
 		return out, e
 	}
@@ -337,7 +361,7 @@ func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payo
 	if callErr != nil || transfer.Reference != out.Reference {
 		state = "UNKNOWN_OUTCOME"
 	}
-	_, e = s.DB.Exec(ctx, `UPDATE payout_attempts SET state=$2,updated_at=now() WHERE payout_id=$1 AND state='SUBMITTING'`, out.ID, state)
+	_, e = s.ChangeProviderState(trusted(ctx), "PAYOUT", out.ID, "SUBMITTING", state, "")
 	if e != nil {
 		return out, e
 	}
@@ -364,7 +388,24 @@ func (s *Service) ResolvePayout(ctx context.Context, id ids.ID) (Payout, error) 
 	if e != nil {
 		return out, e
 	}
-	if has([]string{"CONFIRMED_PAID", "CONFIRMED_FAILED"}, out.State) {
+	if has([]string{"REVERSED", "CONFIRMED_FAILED"}, out.State) {
+		return out, nil
+	}
+	if out.State == "CONFIRMED_PAID" {
+		a, e := s.Adapter(out.ProviderID)
+		if e != nil {
+			return out, e
+		}
+		if a.Payout == nil {
+			return out, core.Fail(503, "PAYOUT_PROVIDER_UNAVAILABLE")
+		}
+		r, e := a.Payout.VerifyTransfer(ctx, out.Reference)
+		if e != nil {
+			return out, core.Fail(503, "PROVIDER_CONFIRMATION_PENDING")
+		}
+		if r.State == "REVERSED" || r.Reversed {
+			return s.ReversePaidPayout(trusted(ctx), id)
+		}
 		return out, nil
 	}
 	a, e := s.Adapter(out.ProviderID)
@@ -507,7 +548,7 @@ func (s *Service) RecoverPayouts(ctx context.Context) error {
 	if e := core.Require(ctx, platform.PaymentService); e != nil {
 		return e
 	}
-	rows, e := s.DB.Query(ctx, `SELECT payout_id FROM payout_attempts WHERE state NOT IN ('CONFIRMED_PAID','CONFIRMED_FAILED') AND updated_at<now()-interval '15 seconds' ORDER BY updated_at LIMIT 20`)
+	rows, e := s.DB.Query(ctx, `SELECT payout_id FROM payout_attempts WHERE state NOT IN ('CONFIRMED_PAID','CONFIRMED_FAILED') AND NOT EXISTS(SELECT 1 FROM original_readback_jobs j WHERE j.kind='PAYOUT' AND j.aggregate_id=payout_id AND (j.state IN ('DEAD','COMPLETED') OR j.next_attempt_at>now() OR j.lease_until>now())) AND updated_at<now()-interval '15 seconds' ORDER BY updated_at LIMIT 20`)
 	if e != nil {
 		return e
 	}
@@ -526,8 +567,16 @@ func (s *Service) RecoverPayouts(ctx context.Context) error {
 		return e
 	}
 	for _, id := range xs {
-		if _, e = s.ResolvePayout(ctx, id); e != nil {
-			s.Log.WarnContext(ctx, "payout recovery pending", "payout_id", id, "error_code", "READBACK_REQUIRED")
+		token, claimed, e := s.ClaimReadback(ctx, "PAYOUT", id)
+		if e != nil {
+			return e
+		}
+		if !claimed {
+			continue
+		}
+		out, readErr := s.ResolvePayout(ctx, id)
+		if e = s.FinishReadback(ctx, "PAYOUT", id, token, readErr == nil && has([]string{"CONFIRMED_PAID", "CONFIRMED_FAILED", "CANCELLED", "REVERSED"}, out.State)); e != nil {
+			return e
 		}
 	}
 	return nil

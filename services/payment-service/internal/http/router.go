@@ -42,6 +42,7 @@ func NewRouter(c Config) http.Handler {
 	r.Route("/internal/v1", func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(c.Verifier, serviceauth.HeaderAuthorization))
 		h.registerLifecycle(r)
+		h.registerRemedies(r)
 		r.Post("/wallets/ensure", h.ensure)
 		r.Get("/wallets/{id}", h.wallet)
 		r.Get("/wallets/{id}/balances", h.balances)
@@ -56,6 +57,7 @@ func NewRouter(c Config) http.Handler {
 		r.Post("/payment-intents/{id}/verify", h.verifyIntent)
 		r.Post("/virtual-accounts", h.requestDVA)
 		r.Get("/virtual-accounts/{id}", h.getDVA)
+
 		r.Post("/virtual-accounts/{id}/sync", h.syncDVA)
 		r.Post("/virtual-accounts/{id}/deactivate", h.deactivateDVA)
 		r.Post("/provider-inbox/{id}/replay", h.replay)
@@ -75,6 +77,23 @@ func NewRouter(c Config) http.Handler {
 		r.Get("/wallets/{id}/transactions", h.history)
 		r.Get("/payment-intents/{id}", h.getIntent)
 		r.Get("/virtual-accounts/{id}", h.getDVA)
+		h.registerCustomer(r)
+		r.Post("/financial-cases", command(func(w http.ResponseWriter, r *http.Request, in lifecycle.CaseRequest) {
+			v, e := h.l.OpenCase(r.Context(), in, r.Header.Get("Idempotency-Key"))
+			respond(w, r, v, e)
+		}))
+		r.Post("/financial-case-facts", command(func(w http.ResponseWriter, r *http.Request, in lifecycle.CaseFact) {
+			e := h.l.AppendCaseFact(r.Context(), in, r.Header.Get("Idempotency-Key"))
+			respond(w, r, map[string]bool{"recorded": e == nil}, e)
+		}))
+		r.Get("/financial-cases/{id}", h.getCase)
+		r.Get("/financial-cases/{id}/facts", h.getCaseFacts)
+		r.Get("/refunds/{id}", h.getRefund)
+		r.Get("/refundable-deposits/{id}", h.getDeposit)
+		r.Post("/withdrawals", command(func(w http.ResponseWriter, r *http.Request, in lifecycle.Withdrawal) {
+			v, e := h.l.Withdraw(r.Context(), in, r.Header.Get("Idempotency-Key"))
+			respond(w, r, v, e)
+		}))
 	})
 	r.Route("/webhooks/v1/paystack", func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(c.Verifier, serviceauth.HeaderServiceAuthorization), serviceauth.RequireCaller(platform.APIGateway))

@@ -107,6 +107,7 @@ type Transfer struct {
 	RecipientRef, Mode string
 	MerchantID         int64
 	NoEffectConfirmed  bool
+	Reversed           bool
 	FeeMinor           int64
 	FeeKnown           bool
 	AmountMinor        int64
@@ -130,12 +131,22 @@ type RecipientLookup interface {
 type Refund struct {
 	Reference, ChargeReference, State string
 	AmountMinor                       int64
+	ID, Currency, Mode                string
+	MerchantID                        int64
+	NoEffectConfirmed                 bool
 }
 type RefundProvider interface {
 	InitiateRefund(context.Context, Refund) (Refund, error)
-	VerifyRefund(context.Context, string) (Refund, error)
-	FetchDisputes(context.Context) ([]string, error)
-	FetchReversals(context.Context) ([]string, error)
+	VerifyRefund(context.Context, Refund) (Refund, error)
+}
+type Reversal struct {
+	Reference, EconomicReference, ChargeReference, Currency, Mode string
+	AmountMinor                                                   int64
+	MerchantID                                                    int64
+	Confirmed                                                     bool
+}
+type ReversalProvider interface {
+	VerifyReversal(context.Context, string) (Reversal, error)
 }
 
 // Mandates are a reserved contract only. No implementation is registered.

@@ -54,7 +54,7 @@ func TestLifecycleSignedHTTPAuthorityAndSchemaParity(t *testing.T) {
 		router.ServeHTTP(res, req)
 		return res.Code
 	}
-	for _, path := range []string{"/financial-policies", "/locked-quotes", "/allocations", "/release-evidence", "/transaction-funding", "/withdrawal-approvals", "/withdrawals", "/rent-agreements", "/rent-obligations"} {
+	for _, path := range []string{"/financial-policies", "/locked-quotes", "/allocations", "/release-evidence", "/transaction-funding", "/withdrawal-approvals", "/withdrawals", "/rent-agreements", "/rent-obligations", "/remedy-policies", "/remedy-evidence", "/refundable-deposits", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/financial-case-overrides", "/refunds", "/recoverable-actions", "/customer-topups", "/wallet-spends", "/customer-topup-funding", "/reconciliation-runs", "/reconciliation-resolutions", "/intent-cancellations", "/payout-destination-versions"} {
 		if call("/internal/v1"+path, "", map[string]any{}) != 401 {
 			t.Fatal(path, "unauthenticated command")
 		}

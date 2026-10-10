@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/core"
+	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
@@ -67,7 +68,9 @@ func (s *Service) ProcessInbox(ctx context.Context) (int, error) {
 	}
 	for _, x := range items {
 		var processErr error
-		if x.typ == "charge.success" || x.typ == "charge.reversed" {
+		if x.typ == "charge.reversed" || x.typ == "charge.dispute.create" || x.typ == "charge.dispute.resolve" || x.typ == "refund.pending" || x.typ == "refund.processing" || x.typ == "refund.processed" || x.typ == "refund.failed" || x.typ == "refund.reversed" {
+			processErr = s.remedyCallback(ctx, x.provider, x.typ, x.ref)
+		} else if x.typ == "charge.success" {
 			var id ids.ID
 			processErr = s.DB.QueryRow(ctx, `SELECT intent_id FROM payment_intents WHERE provider_reference=$1 AND provider_account_id=$2`, x.ref, x.provider).Scan(&id)
 			if errors.Is(processErr, pgx.ErrNoRows) {
@@ -89,6 +92,8 @@ func (s *Service) ProcessInbox(ctx context.Context) (int, error) {
 			if processErr == nil {
 				_, processErr = s.SyncDVA(ctx, id, false)
 			}
+		} else {
+			processErr = core.Fail(422, "UNSUPPORTED_PROVIDER_EVENT")
 		}
 		if processErr == nil {
 			_, e = s.DB.Exec(ctx, `UPDATE provider_inbox SET status='PROCESSED',lease_until=NULL,last_error=NULL WHERE inbox_id=$1 AND lease_token=$2`, x.id, token)
@@ -98,7 +103,12 @@ func (s *Service) ProcessInbox(ctx context.Context) (int, error) {
 				status = "DEAD"
 			}
 			backoff := time.Duration(1<<min(x.attempts, 10)) * time.Second
-			_, e = s.DB.Exec(ctx, `UPDATE provider_inbox SET status=$3,next_attempt_at=now()+$4::interval,lease_until=NULL,last_error='PROCESSING_REQUIRES_REVIEW' WHERE inbox_id=$1 AND lease_token=$2`, x.id, token, status, backoff.String())
+			reason := "PROCESSING_REQUIRES_REVIEW"
+			var rejection *apperrors.Error
+			if errors.As(processErr, &rejection) {
+				reason = rejection.Code
+			}
+			_, e = s.DB.Exec(ctx, `UPDATE provider_inbox SET status=$3,next_attempt_at=now()+$4::interval,lease_until=NULL,last_error=$5 WHERE inbox_id=$1 AND lease_token=$2`, x.id, token, status, backoff.String(), reason)
 			s.Log.WarnContext(ctx, "financial webhook retry", "inbox_id", x.id, "attempt", x.attempts, "state", status)
 			webhookRetries.Add(ctx, 1, attribute.String("state", status))
 		}

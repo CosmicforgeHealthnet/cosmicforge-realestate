@@ -64,7 +64,7 @@ func (s *Service) Coverage(ctx context.Context, pool ids.ID) (x Coverage, e erro
 		return
 	}
 	x.PoolID = pool
-	e = s.DB.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)::text,COALESCE(sum(balance_minor) FILTER(WHERE kind='PROVIDER_RECEIVABLE'),0)::text,COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE')),0)::text,p.reserve_minor,p.restricted,p.custody_approved FROM custody_pools p LEFT JOIN account_balances b USING(pool_id) WHERE p.pool_id=$1 GROUP BY p.pool_id`, pool).Scan(&x.SettledCashMinor, &x.ReceivableMinor, &x.LiabilityMinor, &x.ReserveMinor, &x.Restricted, &x.CustodyApproved)
+	e = s.DB.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)::text,COALESCE(sum(balance_minor) FILTER(WHERE kind='PROVIDER_RECEIVABLE'),0)::text,COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','PROVIDER_PAYABLE')),0)::text,p.reserve_minor,p.restricted,p.custody_approved FROM custody_pools p LEFT JOIN account_balances b USING(pool_id) WHERE p.pool_id=$1 GROUP BY p.pool_id`, pool).Scan(&x.SettledCashMinor, &x.ReceivableMinor, &x.LiabilityMinor, &x.ReserveMinor, &x.Restricted, &x.CustodyApproved)
 	return
 }
 func (s *Service) ReconcileBalance(ctx context.Context, provider ids.ID) error {

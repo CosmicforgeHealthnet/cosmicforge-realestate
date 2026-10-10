@@ -1,4 +1,4 @@
-"""Generate the controlled Sections 1-6 OpenAPI, Postman and event contracts.
+"""Generate the controlled Sections 1-10 OpenAPI, Postman and event contracts.
 
 Only implemented HTTP surfaces are listed. Run from the repository root.
 Contracts use JSON syntax (valid YAML) for reproducible native serialization.
@@ -37,7 +37,7 @@ SCHEMAS = {
     "Link": obj(dict(identity_id=UUID, domain=TEXT, account_id=UUID, evidence_ref=TEXT)),
     "Verification": obj(dict(verification_ref=TEXT, state={"type": "string", "enum": ["VERIFIED", "REVOKED", "EXPIRED"]}, expires_at=DATE)),
     "IntentInput": obj(dict(wallet_id=UUID, amount_minor=MONEY, currency=CURRENCY, country=TEXT, category=TEXT, evidence_ref=TEXT, policy_version=TEXT, email={"type": "string", "format": "email"}, requires_custody=BOOL, provider_constraint=UUID), ["wallet_id", "amount_minor", "currency", "country", "category", "evidence_ref", "policy_version", "email"]),
-    "Intent": obj(dict(intent_id=UUID, wallet_id=UUID, amount_minor=MONEY, currency=CURRENCY, legal_entity=TEXT, provider_account_id=UUID, pool_id=UUID, reference=TEXT, state={"type": "string", "enum": ["REQUESTED", "SUBMITTING", "INITIALIZED", "PENDING", "PROCESSING", "VERIFIED_SUCCESS", "VERIFIED_FAILURE", "UNKNOWN_OUTCOME", "RECONCILIATION_EXCEPTION"]}, settlement_state={"type": "string", "enum": ["PENDING", "SETTLED", "EXCEPTION"]}, checkout_url={"type": "string", "format": "uri"}), ["intent_id", "wallet_id", "amount_minor", "currency", "legal_entity", "provider_account_id", "pool_id", "reference", "state", "settlement_state"]),
+    "Intent": obj(dict(intent_id=UUID, wallet_id=UUID, amount_minor=MONEY, currency=CURRENCY, legal_entity=TEXT, provider_account_id=UUID, pool_id=UUID, reference=TEXT, state={"type": "string", "enum": ["REQUESTED", "SUBMITTING", "INITIALIZED", "PENDING", "PROCESSING", "VERIFIED_SUCCESS", "VERIFIED_FAILURE", "UNKNOWN_OUTCOME", "RECONCILIATION_EXCEPTION","CANCELLED"]}, settlement_state={"type": "string", "enum": ["PENDING", "SETTLED", "EXCEPTION"]}, checkout_url={"type": "string", "format": "uri"}), ["intent_id", "wallet_id", "amount_minor", "currency", "legal_entity", "provider_account_id", "pool_id", "reference", "state", "settlement_state"]),
     "Customer": obj(dict(email=TEXT, first_name=TEXT, last_name=TEXT, phone={"type": "string"}), ["email", "first_name", "last_name"]),
     "Validation": obj(dict(country={"const": "NG"}, type={"const": "bank_account"}, account_number=TEXT, bvn=TEXT, bank_code=TEXT, first_name={"type": "string"}, last_name={"type": "string"}), ["country", "type", "account_number", "bvn", "bank_code"]),
     "DVAInput": obj(dict(wallet_id=UUID, provider_account_id=UUID, consent_ref=TEXT, consent_version=TEXT, consent_at=DATE, consent_expires_at=DATE, verification_ref=TEXT, customer=ref("Customer"), validation=ref("Validation"))),
@@ -80,29 +80,33 @@ INTERNAL.extend([
 ])
 from lifecycle_contracts import extend
 LIFECYCLE_PUBLIC = extend(ROOT, SCHEMAS, INTERNAL, obj, ref, array, TEXT, UUID)
+from remedy_contracts import extend as extend_remedies
+REMEDY_PUBLIC=extend_remedies(SCHEMAS,INTERNAL,obj,ref,array,TEXT)
 PUBLIC = [(m, p, b, out, desc) for m, p, b, out, desc in INTERNAL if m == "GET" and (p.startswith("/wallets/") or p.startswith("/payment-intents/") or p.startswith("/virtual-accounts/"))]
 PUBLIC.extend(LIFECYCLE_PUBLIC)
+PUBLIC.extend(REMEDY_PUBLIC)
+PUBLIC=list({(r[0],r[1]):r for r in PUBLIC}.values())
 PUBLIC = [route for route in PUBLIC if not route[1].endswith("/payout-account-references")]
 PUBLIC.insert(0, ("GET", "/wallets/me", None, array(ref("Wallet")), "Authenticated user through gateway; signed actor domain/account only. No actor supplied through client headers."))
-ERROR_CODES = sorted(set(__import__("re").findall(r'(?:Fail\(\s*\d+,\s*|fail\(\s*)"([A-Z_]+)"', "\n".join(p.read_text() for p in (ROOT / "services/payment-service/internal").rglob("*.go") if not p.name.endswith("_test.go")))))
+ERROR_CODES = sorted(set(__import__("re").findall(r'(?:Fail\(\s*\d+,\s*|fail\(\s*)"([A-Z_]+)"', "\n".join(p.read_text(encoding='utf-8') for p in (ROOT / "services/payment-service/internal").rglob("*.go") if not p.name.endswith("_test.go")))))
 
 
 def spec(title, prefix, routes, internal):
     paths = {}
     for method, path, body, output, description in routes:
         op = {"summary": method + " " + path, "operationId": (method + prefix + path).replace("/", "_").replace("{", "").replace("}", "").replace("-", "_"), "description": description, "security": [{"ServiceJWT" if internal else "UserJWT": []}], "responses": {"200": {"description": "Authoritative result (test mode; capability status is explicit)", "content": {"application/json": {"schema": obj({"data": output})}}}}, "parameters": []}
-        if "{id}" in path:
-            op["parameters"].append({"name": "id", "in": "path", "required": True, "schema": UUID})
+        for parameter in __import__("re").findall(r"\{([^}]+)\}",path):
+            op["parameters"].append({"name":parameter,"in":"path","required":True,"schema":UUID})
         if path.endswith("/transactions"):
             op["parameters"].extend([{"name": "after", "in": "query", "schema": UUID}, {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}}])
-        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals"]:
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations"]:
             op["parameters"].append({"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"type": "string", "minLength": 1, "maxLength": 128}})
         if body:
             op["requestBody"] = {"required": True, "content": {"application/json": {"schema": ref(body)}}}
         for code in [400, 401, 403, 404, 409, 413, 415, 422, 500, 503]:
             op["responses"][str(code)] = {"description": "Platform error envelope; financial safety/error codes in x-error-codes.", "content": {"application/json": {"schema": ref("Error")}}}
         paths.setdefault(prefix + path, {})[method.lower()] = op
-    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-6. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
+    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-10. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
 
 
 def write(path, data):
@@ -112,7 +116,7 @@ def write(path, data):
 
 
 write("contracts/internal/openapi/payment-service.yaml", spec("Payment Service internal foundation", "/internal/v1", INTERNAL, True))
-write("contracts/public/openapi/payments.yaml", spec("Payment wallet public reads", "/api/v1/payments", PUBLIC, False))
+write("contracts/public/openapi/payments.yaml", spec("Payment wallet public API", "/api/v1/payments", PUBLIC, False))
 webhook = spec("Paystack durable webhook", "", [("POST", "/webhooks/v1/paystack/{id}/callbacks", None, obj(dict(received=BOOL)), "Gateway service JWT plus Paystack HMAC-SHA512 over raw bytes using the selected merchant secret. Acknowledge only after durable insertion; duplicates retain retry state. Maximum 64 KiB. No raw card/BVN payload persisted.")], True)
 operation = webhook["paths"]["/webhooks/v1/paystack/{id}/callbacks"]["post"]
 operation["parameters"].append({"name": "X-Paystack-Signature", "in": "header", "required": True, "schema": TEXT})
@@ -137,17 +141,17 @@ def example(schema, name="value"):
     return fixed.get(name, "{{" + name + "}}")
 for prefix, routes, token in [("/internal/v1", INTERNAL, "service_token"), ("/api/v1/payments", PUBLIC, "user_token")]:
     for method, path, body, output, description in routes:
-        url = ("{{gateway_base_url}}" if prefix.startswith("/api/") else "{{payment_base_url}}") + prefix + path.replace("{id}", "{{entity_id}}")
+        url = ("{{gateway_base_url}}" if prefix.startswith("/api/") else "{{payment_base_url}}") + prefix + path.replace("{id}", "{{entity_id}}").replace("{pool}","{{pool_id}}")
         headers = [{"key": "Authorization", "value": "Bearer {{" + token + "}}"}]
         request = {"method": method, "header": headers, "url": url, "description": description}
         if body:
             request["header"].append({"key": "Content-Type", "value": "application/json"})
             request["body"] = {"mode": "raw", "raw": json.dumps(example(SCHEMAS[body]), indent=2), "options": {"raw": {"language": "json"}}}
-        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals"]:
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations"]:
             request["header"].append({"key": "Idempotency-Key", "value": "{{idempotency_key}}"})
         items.append({"name": method + " " + prefix + path, "request": request})
 items.append({"name": "POST Paystack callbacks", "request": {"method": "POST", "url": "{{gateway_base_url}}/webhooks/v1/paystack/{{entity_id}}/callbacks", "header": [{"key": "X-Paystack-Signature", "value": "{{raw_body_hmac_sha512}}"}], "description": "Use exact signed provider body; gateway injects its service JWT. No fake signature fallback."}})
-write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-6", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""}, {"key": "idempotency_key", "value": ""}]})
+write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-10", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""},{"key":"pool_id","value":""}, {"key": "idempotency_key", "value": ""}]})
 
 payloads = {
     "finance.wallet.opened.v1": ref("Wallet"),
@@ -167,6 +171,21 @@ payloads["finance.rent_payment_verified.v1"]=obj(dict(obligation_id=UUID,intent_
 payloads["finance.rent_split_pending.v1"]=obj(dict(obligation_id=UUID,intent_id=UUID,allocation_id=UUID,amount_minor=MONEY,currency=CURRENCY))
 for event in ["withdrawal_reserved","payout_initiated","payout_confirmed","payout_failed","payout_resolution_required"]:
     payloads["finance."+event+".v1"]=ref("Payout")
+payloads.update({
+ "finance.provider_state_changed.v1":ref("StateChange"),
+ "finance.recoverable_action.v1":ref("RecoverableAction"),
+ "finance.deposit_registered.v1":ref("Deposit"),
+ "finance.case_opened.v1":ref("FinancialCase"),
+ "finance.case_decided.v1":ref("CaseDecision"),
+ "finance.refund_reserved.v1":ref("RefundAttempt"),
+ "finance.refund_state_changed.v1":ref("RefundAttempt"),
+ "finance.financial_reversed.v1":ref("ReversalRecord"),
+ "finance.destination_changed.v1":ref("DestinationChange"),
+ "finance.customer_funded.v1":obj(dict(topup_id=UUID,wallet_id=UUID,amount_minor=MONEY,currency=CURRENCY,journal_id=UUID)),
+ "finance.wallet_spent.v1":ref("Allocation"),
+ "finance.reconciliation_completed.v1":ref("ReconciliationRun"),
+})
+
 def referenced_schemas(payload):
     needed = {}
     def visit(value):

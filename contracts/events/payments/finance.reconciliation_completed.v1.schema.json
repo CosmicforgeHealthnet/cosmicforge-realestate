@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.reconciliation_completed.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/ReconciliationRun"
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReconciliationRun": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "aggregate_ref": {
+                  "type": "string"
+                },
+                "expected": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "observed": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "aggregate_ref",
+                "expected",
+                "observed"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "stale_after_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "provider_account_id",
+          "authority_ref",
+          "stale_after_seconds",
+          "findings",
+          "status"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

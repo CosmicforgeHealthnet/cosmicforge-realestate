@@ -20,12 +20,18 @@ func verifier() context.Context { return ctx(platform.VerificationService, "", i
 
 type payoutFixture struct {
 	*fakeProvider
-	mu          sync.Mutex
-	charge      providers.Charge
-	transfer    providers.Transfer
-	submissions atomic.Int32
-	unknown     bool
-	settled     bool
+	mu            sync.Mutex
+	charge        providers.Charge
+	transfer      providers.Transfer
+	submissions   atomic.Int32
+	unknown       bool
+	settled       bool
+	balanceSet    bool
+	balanceMinor  int64
+	refunds       map[string]providers.Refund
+	refundCalls   atomic.Int32
+	refundUnknown bool
+	reversal      providers.Reversal
 }
 
 func (p *payoutFixture) FetchSettlement(context.Context, string) (providers.Settlement, error) {
@@ -44,7 +50,13 @@ func (p *payoutFixture) SettlementTransactions(context.Context, string) ([]provi
 	return []providers.Charge{p.charge}, nil
 }
 func (p *payoutFixture) FetchBalance(context.Context) ([]providers.MerchantBalance, error) {
-	return []providers.MerchantBalance{{Currency: "NGN", AmountMinor: 1000000000}}, nil
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	amount := int64(1000000000)
+	if p.balanceSet {
+		amount = p.balanceMinor
+	}
+	return []providers.MerchantBalance{{Currency: "NGN", AmountMinor: amount}}, nil
 }
 func (p *payoutFixture) VerifyBank(_ context.Context, b providers.Bank) (providers.Bank, error) {
 	return b, nil
@@ -103,8 +115,10 @@ func newLife(t *testing.T, key string, amount int64) *lifeFixture {
 	c.PayoutApproved = true
 	c.PayoutApprovalRef = "test-only-payout-approval"
 	c.PayoutFeeApproved = true
+	c.RefundApproved = true
+	c.RefundApprovalRef = "test-only-refund-approval"
 	c.Capabilities = append(c.Capabilities, "TRANSFER")
-	if e := f.s.Register(system(), c, finance.Adapter{Collection: f.fake, DVA: f.fake, Settlement: p, Payout: p}); e != nil {
+	if e := f.s.Register(system(), c, finance.Adapter{Collection: f.fake, DVA: f.fake, Settlement: p, Payout: p, Refund: p, Reversal: p}); e != nil {
 		t.Fatal(e)
 	}
 	f.cfg = c

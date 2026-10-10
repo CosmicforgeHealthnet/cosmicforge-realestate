@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.financial_reversed.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/ReversalRecord"
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReversalRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "economic_reference": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "journal_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recoverable_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reversal_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reversal_id",
+          "amount_minor",
+          "currency",
+          "economic_reference",
+          "recoverable_minor",
+          "journal_id"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

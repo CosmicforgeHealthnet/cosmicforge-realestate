@@ -84,6 +84,49 @@ type CustodyPool struct {
 	ReserveMinor      int64
 }
 
+type CustomerFunding struct {
+	TopupID     ids.ID
+	JournalID   ids.ID
+	Snapshot    []byte
+	Fingerprint string
+	CreatedAt   time.Time
+}
+
+type CustomerTopup struct {
+	TopupID      ids.ID
+	OperationKey string
+	WalletID     ids.ID
+	IntentID     *ids.ID
+	ReceiptID    *ids.ID
+	PoolID       ids.ID
+	AmountMinor  int64
+	Currency     string
+	PolicyID     ids.ID
+	ExpiresAt    time.Time
+	Fingerprint  string
+	Snapshot     []byte
+	CreatedAt    time.Time
+}
+
+type DestinationRevocation struct {
+	VersionID   ids.ID
+	EvidenceRef string
+	CreatedAt   time.Time
+}
+
+type DestinationVersion struct {
+	VersionID          ids.ID
+	WalletID           ids.ID
+	PayoutAccountID    ids.ID
+	PredecessorID      *ids.ID
+	EffectiveAt        time.Time
+	ExpiresAt          time.Time
+	BlockDuringCooling bool
+	Snapshot           []byte
+	Fingerprint        string
+	CreatedAt          time.Time
+}
+
 type FinancialAudit struct {
 	AuditID       ids.ID
 	OriginService string
@@ -91,6 +134,32 @@ type FinancialAudit struct {
 	AggregateRef  string
 	Evidence      []byte
 	CreatedAt     time.Time
+}
+
+type FinancialCase struct {
+	CaseID          ids.ID
+	LineID          ids.ID
+	OperationKey    string
+	Fingerprint     string
+	Snapshot        []byte
+	ContestedMinor  int64
+	ProtectedMinor  int64
+	AvailableMinor  int64
+	FrozenAccountID ids.ID
+	State           string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
+type FinancialCaseFact struct {
+	FactID       ids.ID
+	CaseID       ids.ID
+	OperationKey string
+	Fingerprint  string
+	Snapshot     []byte
+	Kind         string
+	JournalID    *ids.ID
+	CreatedAt    time.Time
 }
 
 type FinancialIdentity struct {
@@ -114,6 +183,38 @@ type FinancialPolicy struct {
 	Active         bool
 	Snapshot       []byte
 	Fingerprint    string
+	CreatedAt      time.Time
+}
+
+type FinancialRecoverable struct {
+	RecoverableID ids.ID
+	ReversalID    ids.ID
+	WalletID      *ids.ID
+	AmountMinor   int64
+	Reason        string
+	Snapshot      []byte
+	CreatedAt     time.Time
+}
+
+type FinancialReversal struct {
+	ReversalID        ids.ID
+	IntentID          *ids.ID
+	PayoutID          *ids.ID
+	RefundID          *ids.ID
+	ProviderAccountID ids.ID
+	ExternalRef       string
+	AmountMinor       int64
+	Snapshot          []byte
+	JournalID         ids.ID
+	CreatedAt         time.Time
+}
+
+type FinancialStateHistory struct {
+	HistoryID      ids.ID
+	AggregateType  string
+	AggregateRef   string
+	PriorState     pgtype.Text
+	ResultingState string
 	CreatedAt      time.Time
 }
 
@@ -183,6 +284,29 @@ type LockedQuote struct {
 	Currency      string
 	Snapshot      []byte
 	CreatedAt     time.Time
+}
+
+type OriginalReadbackHistory struct {
+	HistoryID   ids.ID
+	AggregateID ids.ID
+	Kind        string
+	Snapshot    []byte
+	CreatedAt   time.Time
+}
+
+type OriginalReadbackJob struct {
+	AggregateID       ids.ID
+	Kind              string
+	ProviderAccountID ids.ID
+	OriginalReference string
+	State             string
+	Attempts          int32
+	NextAttemptAt     time.Time
+	LeaseToken        *ids.ID
+	LeaseUntil        *time.Time
+	LastErrorCode     pgtype.Text
+	UpdatedAt         time.Time
+	CreatedAt         time.Time
 }
 
 type OutboxEvent struct {
@@ -332,6 +456,92 @@ type ReconciliationException struct {
 	ResolvedAt    *time.Time
 }
 
+type ReconciliationFinding struct {
+	FindingID    ids.ID
+	RunID        ids.ID
+	Kind         string
+	AggregateRef string
+	Snapshot     []byte
+	CreatedAt    time.Time
+}
+
+type ReconciliationResolution struct {
+	ResolutionID ids.ID
+	FindingID    ids.ID
+	Snapshot     []byte
+	CreatedAt    time.Time
+}
+
+type ReconciliationRun struct {
+	RunID             ids.ID
+	ProviderAccountID ids.ID
+	Snapshot          []byte
+	CreatedAt         time.Time
+}
+
+type RecoverableAction struct {
+	ActionID      ids.ID
+	RecoverableID ids.ID
+	WalletID      *ids.ID
+	OperationKey  string
+	Fingerprint   string
+	Action        string
+	AmountMinor   int64
+	Snapshot      []byte
+	JournalID     *ids.ID
+	CreatedAt     time.Time
+}
+
+type RefundAttempt struct {
+	RefundID             ids.ID
+	IntentID             ids.ID
+	LineID               ids.ID
+	CaseID               *ids.ID
+	PayerWalletID        ids.ID
+	ProviderAccountID    ids.ID
+	PoolID               ids.ID
+	AmountMinor          int64
+	Currency             string
+	OriginalReference    string
+	AttemptReference     string
+	ProviderRefundID     pgtype.Text
+	OperationKey         string
+	Fingerprint          string
+	Snapshot             []byte
+	SourceAccountID      ids.ID
+	PendingAccountID     ids.ID
+	ReservationJournalID ids.ID
+	TerminalJournalID    *ids.ID
+	State                string
+	UpdatedAt            time.Time
+	CreatedAt            time.Time
+}
+
+type RefundableDeposit struct {
+	DepositID   ids.ID
+	LineID      ids.ID
+	Snapshot    []byte
+	Fingerprint string
+	CreatedAt   time.Time
+}
+
+type RemedyEvidence struct {
+	EvidenceID    ids.ID
+	SourceService string
+	Snapshot      []byte
+	Fingerprint   string
+	ExpiresAt     time.Time
+	Revoked       bool
+	CreatedAt     time.Time
+}
+
+type RemedyPolicy struct {
+	PolicyID    ids.ID
+	Snapshot    []byte
+	Fingerprint string
+	CreatedAt   time.Time
+}
+
 type RentAgreement struct {
 	AgreementID   ids.ID
 	SourceService string
@@ -378,6 +588,23 @@ type TransactionFunding struct {
 	CreatedAt   time.Time
 }
 
+type UnmatchedDvaCredit struct {
+	CreditID          ids.ID
+	ProviderAccountID ids.ID
+	ExternalRef       string
+	AmountMinor       int64
+	Currency          string
+	CustomerRef       string
+	Snapshot          []byte
+	CreatedAt         time.Time
+}
+
+type UnmatchedDvaResolution struct {
+	CreditID  ids.ID
+	Snapshot  []byte
+	CreatedAt time.Time
+}
+
 type VerificationRef struct {
 	IdentityID      ids.ID
 	VerificationRef string
@@ -414,4 +641,16 @@ type Wallet struct {
 	LegalEntity string
 	Currency    string
 	CreatedAt   time.Time
+}
+
+type WalletSpend struct {
+	SpendID      ids.ID
+	QuoteID      ids.ID
+	IntentID     ids.ID
+	WalletID     ids.ID
+	OperationKey string
+	Fingerprint  string
+	Snapshot     []byte
+	JournalID    ids.ID
+	CreatedAt    time.Time
 }

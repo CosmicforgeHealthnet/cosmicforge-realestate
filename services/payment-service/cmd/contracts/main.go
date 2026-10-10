@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/finance"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/lifecycle"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"os"
@@ -59,7 +60,7 @@ func schema(t reflect.Type) map[string]any {
 	panic("unsupported DTO type: " + t.String())
 }
 func main() {
-	types := []any{lifecycle.Family{}, lifecycle.Policy{}, lifecycle.Authority{}, lifecycle.Component{}, lifecycle.Quote{}, lifecycle.LineInput{}, lifecycle.AllocationInput{}, lifecycle.AllocationLine{}, lifecycle.Allocation{}, lifecycle.FundingInput{}, lifecycle.Evidence{}, lifecycle.Release{}, lifecycle.Hold{}, lifecycle.Destination{}, lifecycle.WithdrawalApproval{}, lifecycle.Withdrawal{}, lifecycle.Payout{}, lifecycle.Agreement{}, lifecycle.RentRequest{}, lifecycle.Obligation{}, lifecycle.Receipt{}, lifecycle.PolicySelector{}, lifecycle.PolicyDeactivation{}}
+	types := []any{finance.StateChange{}, lifecycle.RecoverableAction{}, lifecycle.CaseOverride{}, lifecycle.ReconciliationResolution{}, lifecycle.Cancellation{}, lifecycle.Family{}, lifecycle.Policy{}, lifecycle.Authority{}, lifecycle.Component{}, lifecycle.Quote{}, lifecycle.LineInput{}, lifecycle.AllocationInput{}, lifecycle.AllocationLine{}, lifecycle.Allocation{}, lifecycle.FundingInput{}, lifecycle.Evidence{}, lifecycle.Release{}, lifecycle.Hold{}, lifecycle.Destination{}, lifecycle.WithdrawalApproval{}, lifecycle.Withdrawal{}, lifecycle.Payout{}, lifecycle.Agreement{}, lifecycle.RentRequest{}, lifecycle.Obligation{}, lifecycle.Receipt{}, lifecycle.PolicySelector{}, lifecycle.PolicyDeactivation{}, lifecycle.RemedyPolicy{}, lifecycle.RemedyEvidence{}, lifecycle.Deposit{}, lifecycle.CaseRequest{}, lifecycle.FinancialCase{}, lifecycle.CaseFact{}, lifecycle.CaseDecision{}, lifecycle.CaseHistoryFact{}, lifecycle.RefundRequest{}, lifecycle.RefundAttempt{}, lifecycle.ReversalRequest{}, lifecycle.ReversalRecord{}, lifecycle.DestinationChange{}, lifecycle.Availability{}, lifecycle.TopupRequest{}, lifecycle.Topup{}, lifecycle.TopupFunding{}, lifecycle.WalletSpend{}, lifecycle.RecurringDesign{}, lifecycle.ReconciliationRequest{}, lifecycle.ReconciliationFinding{}, lifecycle.ReconciliationRun{}}
 	out := map[string]any{}
 	for _, v := range types {
 		t := reflect.TypeOf(v)

@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Payment Service Sections 1-6",
+    "name": "Payment Service Sections 1-10",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -993,6 +993,772 @@
       }
     },
     {
+      "name": "POST /internal/v1/readback-jobs/{id}/replay",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/readback-jobs/{{entity_id}}/replay",
+        "description": "Admin-authorized dead-letter replay retains the original provider/reference and immutable retry history. Never submits money.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"kind\": \"COLLECTION\",\n  \"authority_ref\": \"{{authority_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/recoverable-actions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/recoverable-actions",
+        "description": "Admin dual authority/current evidence. Assignment binds original beneficiary; recovery uses only approved internal reserve or liable-party retained proceeds. Original debt and history remain immutable. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"action\": \"{{action}}\",\n  \"action_id\": \"{{action_id}}\",\n  \"amount_minor\": 10000,\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"evidence_ids\": [],\n  \"recoverable_id\": \"{{recoverable_id}}\",\n  \"risk_ref\": \"{{risk_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-case-overrides",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-case-overrides",
+        "description": "Privileged Admin dual approval, reason/evidence and policy-bounded expiry; review authority only, no ledger or closed-case rewrite.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actor_ref\": \"{{actor_ref}}\",\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"evidence_ids\": [],\n  \"expires_at\": \"{{expires_at}}\",\n  \"override_id\": \"{{override_id}}\",\n  \"reason_ref\": \"{{reason_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/reconciliation-resolutions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/reconciliation-resolutions",
+        "description": "Admin dual authority; follow-up reconciliation must clear the exact finding. Append resolution without deleting original exceptions or correcting money.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"finding_id\": \"{{finding_id}}\",\n  \"followup_run_id\": \"{{followup_run_id}}\",\n  \"resolution_id\": \"{{resolution_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/intent-cancellations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/intent-cancellations",
+        "description": "Original canonical quote source or Admin plus current cancellation policy/evidence. Only unsubmitted REQUESTED intents may become CANCELLED. Collected money requires approved case/refund. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"evidence_ids\": [],\n  \"intent_id\": \"{{intent_id}}\",\n  \"reason_ref\": \"{{reason_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/remedy-policies",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/remedy-policies",
+        "description": "Admin-approved immutable jurisdiction deadlines, remedy strategies, cooling and customer funding/spend controls.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"allow_uncontested\": false,\n  \"approval_ref\": \"{{approval_ref}}\",\n  \"challenge_seconds\": 10000,\n  \"claim_seconds\": 10000,\n  \"cooling_seconds\": 10000,\n  \"corporate_approval_required\": false,\n  \"deposit_types\": [],\n  \"dual_above_minor\": 10000,\n  \"escalation_seconds\": 10000,\n  \"evidence_services\": [],\n  \"notice_seconds\": 10000,\n  \"payout_consent_required\": false,\n  \"policy_id\": \"{{policy_id}}\",\n  \"recover_from_proceeds\": false,\n  \"refund_seconds\": 10000,\n  \"refund_strategies\": [],\n  \"reserve_extension_seconds\": 10000,\n  \"reserve_recovery\": false,\n  \"review_seconds\": 10000,\n  \"topup_fee_treatment\": \"{{topup_fee_treatment}}\",\n  \"wallet_spend\": false,\n  \"wallet_topup\": false,\n  \"work_mandate_required\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/remedy-evidence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/remedy-evidence",
+        "description": "Authenticated business evidence source; immutable version/hash/actor/time and expiry. No primary inspection document is stored.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actor_ref\": \"{{actor_ref}}\",\n  \"business_ref\": \"{{business_ref}}\",\n  \"evidence_id\": \"{{evidence_id}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"hash_ref\": \"{{hash_ref}}\",\n  \"observed_at\": \"{{observed_at}}\",\n  \"reference\": \"{{reference}}\",\n  \"version\": \"{{version}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/remedy-evidence/{id}/revoke",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/remedy-evidence/{{entity_id}}/revoke",
+        "description": "Original evidence source or Admin; irreversible audited revocation.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"approvers\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/refundable-deposits",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refundable-deposits",
+        "description": "Original transaction source; canonical refundable liability and inspection references. Generated financial context overrides body projections.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"business_ref\": \"{{business_ref}}\",\n  \"claim_deadline\": \"{{claim_deadline}}\",\n  \"currency\": \"NGN\",\n  \"custody_ref\": \"{{custody_ref}}\",\n  \"deposit_id\": \"{{deposit_id}}\",\n  \"deposit_type\": \"{{deposit_type}}\",\n  \"ingress_ref\": \"{{ingress_ref}}\",\n  \"inspection_evidence_ids\": [],\n  \"intent_id\": \"{{intent_id}}\",\n  \"jurisdiction\": \"NG\",\n  \"liability_account_id\": \"{{liability_account_id}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"payer_wallet_id\": \"{{payer_wallet_id}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"quote_id\": \"{{quote_id}}\",\n  \"state\": \"{{state}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/refundable-deposits/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refundable-deposits/{{entity_id}}",
+        "description": "Authorized transaction parties only; current protected, contested, refundable and refund facts."
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-cases",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-cases",
+        "description": "Authorized parties; deposit claims require source authority. Freeze only exact contested amount. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"claimant_ref\": \"{{claimant_ref}}\",\n  \"contested_minor\": 10000,\n  \"evidence_ids\": [],\n  \"kind\": \"{{kind}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"reason_ref\": \"{{reason_ref}}\",\n  \"respondent_ref\": \"{{respondent_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/financial-cases/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-cases/{{entity_id}}",
+        "description": "Authorized case parties and Admin only; retained case state."
+      }
+    },
+    {
+      "name": "GET /internal/v1/financial-cases/{id}/facts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-cases/{{entity_id}}/facts",
+        "description": "Authorized case parties; immutable proposed claims, challenges, reviews and decisions."
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-case-facts",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-case-facts",
+        "description": "Challenges require payer ownership; reviews/notices require Admin. Current authoritative evidence and policy deadlines. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actor_ref\": \"{{actor_ref}}\",\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"evidence_ids\": [],\n  \"fact_id\": \"{{fact_id}}\",\n  \"kind\": \"{{kind}}\",\n  \"reason_ref\": \"{{reason_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-case-decisions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-case-decisions",
+        "description": "Admin only; independent recorded review, separation of duties, dual approval, current evidence. Awards remain protected; returns remain reserved for refund. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actor_ref\": \"{{actor_ref}}\",\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"award_minor\": 10000,\n  \"case_id\": \"{{case_id}}\",\n  \"evidence_ids\": [],\n  \"executor_ref\": \"{{executor_ref}}\",\n  \"fact_id\": \"{{fact_id}}\",\n  \"kind\": \"{{kind}}\",\n  \"outcome\": \"{{outcome}}\",\n  \"reason_ref\": \"{{reason_ref}}\",\n  \"reviewer_ref\": \"{{reviewer_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/refunds",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refunds",
+        "description": "Admin only; approved case decision, payer/rail policy, cumulative confirmed plus reserved cap and original payment serialization. Unsupported rails fail closed. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"destination_strategy\": \"{{destination_strategy}}\",\n  \"evidence_ids\": [],\n  \"line_id\": \"{{line_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/refunds/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refunds/{{entity_id}}",
+        "description": "Authorized parties or Payment; immutable original reference and attempt, projected later reversal."
+      }
+    },
+    {
+      "name": "POST /internal/v1/refunds/{id}/submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refunds/{{entity_id}}/submit",
+        "description": "Admin only; one durable submission CAS. Submission success is not financial completion. Production disabled."
+      }
+    },
+    {
+      "name": "POST /internal/v1/refunds/{id}/resolve",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refunds/{{entity_id}}/resolve",
+        "description": "Admin/Payment only; original-attempt readback, context validation and exactly one terminal journal. Unknown retains reservation."
+      }
+    },
+    {
+      "name": "POST /internal/v1/refunds/{id}/cancel",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/refunds/{{entity_id}}/cancel",
+        "description": "Admin only; only a still-unsubmitted RESERVED attempt may be cancelled.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"approvers\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/collection-reversals",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/collection-reversals",
+        "description": "Admin/Payment plus authoritative original-provider reversal readback. Compensating journal, explicit recoverable/payable, no negative fake cash.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"intent_id\": \"{{intent_id}}\",\n  \"provider_reference\": \"{{provider_reference}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/payout-destination-versions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/payout-destination-versions",
+        "description": "Verification only; owned bank/current KYC, step-up, risk and notification references, cooling, predecessor and high-risk dual approval.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"cooling_ends_at\": \"{{cooling_ends_at}}\",\n  \"effective_at\": \"{{effective_at}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"high_risk\": false,\n  \"notification_ref\": \"{{notification_ref}}\",\n  \"ownership_ref\": \"{{ownership_ref}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"risk_ref\": \"{{risk_ref}}\",\n  \"step_up_ref\": \"{{step_up_ref}}\",\n  \"verification_ref\": \"{{verification_ref}}\",\n  \"version_id\": \"{{version_id}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/payout-destination-versions/{id}/revoke",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/payout-destination-versions/{{entity_id}}/revoke",
+        "description": "Verification/Admin; append revocation without rewriting bank history.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"approvers\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/customer-topups",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/customer-topups",
+        "description": "Owned marketplace CUSTOMER only; explicit funding policy, consent, expiry and original PSP or mapped DVA receipt. Test mode. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"consent_ref\": \"{{consent_ref}}\",\n  \"country\": \"NG\",\n  \"currency\": \"NGN\",\n  \"email\": \"{{email}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"topup_id\": \"{{topup_id}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/customer-topups/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/customer-topups/{{entity_id}}",
+        "description": "Owned customer only; settlement pending versus once-funded availability."
+      }
+    },
+    {
+      "name": "POST /internal/v1/wallet-spends",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallet-spends",
+        "description": "Owned CUSTOMER; exact accepted quote/consent/currency/current available pool. Debit, protected allocation, canonical internal funding, audit and events commit atomically. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"consent_ref\": \"{{consent_ref}}\",\n  \"currency\": \"NGN\",\n  \"lines\": [],\n  \"pool_id\": \"{{pool_id}}\",\n  \"quote_id\": \"{{quote_id}}\",\n  \"quote_version\": \"{{quote_version}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/wallets/{id}/availability/{pool}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallets/{{entity_id}}/availability/{{pool_id}}",
+        "description": "Wallet owner; available, withdrawable now, protected, settlement/payout pending, rail unavailable and restricted are distinct. Customer cash-out disabled."
+      }
+    },
+    {
+      "name": "GET /internal/v1/recurring-design",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/recurring-design",
+        "description": "DESIGN RESERVED / EXECUTION DEFERRED. No charging endpoint, provider mandate execution or recurring worker exists."
+      }
+    },
+    {
+      "name": "POST /internal/v1/customer-topup-funding",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/customer-topup-funding",
+        "description": "Admin with dual cash attestation; original settlement membership, KYC, provider context, fee policy and coverage. One economic customer credit.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"cash_evidence_ref\": \"{{cash_evidence_ref}}\",\n  \"settlement_ref\": \"{{settlement_ref}}\",\n  \"topup_id\": \"{{topup_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/unmatched-dva-credits/{id}/resolve",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/unmatched-dva-credits/{{entity_id}}/resolve",
+        "description": "Admin dual review; only normal authoritative DVA mapping may resolve. No administrator-selected wallet or sender-name inference.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"approvers\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/reconciliation-runs",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/reconciliation-runs",
+        "description": "Admin manual/configurable job; ledger invariants, provider original-reference readbacks and preserved exceptions. No silent correction.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"provider_account_id\": \"{{provider_account_id}}\",\n  \"run_id\": \"{{run_id}}\",\n  \"stale_after_seconds\": 10000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/financial-metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-metrics",
+        "description": "Admin operational financial metrics; no identity/card/bank/secrets in labels."
+      }
+    },
+    {
       "name": "GET /api/v1/payments/wallets/me",
       "request": {
         "method": "GET",
@@ -1077,6 +1843,20 @@
       }
     },
     {
+      "name": "GET /api/v1/payments/wallets/{id}/availability/{pool}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallets/{{entity_id}}/availability/{{pool_id}}",
+        "description": "Wallet owner; available, withdrawable now, protected, settlement/payout pending, rail unavailable and restricted are distinct. Customer cash-out disabled."
+      }
+    },
+    {
       "name": "GET /api/v1/payments/locked-quotes/{id}/receipt",
       "request": {
         "method": "GET",
@@ -1133,6 +1913,245 @@
       }
     },
     {
+      "name": "GET /api/v1/payments/refundable-deposits/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/refundable-deposits/{{entity_id}}",
+        "description": "Authorized transaction parties only; current protected, contested, refundable and refund facts."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/financial-cases",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/financial-cases",
+        "description": "Authorized parties; deposit claims require source authority. Freeze only exact contested amount. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"claimant_ref\": \"{{claimant_ref}}\",\n  \"contested_minor\": 10000,\n  \"evidence_ids\": [],\n  \"kind\": \"{{kind}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"reason_ref\": \"{{reason_ref}}\",\n  \"respondent_ref\": \"{{respondent_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/financial-cases/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/financial-cases/{{entity_id}}",
+        "description": "Authorized case parties and Admin only; retained case state."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/financial-cases/{id}/facts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/financial-cases/{{entity_id}}/facts",
+        "description": "Authorized case parties; immutable proposed claims, challenges, reviews and decisions."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/financial-case-facts",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/financial-case-facts",
+        "description": "Challenges require payer ownership; reviews/notices require Admin. Current authoritative evidence and policy deadlines. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actor_ref\": \"{{actor_ref}}\",\n  \"authority_ref\": \"{{authority_ref}}\",\n  \"case_id\": \"{{case_id}}\",\n  \"evidence_ids\": [],\n  \"fact_id\": \"{{fact_id}}\",\n  \"kind\": \"{{kind}}\",\n  \"reason_ref\": \"{{reason_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/refunds/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/refunds/{{entity_id}}",
+        "description": "Authorized parties or Payment; immutable original reference and attempt, projected later reversal."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/customer-topups",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/customer-topups",
+        "description": "Owned marketplace CUSTOMER only; explicit funding policy, consent, expiry and original PSP or mapped DVA receipt. Test mode. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"consent_ref\": \"{{consent_ref}}\",\n  \"country\": \"NG\",\n  \"currency\": \"NGN\",\n  \"email\": \"{{email}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"topup_id\": \"{{topup_id}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/customer-topups/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/customer-topups/{{entity_id}}",
+        "description": "Owned customer only; settlement pending versus once-funded availability."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/wallet-spends",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallet-spends",
+        "description": "Owned CUSTOMER; exact accepted quote/consent/currency/current available pool. Debit, protected allocation, canonical internal funding, audit and events commit atomically. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"consent_ref\": \"{{consent_ref}}\",\n  \"currency\": \"NGN\",\n  \"lines\": [],\n  \"pool_id\": \"{{pool_id}}\",\n  \"quote_id\": \"{{quote_id}}\",\n  \"quote_version\": \"{{quote_version}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/recurring-design",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/recurring-design",
+        "description": "DESIGN RESERVED / EXECUTION DEFERRED. No charging endpoint, provider mandate execution or recurring worker exists."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/withdrawals",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/withdrawals",
+        "description": "Owned beneficiary through signed gateway delegation. Current canonical bank/cooling, KYC, authority and approval required; no customer cash-out. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"approval_id\": \"{{approval_id}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
       "name": "POST Paystack callbacks",
       "request": {
         "method": "POST",
@@ -1158,6 +2177,10 @@
     },
     {
       "key": "entity_id",
+      "value": ""
+    },
+    {
+      "key": "pool_id",
       "value": ""
     },
     {

@@ -3,7 +3,7 @@
   "info": {
     "title": "Paystack durable webhook",
     "version": "1.0.0",
-    "description": "Blueprint v1.0 Sections 1-6. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
+    "description": "Blueprint v1.0 Sections 1-10. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
   },
   "paths": {
     "/webhooks/v1/paystack/{id}/callbacks": {
@@ -548,7 +548,8 @@
               "VERIFIED_SUCCESS",
               "VERIFIED_FAILURE",
               "UNKNOWN_OUTCOME",
-              "RECONCILIATION_EXCEPTION"
+              "RECONCILIATION_EXCEPTION",
+              "CANCELLED"
             ]
           },
           "settlement_state": {
@@ -1439,6 +1440,666 @@
         ],
         "type": "object"
       },
+      "Availability": {
+        "additionalProperties": false,
+        "properties": {
+          "available_minor": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "payout_pending_minor": {
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "protected_minor": {
+            "type": "string"
+          },
+          "reserved_minor": {
+            "type": "string"
+          },
+          "settlement_pending_minor": {
+            "type": "string"
+          },
+          "status": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "withdrawable_now": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "wallet_id",
+          "pool_id",
+          "currency",
+          "available_minor",
+          "protected_minor",
+          "payout_pending_minor",
+          "settlement_pending_minor",
+          "reserved_minor",
+          "withdrawable_now",
+          "status"
+        ],
+        "type": "object"
+      },
+      "Cancellation": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent_id",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "CaseDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_ref": {
+            "type": "string"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "award_authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "award_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "executor_ref": {
+            "type": "string"
+          },
+          "extension_until": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          },
+          "reviewer_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fact_id",
+          "case_id",
+          "kind",
+          "actor_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids",
+          "outcome",
+          "award_minor",
+          "approvers",
+          "reviewer_ref",
+          "executor_ref"
+        ],
+        "type": "object"
+      },
+      "CaseFact": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_ref": {
+            "type": "string"
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fact_id",
+          "case_id",
+          "kind",
+          "actor_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "CaseHistoryFact": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "additionalProperties": false,
+            "properties": {
+              "authority_ref": {
+                "type": "string"
+              },
+              "business_ref": {
+                "type": "string"
+              },
+              "case_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "challenge_deadline": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "claim_deadline": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "claimant_ref": {
+                "type": "string"
+              },
+              "contested_minor": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "deposit_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "escalation_deadline": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "evidence_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "intent_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "jurisdiction": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "line_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "notice_deadline": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "policy_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "reason_ref": {
+                "type": "string"
+              },
+              "refund_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "respondent_ref": {
+                "type": "string"
+              },
+              "review_deadline": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "source_service": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "case_id",
+              "line_id",
+              "kind",
+              "contested_minor",
+              "claimant_ref",
+              "respondent_ref",
+              "authority_ref",
+              "reason_ref",
+              "evidence_ids",
+              "intent_id",
+              "quote_id",
+              "policy_id",
+              "business_ref",
+              "currency",
+              "jurisdiction",
+              "source_service",
+              "state",
+              "claim_deadline",
+              "challenge_deadline",
+              "review_deadline",
+              "escalation_deadline",
+              "notice_deadline"
+            ],
+            "type": "object"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decision": {
+            "additionalProperties": false,
+            "properties": {
+              "actor_ref": {
+                "type": "string"
+              },
+              "approvers": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "authority_ref": {
+                "type": "string"
+              },
+              "award_authority_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "award_minor": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "case_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "evidence_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "executor_ref": {
+                "type": "string"
+              },
+              "extension_until": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "fact_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "outcome": {
+                "type": "string"
+              },
+              "reason_ref": {
+                "type": "string"
+              },
+              "reviewer_ref": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fact_id",
+              "case_id",
+              "kind",
+              "actor_ref",
+              "authority_ref",
+              "reason_ref",
+              "evidence_ids",
+              "outcome",
+              "award_minor",
+              "approvers",
+              "reviewer_ref",
+              "executor_ref"
+            ],
+            "type": "object"
+          },
+          "fact": {
+            "additionalProperties": false,
+            "properties": {
+              "actor_ref": {
+                "type": "string"
+              },
+              "authority_ref": {
+                "type": "string"
+              },
+              "case_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "evidence_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "fact_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "reason_ref": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fact_id",
+              "case_id",
+              "kind",
+              "actor_ref",
+              "authority_ref",
+              "reason_ref",
+              "evidence_ids"
+            ],
+            "type": "object"
+          },
+          "fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "journal_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "override": {
+            "additionalProperties": false,
+            "properties": {
+              "actor_ref": {
+                "type": "string"
+              },
+              "approvers": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "authority_ref": {
+                "type": "string"
+              },
+              "case_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "evidence_ids": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "expires_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "override_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "reason_ref": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "override_id",
+              "case_id",
+              "actor_ref",
+              "authority_ref",
+              "reason_ref",
+              "evidence_ids",
+              "approvers",
+              "expires_at"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "fact_id",
+          "kind",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "CaseOverride": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_ref": {
+            "type": "string"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "override_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "override_id",
+          "case_id",
+          "actor_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids",
+          "approvers",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "CaseRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "claimant_ref": {
+            "type": "string"
+          },
+          "contested_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deposit_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "respondent_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "line_id",
+          "kind",
+          "contested_minor",
+          "claimant_ref",
+          "respondent_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
       "Component": {
         "additionalProperties": false,
         "properties": {
@@ -1468,6 +2129,98 @@
           "amount_minor",
           "payer_ref",
           "recurrence"
+        ],
+        "type": "object"
+      },
+      "Deposit": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "claim_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "custody_ref": {
+            "type": "string"
+          },
+          "deposit_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "deposit_type": {
+            "type": "string"
+          },
+          "ingress_ref": {
+            "type": "string"
+          },
+          "inspection_evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "liability_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "deposit_id",
+          "line_id",
+          "deposit_type",
+          "custody_ref",
+          "ingress_ref",
+          "inspection_evidence_ids",
+          "intent_id",
+          "quote_id",
+          "payer_wallet_id",
+          "business_ref",
+          "policy_id",
+          "jurisdiction",
+          "currency",
+          "amount_minor",
+          "liability_account_id",
+          "state",
+          "claim_deadline"
         ],
         "type": "object"
       },
@@ -1504,6 +2257,87 @@
           "recipient_ref",
           "evidence_ref",
           "expires_at"
+        ],
+        "type": "object"
+      },
+      "DestinationChange": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "cooling_ends_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "effective_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "high_risk": {
+            "type": "boolean"
+          },
+          "notification_ref": {
+            "type": "string"
+          },
+          "ownership_ref": {
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "predecessor_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "risk_ref": {
+            "type": "string"
+          },
+          "step_up_ref": {
+            "type": "string"
+          },
+          "verification_ref": {
+            "type": "string"
+          },
+          "version_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "wallet_id",
+          "payout_account_id",
+          "policy_id",
+          "step_up_ref",
+          "verification_ref",
+          "ownership_ref",
+          "risk_ref",
+          "notification_ref",
+          "high_risk",
+          "approvers",
+          "expires_at",
+          "effective_at",
+          "cooling_ends_at"
         ],
         "type": "object"
       },
@@ -1588,6 +2422,128 @@
           "separate_deposit",
           "regulated_partner_required",
           "enabled"
+        ],
+        "type": "object"
+      },
+      "FinancialCase": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "challenge_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "claim_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "claimant_ref": {
+            "type": "string"
+          },
+          "contested_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "deposit_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "escalation_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "notice_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "respondent_ref": {
+            "type": "string"
+          },
+          "review_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "source_service": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "line_id",
+          "kind",
+          "contested_minor",
+          "claimant_ref",
+          "respondent_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids",
+          "intent_id",
+          "quote_id",
+          "policy_id",
+          "business_ref",
+          "currency",
+          "jurisdiction",
+          "source_service",
+          "state",
+          "claim_deadline",
+          "challenge_deadline",
+          "review_deadline",
+          "escalation_deadline",
+          "notice_deadline"
         ],
         "type": "object"
       },
@@ -2466,6 +3422,401 @@
         ],
         "type": "object"
       },
+      "ReconciliationFinding": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_ref": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "observed": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "aggregate_ref",
+          "expected",
+          "observed"
+        ],
+        "type": "object"
+      },
+      "ReconciliationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "stale_after_seconds": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "provider_account_id",
+          "authority_ref",
+          "stale_after_seconds"
+        ],
+        "type": "object"
+      },
+      "ReconciliationResolution": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "finding_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "followup_run_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resolution_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolution_id",
+          "finding_id",
+          "followup_run_id",
+          "authority_ref",
+          "evidence_ref",
+          "approvers"
+        ],
+        "type": "object"
+      },
+      "ReconciliationRun": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "aggregate_ref": {
+                  "type": "string"
+                },
+                "expected": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "observed": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "aggregate_ref",
+                "expected",
+                "observed"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "stale_after_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "provider_account_id",
+          "authority_ref",
+          "stale_after_seconds",
+          "findings",
+          "status"
+        ],
+        "type": "object"
+      },
+      "RecoverableAction": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "recoverable_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "risk_ref": {
+            "type": "string"
+          },
+          "source_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "recoverable_id",
+          "action",
+          "amount_minor",
+          "authority_ref",
+          "risk_ref",
+          "approvers",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "RecurringDesign": {
+        "additionalProperties": false,
+        "properties": {
+          "consent_required": {
+            "type": "boolean"
+          },
+          "execution": {
+            "type": "string"
+          },
+          "low_balance_notice_only": {
+            "type": "boolean"
+          },
+          "obligation_required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "execution",
+          "consent_required",
+          "obligation_required",
+          "low_balance_notice_only"
+        ],
+        "type": "object"
+      },
+      "RefundAttempt": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "attempt_reference": {
+            "type": "string"
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "destination_strategy": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "original_reference": {
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_refund_id": {
+            "type": "string"
+          },
+          "refund_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refund_id",
+          "line_id",
+          "case_id",
+          "amount_minor",
+          "destination_strategy",
+          "authority_ref",
+          "evidence_ids",
+          "approvers",
+          "intent_id",
+          "payer_wallet_id",
+          "provider_account_id",
+          "pool_id",
+          "currency",
+          "original_reference",
+          "attempt_reference",
+          "state",
+          "refund_deadline"
+        ],
+        "type": "object"
+      },
+      "RefundRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "destination_strategy": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "case_id",
+          "amount_minor",
+          "destination_strategy",
+          "authority_ref",
+          "evidence_ids",
+          "approvers"
+        ],
+        "type": "object"
+      },
       "Release": {
         "additionalProperties": false,
         "properties": {
@@ -2496,6 +3847,177 @@
           "amount_minor",
           "policy_version",
           "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "RemedyEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_ref": {
+            "type": "string"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "hash_ref": {
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "business_ref",
+          "reference",
+          "version",
+          "actor_ref",
+          "hash_ref",
+          "observed_at",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "RemedyPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "allow_uncontested": {
+            "type": "boolean"
+          },
+          "approval_ref": {
+            "type": "string"
+          },
+          "challenge_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "claim_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "cooling_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "corporate_approval_required": {
+            "type": "boolean"
+          },
+          "deposit_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "dual_above_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "escalation_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "evidence_services": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "notice_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "payout_consent_required": {
+            "type": "boolean"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recover_from_proceeds": {
+            "type": "boolean"
+          },
+          "refund_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refund_strategies": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "reserve_extension_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "reserve_recovery": {
+            "type": "boolean"
+          },
+          "review_seconds": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "topup_fee_treatment": {
+            "type": "string"
+          },
+          "wallet_spend": {
+            "type": "boolean"
+          },
+          "wallet_topup": {
+            "type": "boolean"
+          },
+          "work_mandate_required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "policy_id",
+          "approval_ref",
+          "claim_seconds",
+          "challenge_seconds",
+          "review_seconds",
+          "refund_seconds",
+          "escalation_seconds",
+          "reserve_extension_seconds",
+          "notice_seconds",
+          "cooling_seconds",
+          "dual_above_minor",
+          "refund_strategies",
+          "evidence_services",
+          "allow_uncontested",
+          "wallet_topup",
+          "wallet_spend",
+          "topup_fee_treatment",
+          "recover_from_proceeds",
+          "reserve_recovery",
+          "corporate_approval_required",
+          "work_mandate_required",
+          "payout_consent_required",
+          "deposit_types"
         ],
         "type": "object"
       },
@@ -2539,6 +4061,337 @@
         ],
         "type": "object"
       },
+      "ReversalRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "economic_reference": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "journal_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recoverable_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reversal_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reversal_id",
+          "amount_minor",
+          "currency",
+          "economic_reference",
+          "recoverable_minor",
+          "journal_id"
+        ],
+        "type": "object"
+      },
+      "ReversalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent_id",
+          "provider_reference",
+          "authority_ref",
+          "approvers"
+        ],
+        "type": "object"
+      },
+      "StateChange": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "prior_state": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "aggregate_id",
+          "kind",
+          "prior_state",
+          "state"
+        ],
+        "type": "object"
+      },
+      "Topup": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "consent_ref": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "receipt_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "topup_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topup_id",
+          "wallet_id",
+          "policy_id",
+          "amount_minor",
+          "currency",
+          "country",
+          "email",
+          "consent_ref",
+          "expires_at",
+          "pool_id",
+          "state"
+        ],
+        "type": "object"
+      },
+      "TopupFunding": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "cash_evidence_ref": {
+            "type": "string"
+          },
+          "settlement_ref": {
+            "type": "string"
+          },
+          "topup_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topup_id",
+          "settlement_ref",
+          "cash_evidence_ref",
+          "approvers"
+        ],
+        "type": "object"
+      },
+      "TopupRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "consent_ref": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "receipt_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "topup_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topup_id",
+          "wallet_id",
+          "policy_id",
+          "amount_minor",
+          "currency",
+          "country",
+          "email",
+          "consent_ref",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "WalletSpend": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "consent_ref": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "authority_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "authority_id",
+                "component_ref",
+                "kind",
+                "amount_minor",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_version": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "wallet_id",
+          "quote_id",
+          "pool_id",
+          "consent_ref",
+          "quote_version",
+          "amount_minor",
+          "currency",
+          "lines"
+        ],
+        "type": "object"
+      },
       "Withdrawal": {
         "additionalProperties": false,
         "properties": {
@@ -2579,6 +4432,9 @@
             "format": "int64",
             "type": "integer"
           },
+          "approval_chain_ref": {
+            "type": "string"
+          },
           "approval_id": {
             "format": "uuid",
             "type": "string"
@@ -2591,6 +4447,12 @@
               "array",
               "null"
             ]
+          },
+          "branch_project_ref": {
+            "type": "string"
+          },
+          "consent_ref": {
+            "type": "string"
           },
           "expires_at": {
             "format": "date-time",
@@ -2612,6 +4474,9 @@
           },
           "wallet_id": {
             "format": "uuid",
+            "type": "string"
+          },
+          "work_mandate_ref": {
             "type": "string"
           }
         },
@@ -2683,6 +4548,48 @@
           "intent_id"
         ],
         "additionalProperties": false
+      },
+      "RemedyReference": {
+        "type": "object",
+        "properties": {
+          "authority_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "authority_ref",
+          "approvers"
+        ],
+        "additionalProperties": false
+      },
+      "ReadbackReplay": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "COLLECTION",
+              "PAYOUT",
+              "REFUND"
+            ]
+          },
+          "authority_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "kind",
+          "authority_ref"
+        ],
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -2700,6 +4607,7 @@
     }
   },
   "x-error-codes": [
+    "ACCEPTED_WALLET_OBLIGATION_REQUIRED",
     "ACTIVE_AGREEMENT_PERIOD_REQUIRED",
     "ACTOR_REQUIRED",
     "ACTUAL_LEGAL_SERVICE_REQUIRED",
@@ -2709,37 +4617,77 @@
     "ALLOCATION_LINE_NOT_FOUND",
     "ALLOCATION_NOT_RELEASE_ELIGIBLE",
     "ALLOCATION_VERSION_CONFLICT",
+    "AMOUNT_SPECIFIC_REMEDY_WORKFLOW_REQUIRED",
     "APPROVED_CUSTODY_REQUIRED",
+    "APPROVED_INTERNAL_RESERVE_REQUIRED",
     "APPROVED_POLICY_PACK_REQUIRED",
+    "APPROVED_REFUND_REQUIRED",
+    "APPROVED_REMEDY_POLICY_REQUIRED",
     "AUTHORITATIVE_AGREEMENT_REQUIRED",
+    "AUTHORITATIVE_EVIDENCE_REQUIRED",
     "AUTHORITATIVE_MATERIAL_CHANGE_REQUIRED",
     "AUTHORITATIVE_VERIFICATION_REQUIRED",
     "AUTHORITY_IMMUTABLE",
     "AVAILABLE_FUNDS_REQUIRED",
+    "AWARD_AUTHORITY_REQUIRED",
+    "AWARD_OUTCOME_MISMATCH",
     "BENEFICIARY_AUTHORITY_REQUIRED",
     "BENEFICIARY_ENTITLEMENT_LIMIT",
     "BENEFICIARY_ENTITLEMENT_MISMATCH",
     "BENEFICIARY_WALLET_REQUIRED",
     "BUSINESS_EVIDENCE_REQUIRED",
     "BUSINESS_EVIDENCE_SERVICE_REQUIRED",
+    "CANCELLATION_POLICY_EVIDENCE_REQUIRED",
+    "CANCELLATION_POLICY_REQUIRED",
+    "CANCELLATION_SOURCE_REQUIRED",
+    "CANCELLED_INTENT_READBACK_REVIEW_REQUIRED",
     "CANONICAL_QUOTE_SOURCE_REQUIRED",
+    "CASE_AUTHORITY_REQUIRED",
+    "CASE_CLAIMANT_DELEGATION_MISMATCH",
+    "CASE_CLOSED",
+    "CASE_DECISION_REQUIRED",
+    "CASE_FACT_REQUIRED",
+    "CASE_PARTY_AUTHORITY_REQUIRED",
+    "CASE_REQUIRES_REVIEW",
     "CATEGORY_BENEFICIARY_MISMATCH",
     "CATEGORY_COMPONENT_MISMATCH",
     "CATEGORY_CONDITION_MISMATCH",
+    "CHALLENGE_DEADLINE_EXPIRED",
     "CHARGE_CONTEXT_MISMATCH",
     "CLOSED_IDENTITY_RETAINED",
     "COMMISSION_AUTHORITY_REQUIRED",
     "COMMISSION_CONTRACT_REQUIRED",
     "COMPONENT_BENEFICIARY_REQUIRED",
+    "CONFIRMED_PROVIDER_REFUND_REQUIRED",
+    "CONTESTED_FUNDS_UNAVAILABLE",
     "CONTROL_EVIDENCE_REQUIRED",
     "COOWNER_PERCENTAGES_NOT_RECONCILED",
     "COOWNER_SHARE_MISMATCH",
+    "CORPORATE_PAYOUT_CHAIN_REQUIRED",
     "CORRECTION_AUTHORITY_REQUIRED",
     "CORRECTION_VERSION_MISMATCH",
     "CURRENT_BENEFICIARY_AUTHORITY_REQUIRED",
+    "CURRENT_PAYOUT_CONSENT_REQUIRED",
+    "CURRENT_WORK_MANDATE_REQUIRED",
+    "CUSTOMER_FUNDED_WALLET_REQUIRED",
+    "CUSTOMER_FUNDING_POLICY_REQUIRED",
+    "CUSTOMER_WALLET_REQUIRED",
+    "DEPOSIT_CLAIM_DEADLINE_EXPIRED",
+    "DEPOSIT_CONTEXT_MISMATCH",
+    "DEPOSIT_IMMUTABLE",
+    "DEPOSIT_LIABILITY_REQUIRED",
     "DEPOSIT_MUST_BE_SEPARATE",
     "DEPOSIT_POLICY_REQUIRED",
+    "DEPOSIT_TYPE_POLICY_REQUIRED",
+    "DESTINATION_CHANGE_APPROVAL_REQUIRED",
+    "DESTINATION_EXPIRY_AFTER_COOLING_REQUIRED",
+    "DESTINATION_HIGH_RISK_COOLING",
     "DESTINATION_IMMUTABLE",
+    "DESTINATION_NOT_CURRENT_OR_COOLING",
+    "DESTINATION_PREDECESSOR_REQUIRED",
+    "DESTINATION_REVOKED_OR_EXPIRED",
+    "DESTINATION_VERSION_IMMUTABLE",
+    "DISPUTE_CONFIRMATION_PENDING",
     "DUAL_APPROVAL_REQUIRED",
     "DUAL_SETTLEMENT_ATTESTATION_REQUIRED",
     "DVA_ASSIGNMENT_RECONCILIATION_REQUIRED",
@@ -2752,11 +4700,15 @@
     "DVA_OWNER_MISMATCH",
     "DVA_PROVIDER_IDENTITY_PENDING",
     "DVA_REASSIGNMENT_REQUIRES_APPROVAL",
+    "DVA_TOPUP_CONTEXT_MISMATCH",
     "DVA_VALIDATION_REQUIRED",
+    "EVIDENCE_IMMUTABLE",
     "EXPLICIT_ROUNDING_ALLOCATION_REQUIRED",
     "FINANCIAL_IDENTITY_RESTRICTED",
     "FINANCIAL_RECORD_NOT_FOUND",
     "FIXED_TERM_DATES_REQUIRED",
+    "FOLLOWUP_RECONCILIATION_REQUIRED",
+    "FUNDED_CUSTOMER_POOL_REQUIRED",
     "HOLD_DECISION_REQUIRED",
     "IDEMPOTENCY_CONFLICT",
     "IDEMPOTENCY_KEY_REQUIRED",
@@ -2764,28 +4716,40 @@
     "IDENTITY_LINK_CONFLICT",
     "IDENTITY_NOT_FOUND",
     "INBOX_LEASE_ACTIVE",
+    "INDEPENDENT_CASE_REVIEW_REQUIRED",
     "INDEPENDENT_CERTIFIER_REQUIRED",
     "INITIAL_CHARGES_ALREADY_ISSUED",
     "INITIAL_CHARGE_RECURRENCE_FORBIDDEN",
     "INSUFFICIENT_FUNDS",
+    "INSUFFICIENT_RECOVERY_SOURCE",
     "INTENT_NOT_FOUND",
+    "INTERNAL_FUNDING_REQUIRES_WALLET_REMEDY",
     "INVALID_ALLOCATION",
     "INVALID_CASH_AGGREGATE",
     "INVALID_CURSOR",
+    "INVALID_DEPOSIT_TYPE",
     "INVALID_ID",
     "INVALID_LIQUIDITY_OBSERVATION",
     "INVALID_PAGE_LIMIT",
     "INVALID_PAYOUT_REFERENCE",
     "INVALID_POLICY_VERSION",
     "INVALID_POLICY_WINDOW",
+    "INVALID_POOL_ID",
     "INVALID_POSTING",
     "INVALID_PROVIDER_POLICY",
+    "INVALID_READBACK_KIND",
+    "INVALID_READBACK_POLICY",
+    "INVALID_REFUND_STRATEGY",
     "INVALID_RELEASE",
     "INVALID_RENT_COMPONENT",
+    "INVALID_STATE_AGGREGATE",
+    "INVALID_TOPUP",
     "INVALID_VERIFICATION_REFERENCE",
     "INVALID_WALLET_REGISTRATION",
     "INVALID_WEBHOOK_SIGNATURE",
     "INVALID_WITHDRAWAL",
+    "IN_FLIGHT_REFUND_REQUIRES_PROVIDER_REVIEW",
+    "JURISDICTION_DEADLINES_REQUIRED",
     "LEDGER_DIMENSION_MISMATCH",
     "LINK_EVIDENCE_REQUIRED",
     "LIQUIDITY_CONFIRMATION_REQUIRED",
@@ -2797,11 +4761,17 @@
     "MANAGER_MANDATE_REQUIRED",
     "MATCHED_SETTLEMENT_UNAVAILABLE",
     "MONEY_OVERFLOW",
+    "NONFINANCIAL_DECISION_AMOUNT_FORBIDDEN",
+    "NONFINANCIAL_RECOVERY_AMOUNT_FORBIDDEN",
     "NO_ELIGIBLE_PROVIDER",
     "NO_ELIGIBLE_RENT_COMPONENTS",
     "ONE_BASE_RENT_REQUIRED",
+    "ORIGINAL_READBACK_OR_APPROVED_CASE_REFUND_REQUIRED",
     "OUTSTANDING_FINANCIAL_OBLIGATIONS",
+    "OVERRIDE_DURATION_POLICY_REQUIRED",
     "OVER_ALLOCATION",
+    "PAID_PAYOUT_REQUIRED",
+    "PARTIAL_FREEZE_POLICY_DISABLED",
     "PAYER_CONTEXT_MISMATCH",
     "PAYLOAD_TOO_LARGE",
     "PAYMENT_NOT_VERIFIED",
@@ -2813,6 +4783,7 @@
     "PAYOUT_PROVIDER_UNAVAILABLE",
     "PAYOUT_READBACK_UNAVAILABLE",
     "PAYOUT_REFERENCE_CONFLICT",
+    "PAYOUT_REVERSAL_CONTEXT_MISMATCH",
     "PLATFORM_FEE_AUTHORITY_REQUIRED",
     "POLICY_DEACTIVATION_EVIDENCE_REQUIRED",
     "POLICY_DISABLED_OR_NOT_EFFECTIVE",
@@ -2822,6 +4793,7 @@
     "POOL_CONTEXT_IMMUTABLE",
     "POOL_RECONCILIATION_REQUIRED",
     "POSITIVE_MINOR_UNITS_REQUIRED",
+    "PRIVILEGED_OVERRIDE_AUTHORITY_REQUIRED",
     "PROCESSING_TREATMENT_MISMATCH",
     "PRODUCTION_CAPABILITY_DISABLED",
     "PROFESSIONAL_MANDATE_REQUIRED",
@@ -2832,9 +4804,42 @@
     "PROVIDER_MIGRATION_EVIDENCE_REQUIRED",
     "PROVIDER_UNAVAILABLE",
     "QUOTE_PAYABLE_MISMATCH",
+    "READBACK_NOT_DEAD_LETTERED",
     "RECIPIENT_VERIFICATION_UNAVAILABLE",
+    "RECONCILIATION_PARAMETERS_REQUIRED",
+    "RECONCILIATION_RESOLUTION_AUTHORITY_REQUIRED",
+    "RECOVERABLE_REVIEW_REQUIRED",
+    "RECOVERY_ASSIGNMENT_REQUIRED",
+    "RECOVERY_AUTHORITY_REQUIRED",
+    "RECOVERY_CANONICAL_CONTEXT_REQUIRED",
+    "RECOVERY_CAP_EXCEEDED",
+    "RECOVERY_LIABILITY_ALREADY_ASSIGNED",
+    "RECOVERY_LIABILITY_ASSIGNMENT_REQUIRED",
+    "RECOVERY_PARTY_MISMATCH",
+    "RECOVERY_POOL_MISMATCH",
+    "RECOVERY_PROCEEDS_LINEAGE_REQUIRED",
+    "RECOVERY_PROCEEDS_POLICY_REQUIRED",
+    "RECOVERY_SOURCE_REQUIRED",
+    "REFUNDABLE_DEPOSIT_CONTEXT_REQUIRED",
+    "REFUND_CAPABILITY_DISABLED",
+    "REFUND_CAP_EXCEEDED",
+    "REFUND_CONFIRMATION_PENDING",
+    "REFUND_CONTEXT_MISMATCH",
+    "REFUND_DEADLINE_REVIEW_REQUIRED",
+    "REFUND_DECISION_REQUIRED",
+    "REFUND_FUNDS_UNAVAILABLE",
+    "REFUND_PROVIDER_UNAVAILABLE",
+    "REFUND_RAIL_NOT_APPROVED",
+    "REFUND_REQUIRES_VERIFIED_COLLECTION",
+    "REFUND_REVERSAL_CONTEXT_MISMATCH",
+    "REFUND_REVERSAL_REQUIRES_REVIEW",
+    "REFUND_STRATEGY_DISABLED",
     "RELEASED_OR_HELD_CORRECTION_REQUIRES_REVIEW",
     "RELEASE_EVIDENCE_AUTHORITY_REQUIRED",
+    "REMEDY_EVIDENCE_CONTEXT_MISMATCH",
+    "REMEDY_EVIDENCE_REQUIRED",
+    "REMEDY_POLICY_IMMUTABLE",
+    "REMEDY_READBACK_UNAVAILABLE",
     "RENT_FEES_EXCEED_PROCEEDS",
     "RENT_INTENT_MISMATCH",
     "RENT_PERIOD_OVERLAP",
@@ -2843,25 +4848,41 @@
     "RENT_RECURRENCE_REQUIRED",
     "REPLAY_EVIDENCE_REQUIRED",
     "REQUIRED_RELEASE_EVIDENCE_MISSING",
+    "RESERVE_EXTENSION_POLICY_REQUIRED",
+    "REVERSAL_AUTHORITY_REQUIRED",
+    "REVERSAL_CONTEXT_MISMATCH",
+    "REVERSAL_READBACK_UNAVAILABLE",
+    "REVIEW_DEADLINE_OVERRIDE_REQUIRED",
     "REVOCATION_EVIDENCE_REQUIRED",
     "ROLE_LEGAL_PARTY_MISMATCH",
+    "SEPARATION_OF_DUTIES_REQUIRED",
     "SETTLEMENT_CONTEXT_MISMATCH",
     "SETTLEMENT_UNAVAILABLE",
     "SOURCE_NOT_AUTHORIZED",
     "STALE_RELEASE_EVIDENCE",
+    "STALE_REMEDY_EVIDENCE",
+    "SUBMITTED_REFUND_CANNOT_BE_CANCELLED",
     "TERMINAL_ALLOCATION",
+    "TOPUP_EXPIRED_REVIEW_REQUIRED",
+    "TOPUP_FEE_POLICY_REQUIRED",
     "UNBACKED_SETTLEMENT",
     "UNBALANCED_JOURNAL",
     "UNEXPLAINED_ALLOCATION_RESIDUAL",
     "UNFUNDED_RELEASE",
     "UNKNOWN_POLICY_FAMILY",
+    "UNKNOWN_PROVIDER_REFUND_PREVENTS_WALLET_CREDIT",
     "UNKNOWN_PROVIDER_STATUS",
+    "UNMATCHED_CREDIT_AUTHORITY_REQUIRED",
     "UNMATCHED_DVA_COLLECTION",
+    "UNSUPPORTED_PROVIDER_EVENT",
     "VERIFIED_BENEFICIARY_REQUIRED",
     "VERIFIED_DESTINATION_REQUIRED",
     "VERIFIED_OWNERSHIP_REQUIRED",
     "VIRTUAL_ACCOUNT_NOT_FOUND",
     "WALLET_NOT_FOUND",
+    "WALLET_OBLIGATION_CONTEXT_MISMATCH",
+    "WALLET_REFUND_NOT_SUBMITTED",
+    "WALLET_SPEND_POLICY_DISABLED",
     "WITHDRAWAL_APPROVAL_ALREADY_USED",
     "WITHDRAWAL_APPROVAL_REQUIRED",
     "WITHDRAWAL_POLICY_DISABLED"

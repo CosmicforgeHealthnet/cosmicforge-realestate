@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.case_decided.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/CaseDecision"
+    }
+  },
+  "components": {
+    "schemas": {
+      "CaseDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_ref": {
+            "type": "string"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "award_authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "award_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "executor_ref": {
+            "type": "string"
+          },
+          "extension_until": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          },
+          "reviewer_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fact_id",
+          "case_id",
+          "kind",
+          "actor_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids",
+          "outcome",
+          "award_minor",
+          "approvers",
+          "reviewer_ref",
+          "executor_ref"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

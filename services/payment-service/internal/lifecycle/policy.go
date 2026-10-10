@@ -19,6 +19,46 @@ type Service struct{ *finance.Service }
 
 func New(s *finance.Service) *Service {
 	l := &Service{s}
+	s.SetRemedyReadback(func(ctx context.Context, provider ids.ID, event, ref string) error {
+		if has([]string{"refund.pending", "refund.processing", "refund.processed", "refund.failed", "refund.reversed"}, event) {
+			var id ids.ID
+			e := s.DB.QueryRow(ctx, `SELECT refund_id FROM refund_attempts WHERE provider_account_id=$1 AND (attempt_reference=$2 OR provider_refund_id=$2)`, provider, ref).Scan(&id)
+			if e != nil {
+				return e
+			}
+			r, e := l.ResolveRefund(trusted(ctx), id)
+			if e != nil {
+				return e
+			}
+			if !has([]string{"CONFIRMED_REFUNDED", "CONFIRMED_FAILED", "REVERSED", "CANCELLED"}, r.State) {
+				return core.Fail(503, "REFUND_CONFIRMATION_PENDING")
+			}
+			return nil
+		}
+		var id ids.ID
+		var chargeRef string
+		if event == "charge.dispute.create" || event == "charge.dispute.resolve" {
+			a, e := s.Adapter(provider)
+			if e != nil {
+				return e
+			}
+			if a.Reversal == nil {
+				return core.Fail(503, "REVERSAL_READBACK_UNAVAILABLE")
+			}
+			v, e := a.Reversal.VerifyReversal(ctx, ref)
+			if e != nil {
+				return core.Fail(503, "DISPUTE_CONFIRMATION_PENDING")
+			}
+			chargeRef = v.ChargeReference
+		} else {
+			chargeRef = ref
+		}
+		if e := s.DB.QueryRow(ctx, `SELECT intent_id FROM payment_intents WHERE provider_account_id=$1 AND provider_reference=$2`, provider, chargeRef).Scan(&id); e != nil {
+			return e
+		}
+		_, e := l.ReverseCollection(trusted(ctx), ReversalRequest{IntentID: id, ProviderReference: ref, AuthorityRef: "authenticated-provider-readback", Approvers: []string{"provider-confirmation", "payment-readback"}})
+		return e
+	})
 	s.SetTransferReadback(func(ctx context.Context, provider ids.ID, ref string) error {
 		var id ids.ID
 		e := s.DB.QueryRow(ctx, `SELECT payout_id FROM payout_attempts WHERE provider_account_id=$1 AND provider_reference=$2`, provider, ref).Scan(&id)
@@ -29,7 +69,7 @@ func New(s *finance.Service) *Service {
 		if e != nil {
 			return e
 		}
-		if !has([]string{"CONFIRMED_PAID", "CONFIRMED_FAILED"}, p.State) {
+		if !has([]string{"CONFIRMED_PAID", "CONFIRMED_FAILED", "REVERSED"}, p.State) {
 			return core.Fail(503, "PAYOUT_CONFIRMATION_PENDING")
 		}
 		return nil
@@ -139,6 +179,9 @@ func Families() []Family {
 	return families
 }
 func family(key string) (Family, error) {
+	if key == "CUSTOMER_FUNDING" {
+		return Family{Key: key, Payers: []string{"CUSTOMER"}, Components: []string{"TOPUP"}, Roles: []string{"CUSTOMER"}, Conditions: []string{"VERIFIED_FUNDING"}, JurisdictionRequired: true, TemplateVersion: "blueprint-v1.0"}, nil
+	}
 	for _, f := range Families() {
 		if f.Key == key {
 			return f, nil

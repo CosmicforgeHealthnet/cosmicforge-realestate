@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/core"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/finance"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/jackc/pgx/v5"
@@ -396,6 +397,15 @@ func (s *Service) Allocate(ctx context.Context, in AllocationInput) (Allocation,
 		return Allocation{}, e
 	}
 	defer tx.Rollback(ctx)
+	a, e := s.allocateTx(ctx, tx, i, q, policy, in, source)
+	if e != nil {
+		return a, e
+	}
+	return a, tx.Commit(ctx)
+}
+
+func (s *Service) allocateTx(ctx context.Context, tx pgx.Tx, i finance.Intent, q Quote, policy Policy, in AllocationInput, source string) (Allocation, error) {
+	var e error
 	if e = lock(ctx, tx, "allocate:"+i.ID.String()); e != nil {
 		return Allocation{}, e
 	}
@@ -439,7 +449,7 @@ func (s *Service) Allocate(ctx context.Context, in AllocationInput) (Allocation,
 			return old, fail("CORRECTION_VERSION_MISMATCH")
 		}
 		var busy bool
-		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM allocation_lines WHERE allocation_id=$1 AND (released_minor>0 OR state IN ('DISPUTED','HELD','REVERSED','CORRECTED')))`, old.ID).Scan(&busy)
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM allocation_lines WHERE allocation_id=$1 AND (released_minor>0 OR state IN ('DISPUTED','HELD','REVERSED','CORRECTED') OR EXISTS(SELECT 1 FROM financial_cases c WHERE c.line_id=allocation_lines.line_id) OR EXISTS(SELECT 1 FROM refund_attempts r WHERE r.line_id=allocation_lines.line_id)))`, old.ID).Scan(&busy)
 		if e != nil {
 			return old, e
 		}
@@ -613,7 +623,7 @@ func (s *Service) Allocate(ctx context.Context, in AllocationInput) (Allocation,
 	if e = s.Audit(ctx, tx, "allocation.accepted", a.ID.String(), in); e != nil {
 		return a, e
 	}
-	return a, tx.Commit(ctx)
+	return a, nil
 }
 func decode(b []byte, v any) error { return json.Unmarshal(b, v) }
 func (s *Service) currentWallet(ctx context.Context, tx pgx.Tx, id ids.ID, party string) error {

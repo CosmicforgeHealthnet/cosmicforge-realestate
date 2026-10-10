@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.case_opened.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/FinancialCase"
+    }
+  },
+  "components": {
+    "schemas": {
+      "FinancialCase": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_ref": {
+            "type": "string"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "challenge_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "claim_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "claimant_ref": {
+            "type": "string"
+          },
+          "contested_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "deposit_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "escalation_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "notice_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason_ref": {
+            "type": "string"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "respondent_ref": {
+            "type": "string"
+          },
+          "review_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "source_service": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "line_id",
+          "kind",
+          "contested_minor",
+          "claimant_ref",
+          "respondent_ref",
+          "authority_ref",
+          "reason_ref",
+          "evidence_ids",
+          "intent_id",
+          "quote_id",
+          "policy_id",
+          "business_ref",
+          "currency",
+          "jurisdiction",
+          "source_service",
+          "state",
+          "claim_deadline",
+          "challenge_deadline",
+          "review_deadline",
+          "escalation_deadline",
+          "notice_deadline"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

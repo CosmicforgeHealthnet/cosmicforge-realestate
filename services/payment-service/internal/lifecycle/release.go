@@ -346,6 +346,9 @@ func (s *Service) Release(ctx context.Context, in Release, key string) (ids.ID, 
 		return ids.Nil, e
 	}
 	if auth.WalletID != nil {
+		if e = s.outstandingRecovery(ctx, tx, *auth.WalletID); e != nil {
+			return ids.Nil, e
+		}
 		if e = s.currentWallet(ctx, tx, *auth.WalletID, auth.LegalPartyRef); e != nil {
 			return ids.Nil, e
 		}
@@ -449,6 +452,13 @@ func (s *Service) Hold(ctx context.Context, line ids.ID, in Hold, key string) er
 	}
 	if has([]string{"CORRECTED", "REVERSED", "PAID_OUT"}, state) {
 		return core.Fail(409, "TERMINAL_ALLOCATION")
+	}
+	var remedy bool
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM financial_cases WHERE line_id=$1) OR EXISTS(SELECT 1 FROM refund_attempts WHERE line_id=$1)`, line).Scan(&remedy); e != nil {
+		return e
+	}
+	if remedy {
+		return core.Fail(409, "AMOUNT_SPECIFIC_REMEDY_WORKFLOW_REQUIRED")
 	}
 	next, e := s.moveHold(ctx, tx, a, line, state, in.State, op, in.EvidenceRef)
 	if e != nil {

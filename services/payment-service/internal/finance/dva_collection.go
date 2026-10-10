@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/core"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/providers"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 )
 
 // MatchDVACharge only records externally confirmed, mapped funding as pending.
-// Wallet top-up release/spend policy and business billing remain deferred.
+// Customer availability requires the separately approved, matched funding flow.
 func (s *Service) MatchDVACharge(ctx context.Context, provider ids.ID, ref string) error {
 	if e := core.Require(ctx, platform.PaymentService); e != nil {
 		return e
@@ -53,6 +54,12 @@ func (s *Service) MatchDVACharge(ctx context.Context, provider ids.ID, ref strin
 	var entity string
 	e = tx.QueryRow(ctx, `SELECT v.wallet_id,w.legal_entity FROM virtual_accounts v JOIN wallets w USING(wallet_id) JOIN financial_identities i USING(identity_id) JOIN verification_refs k USING(identity_id) WHERE v.provider_account_id=$1 AND v.customer_ref=$2 AND v.state='ACTIVE' AND w.currency=$3 AND w.legal_entity=$4 AND i.state='ACTIVE' AND v.consent_expires_at>now() AND k.state='VERIFIED' AND k.expires_at>now() AND k.verification_ref=v.verification_ref FOR UPDATE OF v`, provider, c.CustomerRef, c.Currency, config.LegalEntity).Scan(&wallet, &entity)
 	if e != nil {
+		// Preserve the verified incoming observation without guessing a wallet from
+		// a sender name. Matching may be retried after authoritative DVA mapping.
+		tx.Rollback(ctx)
+		if _, saveErr := s.DB.Exec(ctx, `INSERT INTO unmatched_dva_credits(credit_id,provider_account_id,external_ref,amount_minor,currency,customer_ref,snapshot) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(provider_account_id,external_ref) DO NOTHING`, ids.New(), provider, ref, c.AmountMinor, c.Currency, c.CustomerRef, string(mustDVAObservation(c))); saveErr != nil {
+			return saveErr
+		}
 		return core.Fail(409, "UNMATCHED_DVA_COLLECTION")
 	}
 	pending, e := s.Account(ctx, tx, &wallet, config.PoolID, "PAYMENT_PENDING", entity, c.Currency, "")
@@ -82,4 +89,8 @@ func (s *Service) MatchDVACharge(ctx context.Context, provider ids.ID, ref strin
 		return e
 	}
 	return tx.Commit(ctx)
+}
+func mustDVAObservation(c providers.Charge) []byte {
+	b, _ := json.Marshal(map[string]any{"reference": c.Reference, "customer_ref": c.CustomerRef, "amount_minor": c.AmountMinor, "currency": c.Currency, "merchant_id": c.MerchantID, "mode": c.Mode})
+	return b
 }

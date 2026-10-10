@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.refund_reserved.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/RefundAttempt"
+    }
+  },
+  "components": {
+    "schemas": {
+      "RefundAttempt": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "attempt_reference": {
+            "type": "string"
+          },
+          "authority_ref": {
+            "type": "string"
+          },
+          "case_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "destination_strategy": {
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "original_reference": {
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_refund_id": {
+            "type": "string"
+          },
+          "refund_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refund_id",
+          "line_id",
+          "case_id",
+          "amount_minor",
+          "destination_strategy",
+          "authority_ref",
+          "evidence_ids",
+          "approvers",
+          "intent_id",
+          "payer_wallet_id",
+          "provider_account_id",
+          "pool_id",
+          "currency",
+          "original_reference",
+          "attempt_reference",
+          "state",
+          "refund_deadline"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

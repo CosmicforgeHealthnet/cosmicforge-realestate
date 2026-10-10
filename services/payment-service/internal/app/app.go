@@ -22,6 +22,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/outbox"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/serviceauth"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -46,6 +47,12 @@ func Build(ctx context.Context, c *config.Config, log *slog.Logger) (*App, error
 	s.Log = log
 	a := &App{Cfg: c, Pool: db, Service: s, Log: log}
 	ctx = serviceauth.WithPrincipal(ctx, serviceauth.Principal{Service: platform.PaymentService})
+	if c.Readback.MaxAttempts > 0 {
+		if e = s.ConfigureRecovery(ctx, c.Readback); e != nil {
+			db.Close()
+			return nil, e
+		}
+	}
 	for _, pc := range c.Providers {
 		merchant, e := strconv.ParseInt(pc.MerchantRef, 10, 64)
 		if e != nil {
@@ -57,7 +64,15 @@ func Build(ctx context.Context, c *config.Config, log *slog.Logger) (*App, error
 			db.Close()
 			return nil, e
 		}
-		if e = s.Register(ctx, pc, finance.Adapter{Collection: p, DVA: p, Settlement: p, Payout: p}); e != nil {
+		var overlap []security.Secret
+		for _, ref := range pc.WebhookPreviousRefs {
+			overlap = append(overlap, c.ProviderSecrets[ref])
+		}
+		if e = p.SetWebhookOverlap(overlap); e != nil {
+			db.Close()
+			return nil, e
+		}
+		if e = s.Register(ctx, pc, finance.Adapter{Collection: p, DVA: p, Settlement: p, Payout: p, Refund: p, Reversal: p}); e != nil {
 			db.Close()
 			return nil, e
 		}
@@ -111,6 +126,9 @@ func (a *App) RunWorker(ctx context.Context) error {
 		case e := <-done:
 			return e
 		case <-ticker.C:
+			if e = lifecycleService.RecoverRefunds(ctx); e != nil {
+				a.Log.ErrorContext(ctx, "refund worker failed", "error_code", "REFUND_RECOVERY_FAILURE")
+			}
 			if e = lifecycleService.RecoverPayouts(ctx); e != nil {
 				a.Log.ErrorContext(ctx, "payout worker failed", "error_code", "PAYOUT_RECOVERY_FAILURE")
 			}

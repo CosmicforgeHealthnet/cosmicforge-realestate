@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.destination_changed.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/DestinationChange"
+    }
+  },
+  "components": {
+    "schemas": {
+      "DestinationChange": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "cooling_ends_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "effective_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "high_risk": {
+            "type": "boolean"
+          },
+          "notification_ref": {
+            "type": "string"
+          },
+          "ownership_ref": {
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "predecessor_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "risk_ref": {
+            "type": "string"
+          },
+          "step_up_ref": {
+            "type": "string"
+          },
+          "verification_ref": {
+            "type": "string"
+          },
+          "version_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "wallet_id",
+          "payout_account_id",
+          "policy_id",
+          "step_up_ref",
+          "verification_ref",
+          "ownership_ref",
+          "risk_ref",
+          "notification_ref",
+          "high_risk",
+          "approvers",
+          "expires_at",
+          "effective_at",
+          "cooling_ends_at"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

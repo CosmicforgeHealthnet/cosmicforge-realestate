@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.deposit_registered.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/Deposit"
+    }
+  },
+  "components": {
+    "schemas": {
+      "Deposit": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "claim_deadline": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "custody_ref": {
+            "type": "string"
+          },
+          "deposit_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "deposit_type": {
+            "type": "string"
+          },
+          "ingress_ref": {
+            "type": "string"
+          },
+          "inspection_evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "liability_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "deposit_id",
+          "line_id",
+          "deposit_type",
+          "custody_ref",
+          "ingress_ref",
+          "inspection_evidence_ids",
+          "intent_id",
+          "quote_id",
+          "payer_wallet_id",
+          "business_ref",
+          "policy_id",
+          "jurisdiction",
+          "currency",
+          "amount_minor",
+          "liability_account_id",
+          "state",
+          "claim_deadline"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}
