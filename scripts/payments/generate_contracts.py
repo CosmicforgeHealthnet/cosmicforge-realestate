@@ -1,9 +1,11 @@
-"""Generate the controlled Section 1-3 OpenAPI, Postman and event contracts.
+"""Generate the controlled Sections 1-6 OpenAPI, Postman and event contracts.
 
 Only implemented HTTP surfaces are listed. Run from the repository root.
 Contracts use JSON syntax (valid YAML) for reproducible native serialization.
 """
 import json
+import sys
+sys.dont_write_bytecode = True
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -76,10 +78,13 @@ INTERNAL.extend([
     ("POST", "/payout-account-references", "PayoutReferenceInput", ref("PayoutReference"), "Verification service only; current authoritative verification, exact beneficiary reference, jurisdiction and expiry. Records bank verification only; no financial entitlement or payout execution. Eligible remains false."),
     ("GET", "/wallets/{id}/payout-account-references", None, array(ref("PayoutReference")), "Source-bound delegated wallet owner; bank reference only, no raw bank details. Recording a reference does not authorize withdrawals."),
 ])
+from lifecycle_contracts import extend
+LIFECYCLE_PUBLIC = extend(ROOT, SCHEMAS, INTERNAL, obj, ref, array, TEXT, UUID)
 PUBLIC = [(m, p, b, out, desc) for m, p, b, out, desc in INTERNAL if m == "GET" and (p.startswith("/wallets/") or p.startswith("/payment-intents/") or p.startswith("/virtual-accounts/"))]
+PUBLIC.extend(LIFECYCLE_PUBLIC)
 PUBLIC = [route for route in PUBLIC if not route[1].endswith("/payout-account-references")]
 PUBLIC.insert(0, ("GET", "/wallets/me", None, array(ref("Wallet")), "Authenticated user through gateway; signed actor domain/account only. No actor supplied through client headers."))
-ERROR_CODES = sorted(set(__import__("re").findall(r'Fail\(\s*\d+,\s*"([A-Z_]+)"', "\n".join(p.read_text() for p in (ROOT / "services/payment-service/internal").rglob("*.go") if not p.name.endswith("_test.go")))))
+ERROR_CODES = sorted(set(__import__("re").findall(r'(?:Fail\(\s*\d+,\s*|fail\(\s*)"([A-Z_]+)"', "\n".join(p.read_text() for p in (ROOT / "services/payment-service/internal").rglob("*.go") if not p.name.endswith("_test.go")))))
 
 
 def spec(title, prefix, routes, internal):
@@ -90,14 +95,14 @@ def spec(title, prefix, routes, internal):
             op["parameters"].append({"name": "id", "in": "path", "required": True, "schema": UUID})
         if path.endswith("/transactions"):
             op["parameters"].extend([{"name": "after", "in": "query", "schema": UUID}, {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}}])
-        if path == "/payment-intents" and method == "POST":
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals"]:
             op["parameters"].append({"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"type": "string", "minLength": 1, "maxLength": 128}})
         if body:
             op["requestBody"] = {"required": True, "content": {"application/json": {"schema": ref(body)}}}
         for code in [400, 401, 403, 404, 409, 413, 415, 422, 500, 503]:
             op["responses"][str(code)] = {"description": "Platform error envelope; financial safety/error codes in x-error-codes.", "content": {"application/json": {"schema": ref("Error")}}}
         paths.setdefault(prefix + path, {})[method.lower()] = op
-    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-3. Live custody, collections and payouts disabled. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
+    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-6. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
 
 
 def write(path, data):
@@ -117,12 +122,14 @@ write("contracts/webhooks/paystack.yaml", webhook)
 
 items = []
 def example(schema, name="value"):
+    schema = dict(schema)
+    if isinstance(schema.get("type"), list): schema["type"] = schema["type"][0]
     if "$ref" in schema:
         return example(SCHEMAS[schema["$ref"].split("/")[-1]], name)
     if "const" in schema: return schema["const"]
     if "enum" in schema: return schema["enum"][0]
     if schema.get("type") == "object":
-        return {k: example(v, k) for k, v in schema["properties"].items() if k in schema.get("required", [])}
+        return {k: example(v, k) for k, v in schema.get("properties", {}).items() if k in schema.get("required", [])}
     if schema.get("type") == "array": return []
     if schema.get("type") == "integer": return 10000
     if schema.get("type") == "boolean": return False
@@ -136,11 +143,11 @@ for prefix, routes, token in [("/internal/v1", INTERNAL, "service_token"), ("/ap
         if body:
             request["header"].append({"key": "Content-Type", "value": "application/json"})
             request["body"] = {"mode": "raw", "raw": json.dumps(example(SCHEMAS[body]), indent=2), "options": {"raw": {"language": "json"}}}
-        if path == "/payment-intents" and method == "POST":
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals"]:
             request["header"].append({"key": "Idempotency-Key", "value": "{{idempotency_key}}"})
         items.append({"name": method + " " + prefix + path, "request": request})
 items.append({"name": "POST Paystack callbacks", "request": {"method": "POST", "url": "{{gateway_base_url}}/webhooks/v1/paystack/{{entity_id}}/callbacks", "header": [{"key": "X-Paystack-Signature", "value": "{{raw_body_hmac_sha512}}"}], "description": "Use exact signed provider body; gateway injects its service JWT. No fake signature fallback."}})
-write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-3", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""}, {"key": "idempotency_key", "value": ""}]})
+write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-6", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""}, {"key": "idempotency_key", "value": ""}]})
 
 payloads = {
     "finance.wallet.opened.v1": ref("Wallet"),
@@ -152,8 +159,32 @@ payloads = {
     "finance.reconciliation.exception_detected.v1": {"type": "object", "required": ["reason"], "properties": {"exception_id": UUID, "pool_id": UUID, "intent_id": UUID, "reason": TEXT}},
 }
 payloads["finance.identity.state_changed.v1"] = obj(dict(identity_id=UUID, state={"enum": ["ACTIVE", "RESTRICTED", "CLOSED"]}, evidence_ref=TEXT, policy_version=TEXT))
+payloads["finance.allocation_created.v1"]=ref("Allocation")
+payloads["finance.allocation_released.v1"]=obj(dict(line_id=UUID,amount_minor=MONEY,currency=CURRENCY,journal_id=UUID))
+payloads["finance.platform_commission_allocated.v1"]=payloads["finance.allocation_released.v1"]
+payloads["finance.rent_obligation_created.v1"]=ref("Obligation")
+payloads["finance.rent_payment_verified.v1"]=obj(dict(obligation_id=UUID,intent_id=UUID,amount_minor=MONEY,currency=CURRENCY,settlement_state={"const":"PENDING"}))
+payloads["finance.rent_split_pending.v1"]=obj(dict(obligation_id=UUID,intent_id=UUID,allocation_id=UUID,amount_minor=MONEY,currency=CURRENCY))
+for event in ["withdrawal_reserved","payout_initiated","payout_confirmed","payout_failed","payout_resolution_required"]:
+    payloads["finance."+event+".v1"]=ref("Payout")
+def referenced_schemas(payload):
+    needed = {}
+    def visit(value):
+        if isinstance(value, dict):
+            target = value.get("$ref", "")
+            if target.startswith("#/components/schemas/"):
+                name = target.rsplit("/", 1)[-1]
+                if name not in needed:
+                    needed[name] = SCHEMAS[name]
+                    visit(needed[name])
+            for child in value.values(): visit(child)
+        elif isinstance(value, list):
+            for child in value: visit(child)
+    visit(payload)
+    return needed
+
 for event, payload in payloads.items():
-    schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}], "properties": {"event_type": {"const": event}, "producer": {"const": "payment-service"}, "payload": payload}, "components": {"schemas": SCHEMAS}}
+    schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}], "properties": {"event_type": {"const": event}, "producer": {"const": "payment-service"}, "payload": payload}, "components": {"schemas": referenced_schemas(payload)}}
     write("contracts/events/payments/" + event + ".schema.json", schema)
 
 print(f"Generated {len(INTERNAL) + len(PUBLIC) + 1} routes and {len(payloads)} event schemas.")

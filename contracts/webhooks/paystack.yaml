@@ -3,7 +3,7 @@
   "info": {
     "title": "Paystack durable webhook",
     "version": "1.0.0",
-    "description": "Blueprint v1.0 Sections 1-3. Live custody, collections and payouts disabled. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
+    "description": "Blueprint v1.0 Sections 1-6. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
   },
   "paths": {
     "/webhooks/v1/paystack/{id}/callbacks": {
@@ -482,6 +482,10 @@
             "format": "int64",
             "minimum": 0,
             "description": "Required reconciled provider liquidity for routing; zero for collection-only requests. Configuration is policy input, not custody proof."
+          },
+          "locked_quote_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -935,6 +939,1750 @@
           "eligible"
         ],
         "additionalProperties": false
+      },
+      "Agreement": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "agreement_ref": {
+            "type": "string"
+          },
+          "approval_ref": {
+            "type": "string"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "change_evidence_ref": {
+            "type": "string"
+          },
+          "component_authorities": {
+            "additionalProperties": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "components": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "payer_ref": {
+                  "type": "string"
+                },
+                "recurrence": {
+                  "type": "string"
+                },
+                "service_evidence_ref": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "component_ref",
+                "kind",
+                "amount_minor",
+                "payer_ref",
+                "recurrence"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "deposit_policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "initial_policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "manager_authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "manager_contract_ref": {
+            "type": "string"
+          },
+          "manager_fee_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "payer_consent_ref": {
+            "type": "string"
+          },
+          "payer_party_ref": {
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "platform_authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "previous_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recurring_policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rent_shares": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "authority_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "ownership_bps": {
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "authority_id",
+                "ownership_bps"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tenancy_type": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "agreement_id",
+          "domain",
+          "agreement_ref",
+          "version",
+          "approval_ref",
+          "change_evidence_ref",
+          "business_ref",
+          "payer_wallet_id",
+          "payer_party_ref",
+          "payer_consent_ref",
+          "tenancy_type",
+          "status",
+          "schedule",
+          "currency",
+          "jurisdiction",
+          "effective_from",
+          "starts_at",
+          "initial_policy_id",
+          "recurring_policy_id",
+          "components",
+          "rent_shares",
+          "manager_fee_minor",
+          "manager_contract_ref",
+          "component_authorities"
+        ],
+        "type": "object"
+      },
+      "Allocation": {
+        "additionalProperties": false,
+        "properties": {
+          "allocation_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "legal_entity": {
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "authority_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "line_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "paid_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "released_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "reserved_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "wallet_id": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "line_id",
+                "authority_id",
+                "component_ref",
+                "kind",
+                "amount_minor",
+                "currency",
+                "state",
+                "released_minor",
+                "reserved_minor",
+                "paid_minor"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "allocation_id",
+          "intent_id",
+          "version",
+          "quote_id",
+          "policy_id",
+          "pool_id",
+          "currency",
+          "legal_entity",
+          "lines"
+        ],
+        "type": "object"
+      },
+      "AllocationInput": {
+        "additionalProperties": false,
+        "properties": {
+          "correction_ref": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "authority_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "authority_id",
+                "component_ref",
+                "kind",
+                "amount_minor",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "supersedes_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "intent_id",
+          "version",
+          "lines"
+        ],
+        "type": "object"
+      },
+      "AllocationLine": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "component_ref": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "paid_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "released_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "reserved_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "authority_id",
+          "component_ref",
+          "kind",
+          "amount_minor",
+          "currency",
+          "state",
+          "released_minor",
+          "reserved_minor",
+          "paid_minor"
+        ],
+        "type": "object"
+      },
+      "Authority": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "components": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "legal_entity": {
+            "type": "string"
+          },
+          "legal_party_ref": {
+            "type": "string"
+          },
+          "mandate_ref": {
+            "type": "string"
+          },
+          "max_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "ownership_bps": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "role": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "authority_id",
+          "domain",
+          "business_ref",
+          "legal_party_ref",
+          "role",
+          "currency",
+          "legal_entity",
+          "components",
+          "evidence_ref",
+          "mandate_ref",
+          "ownership_bps",
+          "max_minor",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "Component": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "component_ref": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "payer_ref": {
+            "type": "string"
+          },
+          "recurrence": {
+            "type": "string"
+          },
+          "service_evidence_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "component_ref",
+          "kind",
+          "amount_minor",
+          "payer_ref",
+          "recurrence"
+        ],
+        "type": "object"
+      },
+      "Destination": {
+        "additionalProperties": false,
+        "properties": {
+          "binding_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recipient_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding_id",
+          "payout_account_id",
+          "provider_account_id",
+          "recipient_ref",
+          "evidence_ref",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "Family": {
+        "additionalProperties": false,
+        "properties": {
+          "beneficiary_roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "cancellation_policy_ref": {
+            "type": "string"
+          },
+          "components": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "dispute_policy_ref": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "jurisdiction_policy_required": {
+            "type": "boolean"
+          },
+          "payers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "policy_key": {
+            "type": "string"
+          },
+          "refund_policy_ref": {
+            "type": "string"
+          },
+          "regulated_partner_required": {
+            "type": "boolean"
+          },
+          "release_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "separate_deposit": {
+            "type": "boolean"
+          },
+          "template_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "template_version",
+          "jurisdiction_policy_required",
+          "cancellation_policy_ref",
+          "refund_policy_ref",
+          "dispute_policy_ref",
+          "policy_key",
+          "payers",
+          "components",
+          "beneficiary_roles",
+          "release_conditions",
+          "separate_deposit",
+          "regulated_partner_required",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "FundingInput": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "cash_evidence_ref": {
+            "type": "string"
+          },
+          "custody_evidence_ref": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "settlement_ref": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent_id",
+          "settlement_ref",
+          "cash_evidence_ref",
+          "custody_evidence_ref",
+          "approvers"
+        ],
+        "type": "object"
+      },
+      "Hold": {
+        "additionalProperties": false,
+        "properties": {
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "evidence_ref",
+          "approvers"
+        ],
+        "type": "object"
+      },
+      "LineInput": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "authority_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "component_ref": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authority_id",
+          "component_ref",
+          "kind",
+          "amount_minor",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "Obligation": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "agreement_version": {
+            "type": "string"
+          },
+          "due_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "initial": {
+            "type": "boolean"
+          },
+          "obligation_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "period_ref": {
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "quote": {
+            "additionalProperties": false,
+            "properties": {
+              "agreement_ref": {
+                "type": "string"
+              },
+              "agreement_version": {
+                "type": "string"
+              },
+              "amount_minor": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "business_ref": {
+                "type": "string"
+              },
+              "components": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount_minor": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "component_ref": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "payer_ref": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "type": "string"
+                    },
+                    "service_evidence_ref": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "component_ref",
+                    "kind",
+                    "amount_minor",
+                    "payer_ref",
+                    "recurrence"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "currency": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "jurisdiction": {
+                "type": "string"
+              },
+              "legal_party_ref": {
+                "type": "string"
+              },
+              "payer_consent_ref": {
+                "type": "string"
+              },
+              "payer_type": {
+                "type": "string"
+              },
+              "payer_wallet_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "policy_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_version": {
+                "type": "string"
+              },
+              "schedule": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "quote_id",
+              "domain",
+              "business_ref",
+              "payer_wallet_id",
+              "payer_type",
+              "payer_consent_ref",
+              "legal_party_ref",
+              "quote_version",
+              "agreement_ref",
+              "agreement_version",
+              "policy_id",
+              "currency",
+              "jurisdiction",
+              "schedule",
+              "amount_minor",
+              "components"
+            ],
+            "type": "object"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stream": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "obligation_id",
+          "agreement_id",
+          "period_ref",
+          "period_start",
+          "period_end",
+          "due_at",
+          "initial",
+          "stream",
+          "quote",
+          "agreement_version",
+          "schedule",
+          "status"
+        ],
+        "type": "object"
+      },
+      "Payout": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_reference": {
+            "type": "string"
+          },
+          "recipient_ref": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "payout_id",
+          "line_id",
+          "wallet_id",
+          "payout_account_id",
+          "provider_account_id",
+          "pool_id",
+          "amount_minor",
+          "currency",
+          "provider_reference",
+          "recipient_ref",
+          "state"
+        ],
+        "type": "object"
+      },
+      "Policy": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "adjustment_policy_ref": {
+            "type": "string"
+          },
+          "allow_self_certification": {
+            "type": "boolean"
+          },
+          "approval_ref": {
+            "type": "string"
+          },
+          "cancellation_policy_ref": {
+            "type": "string"
+          },
+          "commission_contract_ref": {
+            "type": "string"
+          },
+          "contract_type": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "dispute_policy_ref": {
+            "type": "string"
+          },
+          "dual_approval_above_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "effective_until": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidence_services": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "human_review": {
+            "type": "boolean"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "owner_commission_bps": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "partner_approval_ref": {
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_key": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          },
+          "refund_policy_ref": {
+            "type": "string"
+          },
+          "release_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "requires_custody": {
+            "type": "boolean"
+          },
+          "schedules": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "withdrawal_limit_minor": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "allow_self_certification",
+          "policy_id",
+          "policy_key",
+          "version",
+          "jurisdiction",
+          "currency",
+          "contract_type",
+          "product",
+          "effective_from",
+          "active",
+          "approval_ref",
+          "cancellation_policy_ref",
+          "refund_policy_ref",
+          "dispute_policy_ref",
+          "adjustment_policy_ref",
+          "release_conditions",
+          "evidence_services",
+          "schedules",
+          "requires_custody",
+          "human_review",
+          "partner_approval_ref",
+          "owner_commission_bps",
+          "commission_contract_ref",
+          "withdrawal_limit_minor",
+          "dual_approval_above_minor"
+        ],
+        "type": "object"
+      },
+      "PolicyDeactivation": {
+        "additionalProperties": false,
+        "properties": {
+          "decision_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "effective_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_id",
+          "policy_id",
+          "effective_at",
+          "evidence_ref"
+        ],
+        "type": "object"
+      },
+      "PolicySelector": {
+        "additionalProperties": false,
+        "properties": {
+          "contract_type": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "effective_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "policy_key": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "policy_key",
+          "jurisdiction",
+          "currency",
+          "contract_type",
+          "product",
+          "effective_at"
+        ],
+        "type": "object"
+      },
+      "Quote": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement_ref": {
+            "type": "string"
+          },
+          "agreement_version": {
+            "type": "string"
+          },
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "business_ref": {
+            "type": "string"
+          },
+          "components": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_minor": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "payer_ref": {
+                  "type": "string"
+                },
+                "recurrence": {
+                  "type": "string"
+                },
+                "service_evidence_ref": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "component_ref",
+                "kind",
+                "amount_minor",
+                "payer_ref",
+                "recurrence"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "legal_party_ref": {
+            "type": "string"
+          },
+          "payer_consent_ref": {
+            "type": "string"
+          },
+          "payer_type": {
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote_version": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote_id",
+          "domain",
+          "business_ref",
+          "payer_wallet_id",
+          "payer_type",
+          "payer_consent_ref",
+          "legal_party_ref",
+          "quote_version",
+          "agreement_ref",
+          "agreement_version",
+          "policy_id",
+          "currency",
+          "jurisdiction",
+          "schedule",
+          "amount_minor",
+          "components"
+        ],
+        "type": "object"
+      },
+      "Receipt": {
+        "additionalProperties": false,
+        "properties": {
+          "allocations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "allocation_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "intent_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "legal_entity": {
+                  "type": "string"
+                },
+                "lines": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "amount_minor": {
+                        "format": "int64",
+                        "type": "integer"
+                      },
+                      "authority_id": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "component_ref": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "line_id": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "paid_minor": {
+                        "format": "int64",
+                        "type": "integer"
+                      },
+                      "released_minor": {
+                        "format": "int64",
+                        "type": "integer"
+                      },
+                      "reserved_minor": {
+                        "format": "int64",
+                        "type": "integer"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "wallet_id": {
+                        "format": "uuid",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "line_id",
+                      "authority_id",
+                      "component_ref",
+                      "kind",
+                      "amount_minor",
+                      "currency",
+                      "state",
+                      "released_minor",
+                      "reserved_minor",
+                      "paid_minor"
+                    ],
+                    "type": "object"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "policy_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "pool_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "quote_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "version": {
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "allocation_id",
+                "intent_id",
+                "version",
+                "quote_id",
+                "policy_id",
+                "pool_id",
+                "currency",
+                "legal_entity",
+                "lines"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "collection_state": {
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quote": {
+            "additionalProperties": false,
+            "properties": {
+              "agreement_ref": {
+                "type": "string"
+              },
+              "agreement_version": {
+                "type": "string"
+              },
+              "amount_minor": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "business_ref": {
+                "type": "string"
+              },
+              "components": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount_minor": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "component_ref": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "payer_ref": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "type": "string"
+                    },
+                    "service_evidence_ref": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "component_ref",
+                    "kind",
+                    "amount_minor",
+                    "payer_ref",
+                    "recurrence"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "currency": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "jurisdiction": {
+                "type": "string"
+              },
+              "legal_party_ref": {
+                "type": "string"
+              },
+              "payer_consent_ref": {
+                "type": "string"
+              },
+              "payer_type": {
+                "type": "string"
+              },
+              "payer_wallet_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "policy_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_version": {
+                "type": "string"
+              },
+              "schedule": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "quote_id",
+              "domain",
+              "business_ref",
+              "payer_wallet_id",
+              "payer_type",
+              "payer_consent_ref",
+              "legal_party_ref",
+              "quote_version",
+              "agreement_ref",
+              "agreement_version",
+              "policy_id",
+              "currency",
+              "jurisdiction",
+              "schedule",
+              "amount_minor",
+              "components"
+            ],
+            "type": "object"
+          },
+          "settlement_state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote",
+          "collection_state",
+          "settlement_state",
+          "allocations"
+        ],
+        "type": "object"
+      },
+      "Release": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "amount_minor",
+          "policy_version",
+          "evidence_ids"
+        ],
+        "type": "object"
+      },
+      "RentRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "due_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "initial": {
+            "type": "boolean"
+          },
+          "period_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "period_ref": {
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "stream": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "agreement_id",
+          "period_ref",
+          "period_start",
+          "period_end",
+          "due_at",
+          "initial",
+          "stream"
+        ],
+        "type": "object"
+      },
+      "Withdrawal": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approval_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "approval_id",
+          "line_id",
+          "wallet_id",
+          "payout_account_id",
+          "amount_minor"
+        ],
+        "type": "object"
+      },
+      "WithdrawalApproval": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "approval_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "approvers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "risk_ref": {
+            "type": "string"
+          },
+          "step_up_ref": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "approval_id",
+          "line_id",
+          "wallet_id",
+          "payout_account_id",
+          "amount_minor",
+          "step_up_ref",
+          "risk_ref",
+          "approvers",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "ReleaseEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "condition": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "evidence_version": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "human_approval_ref": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "line_id",
+          "condition",
+          "evidence_ref",
+          "evidence_version",
+          "policy_version",
+          "expires_at",
+          "human_approval_ref"
+        ],
+        "type": "object"
+      },
+      "RentAllocate": {
+        "type": "object",
+        "properties": {
+          "intent_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "intent_id"
+        ],
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -952,13 +2700,48 @@
     }
   },
   "x-error-codes": [
+    "ACTIVE_AGREEMENT_PERIOD_REQUIRED",
     "ACTOR_REQUIRED",
+    "ACTUAL_LEGAL_SERVICE_REQUIRED",
+    "AGREEMENT_SUPERSESSION_MISMATCH",
+    "AGREEMENT_VERSION_IMMUTABLE",
+    "ALLOCATION_COMPONENT_MISMATCH",
+    "ALLOCATION_LINE_NOT_FOUND",
+    "ALLOCATION_NOT_RELEASE_ELIGIBLE",
+    "ALLOCATION_VERSION_CONFLICT",
+    "APPROVED_CUSTODY_REQUIRED",
+    "APPROVED_POLICY_PACK_REQUIRED",
+    "AUTHORITATIVE_AGREEMENT_REQUIRED",
+    "AUTHORITATIVE_MATERIAL_CHANGE_REQUIRED",
     "AUTHORITATIVE_VERIFICATION_REQUIRED",
+    "AUTHORITY_IMMUTABLE",
+    "AVAILABLE_FUNDS_REQUIRED",
+    "BENEFICIARY_AUTHORITY_REQUIRED",
+    "BENEFICIARY_ENTITLEMENT_LIMIT",
+    "BENEFICIARY_ENTITLEMENT_MISMATCH",
+    "BENEFICIARY_WALLET_REQUIRED",
     "BUSINESS_EVIDENCE_REQUIRED",
+    "BUSINESS_EVIDENCE_SERVICE_REQUIRED",
+    "CANONICAL_QUOTE_SOURCE_REQUIRED",
+    "CATEGORY_BENEFICIARY_MISMATCH",
+    "CATEGORY_COMPONENT_MISMATCH",
+    "CATEGORY_CONDITION_MISMATCH",
     "CHARGE_CONTEXT_MISMATCH",
     "CLOSED_IDENTITY_RETAINED",
+    "COMMISSION_AUTHORITY_REQUIRED",
+    "COMMISSION_CONTRACT_REQUIRED",
+    "COMPONENT_BENEFICIARY_REQUIRED",
     "CONTROL_EVIDENCE_REQUIRED",
+    "COOWNER_PERCENTAGES_NOT_RECONCILED",
+    "COOWNER_SHARE_MISMATCH",
+    "CORRECTION_AUTHORITY_REQUIRED",
+    "CORRECTION_VERSION_MISMATCH",
+    "CURRENT_BENEFICIARY_AUTHORITY_REQUIRED",
+    "DEPOSIT_MUST_BE_SEPARATE",
+    "DEPOSIT_POLICY_REQUIRED",
+    "DESTINATION_IMMUTABLE",
     "DUAL_APPROVAL_REQUIRED",
+    "DUAL_SETTLEMENT_ATTESTATION_REQUIRED",
     "DVA_ASSIGNMENT_RECONCILIATION_REQUIRED",
     "DVA_CONSENT_REQUIRED",
     "DVA_CUSTOMER_RECONCILIATION_REQUIRED",
@@ -970,48 +2753,117 @@
     "DVA_PROVIDER_IDENTITY_PENDING",
     "DVA_REASSIGNMENT_REQUIRES_APPROVAL",
     "DVA_VALIDATION_REQUIRED",
+    "EXPLICIT_ROUNDING_ALLOCATION_REQUIRED",
     "FINANCIAL_IDENTITY_RESTRICTED",
+    "FINANCIAL_RECORD_NOT_FOUND",
+    "FIXED_TERM_DATES_REQUIRED",
+    "HOLD_DECISION_REQUIRED",
     "IDEMPOTENCY_CONFLICT",
+    "IDEMPOTENCY_KEY_REQUIRED",
     "IDENTITY_KIND_CONFLICT",
     "IDENTITY_LINK_CONFLICT",
     "IDENTITY_NOT_FOUND",
     "INBOX_LEASE_ACTIVE",
+    "INDEPENDENT_CERTIFIER_REQUIRED",
+    "INITIAL_CHARGES_ALREADY_ISSUED",
+    "INITIAL_CHARGE_RECURRENCE_FORBIDDEN",
     "INSUFFICIENT_FUNDS",
     "INTENT_NOT_FOUND",
+    "INVALID_ALLOCATION",
+    "INVALID_CASH_AGGREGATE",
     "INVALID_CURSOR",
     "INVALID_ID",
+    "INVALID_LIQUIDITY_OBSERVATION",
     "INVALID_PAGE_LIMIT",
     "INVALID_PAYOUT_REFERENCE",
+    "INVALID_POLICY_VERSION",
+    "INVALID_POLICY_WINDOW",
     "INVALID_POSTING",
     "INVALID_PROVIDER_POLICY",
+    "INVALID_RELEASE",
+    "INVALID_RENT_COMPONENT",
     "INVALID_VERIFICATION_REFERENCE",
     "INVALID_WALLET_REGISTRATION",
     "INVALID_WEBHOOK_SIGNATURE",
+    "INVALID_WITHDRAWAL",
     "LEDGER_DIMENSION_MISMATCH",
     "LINK_EVIDENCE_REQUIRED",
+    "LIQUIDITY_CONFIRMATION_REQUIRED",
+    "LOCKED_QUOTE_CONTEXT_MISMATCH",
+    "LOCKED_QUOTE_REQUIRED",
+    "MANAGER_FEE_CONTRACT_MISMATCH",
+    "MANAGER_FEE_CONTRACT_REQUIRED",
+    "MANAGER_FEE_ONLY",
+    "MANAGER_MANDATE_REQUIRED",
+    "MATCHED_SETTLEMENT_UNAVAILABLE",
+    "MONEY_OVERFLOW",
     "NO_ELIGIBLE_PROVIDER",
+    "NO_ELIGIBLE_RENT_COMPONENTS",
+    "ONE_BASE_RENT_REQUIRED",
     "OUTSTANDING_FINANCIAL_OBLIGATIONS",
+    "OVER_ALLOCATION",
+    "PAYER_CONTEXT_MISMATCH",
     "PAYLOAD_TOO_LARGE",
+    "PAYMENT_NOT_VERIFIED",
+    "PAYOUT_CAPABILITY_DISABLED",
+    "PAYOUT_CONFIRMATION_PENDING",
+    "PAYOUT_DESTINATION_OWNERSHIP_MISMATCH",
+    "PAYOUT_FEE_LIQUIDITY_REQUIRED",
+    "PAYOUT_NOT_FOUND",
+    "PAYOUT_PROVIDER_UNAVAILABLE",
+    "PAYOUT_READBACK_UNAVAILABLE",
     "PAYOUT_REFERENCE_CONFLICT",
+    "PLATFORM_FEE_AUTHORITY_REQUIRED",
+    "POLICY_DEACTIVATION_EVIDENCE_REQUIRED",
+    "POLICY_DISABLED_OR_NOT_EFFECTIVE",
+    "POLICY_EFFECTIVE_WINDOW_OVERLAP",
+    "POLICY_SELECTOR_REQUIRED",
+    "POLICY_VERSION_IMMUTABLE",
     "POOL_CONTEXT_IMMUTABLE",
+    "POOL_RECONCILIATION_REQUIRED",
+    "POSITIVE_MINOR_UNITS_REQUIRED",
+    "PROCESSING_TREATMENT_MISMATCH",
     "PRODUCTION_CAPABILITY_DISABLED",
+    "PROFESSIONAL_MANDATE_REQUIRED",
     "PROVIDER_APPROVAL_REQUIRED",
     "PROVIDER_BALANCE_UNAVAILABLE",
     "PROVIDER_CONFIRMATION_PENDING",
     "PROVIDER_CONTEXT_IMMUTABLE",
     "PROVIDER_MIGRATION_EVIDENCE_REQUIRED",
     "PROVIDER_UNAVAILABLE",
+    "QUOTE_PAYABLE_MISMATCH",
+    "RECIPIENT_VERIFICATION_UNAVAILABLE",
+    "RELEASED_OR_HELD_CORRECTION_REQUIRES_REVIEW",
+    "RELEASE_EVIDENCE_AUTHORITY_REQUIRED",
+    "RENT_FEES_EXCEED_PROCEEDS",
+    "RENT_INTENT_MISMATCH",
+    "RENT_PERIOD_OVERLAP",
+    "RENT_PERIOD_REQUIRED",
+    "RENT_POLICY_MISMATCH",
+    "RENT_RECURRENCE_REQUIRED",
     "REPLAY_EVIDENCE_REQUIRED",
+    "REQUIRED_RELEASE_EVIDENCE_MISSING",
+    "REVOCATION_EVIDENCE_REQUIRED",
     "ROLE_LEGAL_PARTY_MISMATCH",
     "SETTLEMENT_CONTEXT_MISMATCH",
     "SETTLEMENT_UNAVAILABLE",
     "SOURCE_NOT_AUTHORIZED",
+    "STALE_RELEASE_EVIDENCE",
+    "TERMINAL_ALLOCATION",
+    "UNBACKED_SETTLEMENT",
     "UNBALANCED_JOURNAL",
+    "UNEXPLAINED_ALLOCATION_RESIDUAL",
     "UNFUNDED_RELEASE",
+    "UNKNOWN_POLICY_FAMILY",
     "UNKNOWN_PROVIDER_STATUS",
     "UNMATCHED_DVA_COLLECTION",
     "VERIFIED_BENEFICIARY_REQUIRED",
+    "VERIFIED_DESTINATION_REQUIRED",
+    "VERIFIED_OWNERSHIP_REQUIRED",
     "VIRTUAL_ACCOUNT_NOT_FOUND",
-    "WALLET_NOT_FOUND"
+    "WALLET_NOT_FOUND",
+    "WITHDRAWAL_APPROVAL_ALREADY_USED",
+    "WITHDRAWAL_APPROVAL_REQUIRED",
+    "WITHDRAWAL_POLICY_DISABLED"
   ]
 }

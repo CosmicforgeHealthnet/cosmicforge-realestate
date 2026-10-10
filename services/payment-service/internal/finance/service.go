@@ -34,6 +34,10 @@ type ProviderConfig struct {
 	CustodyApproved         bool     `json:"custody_approved"`
 	DVAApproved             bool     `json:"dva_approved"`
 	ManualPayoutsApproved   bool     `json:"manual_payouts_approved"`
+	PayoutApproved          bool     `json:"payout_approved"`
+	PayoutApprovalRef       string   `json:"payout_approval_ref"`
+	PayoutFeeApproved       bool     `json:"payout_fee_approved"`
+	PayoutFeeMinor          int64    `json:"payout_fee_minor"`
 	MinMinor                int64    `json:"min_minor"`
 	MaxMinor                int64    `json:"max_minor"`
 	Priority                int      `json:"priority"`
@@ -49,13 +53,30 @@ type Adapter struct {
 	Collection providers.Collection
 	DVA        providers.DedicatedAccounts
 	Settlement providers.SettlementProvider
+	Payout     providers.Payout
 }
 type Service struct {
 	*core.Service
-	Environment string
-	mu          sync.RWMutex
-	adapters    map[ids.ID]Adapter
-	Log         *slog.Logger
+	Environment      string
+	mu               sync.RWMutex
+	adapters         map[ids.ID]Adapter
+	Log              *slog.Logger
+	transferReadback func(context.Context, ids.ID, string) error
+}
+
+func (s *Service) SetTransferReadback(fn func(context.Context, ids.ID, string) error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.transferReadback = fn
+}
+func (s *Service) transferCallback(ctx context.Context, provider ids.ID, ref string) error {
+	s.mu.RLock()
+	fn := s.transferReadback
+	s.mu.RUnlock()
+	if fn == nil {
+		return core.Fail(503, "PAYOUT_READBACK_UNAVAILABLE")
+	}
+	return fn(ctx, provider, ref)
 }
 
 func New(c *core.Service, environment string) *Service {
@@ -85,13 +106,13 @@ func (s *Service) Register(ctx context.Context, c ProviderConfig, a Adapter) err
 	if e := core.Require(ctx, platform.PaymentService); e != nil {
 		return e
 	}
-	if c.Mode != "test" || s.Environment == "production" || c.ID.ValidateV7() != nil || c.PoolID.ValidateV7() != nil || c.LegalEntity == "" || c.MerchantRef == "" || c.Version == "" || len(c.Currencies) != 1 || c.MaxMinor <= 0 || c.MinMinor < 0 || c.CustodyApproved || contains(c.Capabilities, "CUSTODY") || contains(c.Capabilities, "TRANSFER") || contains(c.Capabilities, "MANDATE") {
+	if c.Mode != "test" || s.Environment == "production" || c.ID.ValidateV7() != nil || c.PoolID.ValidateV7() != nil || c.LegalEntity == "" || c.MerchantRef == "" || c.Version == "" || len(c.Currencies) != 1 || c.MaxMinor <= 0 || c.MinMinor < 0 || c.CustodyApproved || contains(c.Capabilities, "CUSTODY") || (contains(c.Capabilities, "TRANSFER") && (!c.PayoutApproved || c.PayoutApprovalRef == "" || a.Payout == nil)) || contains(c.Capabilities, "MANDATE") {
 		return core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	if c.Approved && c.ApprovalRef == "" {
 		return core.Fail(422, "PROVIDER_APPROVAL_REQUIRED")
 	}
-	if !core.ValidCurrency(c.Currencies[0]) || c.MinMinor > c.MaxMinor || c.AvailableLiquidityMinor < 0 || c.FeeBasisPoints < 0 || c.FeeBasisPoints > 10000 {
+	if !core.ValidCurrency(c.Currencies[0]) || c.MinMinor > c.MaxMinor || c.AvailableLiquidityMinor < 0 || c.FeeBasisPoints < 0 || c.FeeBasisPoints > 10000 || c.PayoutFeeMinor < 0 || contains(c.Capabilities, "TRANSFER") && !c.PayoutFeeApproved {
 		return core.Fail(422, "INVALID_PROVIDER_POLICY")
 	}
 	b, e := json.Marshal(c)
@@ -144,6 +165,7 @@ func (s *Service) Register(ctx context.Context, c ProviderConfig, a Adapter) err
 }
 
 type IntentInput struct {
+	LockedQuoteID          *ids.ID `json:"locked_quote_id,omitempty"`
 	WalletID               ids.ID  `json:"wallet_id"`
 	AmountMinor            int64   `json:"amount_minor"`
 	Currency               string  `json:"currency"`
@@ -209,11 +231,31 @@ func (s *Service) route(ctx context.Context, in IntentInput, w core.Wallet) (Pro
 	return cs[0], nil
 }
 func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) (Intent, error) {
-	w, e := s.OwnWallet(ctx, in.WalletID)
+	walletCtx := ctx
+	domain := ""
+	if in.LockedQuoteID != nil {
+		p, err := core.Caller(ctx)
+		if err != nil {
+			return Intent{}, err
+		}
+		var valid bool
+		err = s.DB.QueryRow(ctx, `SELECT q.source_domain,(q.source_service=$2 AND q.payer_wallet_id=$3 AND q.amount_minor=$4 AND q.currency=$5 AND q.snapshot->>'quote_version'=$6 AND q.snapshot->>'jurisdiction'=$7 AND p.version=$8 AND p.policy_key=$9 AND COALESCE((p.snapshot->>'requires_custody')::boolean,false)=$10) FROM locked_quotes q JOIN financial_policies p USING(policy_id) WHERE quote_id=$1`, in.LockedQuoteID, p.Service, in.WalletID, in.AmountMinor, in.Currency, in.EvidenceRef, in.Country, in.PolicyVersion, in.Category, in.RequiresCustody).Scan(&domain, &valid)
+		if err != nil || !valid {
+			return Intent{}, core.Fail(403, "LOCKED_QUOTE_CONTEXT_MISMATCH")
+		}
+		if err = core.DomainCaller(ctx, domain); err != nil {
+			return Intent{}, err
+		}
+		walletCtx = internal(ctx)
+	}
+	w, e := s.OwnWallet(walletCtx, in.WalletID)
 	if e != nil {
 		return Intent{}, e
 	}
-	if e = core.DomainCaller(ctx, w.Domain); e != nil {
+	if domain == "" {
+		domain = w.Domain
+	}
+	if e = core.DomainCaller(ctx, domain); e != nil {
 		return Intent{}, e
 	}
 	if s.Environment == "production" {
@@ -252,7 +294,7 @@ func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) 
 	i := Intent{ID: ids.New(), WalletID: w.WalletID, AmountMinor: in.AmountMinor, Currency: in.Currency, LegalEntity: w.LegalEntity, ProviderAccountID: c.ID, PoolID: c.PoolID, State: "REQUESTED", SettlementState: "PENDING"}
 	i.Reference = "cf-" + i.ID.String()
 	raw, _ := json.Marshal(c)
-	_, e = tx.Exec(ctx, `INSERT INTO payment_intents(intent_id,source_service,wallet_id,operation_key,fingerprint,amount_minor,currency,legal_entity,category,country,evidence_ref,policy_version,provider_account_id,pool_id,route_snapshot,provider_reference,state) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`, i.ID, p.Service, w.WalletID, key, fp, in.AmountMinor, in.Currency, w.LegalEntity, in.Category, in.Country, in.EvidenceRef, in.PolicyVersion, c.ID, c.PoolID, string(raw), i.Reference, i.State)
+	_, e = tx.Exec(ctx, `INSERT INTO payment_intents(intent_id,source_service,wallet_id,operation_key,fingerprint,amount_minor,currency,legal_entity,category,country,evidence_ref,policy_version,provider_account_id,pool_id,route_snapshot,provider_reference,state,locked_quote_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`, i.ID, p.Service, w.WalletID, key, fp, in.AmountMinor, in.Currency, w.LegalEntity, in.Category, in.Country, in.EvidenceRef, in.PolicyVersion, c.ID, c.PoolID, string(raw), i.Reference, i.State, in.LockedQuoteID)
 	if e != nil {
 		return Intent{}, e
 	}
@@ -318,6 +360,14 @@ func (s *Service) GetIntent(ctx context.Context, id ids.ID) (Intent, error) {
 		}
 		if p.Service != platform.APIGateway && source != string(p.Service) {
 			return Intent{}, core.Fail(403, "SOURCE_NOT_AUTHORIZED")
+		}
+		var canonical bool
+		e = s.DB.QueryRow(ctx, `SELECT locked_quote_id IS NOT NULL FROM payment_intents WHERE intent_id=$1`, id).Scan(&canonical)
+		if e != nil {
+			return Intent{}, e
+		}
+		if canonical && p.Service != platform.APIGateway && source == string(p.Service) {
+			return i, nil
 		}
 		if _, e = s.OwnWallet(ctx, i.WalletID); e != nil {
 			return Intent{}, e
@@ -427,6 +477,15 @@ func (s *Service) VerifyIntent(ctx context.Context, id ids.ID) (Intent, error) {
 		}
 		if e = s.Emit(ctx, tx, "finance.payment.collected.v1", "payment_intent", id, map[string]any{"intent_id": id, "amount_minor": i.AmountMinor, "currency": i.Currency, "settlement_state": "PENDING"}); e != nil {
 			return i, e
+		}
+		var obligation ids.ID
+		err := tx.QueryRow(ctx, `SELECT o.obligation_id FROM rent_obligations o JOIN payment_intents p ON p.locked_quote_id=o.quote_id WHERE p.intent_id=$1 AND o.stream='RENT'`, id).Scan(&obligation)
+		if err == nil {
+			if e = s.Emit(ctx, tx, "finance.rent_payment_verified.v1", "rent_obligation", obligation, map[string]any{"obligation_id": obligation, "intent_id": id, "amount_minor": i.AmountMinor, "currency": i.Currency, "settlement_state": "PENDING"}); e != nil {
+				return i, e
+			}
+		} else if !errors.Is(err, pgx.ErrNoRows) {
+			return i, err
 		}
 	} else if c.State == "VERIFIED_FAILURE" || c.State == "PENDING" || c.State == "PROCESSING" || c.State == "UNKNOWN_OUTCOME" {
 		_, e = tx.Exec(ctx, `UPDATE payment_intents SET state=$2,updated_at=now() WHERE intent_id=$1 AND state<>'VERIFIED_SUCCESS'`, id, c.State)

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.withdrawal_reserved.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/Payout"
+    }
+  },
+  "components": {
+    "schemas": {
+      "Payout": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_minor": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payout_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pool_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_account_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider_reference": {
+            "type": "string"
+          },
+          "recipient_ref": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "wallet_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "payout_id",
+          "line_id",
+          "wallet_id",
+          "payout_account_id",
+          "provider_account_id",
+          "pool_id",
+          "amount_minor",
+          "currency",
+          "provider_reference",
+          "recipient_ref",
+          "state"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

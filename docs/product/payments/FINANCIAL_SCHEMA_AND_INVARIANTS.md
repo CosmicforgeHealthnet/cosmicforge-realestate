@@ -1,5 +1,7 @@
 # Financial schema and invariants
 
+> Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
+
 Payment migrations 00001–00004 operate only on payment_db. Individual Owner migration 00019 adds its own registration-delivery queue and backfills non-closed accounts. Existing Owner banking, tenancy and financial workflow tables are unchanged.
 
 | Entity | Ownership and protection |

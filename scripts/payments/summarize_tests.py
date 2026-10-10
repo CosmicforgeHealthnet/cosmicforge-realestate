@@ -1,11 +1,16 @@
 """Summarize saved go test -json evidence; never promote simulators to sandbox."""
+import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser()
+parser.add_argument("--sections-4-6", action="store_true")
+args = parser.parse_args()
 summary = {}
-for name in ["final-test-results.jsonl", "payment-final-test-results.jsonl"]:
+names = ["sections-4-6-final-test-results.jsonl", "sections-4-6-payment-final-test-results.jsonl"] if args.sections_4_6 else ["final-test-results.jsonl", "payment-final-test-results.jsonl"]
+for name in names:
     suites = defaultdict(lambda: {"tests": 0, "subtests": 0, "failed": [], "skipped": [], "packages_failed": [], "elapsed_seconds": 0.0})
     for line in (root / "docs/product/payments" / name).read_text(encoding="utf-8-sig").splitlines():
         e = json.loads(line)
@@ -23,7 +28,7 @@ for name in ["final-test-results.jsonl", "payment-final-test-results.jsonl"]:
             s["elapsed_seconds"] += e.get("Elapsed", 0)
     summary[name] = dict(suites)
 
-out = root / "docs/product/payments/test-summary.json"
+out = root / "docs/product/payments" / ("sections-4-6-test-summary.json" if args.sections_4_6 else "test-summary.json")
 out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 print(json.dumps(summary, indent=2))
 if any(s["failed"] or s["packages_failed"] or s["skipped"] for suites in summary.values() for s in suites.values()):

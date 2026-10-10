@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.rent_split_pending.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "obligation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "intent_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "allocation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount_minor": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Validated ISO 4217 currency; integer minor units."
+        }
+      },
+      "required": [
+        "obligation_id",
+        "intent_id",
+        "allocation_id",
+        "amount_minor",
+        "currency"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

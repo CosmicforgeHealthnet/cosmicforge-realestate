@@ -1,5 +1,7 @@
 # External dependencies and Section 4 handoff
 
+> Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
+
 | Dependency | Status | Required owner/evidence |
 |---|---|---|
 | Eight original Product Feature Documents v5.0 | Unavailable | Product supplies controlled documents; no legal/fee/release rule invented |

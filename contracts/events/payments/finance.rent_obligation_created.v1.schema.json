@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.rent_obligation_created.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/Obligation"
+    }
+  },
+  "components": {
+    "schemas": {
+      "Obligation": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "agreement_version": {
+            "type": "string"
+          },
+          "due_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "initial": {
+            "type": "boolean"
+          },
+          "obligation_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "period_ref": {
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "quote": {
+            "additionalProperties": false,
+            "properties": {
+              "agreement_ref": {
+                "type": "string"
+              },
+              "agreement_version": {
+                "type": "string"
+              },
+              "amount_minor": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "business_ref": {
+                "type": "string"
+              },
+              "components": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount_minor": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "component_ref": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "payer_ref": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "type": "string"
+                    },
+                    "service_evidence_ref": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "component_ref",
+                    "kind",
+                    "amount_minor",
+                    "payer_ref",
+                    "recurrence"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "currency": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "jurisdiction": {
+                "type": "string"
+              },
+              "legal_party_ref": {
+                "type": "string"
+              },
+              "payer_consent_ref": {
+                "type": "string"
+              },
+              "payer_type": {
+                "type": "string"
+              },
+              "payer_wallet_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "policy_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "quote_version": {
+                "type": "string"
+              },
+              "schedule": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "quote_id",
+              "domain",
+              "business_ref",
+              "payer_wallet_id",
+              "payer_type",
+              "payer_consent_ref",
+              "legal_party_ref",
+              "quote_version",
+              "agreement_ref",
+              "agreement_version",
+              "policy_id",
+              "currency",
+              "jurisdiction",
+              "schedule",
+              "amount_minor",
+              "components"
+            ],
+            "type": "object"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stream": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "obligation_id",
+          "agreement_id",
+          "period_ref",
+          "period_start",
+          "period_end",
+          "due_at",
+          "initial",
+          "stream",
+          "quote",
+          "agreement_version",
+          "schedule",
+          "status"
+        ],
+        "type": "object"
+      }
+    }
+  }
+}

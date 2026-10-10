@@ -1,5 +1,7 @@
 # Sections 1–3 implementation coverage
 
+> Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
+
 LOCAL PASS means implemented and tested within the assigned foundation; it does not mean sandbox, custody or production approval. Blueprint subsection numbers are primary. The longer implementation prompt expands them into the requirement rows below. Test names resolve under services/payment-service/tests/integration unless another module is named.
 
 | Blueprint / prompt scope | Implemented code/contract | Evidence and status |

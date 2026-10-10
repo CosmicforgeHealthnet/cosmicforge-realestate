@@ -87,6 +87,9 @@ type SettlementProvider interface {
 	FetchBalance(context.Context) ([]MerchantBalance, error)
 	ListTransactions(context.Context, string) ([]Charge, error)
 }
+type SettlementTransactions interface {
+	SettlementTransactions(context.Context, string) ([]Charge, error)
+}
 type CustodyProof struct {
 	Reference, Currency, LegalEntity string
 	AmountMinor                      int64
@@ -100,9 +103,14 @@ type Custody interface {
 }
 type Bank struct{ BankCode, AccountNumber, Name string }
 type Transfer struct {
-	Reference, State string
-	AmountMinor      int64
-	Currency         string
+	Reference, State   string
+	RecipientRef, Mode string
+	MerchantID         int64
+	NoEffectConfirmed  bool
+	FeeMinor           int64
+	FeeKnown           bool
+	AmountMinor        int64
+	Currency           string
 }
 type Payout interface {
 	VerifyBank(context.Context, Bank) (Bank, error)
@@ -110,6 +118,14 @@ type Payout interface {
 	InitiateTransfer(context.Context, Transfer) (Transfer, error)
 	VerifyTransfer(context.Context, string) (Transfer, error)
 	FinalizeOTP(context.Context, string, string) error
+}
+type Recipient struct {
+	Reference, Currency, Mode string
+	MerchantID                int64
+	Active                    bool
+}
+type RecipientLookup interface {
+	FetchRecipient(context.Context, string) (Recipient, error)
 }
 type Refund struct {
 	Reference, ChargeReference, State string

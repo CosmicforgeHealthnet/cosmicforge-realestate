@@ -81,6 +81,8 @@ func (s *Service) ProcessInbox(ctx context.Context) (int, error) {
 			}
 			// Unmatched DVA or unknown charge is kept for reconciliation; never attributed
 			// solely by a customer-supplied reference.
+		} else if x.typ == "transfer.success" || x.typ == "transfer.failed" || x.typ == "transfer.reversed" {
+			processErr = s.transferCallback(ctx, x.provider, x.ref)
 		} else if x.typ == "customeridentification.success" || x.typ == "customeridentification.failed" || x.typ == "dedicatedaccount.assign.success" || x.typ == "dedicatedaccount.assign.failed" {
 			var id ids.ID
 			processErr = s.DB.QueryRow(ctx, `SELECT virtual_account_id FROM virtual_accounts WHERE provider_account_id=$1 AND customer_ref=$2`, x.provider, x.ref).Scan(&id)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/core"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/finance"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/lifecycle"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/health"
 	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
@@ -26,17 +27,21 @@ type Config struct {
 	Health   *health.Handler
 	Logger   *slog.Logger
 }
-type handler struct{ s *finance.Service }
+type handler struct {
+	s *finance.Service
+	l *lifecycle.Service
+}
 
 func NewRouter(c Config) http.Handler {
 	r := chi.NewRouter()
-	h := handler{c.Service}
+	h := handler{c.Service, lifecycle.New(c.Service)}
 	r.Use(observability.HTTPMiddleware("payment-service"), requestcontext.Middleware, httpx.WithLogger(c.Logger), httpx.Recoverer, httpx.AccessLog, security.Headers(security.HeadersConfig{}), httpx.MaxBody(64<<10))
 	r.NotFound(httpx.NotFoundHandler().ServeHTTP)
 	r.MethodNotAllowed(httpx.MethodNotAllowedHandler().ServeHTTP)
 	c.Health.Register(r)
 	r.Route("/internal/v1", func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(c.Verifier, serviceauth.HeaderAuthorization))
+		h.registerLifecycle(r)
 		r.Post("/wallets/ensure", h.ensure)
 		r.Get("/wallets/{id}", h.wallet)
 		r.Get("/wallets/{id}/balances", h.balances)
@@ -60,6 +65,10 @@ func NewRouter(c Config) http.Handler {
 	})
 	r.Route("/api/v1/payments", func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(c.Verifier, serviceauth.HeaderServiceAuthorization), serviceauth.RequireCaller(platform.APIGateway))
+		r.Get("/allocations/{id}", h.getAllocation)
+		r.Get("/withdrawals/{id}", h.getWithdrawal)
+		r.Get("/rent-obligations/{id}", h.getObligation)
+		r.Get("/locked-quotes/{id}/receipt", h.receipt)
 		r.Get("/wallets/me", h.mine)
 		r.Get("/wallets/{id}", h.wallet)
 		r.Get("/wallets/{id}/balances", h.balances)

@@ -17,12 +17,22 @@ Shared payment, ledger, refund, payout, settlement and reconciliation authority.
 
 ## Implemented scope
 
-Master blueprint v1.0 Sections 1–3: authenticated role wallets, immutable
-double-entry accounting, seven balance views, safe intents/provider routing,
-Paystack test-mode collection/customer/Titan-DVA/settlement adapters, durable
-inbox/outbox and reconciliation/reference/restriction foundations. Live financial
-activation is disabled. Splits, milestone release, full withdrawals/refunds and
-autopay require a separate later implementation.
+Master blueprint v1.0 Sections 1–6: authenticated role wallets, immutable
+double-entry accounting, collection routing and reconciliation, versioned locked
+quotes and exact beneficiary allocations, protected funds and partial release,
+independent holds, AVAILABLE-only withdrawal reservation and original-reference
+payout recovery, eighteen disabled category policy templates, and manually
+commanded rent obligations with configured owner commission and separate deposits.
+
+Live financial activation remains disabled. Test-mode payouts require explicit
+provider and fee approval, verified destinations and exact withdrawal approvals.
+There is no automatic rent collection, saved-account debit or autopay scheduler.
+Refund remedies, chargebacks and later blueprint workflows remain deferred.
+
+The current [Sections 4–6 closure](../../docs/product/payments/SECTIONS_4_6_CLOSURE_REPORT.md)
+and [operations guide](../../docs/product/payments/SECTIONS_4_6_OPERATIONS.md)
+record the implemented lifecycle and external gates. The documents below remain
+the historical Sections 1–3 baseline certification.
 
 API: `go run ./cmd/api`; worker: `go run ./cmd/worker`; migration:
 `go run ./cmd/migrate up`. Supply owned `DATABASE_URL` and standard service

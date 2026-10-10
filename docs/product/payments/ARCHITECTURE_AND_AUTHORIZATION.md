@@ -1,5 +1,7 @@
 # Payment ownership, architecture and authorization
 
+> Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
+
 Authority: master PDF v1.0, 10 October 2026, Sections 1–3. See IMPLEMENTATION_PLAN.md for discovery and source checksum, ADR-0012/0013 for decisions, and IMPLEMENTATION_COVERAGE.md for evidence.
 
 ## Reconciliation with the repository

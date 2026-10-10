@@ -1,5 +1,7 @@
 # Provider integration and operations
 
+> Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
+
 This release enables local/test collection, verification and DVA adapters only. No provider credential or mock fallback is embedded. Runtime registration rejects production mode and declared custody, transfer or mandate capability. The three PAYMENT_LIVE_* flags default false and startup rejects true. Manual Payouts configuration is an approval record, not provider activation.
 
 ## Runtime and setup

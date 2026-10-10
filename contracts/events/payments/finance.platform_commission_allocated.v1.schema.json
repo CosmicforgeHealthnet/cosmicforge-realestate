@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.platform_commission_allocated.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "line_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount_minor": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Validated ISO 4217 currency; integer minor units."
+        },
+        "journal_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "line_id",
+        "amount_minor",
+        "currency",
+        "journal_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

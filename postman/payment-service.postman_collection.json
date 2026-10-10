@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Payment Service Sections 1-3",
+    "name": "Payment Service Sections 1-6",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -406,6 +406,593 @@
       }
     },
     {
+      "name": "GET /internal/v1/financial-policy-families",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-policy-families",
+        "description": "All 18 disabled blueprint templates; no tariff or legal deadline is supplied."
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-policies",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-policies",
+        "description": "Admin only; immutable approved jurisdiction/contract/product/effective version. Deactivated versions remain historical.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"active\": false,\n  \"adjustment_policy_ref\": \"{{adjustment_policy_ref}}\",\n  \"allow_self_certification\": false,\n  \"approval_ref\": \"{{approval_ref}}\",\n  \"cancellation_policy_ref\": \"{{cancellation_policy_ref}}\",\n  \"commission_contract_ref\": \"{{commission_contract_ref}}\",\n  \"contract_type\": \"{{contract_type}}\",\n  \"currency\": \"NGN\",\n  \"dispute_policy_ref\": \"{{dispute_policy_ref}}\",\n  \"dual_approval_above_minor\": 10000,\n  \"effective_from\": \"{{effective_from}}\",\n  \"evidence_services\": [],\n  \"human_review\": false,\n  \"jurisdiction\": \"NG\",\n  \"owner_commission_bps\": 10000,\n  \"partner_approval_ref\": \"{{partner_approval_ref}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"policy_key\": \"{{policy_key}}\",\n  \"product\": \"{{product}}\",\n  \"refund_policy_ref\": \"{{refund_policy_ref}}\",\n  \"release_conditions\": [],\n  \"requires_custody\": false,\n  \"schedules\": [],\n  \"version\": \"{{version}}\",\n  \"withdrawal_limit_minor\": 10000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-policies/resolve",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-policies/resolve",
+        "description": "Signed caller; resolve an approved effective policy for exact jurisdiction, currency, contract and product.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_type\": \"{{contract_type}}\",\n  \"currency\": \"NGN\",\n  \"effective_at\": \"{{effective_at}}\",\n  \"jurisdiction\": \"NG\",\n  \"policy_key\": \"{{policy_key}}\",\n  \"product\": \"{{product}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-policy-deactivations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-policy-deactivations",
+        "description": "Admin only; append an evidenced effective deactivation without editing accepted policy history.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision_id\": \"{{decision_id}}\",\n  \"effective_at\": \"{{effective_at}}\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"policy_id\": \"{{policy_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/financial-policies/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-policies/{{entity_id}}",
+        "description": "Signed caller; historical policy version."
+      }
+    },
+    {
+      "name": "POST /internal/v1/beneficiary-authorities",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/beneficiary-authorities",
+        "description": "Authoritative domain; ownership percentages verified by owner/business; manager fee mandates issued by owner/business only; platform requires Admin.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authority_id\": \"{{authority_id}}\",\n  \"business_ref\": \"{{business_ref}}\",\n  \"components\": [],\n  \"currency\": \"NGN\",\n  \"domain\": \"individual-owner\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"legal_entity\": \"cosmicforge-ng\",\n  \"legal_party_ref\": \"{{legal_party_ref}}\",\n  \"mandate_ref\": \"{{mandate_ref}}\",\n  \"max_minor\": 10000,\n  \"ownership_bps\": 10000,\n  \"role\": \"OWNER\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/beneficiary-authorities/{id}/revoke",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/beneficiary-authorities/{{entity_id}}/revoke",
+        "description": "Original issuer or Admin; irreversible evidenced revocation.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"evidence_ref\": \"{{evidence_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/locked-quotes",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/locked-quotes",
+        "description": "Original business domain; immutable full accepted quote, payer consent and components. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agreement_ref\": \"{{agreement_ref}}\",\n  \"agreement_version\": \"{{agreement_version}}\",\n  \"amount_minor\": 10000,\n  \"business_ref\": \"{{business_ref}}\",\n  \"components\": [],\n  \"currency\": \"NGN\",\n  \"domain\": \"individual-owner\",\n  \"jurisdiction\": \"NG\",\n  \"legal_party_ref\": \"{{legal_party_ref}}\",\n  \"payer_consent_ref\": \"{{payer_consent_ref}}\",\n  \"payer_type\": \"{{payer_type}}\",\n  \"payer_wallet_id\": \"{{payer_wallet_id}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"quote_id\": \"{{quote_id}}\",\n  \"quote_version\": \"{{quote_version}}\",\n  \"schedule\": \"{{schedule}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/locked-quotes/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/locked-quotes/{{entity_id}}",
+        "description": "Original source or delegated payer only."
+      }
+    },
+    {
+      "name": "GET /internal/v1/locked-quotes/{id}/receipt",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/locked-quotes/{{entity_id}}/receipt",
+        "description": "Original source or payer; component classification and current financial facts. Deposits remain separate."
+      }
+    },
+    {
+      "name": "POST /internal/v1/allocations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/allocations",
+        "description": "Original canonical quote source only; exact reconciliation, verified current beneficiary authority, immutable version. Unreleased corrections compensate the previous journal.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"intent_id\": \"{{intent_id}}\",\n  \"lines\": [],\n  \"version\": 10000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/allocations/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/allocations/{{entity_id}}",
+        "description": "Original source or owned beneficiary lines only; unrelated allocations are filtered."
+      }
+    },
+    {
+      "name": "POST /internal/v1/allocation-lines/{id}/hold",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/allocation-lines/{{entity_id}}/hold",
+        "description": "Original source or Admin; independent share hold. Clearing requires two distinct approvers. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"state\": \"{{state}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/release-evidence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/release-evidence",
+        "description": "Policy-permitted authenticated evidence authority; bound to allocation/condition/version and expiry. HTTP source cannot be supplied by user data.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"condition\": \"{{condition}}\",\n  \"evidence_id\": \"{{evidence_id}}\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"evidence_version\": \"{{evidence_version}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"human_approval_ref\": \"{{human_approval_ref}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"policy_version\": \"v1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/allocation-releases",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/allocation-releases",
+        "description": "Original source or Admin; required evidence, actual matched funding, restrictions and custody requirements; capped atomic partial release. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"evidence_ids\": [],\n  \"line_id\": \"{{line_id}}\",\n  \"policy_version\": \"v1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/transaction-funding",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/transaction-funding",
+        "description": "Admin with two finance approvers; provider settlement membership and liquidity readback plus reconciled cash attestation. Test mode only; merchant balance is not lawful custody proof.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"approvers\": [],\n  \"cash_evidence_ref\": \"{{cash_evidence_ref}}\",\n  \"custody_evidence_ref\": \"{{custody_evidence_ref}}\",\n  \"intent_id\": \"{{intent_id}}\",\n  \"settlement_ref\": \"{{settlement_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/payout-destination-bindings",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/payout-destination-bindings",
+        "description": "Verification only; bank owner and payout reference attested, recipient readback validates provider/merchant/mode/currency. Immutable binding.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"binding_id\": \"{{binding_id}}\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"expires_at\": \"{{expires_at}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\",\n  \"provider_account_id\": \"{{provider_account_id}}\",\n  \"recipient_ref\": \"{{recipient_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/withdrawal-approvals",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/withdrawal-approvals",
+        "description": "Admin only; exact beneficiary/amount/destination, authoritative step-up and risk references, threshold approvals, expiry; single-use.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"approval_id\": \"{{approval_id}}\",\n  \"approvers\": [],\n  \"expires_at\": \"{{expires_at}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\",\n  \"risk_ref\": \"{{risk_ref}}\",\n  \"step_up_ref\": \"{{step_up_ref}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/withdrawals",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/withdrawals",
+        "description": "Delegated beneficiary domain only; AVAILABLE-only, atomic reservation, approved test payout capability, one original-provider attempt. Idempotency-Key required.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": 10000,\n  \"approval_id\": \"{{approval_id}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\",\n  \"wallet_id\": \"{{wallet_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/withdrawals/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/withdrawals/{{entity_id}}",
+        "description": "Delegated wallet owner or Admin; unconfirmed external results remain reserved."
+      }
+    },
+    {
+      "name": "POST /internal/v1/withdrawals/{id}/resolve",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/withdrawals/{{entity_id}}/resolve",
+        "description": "Delegated owner or Admin; original-reference provider readback. Unknown never releases money or resubmits; definitive no-effect failure compensates safely."
+      }
+    },
+    {
+      "name": "POST /internal/v1/rent-agreements",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/rent-agreements",
+        "description": "Owner/business authority only; immutable accepted agreement/version, fixed or continuing term, separately contracted owner commission/manager fee and components.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agreement_id\": \"{{agreement_id}}\",\n  \"agreement_ref\": \"{{agreement_ref}}\",\n  \"approval_ref\": \"{{approval_ref}}\",\n  \"business_ref\": \"{{business_ref}}\",\n  \"change_evidence_ref\": \"{{change_evidence_ref}}\",\n  \"component_authorities\": {},\n  \"components\": [],\n  \"currency\": \"NGN\",\n  \"domain\": \"individual-owner\",\n  \"effective_from\": \"{{effective_from}}\",\n  \"initial_policy_id\": \"{{initial_policy_id}}\",\n  \"jurisdiction\": \"NG\",\n  \"manager_contract_ref\": \"{{manager_contract_ref}}\",\n  \"manager_fee_minor\": 10000,\n  \"payer_consent_ref\": \"{{payer_consent_ref}}\",\n  \"payer_party_ref\": \"{{payer_party_ref}}\",\n  \"payer_wallet_id\": \"{{payer_wallet_id}}\",\n  \"recurring_policy_id\": \"{{recurring_policy_id}}\",\n  \"rent_shares\": [],\n  \"schedule\": \"{{schedule}}\",\n  \"starts_at\": \"{{starts_at}}\",\n  \"status\": \"{{status}}\",\n  \"tenancy_type\": \"{{tenancy_type}}\",\n  \"version\": \"{{version}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/rent-obligations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/rent-obligations",
+        "description": "Owner/business authority; manually commanded exact period/due date; unique non-overlapping obligation, eligible recurrence only, separate deposit stream. No automatic charge.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"agreement_id\": \"{{agreement_id}}\",\n  \"due_at\": \"{{due_at}}\",\n  \"initial\": false,\n  \"period_end\": \"{{period_end}}\",\n  \"period_ref\": \"{{period_ref}}\",\n  \"period_start\": \"{{period_start}}\",\n  \"stream\": \"{{stream}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "GET /internal/v1/rent-obligations/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/rent-obligations/{{entity_id}}",
+        "description": "Original source or payer; immutable terms plus current payment status."
+      }
+    },
+    {
+      "name": "POST /internal/v1/rent-obligations/{id}/allocate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/rent-obligations/{{entity_id}}/allocate",
+        "description": "Original source; configured owner-side commission and mandate-specific fee, exact co-owner arithmetic, deposit separated.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"intent_id\": \"{{intent_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
       "name": "GET /api/v1/payments/wallets/me",
       "request": {
         "method": "GET",
@@ -487,6 +1074,62 @@
         ],
         "url": "{{gateway_base_url}}/api/v1/payments/virtual-accounts/{{entity_id}}",
         "description": "Source-bound delegated wallet owner; masked account only."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/locked-quotes/{id}/receipt",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/locked-quotes/{{entity_id}}/receipt",
+        "description": "Original source or payer; component classification and current financial facts. Deposits remain separate."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/allocations/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/allocations/{{entity_id}}",
+        "description": "Original source or owned beneficiary lines only; unrelated allocations are filtered."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/withdrawals/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/withdrawals/{{entity_id}}",
+        "description": "Delegated wallet owner or Admin; unconfirmed external results remain reserved."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/rent-obligations/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/rent-obligations/{{entity_id}}",
+        "description": "Original source or payer; immutable terms plus current payment status."
       }
     },
     {

@@ -23,6 +23,44 @@ type AccountBalance struct {
 	BalanceMinor interface{}
 }
 
+type AllocationLine struct {
+	LineID             ids.ID
+	AllocationID       ids.ID
+	AuthorityID        *ids.ID
+	WalletID           *ids.ID
+	AmountMinor        int64
+	Snapshot           []byte
+	ProtectedAccountID ids.ID
+	AvailableAccountID *ids.ID
+	State              string
+	ReleasedMinor      int64
+	ReservedMinor      int64
+	PaidMinor          int64
+}
+
+type AllocationSnapshot struct {
+	AllocationID ids.ID
+	IntentID     ids.ID
+	Version      int32
+	SupersedesID *ids.ID
+	Fingerprint  string
+	Snapshot     []byte
+	JournalID    ids.ID
+	CreatedAt    time.Time
+}
+
+type BeneficiaryAuthority struct {
+	AuthorityID   ids.ID
+	SourceService string
+	BusinessRef   string
+	WalletID      *ids.ID
+	Fingerprint   string
+	Snapshot      []byte
+	ExpiresAt     time.Time
+	Revoked       bool
+	CreatedAt     time.Time
+}
+
 type CollectionReceipt struct {
 	ReceiptID         ids.ID
 	ProviderAccountID ids.ID
@@ -61,6 +99,22 @@ type FinancialIdentity struct {
 	PartyKind     string
 	State         string
 	CreatedAt     time.Time
+}
+
+type FinancialPolicy struct {
+	PolicyID       ids.ID
+	PolicyKey      string
+	Version        string
+	Jurisdiction   string
+	Currency       string
+	ContractType   string
+	Product        string
+	EffectiveFrom  time.Time
+	EffectiveUntil *time.Time
+	Active         bool
+	Snapshot       []byte
+	Fingerprint    string
+	CreatedAt      time.Time
 }
 
 type IdentityBinding struct {
@@ -103,6 +157,32 @@ type LedgerAccount struct {
 	Kind         string
 	NormalSide   string
 	DimensionRef string
+}
+
+type LifecycleDecision struct {
+	DecisionID   ids.ID
+	AggregateID  ids.ID
+	OperationKey string
+	Action       string
+	Fingerprint  string
+	Snapshot     []byte
+	JournalID    *ids.ID
+	CreatedAt    time.Time
+}
+
+type LockedQuote struct {
+	QuoteID       ids.ID
+	SourceService string
+	SourceDomain  string
+	BusinessRef   string
+	OperationKey  string
+	Fingerprint   string
+	PayerWalletID ids.ID
+	PolicyID      ids.ID
+	AmountMinor   int64
+	Currency      string
+	Snapshot      []byte
+	CreatedAt     time.Time
 }
 
 type OutboxEvent struct {
@@ -151,6 +231,7 @@ type PaymentIntent struct {
 	CreditedJournalID *ids.ID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	LockedQuoteID     *ids.ID
 }
 
 type PayoutAccountRef struct {
@@ -161,6 +242,48 @@ type PayoutAccountRef struct {
 	Jurisdiction    string
 	ExpiresAt       time.Time
 	CreatedAt       time.Time
+}
+
+type PayoutAttempt struct {
+	PayoutID              ids.ID
+	LineID                ids.ID
+	WalletID              ids.ID
+	PayoutAccountID       ids.ID
+	ProviderAccountID     ids.ID
+	PoolID                ids.ID
+	OperationKey          string
+	Fingerprint           string
+	AmountMinor           int64
+	Currency              string
+	ProviderReference     string
+	RecipientRef          string
+	RouteSnapshot         []byte
+	AuthorizationSnapshot []byte
+	State                 string
+	ReservationJournalID  ids.ID
+	TerminalJournalID     *ids.ID
+	UpdatedAt             time.Time
+	CreatedAt             time.Time
+}
+
+type PayoutDestinationBinding struct {
+	BindingID         ids.ID
+	PayoutAccountID   ids.ID
+	ProviderAccountID ids.ID
+	RecipientRef      string
+	EvidenceRef       string
+	Fingerprint       string
+	Snapshot          []byte
+	ExpiresAt         time.Time
+}
+
+type PolicyDeactivation struct {
+	DecisionID  ids.ID
+	PolicyID    ids.ID
+	EffectiveAt time.Time
+	EvidenceRef string
+	Snapshot    []byte
+	CreatedAt   time.Time
 }
 
 type ProviderAccount struct {
@@ -209,6 +332,31 @@ type ReconciliationException struct {
 	ResolvedAt    *time.Time
 }
 
+type RentAgreement struct {
+	AgreementID   ids.ID
+	SourceService string
+	AgreementRef  string
+	Version       string
+	Fingerprint   string
+	Snapshot      []byte
+	EffectiveFrom time.Time
+	CreatedAt     time.Time
+}
+
+type RentObligation struct {
+	ObligationID  ids.ID
+	AgreementID   ids.ID
+	AgreementRef  string
+	PeriodRef     string
+	SourceService string
+	Stream        string
+	QuoteID       ids.ID
+	DueAt         time.Time
+	Fingerprint   string
+	Snapshot      []byte
+	CreatedAt     time.Time
+}
+
 type SettlementObservation struct {
 	ObservationID       ids.ID
 	PoolID              ids.ID
@@ -219,6 +367,15 @@ type SettlementObservation struct {
 	Evidence            []byte
 	EvidenceFingerprint string
 	CreatedAt           time.Time
+}
+
+type TransactionFunding struct {
+	FundingID   ids.ID
+	IntentID    ids.ID
+	JournalID   ids.ID
+	Snapshot    []byte
+	Fingerprint string
+	CreatedAt   time.Time
 }
 
 type VerificationRef struct {

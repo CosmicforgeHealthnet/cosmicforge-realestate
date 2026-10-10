@@ -160,7 +160,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 		}
 	}
 	var invalid bool
-	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM account_balances WHERE pool_id=$1 AND kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLED_CASH','PROVIDER_RECEIVABLE') AND balance_minor<0)`, p.PoolID).Scan(&invalid)
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM account_balances WHERE pool_id=$1 AND kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','PROTECTED','AVAILABLE','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE','SETTLED_CASH','PROVIDER_RECEIVABLE') AND balance_minor<0)`, p.PoolID).Scan(&invalid)
 	if err != nil {
 		return ids.ID{}, err
 	}
@@ -168,13 +168,13 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 		return ids.ID{}, Fail(409, "INSUFFICIENT_FUNDS")
 	}
 	var newAvailable bool
-	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM journal_entries e JOIN ledger_accounts a USING(account_id) WHERE e.journal_id=$1 AND a.kind='AVAILABLE' AND e.side='CREDIT')`, id).Scan(&newAvailable)
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM journal_entries e JOIN ledger_accounts a USING(account_id) WHERE e.journal_id=$1 AND a.kind IN ('AVAILABLE','REVENUE') AND e.side='CREDIT')`, id).Scan(&newAvailable)
 	if err != nil {
 		return ids.ID{}, err
 	}
 	if newAvailable {
 		var covered bool
-		err = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor >= COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','AVAILABLE','PROTECTED','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, p.PoolID).Scan(&covered)
+		err = tx.QueryRow(ctx, `SELECT COALESCE(sum(balance_minor) FILTER(WHERE kind='SETTLED_CASH'),0)-p.reserve_minor >= COALESCE(sum(balance_minor) FILTER(WHERE kind IN ('PAYMENT_PENDING','PENDING_EARNINGS','AVAILABLE','PROTECTED','FROZEN','WITHDRAWAL_PENDING','REFUND_PENDING','DEPOSIT','SETTLEMENT_CONTROL','RESERVE')),0) FROM account_balances JOIN custody_pools p USING(pool_id) WHERE pool_id=$1 GROUP BY p.reserve_minor`, p.PoolID).Scan(&covered)
 		if err != nil {
 			return ids.ID{}, err
 		}

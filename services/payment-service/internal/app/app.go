@@ -14,6 +14,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/core"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/finance"
 	phttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/lifecycle"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/payment-service/internal/providers"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events/jetstream"
@@ -56,7 +57,7 @@ func Build(ctx context.Context, c *config.Config, log *slog.Logger) (*App, error
 			db.Close()
 			return nil, e
 		}
-		if e = s.Register(ctx, pc, finance.Adapter{Collection: p, DVA: p, Settlement: p}); e != nil {
+		if e = s.Register(ctx, pc, finance.Adapter{Collection: p, DVA: p, Settlement: p, Payout: p}); e != nil {
 			db.Close()
 			return nil, e
 		}
@@ -77,6 +78,7 @@ func Build(ctx context.Context, c *config.Config, log *slog.Logger) (*App, error
 }
 func (a *App) Close() { a.Pool.Close() }
 func (a *App) RunWorker(ctx context.Context) error {
+	lifecycleService := lifecycle.New(a.Service)
 	conn, e := jetstream.Connect(jetstream.Config{URL: a.Cfg.NATSURL, Name: "payment-service-worker", Logger: a.Log})
 	if e != nil {
 		return e
@@ -109,6 +111,9 @@ func (a *App) RunWorker(ctx context.Context) error {
 		case e := <-done:
 			return e
 		case <-ticker.C:
+			if e = lifecycleService.RecoverPayouts(ctx); e != nil {
+				a.Log.ErrorContext(ctx, "payout worker failed", "error_code", "PAYOUT_RECOVERY_FAILURE")
+			}
 			if _, e = a.Service.ProcessInbox(ctx); e != nil {
 				a.Log.ErrorContext(ctx, "inbox worker failed", "error_code", "INBOX_PROCESSING_FAILURE")
 			}
