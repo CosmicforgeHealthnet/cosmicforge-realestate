@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.wallet.transfer_requested.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "$ref": "#/components/schemas/WalletTransfer"
+    }
+  },
+  "components": {
+    "schemas": {
+      "WalletTransfer": {
+        "type": "object",
+        "properties": {
+          "transfer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "purpose": {
+            "const": "CUSTOMER_REMITTANCE"
+          },
+          "consent_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actor_domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_service": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorization_decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "risk_decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "REQUESTED",
+              "POSTED"
+            ]
+          },
+          "journal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "transfer_id",
+          "source_wallet_id",
+          "destination_wallet_id",
+          "pool_id",
+          "policy_id",
+          "currency",
+          "amount_minor",
+          "purpose",
+          "consent_ref",
+          "actor_id",
+          "actor_domain",
+          "source_service",
+          "source_identity_id",
+          "destination_identity_id",
+          "legal_entity",
+          "policy_version",
+          "authorization_decision",
+          "risk_decision",
+          "state",
+          "created_at"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

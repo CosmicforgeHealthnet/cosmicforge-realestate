@@ -3,9 +3,10 @@
 // financial authority: beneficiary (payout account) verification, payment
 // intents, obligations' money state, refunds, payouts and statements.
 //
-// payment-service is not implemented in this repository yet, so there is no
-// HTTP adapter: the owner service is built with a nil API and every
-// dependent feature answers 503 FEATURE_UNAVAILABLE. Financial state in
+// Financial Core is implemented. Wallet provisioning/readback uses its signed
+// HTTP contracts. This legacy obligation API still requires authoritative
+// quote/payer/entitlement translation; unsupported commands remain unavailable.
+// Financial state in
 // individual_owner_db changes only from payment.* / payout.* / refund.*
 // events (never synthesized locally).
 package payment

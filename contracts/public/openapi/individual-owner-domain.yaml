@@ -8,6 +8,20 @@ components:
             $ref: ../../schemas/error-envelope.schema.json
       description: Platform error envelope.
   schemas:
+    AcceptedCollectionInputInput:
+      additionalProperties: false
+      properties:
+        payer_email:
+          format: email
+          maxLength: 254
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+      required:
+        - quote_id
+        - payer_email
+      type: object
     AccessDeviceInputInput:
       additionalProperties: false
       properties:
@@ -2400,6 +2414,48 @@ components:
       required:
         - party_role
         - display_name
+      type: object
+    CollectionIntent:
+      properties:
+        amount_minor:
+          type: integer
+        checkout_url:
+          type:
+            - string
+            - "null"
+        currency:
+          type: string
+        intent_id:
+          format: uuid
+          type: string
+        legal_entity:
+          type: string
+        pool_id:
+          format: uuid
+          type: string
+        provider_account_id:
+          format: uuid
+          type: string
+        reference:
+          type: string
+        settlement_state:
+          type: string
+        state:
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - intent_id
+        - wallet_id
+        - amount_minor
+        - currency
+        - legal_entity
+        - provider_account_id
+        - pool_id
+        - reference
+        - state
+        - settlement_state
       type: object
     CommercialLeaseExtras:
       properties:
@@ -11701,6 +11757,66 @@ components:
         - version
         - created_at
       type: object
+    Wallet:
+      properties:
+        currency:
+          type: string
+        domain:
+          type: string
+        identity_id:
+          format: uuid
+          type: string
+        legal_entity:
+          type: string
+        role:
+          type: string
+        state:
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - wallet_id
+        - identity_id
+        - domain
+        - role
+        - legal_entity
+        - currency
+        - state
+      type: object
+    WalletBalance:
+      properties:
+        amount_minor:
+          type: string
+        kind:
+          type: string
+        pool_id:
+          format: uuid
+          type: string
+        withdrawable:
+          type: boolean
+      required:
+        - kind
+        - pool_id
+        - amount_minor
+        - withdrawable
+      type: object
+    WalletSnapshot:
+      properties:
+        balances:
+          items:
+            $ref: '#/components/schemas/WalletBalance'
+          type: array
+        historical_wallets:
+          items:
+            $ref: '#/components/schemas/Wallet'
+          type: array
+        wallet:
+          $ref: '#/components/schemas/Wallet'
+      required:
+        - wallet
+        - balances
+      type: object
     WarrantyClaimInputInput:
       additionalProperties: false
       properties:
@@ -14184,6 +14300,35 @@ paths:
       summary: Add information or withdraw
       tags:
         - Disputes & Privacy
+  /api/v1/owner/financial-wallet:
+    get:
+      description: Authenticated active Owner only. Lazily ensures the source-bound purpose wallet, then reads Financial Core balances over signed service requests. Pending/held money remains unavailable. No Owner-owned balance table or inferred custody. Dependency outage stays unavailable.
+      operationId: getFinancialWallet
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WalletSnapshot'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read my authoritative wallet and balance buckets
+      tags:
+        - Financial Wallet
   /api/v1/owner/financing/consents:
     post:
       description: Applicant financial details stay with the partner; the owner sees minimum status only.
@@ -22274,6 +22419,92 @@ paths:
       summary: Waive, dispute or reinstate an obligation
       tags:
         - Tenancy
+  /api/v1/owner/rent-obligations/{obligation_id}/financial-collection:
+    get:
+      description: Authorizes the Owner business obligation, validates the canonical local binding, then reads Financial Core directly. Canonical events also update a separate observation projection. Neither readback nor collection events change paid rent. Dependency outages remain unavailable.
+      operationId: getFinancialRentCollection
+      parameters:
+        - in: path
+          name: obligation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CollectionIntent'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read Financial Core collection observation
+      tags:
+        - Financial Wallet
+    post:
+      description: Owned unpaid rent only. Requires a Financial Core locked quote matching the business reference, rent principal and currency. Financial Core revalidates policy, consent and payer context. The signed external call precedes the Owner transaction. Retry uses a stable obligation key. No automatic debit; collected money is not paid rent or available earnings.
+      operationId: requestFinancialRentCollection
+      parameters:
+        - in: path
+          name: obligation_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptedCollectionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CollectionIntent'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request collection for an accepted rent quote
+      tags:
+        - Financial Wallet
   /api/v1/owner/rent-obligations/{obligation_id}/late-fee:
     post:
       description: The owner's explicit decision where no approved jurisdiction policy charges late fees automatically. The agreed fee must be within the jurisdiction cap and is charged at most once per period.

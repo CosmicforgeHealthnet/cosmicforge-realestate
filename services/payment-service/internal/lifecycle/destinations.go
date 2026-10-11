@@ -229,7 +229,7 @@ func (s *Service) Availability(ctx context.Context, wallet, pool ids.ID) (Availa
 	}
 	// Customer cash-out is outside the activated product. For beneficiaries,
 	// eligibility also requires current bank, KYC, authority and unused approval.
-	if amount != "0" && rail && !restricted && w.State == "ACTIVE" && w.Role != "CUSTOMER" {
+	if amount != "0" && rail && !restricted && w.State == "ACTIVE" && w.Role != "CUSTOMER" && w.Role != "TENANT" {
 		var approved []WithdrawalApproval
 		rows, e := s.DB.Query(ctx, `SELECT snapshot FROM lifecycle_decisions d WHERE action='WITHDRAWAL_APPROVAL' AND snapshot->>'wallet_id'=$1 AND (snapshot->>'expires_at')::timestamptz>now() AND NOT EXISTS(SELECT 1 FROM payout_attempts p WHERE p.authorization_snapshot->>'approval_id'=d.decision_id::text) LIMIT 100`, wallet.String())
 		if e != nil {

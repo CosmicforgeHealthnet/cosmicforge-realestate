@@ -200,7 +200,7 @@ func (s *Service) Payout(ctx context.Context, id ids.ID) (Payout, error) {
 }
 func (s *Service) Withdraw(ctx context.Context, in Withdrawal, key string) (Payout, error) {
 	ctx = beneficiaryContext(ctx)
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("WITHDRAWAL") != nil || s.CheckEnvironmentCapability("PROVIDER_PAYOUT") != nil {
 		return Payout{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	w, e := s.OwnWallet(ctx, in.WalletID)

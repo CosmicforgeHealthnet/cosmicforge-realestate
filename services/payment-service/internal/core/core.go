@@ -68,7 +68,7 @@ func validCurrency(code string) bool { _, e := money.ParseCurrency(code); return
 func ValidCurrency(code string) bool { return validCurrency(code) }
 
 var roles = map[string]map[string]bool{
-	"marketplace": {"CUSTOMER": true}, "individual-owner": {"OWNER": true, "CO_OWNER": true},
+	"marketplace": {"CUSTOMER": true, "TENANT": true, "AGENT": true, "BROKER": true}, "individual-owner": {"OWNER": true, "CO_OWNER": true},
 	"business-operations": {"CORPORATE_OWNER": true, "DEVELOPER": true, "HOSPITALITY": true},
 	"property-manager":    {"MANAGER": true, "MANAGEMENT_COMPANY": true}, "artisan": {"ARTISAN": true, "SERVICE_COMPANY": true},
 	"professional-services": {"PROFESSIONAL": true, "PROFESSIONAL_FIRM": true},
@@ -82,6 +82,7 @@ type Provision struct {
 	LegalEntity     string `json:"legal_entity"`
 	Currency        string `json:"currency"`
 	RegistrationRef string `json:"registration_ref"`
+	Purpose         string `json:"purpose,omitempty"`
 }
 type Wallet struct {
 	WalletID    ids.ID `json:"wallet_id"`
@@ -106,6 +107,17 @@ func (s *Service) EnsureWallet(ctx context.Context, in Provision) (w Wallet, err
 	if (organizationRole && in.PartyKind != "ORGANIZATION") || (!organizationRole && in.Role != "CUSTOMER" && in.PartyKind != "PERSON") {
 		err = Fail(422, "ROLE_LEGAL_PARTY_MISMATCH")
 		return
+	}
+	purpose := "EARNINGS"
+	if in.Role == "CUSTOMER" || in.Role == "TENANT" {
+		purpose = "PERSONAL"
+	}
+	if in.Purpose != "" && in.Purpose != purpose {
+		return w, Fail(422, "WALLET_PURPOSE_NOT_PERMITTED")
+	}
+	principal, _ := Caller(ctx)
+	if principal.Delegation.HasActor() && (principal.Delegation.ActorID != in.AccountID || string(principal.Delegation.ActorDomain) != in.Domain) {
+		return w, Fail(403, "WALLET_REGISTRATION_ACTOR_MISMATCH")
 	}
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
@@ -136,16 +148,46 @@ func (s *Service) EnsureWallet(ctx context.Context, in Provision) (w Wallet, err
 		err = Fail(409, "IDENTITY_KIND_CONFLICT")
 		return
 	}
-	w = Wallet{WalletID: ids.New(), IdentityID: identity, Domain: in.Domain, Role: in.Role, LegalEntity: in.LegalEntity, Currency: in.Currency}
-	tag, err := tx.Exec(ctx, `INSERT INTO wallets(wallet_id,identity_id,domain,role,legal_entity,currency) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(identity_id,domain,role,legal_entity,currency) DO NOTHING`, w.WalletID, identity, in.Domain, in.Role, in.LegalEntity, in.Currency)
+	// Serialize purpose creation and financial identity activation without merging old wallets.
+	var state string
+	if err = tx.QueryRow(ctx, `SELECT state FROM financial_identities WHERE identity_id=$1 FOR UPDATE`, identity).Scan(&state); err != nil {
+		return
+	}
+	if state != "ACTIVE" {
+		return w, Fail(403, "FINANCIAL_IDENTITY_RESTRICTED")
+	}
+	w = Wallet{WalletID: ids.New(), IdentityID: identity, Domain: in.Domain, Role: in.Role, LegalEntity: in.LegalEntity, Currency: in.Currency, State: state}
+	err = tx.QueryRow(ctx, `SELECT wallet_id FROM wallet_purposes WHERE identity_id=$1 AND domain=$2 AND purpose=$3 AND legal_entity=$4 AND currency=$5`, identity, in.Domain, purpose, in.LegalEntity, in.Currency).Scan(&w.WalletID)
+	created := errors.Is(err, pgx.ErrNoRows)
+	if created {
+		_, err = tx.Exec(ctx, `INSERT INTO wallets(wallet_id,identity_id,domain,role,legal_entity,currency) VALUES($1,$2,$3,$4,$5,$6)`, w.WalletID, identity, in.Domain, in.Role, in.LegalEntity, in.Currency)
+		if err != nil {
+			return
+		}
+		_, err = tx.Exec(ctx, `INSERT INTO wallet_purposes(wallet_id,identity_id,domain,purpose,legal_entity,currency) VALUES($1,$2,$3,$4,$5,$6)`, w.WalletID, identity, in.Domain, purpose, in.LegalEntity, in.Currency)
+	}
 	if err != nil {
 		return
 	}
-	err = tx.QueryRow(ctx, `SELECT w.wallet_id,i.state FROM wallets w JOIN financial_identities i USING(identity_id) WHERE w.identity_id=$1 AND w.domain=$2 AND w.role=$3 AND w.legal_entity=$4 AND w.currency=$5`, identity, in.Domain, in.Role, in.LegalEntity, in.Currency).Scan(&w.WalletID, &w.State)
+	var walletState string
+	err = tx.QueryRow(ctx, `SELECT COALESCE((SELECT state FROM wallet_controls WHERE wallet_id=$1),'ACTIVE')`, w.WalletID).Scan(&walletState)
+	if err != nil {
+		return
+	}
+	if walletState != "ACTIVE" {
+		return w, Fail(403, "WALLET_RESTRICTED")
+	}
+	tag, err := tx.Exec(ctx, `INSERT INTO wallet_roles(wallet_id,role,registration_ref) VALUES($1,$2,$3) ON CONFLICT DO NOTHING`, w.WalletID, in.Role, in.RegistrationRef)
 	if err != nil {
 		return
 	}
 	if tag.RowsAffected() > 0 {
+		err = s.Audit(ctx, tx, "wallet.role_attached", w.WalletID.String(), map[string]string{"role": in.Role, "purpose": purpose, "registration_ref": in.RegistrationRef})
+		if err != nil {
+			return
+		}
+	}
+	if created {
 		err = s.Emit(ctx, tx, "finance.wallet.opened.v1", "wallet", w.WalletID, w)
 		if err != nil {
 			return
@@ -194,13 +236,24 @@ func (s *Service) LinkAccount(ctx context.Context, identity ids.ID, domain strin
 	}
 	return tx.Commit(ctx)
 }
-func (s *Service) OwnWallet(ctx context.Context, id ids.ID) (w Wallet, err error) {
+
+type WalletReader interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}
+
+func (s *Service) OwnWallet(ctx context.Context, id ids.ID) (Wallet, error) {
+	return s.OwnWalletWith(ctx, s.DB, id)
+}
+
+// OwnWalletWith preserves authorization while using the caller's transaction.
+// Financial commands must not reacquire the pool while holding a transaction.
+func (s *Service) OwnWalletWith(ctx context.Context, db WalletReader, id ids.ID) (w Wallet, err error) {
 	p, err := Caller(ctx)
 	if err != nil {
 		return
 	}
 	if p.Service == platform.PaymentService {
-		err = s.DB.QueryRow(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,i.state FROM wallets w JOIN financial_identities i USING(identity_id) WHERE wallet_id=$1`, id).Scan(&w.WalletID, &w.IdentityID, &w.Domain, &w.Role, &w.LegalEntity, &w.Currency, &w.State)
+		err = db.QueryRow(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,CASE WHEN i.state<>'ACTIVE' THEN i.state ELSE COALESCE((SELECT state FROM wallet_controls c WHERE c.wallet_id=w.wallet_id),'ACTIVE') END FROM wallets w JOIN financial_identities i USING(identity_id) WHERE wallet_id=$1`, id).Scan(&w.WalletID, &w.IdentityID, &w.Domain, &w.Role, &w.LegalEntity, &w.Currency, &w.State)
 		return
 	}
 	if !p.Delegation.HasActor() {
@@ -211,7 +264,7 @@ func (s *Service) OwnWallet(ctx context.Context, id ids.ID) (w Wallet, err error
 			return
 		}
 	}
-	err = s.DB.QueryRow(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,i.state FROM wallets w JOIN financial_identities i USING(identity_id) JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE w.wallet_id=$1 AND b.domain=$2 AND b.account_id=$3`, id, p.Delegation.ActorDomain, p.Delegation.ActorID).Scan(&w.WalletID, &w.IdentityID, &w.Domain, &w.Role, &w.LegalEntity, &w.Currency, &w.State)
+	err = db.QueryRow(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,CASE WHEN i.state<>'ACTIVE' THEN i.state ELSE COALESCE((SELECT state FROM wallet_controls c WHERE c.wallet_id=w.wallet_id),'ACTIVE') END FROM wallets w JOIN financial_identities i USING(identity_id) JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE w.wallet_id=$1 AND b.domain=$2 AND b.account_id=$3`, id, p.Delegation.ActorDomain, p.Delegation.ActorID).Scan(&w.WalletID, &w.IdentityID, &w.Domain, &w.Role, &w.LegalEntity, &w.Currency, &w.State)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = Fail(404, "WALLET_NOT_FOUND")
 	}
@@ -230,7 +283,7 @@ func (s *Service) MyWallets(ctx context.Context) ([]Wallet, error) {
 			return nil, e
 		}
 	}
-	rows, e := s.DB.Query(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,i.state FROM wallets w JOIN financial_identities i USING(identity_id) JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE b.domain=$1 AND b.account_id=$2 ORDER BY w.wallet_id`, p.Delegation.ActorDomain, p.Delegation.ActorID)
+	rows, e := s.DB.Query(ctx, `SELECT w.wallet_id,w.identity_id,w.domain,w.role,w.legal_entity,w.currency,CASE WHEN i.state<>'ACTIVE' THEN i.state ELSE COALESCE((SELECT state FROM wallet_controls c WHERE c.wallet_id=w.wallet_id),'ACTIVE') END FROM wallets w JOIN financial_identities i USING(identity_id) JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE b.domain=$1 AND b.account_id=$2 ORDER BY w.wallet_id`, p.Delegation.ActorDomain, p.Delegation.ActorID)
 	if e != nil {
 		return nil, e
 	}

@@ -665,6 +665,18 @@ type FinanceOffer struct {
 	UpdatedAt             time.Time
 }
 
+type FinancialCoreCollection struct {
+	ObligationID    ids.ID
+	QuoteID         ids.ID
+	IntentID        ids.ID
+	AmountMinor     int64
+	Currency        string
+	Snapshot        []byte
+	ObservedState   string
+	SettlementState string
+	UpdatedAt       time.Time
+}
+
 type FreshnessCheck struct {
 	ID         ids.ID
 	ListingID  ids.ID

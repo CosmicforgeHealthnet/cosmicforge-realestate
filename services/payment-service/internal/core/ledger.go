@@ -129,7 +129,7 @@ func (s *Service) postTx(ctx context.Context, tx pgx.Tx, p Posting) (ids.ID, err
 	if lockErr != nil {
 		return ids.ID{}, lockErr
 	}
-	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM ledger_accounts a JOIN wallets w USING(wallet_id) JOIN financial_identities i USING(identity_id) WHERE a.account_id=ANY($1::uuid[]) AND a.kind='AVAILABLE' AND i.state<>'ACTIVE')`, keys).Scan(&restrictedWallet)
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM ledger_accounts a JOIN wallets w USING(wallet_id) JOIN financial_identities i USING(identity_id) WHERE a.account_id=ANY($1::uuid[]) AND a.kind='AVAILABLE' AND (i.state<>'ACTIVE' OR EXISTS(SELECT 1 FROM wallet_controls c WHERE c.wallet_id=w.wallet_id AND c.state<>'ACTIVE')))`, keys).Scan(&restrictedWallet)
 	if err != nil {
 		return ids.ID{}, err
 	}

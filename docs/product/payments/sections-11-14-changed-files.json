@@ -1,0 +1,89 @@
+{
+  "starting_sha": "cd01a70b24d3b8c55a286a3a066b2278974c2049",
+  "files": {
+    "events": [
+      "contracts/events/payments/finance.wallet.state_changed.v1.schema.json",
+      "contracts/events/payments/finance.wallet.transfer_posted.v1.schema.json",
+      "contracts/events/payments/finance.wallet.transfer_requested.v1.schema.json"
+    ],
+    "generated_artifacts": [
+      "contracts/internal/openapi/payment-service.yaml",
+      "contracts/public/openapi/individual-owner-domain.yaml",
+      "contracts/public/openapi/payments.yaml",
+      "contracts/webhooks/paystack.yaml",
+      "postman/CosmicForge_RealEstate.postman_collection.json",
+      "postman/payment-service.postman_collection.json",
+      "services/individual-owner-service/internal/repositories/db/models.go",
+      "services/payment-service/internal/repositories/db/models.go"
+    ],
+    "documentation_and_evidence": [
+      "docs/product/payments/PAYMENT_SECTIONS_11_14_CLOSURE.md",
+      "docs/product/payments/SECTIONS_11_14_ARCHITECTURE_AND_OPERATIONS.md",
+      "docs/product/payments/SECTIONS_11_14_TRACEABILITY.md",
+      "docs/product/payments/sections-11-14-changed-files.json",
+      "docs/product/payments/sections-11-14-domain-contracts.json",
+      "docs/product/payments/sections-11-14-final-test-results.jsonl",
+      "docs/product/payments/sections-11-14-gates.json",
+      "docs/product/payments/sections-11-14-payment-final-test-results.jsonl",
+      "docs/product/payments/sections-11-14-test-summary.json",
+      "services/individual-owner-service/README.md",
+      "services/payment-service/README.md"
+    ],
+    "delivery_scripts": [
+      "scripts/payments/certify.ps1",
+      "scripts/payments/check_secrets.py",
+      "scripts/payments/finalize_report.py",
+      "scripts/payments/generate_contracts.py",
+      "scripts/payments/summarize_tests.py",
+      "scripts/payments/universal_contracts.py"
+    ],
+    "source": [
+      "services/individual-owner-service/cmd/wallet-backfill/main.go",
+      "services/individual-owner-service/internal/config/config.go",
+      "services/individual-owner-service/internal/http/routes_financial_wallet.go",
+      "services/individual-owner-service/internal/http/routes_property.go",
+      "services/individual-owner-service/internal/integrations/payment/accepted_collection.go",
+      "services/individual-owner-service/internal/integrations/payment/payment.go",
+      "services/individual-owner-service/internal/integrations/payment/wallet.go",
+      "services/individual-owner-service/internal/integrations/payment/wallet_reads.go",
+      "services/individual-owner-service/internal/usecases/accepted_collection.go",
+      "services/individual-owner-service/internal/usecases/consumers.go",
+      "services/individual-owner-service/internal/usecases/financial_wallet.go",
+      "services/individual-owner-service/internal/usecases/obligations.go",
+      "services/individual-owner-service/internal/usecases/wallet_backfill.go",
+      "services/payment-service/internal/config/config.go",
+      "services/payment-service/internal/core/core.go",
+      "services/payment-service/internal/core/ledger.go",
+      "services/payment-service/internal/core/wallet_profile.go",
+      "services/payment-service/internal/finance/capabilities.go",
+      "services/payment-service/internal/finance/dva.go",
+      "services/payment-service/internal/finance/service.go",
+      "services/payment-service/internal/http/router.go",
+      "services/payment-service/internal/http/universal_wallets.go",
+      "services/payment-service/internal/lifecycle/allocation.go",
+      "services/payment-service/internal/lifecycle/customer.go",
+      "services/payment-service/internal/lifecycle/destinations.go",
+      "services/payment-service/internal/lifecycle/invoice.go",
+      "services/payment-service/internal/lifecycle/payout.go",
+      "services/payment-service/internal/lifecycle/refunds.go",
+      "services/payment-service/internal/lifecycle/release.go",
+      "services/payment-service/internal/lifecycle/wallet_transfers.go"
+    ],
+    "tests": [
+      "services/individual-owner-service/internal/usecases/accepted_collection_test.go",
+      "services/individual-owner-service/tests/integration/financial_core_cross_test.go",
+      "services/individual-owner-service/tests/integration/wallet_backfill_test.go",
+      "services/payment-service/internal/config/config_test.go",
+      "services/payment-service/tests/integration/foundation_test.go",
+      "services/payment-service/tests/integration/owner_consumer_test.go",
+      "services/payment-service/tests/integration/universal_wallets_test.go"
+    ],
+    "migrations": [
+      "services/individual-owner-service/migrations/00020_financial_core_observations.sql",
+      "services/payment-service/migrations/00007_universal_wallet_transfers.sql"
+    ]
+  },
+  "total_files": 67,
+  "sql_query_files_changed": [],
+  "sql_note": "New parameterized SQL is in Core/finance/lifecycle/Owner source and migrations; existing SQLC query files are retained, generated models extended."
+}

@@ -8,8 +8,9 @@ import (
 	"time"
 )
 
-// WalletProvisioner implements only the Section 2 registration contract. It
-// does not claim support for the later payment.API release/refund/payout flows.
+// WalletProvisioner is the signed Financial Core consumer for provisioning,
+// owned reads and accepted rent collection. Legacy payment.API release/refund
+// and other product mappings require their own explicit accepted context.
 type WalletProvisioner struct {
 	Client                *httpx.Client
 	LegalEntity, Currency string

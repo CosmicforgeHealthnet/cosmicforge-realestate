@@ -226,7 +226,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	if paymentURL != "" {
 		// payment-service exposes no implemented contract yet; refusing the
 		// setting prevents believing payouts are live.
-		problems = append(problems, "PAYMENT_SERVICE_URL must be empty: payment-service has no implemented contract (Appendix D)")
+		problems = append(problems, "PAYMENT_SERVICE_URL must be empty: the legacy payment adapter lacks accepted-quote context; use PAYMENT_WALLET_SERVICE_URL for the signed Financial Core consumer")
 	}
 	if esignProvider != "" {
 		// No electronic-signature provider adapter is implemented; owners

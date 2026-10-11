@@ -62,7 +62,7 @@ func (s *Service) PutAuthority(ctx context.Context, a Authority) (Authority, err
 	}
 	if a.WalletID != nil {
 		var ok bool
-		e = s.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM wallets w JOIN financial_identities i USING(identity_id) JOIN verification_refs v USING(identity_id) WHERE w.wallet_id=$1 AND w.role=$2 AND w.currency=$3 AND w.legal_entity=$4 AND i.legal_party_ref=$5 AND i.state='ACTIVE' AND v.state='VERIFIED' AND v.expires_at>now())`, a.WalletID, a.Role, a.Currency, a.LegalEntity, a.LegalPartyRef).Scan(&ok)
+		e = s.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM wallets w JOIN financial_identities i USING(identity_id) JOIN verification_refs v USING(identity_id) WHERE w.wallet_id=$1 AND EXISTS(SELECT 1 FROM wallet_roles wr WHERE wr.wallet_id=w.wallet_id AND wr.role=$2) AND w.currency=$3 AND w.legal_entity=$4 AND i.legal_party_ref=$5 AND i.state='ACTIVE' AND NOT EXISTS(SELECT 1 FROM wallet_controls c WHERE c.wallet_id=w.wallet_id AND c.state<>'ACTIVE') AND v.state='VERIFIED' AND v.expires_at>now())`, a.WalletID, a.Role, a.Currency, a.LegalEntity, a.LegalPartyRef).Scan(&ok)
 		if e != nil {
 			return a, e
 		}
@@ -628,7 +628,7 @@ func (s *Service) allocateTx(ctx context.Context, tx pgx.Tx, i finance.Intent, q
 func decode(b []byte, v any) error { return json.Unmarshal(b, v) }
 func (s *Service) currentWallet(ctx context.Context, tx pgx.Tx, id ids.ID, party string) error {
 	var ok bool
-	e := tx.QueryRow(ctx, `SELECT true FROM wallets w JOIN financial_identities i USING(identity_id) JOIN verification_refs v USING(identity_id) WHERE wallet_id=$1 AND i.legal_party_ref=$2 AND i.state='ACTIVE' AND v.state='VERIFIED' AND v.expires_at>now() FOR SHARE OF v`, id, party).Scan(&ok)
+	e := tx.QueryRow(ctx, `SELECT true FROM wallets w JOIN financial_identities i USING(identity_id) JOIN verification_refs v USING(identity_id) WHERE wallet_id=$1 AND i.legal_party_ref=$2 AND i.state='ACTIVE' AND NOT EXISTS(SELECT 1 FROM wallet_controls c WHERE c.wallet_id=w.wallet_id AND c.state<>'ACTIVE') AND v.state='VERIFIED' AND v.expires_at>now() FOR SHARE OF v`, id, party).Scan(&ok)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return core.Fail(403, "VERIFIED_BENEFICIARY_REQUIRED")
 	}

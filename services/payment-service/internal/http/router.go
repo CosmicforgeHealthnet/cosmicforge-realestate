@@ -43,7 +43,10 @@ func NewRouter(c Config) http.Handler {
 		r.Use(serviceauth.Authenticate(c.Verifier, serviceauth.HeaderAuthorization))
 		h.registerLifecycle(r)
 		h.registerRemedies(r)
+		h.registerWalletTransfers(r)
+		h.registerWalletAdministration(r)
 		r.Post("/wallets/ensure", h.ensure)
+		r.Get("/wallets/me", h.mine)
 		r.Get("/wallets/{id}", h.wallet)
 		r.Get("/wallets/{id}/balances", h.balances)
 		r.Get("/wallets/{id}/transactions", h.history)
@@ -78,6 +81,7 @@ func NewRouter(c Config) http.Handler {
 		r.Get("/payment-intents/{id}", h.getIntent)
 		r.Get("/virtual-accounts/{id}", h.getDVA)
 		h.registerCustomer(r)
+		h.registerWalletTransfers(r)
 		r.Post("/financial-cases", command(func(w http.ResponseWriter, r *http.Request, in lifecycle.CaseRequest) {
 			v, e := h.l.OpenCase(r.Context(), in, r.Header.Get("Idempotency-Key"))
 			respond(w, r, v, e)

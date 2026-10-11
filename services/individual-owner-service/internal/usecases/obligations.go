@@ -213,6 +213,14 @@ func dayOf(t time.Time) time.Time {
 
 // projectRentIntent applies payment-service's view of an obligation's intent.
 func (s *Service) projectRentIntent(ctx context.Context, o db.RentObligation, in payment.Intent, source string, eventID *ids.ID) error {
+	var canonical bool
+	if e := s.dbq(ctx).QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM financial_core_collections WHERE obligation_id=$1)`, o.ID).Scan(&canonical); e != nil {
+		return e
+	}
+	if canonical {
+		return precondition("CANONICAL_PAYMENT_EVENT_REQUIRED", "Financial Core collections cannot be projected from legacy payment states.")
+	}
+
 	if fresh, err := s.intentIsFresh(ctx, in); !fresh || err != nil {
 		return err
 	}
@@ -865,6 +873,13 @@ func (s *Service) reconcileRent(ctx context.Context, id ids.ID) error {
 	if err != nil || o.PaymentIntentRef == nil {
 		return err
 	}
+	var canonical bool
+	if err = s.Pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM financial_core_collections WHERE obligation_id=$1)`, o.ID).Scan(&canonical); err != nil {
+		return err
+	}
+	if canonical {
+		return nil
+	} // canonical events/readbacks never infer paid rent from collection
 	in, err := s.Payment.GetIntent(ctx, *o.PaymentIntentRef)
 	if err != nil {
 		return err

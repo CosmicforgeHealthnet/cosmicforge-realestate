@@ -136,6 +136,20 @@ type FinancialAudit struct {
 	CreatedAt     time.Time
 }
 
+type FinancialCapabilityEvidence struct {
+	EvidenceID        ids.ID
+	Capability        string
+	Stage             string
+	LegalEntity       string
+	ProviderAccountID *ids.ID
+	Jurisdiction      string
+	Version           string
+	Status            string
+	Snapshot          []byte
+	Fingerprint       string
+	CreatedAt         time.Time
+}
+
 type FinancialCase struct {
 	CaseID          ids.ID
 	LineID          ids.ID
@@ -643,6 +657,28 @@ type Wallet struct {
 	CreatedAt   time.Time
 }
 
+type WalletControl struct {
+	WalletID  ids.ID
+	State     string
+	UpdatedAt time.Time
+}
+
+type WalletPurpose struct {
+	WalletID    ids.ID
+	IdentityID  ids.ID
+	Domain      string
+	Purpose     string
+	LegalEntity string
+	Currency    string
+}
+
+type WalletRole struct {
+	WalletID        ids.ID
+	Role            string
+	RegistrationRef string
+	CreatedAt       time.Time
+}
+
 type WalletSpend struct {
 	SpendID      ids.ID
 	QuoteID      ids.ID
@@ -653,4 +689,43 @@ type WalletSpend struct {
 	Snapshot     []byte
 	JournalID    ids.ID
 	CreatedAt    time.Time
+}
+
+type WalletTransfer struct {
+	TransferID          ids.ID
+	SourceWalletID      ids.ID
+	DestinationWalletID ids.ID
+	PoolID              ids.ID
+	PolicyID            ids.ID
+	ActorID             ids.ID
+	ActorDomain         string
+	SourceService       string
+	LegalEntity         string
+	Currency            string
+	AmountMinor         int64
+	Purpose             string
+	OperationKey        string
+	Fingerprint         string
+	Snapshot            []byte
+	State               string
+	JournalID           *ids.ID
+	CreatedAt           time.Time
+	PostedAt            *time.Time
+}
+
+type WalletTransferHistory struct {
+	HistoryID  ids.ID
+	TransferID ids.ID
+	State      string
+	Evidence   []byte
+	CreatedAt  time.Time
+}
+
+type WalletTransferPolicy struct {
+	PolicyID    ids.ID
+	PoolID      ids.ID
+	Version     string
+	Snapshot    []byte
+	Fingerprint string
+	CreatedAt   time.Time
 }

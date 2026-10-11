@@ -790,6 +790,11 @@
       "key": "statutory_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "quote_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -30822,6 +30827,159 @@
                   ]
                 },
                 "description": "What support did on my account.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Financial Wallet",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Request collection for an accepted rent quote",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/rent-obligations/{{obligation_id}}/financial-collection",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "rent-obligations",
+                    "{{obligation_id}}",
+                    "financial-collection"
+                  ]
+                },
+                "description": "Request collection for an accepted rent quote.\n\nOwned unpaid rent only. Requires a Financial Core locked quote matching the business reference, rent principal and currency. Financial Core revalidates policy, consent and payer context. The signed external call precedes the Owner transaction. Retry uses a stable obligation key. No automatic debit; collected money is not paid rent or available earnings.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"payer_email\": \"owner.example@example.com\",\n  \"quote_id\": \"{{quote_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Read Financial Core collection observation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/rent-obligations/{{obligation_id}}/financial-collection",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "rent-obligations",
+                    "{{obligation_id}}",
+                    "financial-collection"
+                  ]
+                },
+                "description": "Read Financial Core collection observation.\n\nAuthorizes the Owner business obligation, validates the canonical local binding, then reads Financial Core directly. Canonical events also update a separate observation projection. Neither readback nor collection events change paid rent. Dependency outages remain unavailable.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Read my authoritative wallet and balance buckets",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet"
+                  ]
+                },
+                "description": "Read my authoritative wallet and balance buckets.\n\nAuthenticated active Owner only. Lazily ensures the source-bound purpose wallet, then reads Financial Core balances over signed service requests. Pending/held money remains unavailable. No Owner-owned balance table or inferred custody. Dependency outage stays unavailable.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
               },
               "response": []
             }

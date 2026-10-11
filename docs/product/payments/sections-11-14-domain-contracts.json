@@ -1,0 +1,281 @@
+{
+  "purpose": "SYNTHETIC SAMPLES AND LOCAL CONTRACT STUBS; NOT DEPLOYED DOMAIN CERTIFICATION",
+  "core_openapi": "contracts/internal/openapi/payment-service.yaml",
+  "public_openapi": "contracts/public/openapi/payments.yaml",
+  "event_contracts": "contracts/events/payments/*.schema.json",
+  "transport": "Ed25519 service JWT with exact caller, payment-service audience, authenticated delegated domain/account; background registration may omit delegated actor only for its authoritative source service",
+  "wallet_provisioning": "POST /internal/v1/wallets/ensure; source registration ref; no opening funds or inferred KYC; durable source outbox/delivery and replay",
+  "balance_reads": [
+    "GET /internal/v1/wallets/me",
+    "GET /internal/v1/wallets/{id}/profile",
+    "GET /internal/v1/wallets/{id}/balances",
+    "GET /internal/v1/wallets/{id}/transactions"
+  ],
+  "manual_funding_and_spending": [
+    "POST /internal/v1/customer-topups",
+    "POST /internal/v1/wallet-spends"
+  ],
+  "accepted_financial_context": "locked quote + immutable policy version + verified consent/authority + exact entity/currency/business reference; never mutable caller amount or invented fee",
+  "deferred_capabilities": [
+    "recurring rent execution",
+    "saved authorization reuse",
+    "customer cash-out",
+    "live custody/collections/refunds/transfers"
+  ],
+  "domains": [
+    {
+      "domain": "individual-owner",
+      "caller": "individual-owner-service",
+      "roles": [
+        "OWNER",
+        "CO_OWNER"
+      ],
+      "status": "ACTUAL_LOCAL_CONSUMER",
+      "test_stub": "TestActualOwnerFinancialCoreConsumer",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "PERSON",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "individual-owner",
+        "role": "OWNER"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "marketplace",
+      "caller": "marketplace-service",
+      "roles": [
+        "CUSTOMER",
+        "TENANT",
+        "AGENT",
+        "BROKER"
+      ],
+      "status": "CONTRACT_READY_EXTERNAL_INTEGRATION_DEFERRED",
+      "test_stub": "TestFutureDomainSignedWalletContractStubs",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "PERSON",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "marketplace",
+        "role": "CUSTOMER"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "business-operations",
+      "caller": "business-operations-service",
+      "roles": [
+        "CORPORATE_OWNER",
+        "DEVELOPER",
+        "HOSPITALITY"
+      ],
+      "status": "CONTRACT_READY_EXTERNAL_INTEGRATION_DEFERRED",
+      "test_stub": "TestFutureDomainSignedWalletContractStubs",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "ORGANIZATION",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "business-operations",
+        "role": "CORPORATE_OWNER"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "property-manager",
+      "caller": "property-manager-service",
+      "roles": [
+        "MANAGER",
+        "MANAGEMENT_COMPANY"
+      ],
+      "status": "CONTRACT_READY_EXTERNAL_INTEGRATION_DEFERRED",
+      "test_stub": "TestFutureDomainSignedWalletContractStubs",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "PERSON",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "property-manager",
+        "role": "MANAGER"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "artisan",
+      "caller": "artisan-service",
+      "roles": [
+        "ARTISAN",
+        "SERVICE_COMPANY"
+      ],
+      "status": "CONTRACT_READY_EXTERNAL_INTEGRATION_DEFERRED",
+      "test_stub": "TestFutureDomainSignedWalletContractStubs",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "PERSON",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "artisan",
+        "role": "ARTISAN"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "professional-services",
+      "caller": "professional-services-service",
+      "roles": [
+        "PROFESSIONAL",
+        "PROFESSIONAL_FIRM"
+      ],
+      "status": "CONTRACT_READY_EXTERNAL_INTEGRATION_DEFERRED",
+      "test_stub": "TestFutureDomainSignedWalletContractStubs",
+      "valid_registration": {
+        "account_id": "01900000-0000-7000-8000-000000000001",
+        "party_kind": "PERSON",
+        "legal_entity": "cosmicforge-ng",
+        "currency": "NGN",
+        "registration_ref": "SYNTHETIC-CONTRACT-ONLY",
+        "domain": "professional-services",
+        "role": "PROFESSIONAL"
+      },
+      "invalid_samples": [
+        {
+          "change": {
+            "role": "ADMIN"
+          },
+          "expected": "422 INVALID_WALLET_REGISTRATION"
+        },
+        {
+          "change": {
+            "account_id": "01900000-0000-7000-8000-000000000002"
+          },
+          "when": "delegated actor remains original ID",
+          "expected": "403 WALLET_REGISTRATION_ACTOR_MISMATCH"
+        },
+        {
+          "change": {
+            "domain": "individual-owner"
+          },
+          "when": "caller is another domain service",
+          "expected": "403 SOURCE_NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "domain": "additional approved domains",
+      "status": "EXTERNAL_SERVICE_NOT_IMPLEMENTED",
+      "rule": "A new service/domain/role cannot self-register. Add reviewed authority, purpose, accepted quote/entitlement and event contracts and real consumer evidence first."
+    }
+  ]
+}

@@ -68,7 +68,7 @@ func (s *Service) RequestRefund(ctx context.Context, in RefundRequest, key strin
 	if e := core.Require(ctx, platform.AdminService); e != nil {
 		return RefundAttempt{}, e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("REFUND") != nil {
 		return RefundAttempt{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	a, e := s.lineAllocation(ctx, in.LineID)
@@ -202,7 +202,7 @@ func (s *Service) RequestRefund(ctx context.Context, in RefundRequest, key strin
 			return RefundAttempt{}, core.Fail(409, "UNKNOWN_PROVIDER_REFUND_PREVENTS_WALLET_CREDIT")
 		}
 		var customer bool
-		e = tx.QueryRow(ctx, `SELECT w.role='CUSTOMER' AND w.domain='marketplace' AND EXISTS(SELECT 1 FROM transaction_funding WHERE intent_id=$2) FROM wallets w WHERE wallet_id=$1`, payer, a.IntentID).Scan(&customer)
+		e = tx.QueryRow(ctx, `SELECT w.role IN ('CUSTOMER','TENANT') AND w.domain='marketplace' AND EXISTS(SELECT 1 FROM transaction_funding WHERE intent_id=$2) FROM wallets w WHERE wallet_id=$1`, payer, a.IntentID).Scan(&customer)
 		if e != nil {
 			return RefundAttempt{}, e
 		}
@@ -236,7 +236,7 @@ func (s *Service) SubmitRefund(ctx context.Context, id ids.ID) (RefundAttempt, e
 	if e := core.Require(ctx, platform.AdminService); e != nil {
 		return RefundAttempt{}, e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("REFUND") != nil {
 		return RefundAttempt{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	out, e := s.refundRow(ctx, s.DB, id)

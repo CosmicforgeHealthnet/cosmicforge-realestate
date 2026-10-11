@@ -36,7 +36,7 @@ func Load(l *sharedcfg.Loader, worker bool) (*Config, error) {
 	if c.Readback.MaxAttempts <= 0 || c.Readback.MaxAttempts > 100 || c.Readback.BaseSeconds <= 0 || c.Readback.MaxBackoffSeconds < c.Readback.BaseSeconds || c.Readback.MaxBackoffSeconds > 86400 || c.Readback.LeaseSeconds <= 0 || c.Readback.LeaseSeconds > 3600 {
 		return nil, errors.New("invalid original readback policy")
 	}
-	if l.Bool("PAYMENT_LIVE_CUSTODY_ENABLED", false) || l.Bool("PAYMENT_LIVE_TRANSFERS_ENABLED", false) || l.Bool("PAYMENT_LIVE_COLLECTIONS_ENABLED", false) || l.Bool("PAYMENT_LIVE_REFUNDS_ENABLED", false) || l.Bool("PAYMENT_RECURRING_EXECUTION_ENABLED", false) || l.Bool("PAYMENT_CUSTOMER_CASHOUT_ENABLED", false) {
+	if l.Bool("PAYMENT_LIVE_INTERNAL_TRANSFERS_ENABLED", false) || l.Bool("PAYMENT_LIVE_CUSTODY_ENABLED", false) || l.Bool("PAYMENT_LIVE_TRANSFERS_ENABLED", false) || l.Bool("PAYMENT_LIVE_COLLECTIONS_ENABLED", false) || l.Bool("PAYMENT_LIVE_REFUNDS_ENABLED", false) || l.Bool("PAYMENT_RECURRING_EXECUTION_ENABLED", false) || l.Bool("PAYMENT_CUSTOMER_CASHOUT_ENABLED", false) {
 		return nil, errors.New("production financial capabilities are disabled pending certification")
 	}
 	raw := l.String("PAYMENT_PROVIDER_CONFIG", "[]")

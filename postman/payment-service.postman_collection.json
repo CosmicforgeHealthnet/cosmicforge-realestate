@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Payment Service Sections 1-10",
+    "name": "Payment Service Sections 1-14",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1759,6 +1759,229 @@
       }
     },
     {
+      "name": "GET /internal/v1/locked-quotes/{id}/invoice",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/locked-quotes/{{entity_id}}/invoice",
+        "description": "Immutable accepted-terms invoice with explicit tax/fee components and quote/agreement revisions. No calculated statutory tax, payment proof or invented payee. Beneficiaries come from authorized allocation readback; lawful statutory issuance remains a jurisdiction approval gate."
+      }
+    },
+    {
+      "name": "GET /internal/v1/wallets/{id}/profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallets/{{entity_id}}/profile",
+        "description": "Owned wallet purpose, canonical party, verification and ledger references; structural activation is not KYC/custody approval."
+      }
+    },
+    {
+      "name": "POST /internal/v1/wallet-transfers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallet-transfers",
+        "description": "Explicit authenticated source owner, Idempotency-Key, independent local-only approved policy and verified parties. Request does not debit/reserve money. Rent/refund/release use their existing authorized workflows.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"transfer_id\": \"{{transfer_id}}\",\n  \"source_wallet_id\": \"{{source_wallet_id}}\",\n  \"destination_wallet_id\": \"{{destination_wallet_id}}\",\n  \"pool_id\": \"{{pool_id}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"currency\": \"NGN\",\n  \"amount_minor\": 10000,\n  \"purpose\": \"CUSTOMER_REMITTANCE\",\n  \"consent_ref\": \"{{consent_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/wallet-transfers/{id}/confirm",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallet-transfers/{{entity_id}}/confirm",
+        "description": "Original source actor only. Test-mode pool and live hard-denial; policy/current identity/verification/limits/coverage revalidated. Atomic two-entry journal; duplicates return canonical posting. No external transfer."
+      }
+    },
+    {
+      "name": "GET /internal/v1/wallet-transfers/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallet-transfers/{{entity_id}}",
+        "description": "Source or destination wallet owner; no cross-user access."
+      }
+    },
+    {
+      "name": "GET /internal/v1/wallets/{id}/transfers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallets/{{entity_id}}/transfers",
+        "description": "Owned outgoing/incoming history, UUIDv7 after cursor and limit 1\u2013100."
+      }
+    },
+    {
+      "name": "GET /internal/v1/wallets/me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallets/me",
+        "description": "Authenticated source account wallets, including restricted wallets. No account identifier accepted from a body."
+      }
+    },
+    {
+      "name": "PUT /internal/v1/wallets/{id}/state",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallets/{{entity_id}}/state",
+        "description": "Admin only, evidence/policy audit. Restoration requires maker-checker; closed wallets cannot reopen. No ledger balance edits.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"state\": \"ACTIVE\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"policy_version\": \"v1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/wallet-transfer-policies",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/wallet-transfer-policies",
+        "description": "Admin dual evidence; immutable local/test-only policy. Cannot authorize production stored-value transfers.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"policy_id\": \"{{policy_id}}\",\n  \"pool_id\": \"{{pool_id}}\",\n  \"legal_entity\": \"cosmicforge-ng\",\n  \"currency\": \"NGN\",\n  \"jurisdiction\": \"NG\",\n  \"version\": \"{{version}}\",\n  \"source_domains\": [],\n  \"max_minor\": 10000,\n  \"daily_minor\": 10000,\n  \"local_test_only\": true,\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"approvers\": [],\n  \"effective_at\": \"{{effective_at}}\",\n  \"expires_at\": \"{{expires_at}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-capability-evidence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-capability-evidence",
+        "description": "Admin maker-checker; immutable independent stage evidence. Recorded claims do not activate production or replace workflow authority.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"evidence_id\": \"{{evidence_id}}\",\n  \"capability\": \"{{capability}}\",\n  \"stage\": \"IMPLEMENTATION\",\n  \"legal_entity\": \"cosmicforge-ng\",\n  \"jurisdiction\": \"NG\",\n  \"version\": \"{{version}}\",\n  \"status\": \"NOT_RUN\",\n  \"evidence_ref\": \"{{evidence_ref}}\",\n  \"issuer_ref\": \"{{issuer_ref}}\",\n  \"approvers\": [],\n  \"effective_at\": \"{{effective_at}}\",\n  \"expires_at\": \"{{expires_at}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /internal/v1/financial-capabilities/evaluate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/financial-capabilities/evaluate",
+        "description": "Owned actor/provider/entity/market eligibility readback; always requires concrete workflow authorization and funds checks. Production hard-denial cannot be overridden by recorded approval.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"capability\": \"{{capability}}\",\n  \"wallet_id\": \"{{wallet_id}}\",\n  \"provider_account_id\": \"{{provider_account_id}}\",\n  \"jurisdiction\": \"NG\",\n  \"policy_ref\": \"{{policy_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
       "name": "GET /api/v1/payments/wallets/me",
       "request": {
         "method": "GET",
@@ -2149,6 +2372,107 @@
             }
           }
         }
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/locked-quotes/{id}/invoice",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/locked-quotes/{{entity_id}}/invoice",
+        "description": "Immutable accepted-terms invoice with explicit tax/fee components and quote/agreement revisions. No calculated statutory tax, payment proof or invented payee. Beneficiaries come from authorized allocation readback; lawful statutory issuance remains a jurisdiction approval gate."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/wallets/{id}/profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallets/{{entity_id}}/profile",
+        "description": "Owned wallet purpose, canonical party, verification and ledger references; structural activation is not KYC/custody approval."
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/wallet-transfers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallet-transfers",
+        "description": "Explicit authenticated source owner, Idempotency-Key, independent local-only approved policy and verified parties. Request does not debit/reserve money. Rent/refund/release use their existing authorized workflows.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"transfer_id\": \"{{transfer_id}}\",\n  \"source_wallet_id\": \"{{source_wallet_id}}\",\n  \"destination_wallet_id\": \"{{destination_wallet_id}}\",\n  \"pool_id\": \"{{pool_id}}\",\n  \"policy_id\": \"{{policy_id}}\",\n  \"currency\": \"NGN\",\n  \"amount_minor\": 10000,\n  \"purpose\": \"CUSTOMER_REMITTANCE\",\n  \"consent_ref\": \"{{consent_ref}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "POST /api/v1/payments/wallet-transfers/{id}/confirm",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallet-transfers/{{entity_id}}/confirm",
+        "description": "Original source actor only. Test-mode pool and live hard-denial; policy/current identity/verification/limits/coverage revalidated. Atomic two-entry journal; duplicates return canonical posting. No external transfer."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/wallet-transfers/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallet-transfers/{{entity_id}}",
+        "description": "Source or destination wallet owner; no cross-user access."
+      }
+    },
+    {
+      "name": "GET /api/v1/payments/wallets/{id}/transfers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user_token}}"
+          }
+        ],
+        "url": "{{gateway_base_url}}/api/v1/payments/wallets/{{entity_id}}/transfers",
+        "description": "Owned outgoing/incoming history, UUIDv7 after cursor and limit 1\u2013100."
       }
     },
     {

@@ -3,7 +3,7 @@
   "info": {
     "title": "Paystack durable webhook",
     "version": "1.0.0",
-    "description": "Blueprint v1.0 Sections 1-10. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
+    "description": "Blueprint v1.0 Sections 1-14. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."
   },
   "paths": {
     "/webhooks/v1/paystack/{id}/callbacks": {
@@ -228,6 +228,13 @@
           "registration_ref": {
             "type": "string",
             "minLength": 1
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "PERSONAL",
+              "EARNINGS"
+            ]
           }
         },
         "required": [
@@ -4590,6 +4597,558 @@
           "authority_ref"
         ],
         "additionalProperties": false
+      },
+      "WalletAccount": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "account_id",
+          "pool_id",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "WalletProfile": {
+        "type": "object",
+        "properties": {
+          "wallet": {
+            "$ref": "#/components/schemas/Wallet"
+          },
+          "canonical_party_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification_state": {
+            "enum": [
+              "PENDING",
+              "VERIFIED",
+              "REVOKED",
+              "EXPIRED"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalletAccount"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "wallet",
+          "canonical_party_ref",
+          "purpose",
+          "verification_state",
+          "roles",
+          "accounts",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "WalletTransferPolicy": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_domains": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "max_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "daily_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "local_test_only": {
+            "const": true
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "policy_id",
+          "pool_id",
+          "legal_entity",
+          "currency",
+          "jurisdiction",
+          "version",
+          "source_domains",
+          "max_minor",
+          "daily_minor",
+          "local_test_only",
+          "evidence_ref",
+          "approvers",
+          "effective_at",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "WalletTransferInput": {
+        "type": "object",
+        "properties": {
+          "transfer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "purpose": {
+            "const": "CUSTOMER_REMITTANCE"
+          },
+          "consent_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "transfer_id",
+          "source_wallet_id",
+          "destination_wallet_id",
+          "pool_id",
+          "policy_id",
+          "currency",
+          "amount_minor",
+          "purpose",
+          "consent_ref"
+        ],
+        "additionalProperties": false
+      },
+      "WalletTransfer": {
+        "type": "object",
+        "properties": {
+          "transfer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "purpose": {
+            "const": "CUSTOMER_REMITTANCE"
+          },
+          "consent_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actor_domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_service": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_identity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorization_decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "risk_decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "REQUESTED",
+              "POSTED"
+            ]
+          },
+          "journal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "transfer_id",
+          "source_wallet_id",
+          "destination_wallet_id",
+          "pool_id",
+          "policy_id",
+          "currency",
+          "amount_minor",
+          "purpose",
+          "consent_ref",
+          "actor_id",
+          "actor_domain",
+          "source_service",
+          "source_identity_id",
+          "destination_identity_id",
+          "legal_entity",
+          "policy_version",
+          "authorization_decision",
+          "risk_decision",
+          "state",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "CapabilityEvidence": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stage": {
+            "enum": [
+              "IMPLEMENTATION",
+              "LOCAL_TEST",
+              "PROVIDER_TEST",
+              "ACCOUNT",
+              "COMMERCIAL",
+              "REGULATORY",
+              "SAFEGUARDING",
+              "JURISDICTION",
+              "STAGING",
+              "PRODUCTION"
+            ]
+          },
+          "legal_entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "provider_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "NOT_RUN",
+              "CERTIFIED",
+              "APPROVED",
+              "BLOCKED",
+              "REVOKED"
+            ]
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "issuer_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "capability",
+          "stage",
+          "legal_entity",
+          "jurisdiction",
+          "version",
+          "status",
+          "evidence_ref",
+          "issuer_ref",
+          "approvers",
+          "effective_at",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "CapabilityRequest": {
+        "type": "object",
+        "properties": {
+          "capability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "capability",
+          "wallet_id",
+          "provider_account_id",
+          "jurisdiction",
+          "policy_ref"
+        ],
+        "additionalProperties": false
+      },
+      "CapabilityDecision": {
+        "type": "object",
+        "properties": {
+          "capability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowed": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stages": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "capability",
+          "environment",
+          "allowed",
+          "reason",
+          "stages"
+        ],
+        "additionalProperties": false
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "const": "ACCEPTED_TERMS"
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "agreement_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "agreement_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "business_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "payer_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Component"
+            }
+          }
+        },
+        "required": [
+          "invoice_id",
+          "kind",
+          "revision",
+          "agreement_ref",
+          "agreement_version",
+          "business_ref",
+          "payer_ref",
+          "currency",
+          "amount_minor",
+          "policy_id",
+          "components"
+        ],
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -4623,6 +5182,7 @@
     "APPROVED_POLICY_PACK_REQUIRED",
     "APPROVED_REFUND_REQUIRED",
     "APPROVED_REMEDY_POLICY_REQUIRED",
+    "APPROVED_TEST_PROVIDER_REQUIRED",
     "AUTHORITATIVE_AGREEMENT_REQUIRED",
     "AUTHORITATIVE_EVIDENCE_REQUIRED",
     "AUTHORITATIVE_MATERIAL_CHANGE_REQUIRED",
@@ -4642,6 +5202,10 @@
     "CANCELLATION_SOURCE_REQUIRED",
     "CANCELLED_INTENT_READBACK_REVIEW_REQUIRED",
     "CANONICAL_QUOTE_SOURCE_REQUIRED",
+    "CAPABILITY_CONTEXT_REQUIRED",
+    "CAPABILITY_EVIDENCE_REQUIRED",
+    "CAPABILITY_INTENTIONALLY_DEFERRED",
+    "CAPABILITY_SCOPE_MISMATCH",
     "CASE_AUTHORITY_REQUIRED",
     "CASE_CLAIMANT_DELEGATION_MISMATCH",
     "CASE_CLOSED",
@@ -4709,6 +5273,7 @@
     "FIXED_TERM_DATES_REQUIRED",
     "FOLLOWUP_RECONCILIATION_REQUIRED",
     "FUNDED_CUSTOMER_POOL_REQUIRED",
+    "FUNDED_TEST_TRANSFER_POOL_REQUIRED",
     "HOLD_DECISION_REQUIRED",
     "IDEMPOTENCY_CONFLICT",
     "IDEMPOTENCY_KEY_REQUIRED",
@@ -4728,6 +5293,7 @@
     "INVALID_CASH_AGGREGATE",
     "INVALID_CURSOR",
     "INVALID_DEPOSIT_TYPE",
+    "INVALID_EVIDENCE_STATUS",
     "INVALID_ID",
     "INVALID_LIQUIDITY_OBSERVATION",
     "INVALID_PAGE_LIMIT",
@@ -4744,8 +5310,11 @@
     "INVALID_RENT_COMPONENT",
     "INVALID_STATE_AGGREGATE",
     "INVALID_TOPUP",
+    "INVALID_TRANSFER_SOURCE",
     "INVALID_VERIFICATION_REFERENCE",
+    "INVALID_WALLET_CONTROL",
     "INVALID_WALLET_REGISTRATION",
+    "INVALID_WALLET_TRANSFER",
     "INVALID_WEBHOOK_SIGNATURE",
     "INVALID_WITHDRAWAL",
     "IN_FLIGHT_REFUND_REQUIRES_PROVIDER_REVIEW",
@@ -4753,6 +5322,7 @@
     "LEDGER_DIMENSION_MISMATCH",
     "LINK_EVIDENCE_REQUIRED",
     "LIQUIDITY_CONFIRMATION_REQUIRED",
+    "LOCAL_TRANSFER_POLICY_REQUIRED",
     "LOCKED_QUOTE_CONTEXT_MISMATCH",
     "LOCKED_QUOTE_REQUIRED",
     "MANAGER_FEE_CONTRACT_MISMATCH",
@@ -4801,6 +5371,7 @@
     "PROVIDER_BALANCE_UNAVAILABLE",
     "PROVIDER_CONFIRMATION_PENDING",
     "PROVIDER_CONTEXT_IMMUTABLE",
+    "PROVIDER_ENTITY_MISMATCH",
     "PROVIDER_MIGRATION_EVIDENCE_REQUIRED",
     "PROVIDER_UNAVAILABLE",
     "QUOTE_PAYABLE_MISMATCH",
@@ -4863,12 +5434,19 @@
     "STALE_REMEDY_EVIDENCE",
     "SUBMITTED_REFUND_CANNOT_BE_CANCELLED",
     "TERMINAL_ALLOCATION",
+    "TEST_TRANSFER_POOL_REQUIRED",
     "TOPUP_EXPIRED_REVIEW_REQUIRED",
     "TOPUP_FEE_POLICY_REQUIRED",
+    "TRANSFER_DAILY_LIMIT",
+    "TRANSFER_DESTINATION_NOT_ELIGIBLE",
+    "TRANSFER_POLICY_NOT_PERMITTED",
+    "TRANSFER_SOURCE_ACTOR_REQUIRED",
+    "TRANSFER_TERMS_CHANGED",
     "UNBACKED_SETTLEMENT",
     "UNBALANCED_JOURNAL",
     "UNEXPLAINED_ALLOCATION_RESIDUAL",
     "UNFUNDED_RELEASE",
+    "UNKNOWN_FINANCIAL_CAPABILITY",
     "UNKNOWN_POLICY_FAMILY",
     "UNKNOWN_PROVIDER_REFUND_PREVENTS_WALLET_CREDIT",
     "UNKNOWN_PROVIDER_STATUS",
@@ -4878,11 +5456,18 @@
     "VERIFIED_BENEFICIARY_REQUIRED",
     "VERIFIED_DESTINATION_REQUIRED",
     "VERIFIED_OWNERSHIP_REQUIRED",
+    "VERIFIED_TRANSFER_PARTIES_REQUIRED",
     "VIRTUAL_ACCOUNT_NOT_FOUND",
+    "WALLET_CLOSED",
+    "WALLET_HAS_OBLIGATIONS",
     "WALLET_NOT_FOUND",
     "WALLET_OBLIGATION_CONTEXT_MISMATCH",
+    "WALLET_PURPOSE_NOT_PERMITTED",
     "WALLET_REFUND_NOT_SUBMITTED",
+    "WALLET_REGISTRATION_ACTOR_MISMATCH",
+    "WALLET_RESTRICTED",
     "WALLET_SPEND_POLICY_DISABLED",
+    "WALLET_TRANSFER_NOT_FOUND",
     "WITHDRAWAL_APPROVAL_ALREADY_USED",
     "WITHDRAWAL_APPROVAL_REQUIRED",
     "WITHDRAWAL_POLICY_DISABLED"

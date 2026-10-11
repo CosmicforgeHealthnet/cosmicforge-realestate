@@ -33,7 +33,7 @@ func (s *Service) ConfirmFunding(ctx context.Context, in FundingInput) error {
 	if e := core.Require(ctx, platform.AdminService); e != nil {
 		return e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("CUSTODY_RELEASE") != nil {
 		return core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	if in.SettlementRef == "" || in.CashEvidenceRef == "" || !dual(in.Approvers) {
@@ -289,6 +289,9 @@ type Release struct {
 }
 
 func (s *Service) Release(ctx context.Context, in Release, key string) (ids.ID, error) {
+	if e := s.CheckEnvironmentCapability("CUSTODY_RELEASE"); e != nil {
+		return ids.Nil, e
+	}
 	a, e := s.lineAllocation(ctx, in.LineID)
 	if e != nil {
 		return ids.Nil, e

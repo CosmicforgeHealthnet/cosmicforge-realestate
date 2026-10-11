@@ -41,7 +41,7 @@ const (
 
 // consumedEvents lists the event types each consumer accepts.
 var consumedEvents = map[string][]string{
-	ConsumerPayment:      {"payment.intent.updated.v1", "payment.refund.updated.v1"},
+	ConsumerPayment:      {"payment.intent.updated.v1", "payment.refund.updated.v1", "finance.payment.collected.v1"},
 	ConsumerManager:      {"manager.mandate.responded.v1", "manager.activity.recorded.v1"},
 	ConsumerArtisan:      {"artisan.quote.submitted.v1", "artisan.job.event_recorded.v1"},
 	ConsumerProfessional: {"professional.engagement.updated.v1"},
@@ -131,6 +131,15 @@ func serviceActor(svc platform.Service, domain platform.Domain, actor ids.ID) au
 
 // ---- payment.* ----
 
+// FinancialCollectionEvent mirrors finance.payment.collected.v1. It records
+// collection only; funding, allocation and settlement remain Financial Core facts.
+type FinancialCollectionEvent struct {
+	IntentID        ids.ID `json:"intent_id"`
+	AmountMinor     int64  `json:"amount_minor"`
+	Currency        string `json:"currency"`
+	SettlementState string `json:"settlement_state"`
+}
+
 // PaymentIntentEvent is the consumed payment.intent.updated.v1 payload.
 type PaymentIntentEvent struct {
 	IntentRef     string    `json:"intent_ref"`
@@ -153,6 +162,33 @@ type PaymentRefundEvent struct {
 // sale milestones, bookings, damage claims, maintenance jobs and fees.
 func (s *Service) ApplyPaymentEvent(ctx context.Context, e events.Envelope) error {
 	switch e.EventType {
+	case "finance.payment.collected.v1":
+		if err := checkUpstream(e, platform.PaymentService, "payment_intent"); err != nil {
+			return err
+		}
+		return consume(s, ConsumerPayment, platform.PaymentService, e, nil, func(ctx context.Context, p FinancialCollectionEvent, _ Evidence) error {
+			if p.IntentID.ValidateV7() != nil || p.IntentID != e.AggregateID || p.AmountMinor <= 0 || p.SettlementState != "PENDING" {
+				return apperrors.InvalidRequest("Invalid Financial Core collection observation.")
+			}
+			var obligation ids.ID
+			var amount int64
+			var currency string
+			err := mustTx(ctx).QueryRow(ctx, `SELECT obligation_id,amount_minor,currency FROM financial_core_collections WHERE intent_id=$1 FOR UPDATE`, p.IntentID).Scan(&obligation, &amount, &currency)
+			if isNoRows(err) {
+				return notFound("financial_collection")
+			}
+			if err != nil {
+				return err
+			}
+			if amount != p.AmountMinor || currency != p.Currency {
+				return apperrors.InvalidRequest("Collection terms do not match the accepted intent.")
+			}
+			_, err = mustTx(ctx).Exec(ctx, `UPDATE financial_core_collections SET observed_state='VERIFIED_SUCCESS',updated_at=now() WHERE intent_id=$1`, p.IntentID)
+			if err != nil {
+				return err
+			}
+			return s.record(ctx, "rent.financial_collection_observed", AggRentObligation, obligation, map[string]any{"intent_id": p.IntentID, "collection_state": "VERIFIED_SUCCESS", "settlement_state": "PENDING", "event_id": e.EventID}, nil)
+		})(ctx)
 	case "payment.intent.updated.v1":
 		return consume(s, ConsumerPayment, platform.PaymentService, e, nil, func(ctx context.Context, p PaymentIntentEvent, _ Evidence) error {
 			if p.IntentRef == "" || p.Status == "" || p.PaidMinor < 0 || p.UpdatedAt.IsZero() {

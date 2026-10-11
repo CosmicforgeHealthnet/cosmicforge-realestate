@@ -51,7 +51,7 @@ func (s *Service) dvaEligible(ctx context.Context, w core.Wallet, in DVAInput) e
 	if e != nil {
 		return e
 	}
-	if c.LegalEntity != w.LegalEntity || !c.Approved || !c.Operational || !c.DVAApproved || !contains(c.Capabilities, "DVA") || !contains(c.Currencies, w.Currency) || !contains(c.Countries, "NG") || c.Mode != "test" || s.Environment == "production" {
+	if c.LegalEntity != w.LegalEntity || !c.Approved || !c.Operational || !c.DVAApproved || !contains(c.Capabilities, "DVA") || !contains(c.Currencies, w.Currency) || !contains(c.Countries, "NG") || c.Mode != "test" || s.CheckEnvironmentCapability("DVA_ASSIGNMENT") != nil {
 		return core.Fail(503, "DVA_NOT_ELIGIBLE")
 	}
 	var verified bool

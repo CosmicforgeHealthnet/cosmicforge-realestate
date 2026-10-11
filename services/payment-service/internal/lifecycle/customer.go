@@ -39,7 +39,7 @@ func (s *Service) customer(ctx context.Context, id ids.ID) (core.Wallet, error) 
 	if e != nil {
 		return w, e
 	}
-	if w.Role != "CUSTOMER" || w.Domain != "marketplace" || w.State != "ACTIVE" {
+	if (w.Role != "CUSTOMER" && w.Role != "TENANT") || w.Domain != "marketplace" || w.State != "ACTIVE" {
 		return w, core.Fail(403, "CUSTOMER_WALLET_REQUIRED")
 	}
 	if e = core.DomainCaller(ctx, "marketplace"); e != nil {
@@ -84,7 +84,7 @@ func (s *Service) RequestTopup(ctx context.Context, in TopupRequest, key string)
 	if e != nil {
 		return Topup{}, e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("WALLET_FUNDING") != nil {
 		return Topup{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	policy, e := s.Policy(ctx, in.PolicyID)
@@ -187,7 +187,7 @@ func (s *Service) FundTopup(ctx context.Context, in TopupFunding) error {
 	if e := core.Require(ctx, platform.AdminService); e != nil {
 		return e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("WALLET_FUNDING") != nil {
 		return core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	if in.SettlementRef == "" || in.CashEvidenceRef == "" || !dual(in.Approvers) {
@@ -272,7 +272,7 @@ func (s *Service) FundTopup(ctx context.Context, in TopupFunding) error {
 		return core.Fail(403, "TOPUP_EXPIRED_REVIEW_REQUIRED")
 	}
 	var party string
-	if e = tx.QueryRow(ctx, `SELECT i.legal_party_ref FROM wallets w JOIN financial_identities i USING(identity_id) WHERE wallet_id=$1 AND role='CUSTOMER'`, top.WalletID).Scan(&party); e != nil {
+	if e = tx.QueryRow(ctx, `SELECT i.legal_party_ref FROM wallets w JOIN financial_identities i USING(identity_id) WHERE wallet_id=$1 AND EXISTS(SELECT 1 FROM wallet_roles r WHERE r.wallet_id=w.wallet_id AND r.role IN ('CUSTOMER','TENANT'))`, top.WalletID).Scan(&party); e != nil {
 		return e
 	}
 	if e = s.currentWallet(ctx, tx, top.WalletID, party); e != nil {
@@ -403,7 +403,7 @@ func (s *Service) SpendWallet(ctx context.Context, in WalletSpend, key string) (
 			}
 		}
 	}()
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("WALLET_SPENDING") != nil {
 		return Allocation{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	if key == "" || len(key) > 128 || in.ConsentRef == "" || in.AmountMinor <= 0 || len(in.Lines) == 0 || len(in.Lines) > 100 {

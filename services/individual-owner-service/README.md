@@ -104,3 +104,35 @@ go run ./cmd/apidocgen -check            # OpenAPI, Postman and event schemas ar
 
 Fakes for payment, e-sign, calendar sync, financing and smart access exist only in
 `tests/integration` and never count as certification of those integrations.
+
+
+## Financial Core consumer (Sections 11–14)
+
+Configure `PAYMENT_WALLET_SERVICE_URL` and the existing financial legal-entity/
+currency settings with an approved service JWT trust configuration. Registration
+uses the durable source-owned delivery queue; an active authenticated Owner can
+lazily read `/api/v1/owner/financial-wallet`. This reads Core's explicit EARNINGS
+purpose and ledger buckets and retains historical wallet references. Structural
+activation is independent of financial verification; restricted wallets stay readable.
+
+`POST /api/v1/owner/rent-obligations/{obligation_id}/financial-collection` requires
+an already accepted locked Core quote, payer email, source-owned business reference
+and matching recurring rent/fee total. It cannot add initial one-time charges or
+deposits to rent. The signed downstream call precedes the Owner transaction and
+uses a stable obligation key. GET reads the canonical Core intent and validates
+its original terms. `finance.payment.collected.v1` is consumed exactly once into
+a separate immutable-binding observation projection. Collected money does not
+mark rent paid or make beneficiary earnings available. Original funding, allocation,
+hold/release and payout controls remain Financial Core authority.
+
+The legacy generic `payment.API` is not activated by `PAYMENT_SERVICE_URL`; other
+product/refund/release adapters need their own accepted context. Unsupported
+methods remain unavailable. This prevents inferred consent/fees and false success.
+
+`go run ./cmd/wallet-backfill --dry-run=true --limit=100` inspects missing source
+registration deliveries without provider calls. Use the returned `next_cursor`
+with `--after` and explicitly select `--dry-run=false` to enqueue a page. The
+normal signed delivery worker retries each record independently; no opening funds
+or historical journal changes are created. See the payment Sections 11–14
+architecture/operations guide and final closure for exact local evidence and
+separate provider/legal/staging/production restrictions.

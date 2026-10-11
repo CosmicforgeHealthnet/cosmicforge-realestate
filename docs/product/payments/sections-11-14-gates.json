@@ -1,0 +1,90 @@
+{
+  "scope": "LOCAL FINANCIAL SOFTWARE; no new external Paystack mutation/certification",
+  "ordinary_counts": {
+    "owner": {
+      "tests": 125,
+      "subtests": 0
+    },
+    "gateway": {
+      "tests": 22,
+      "subtests": 0
+    },
+    "payment": {
+      "tests": 86,
+      "subtests": 85
+    }
+  },
+  "race_summary": {
+    "sections-11-14-final-test-results.jsonl": {
+      "individual-owner-service": {
+        "tests": 125,
+        "subtests": 0,
+        "failed": [],
+        "skipped": [],
+        "packages_failed": [],
+        "elapsed_seconds": 316.872
+      },
+      "api-gateway": {
+        "tests": 22,
+        "subtests": 0,
+        "failed": [],
+        "skipped": [],
+        "packages_failed": [],
+        "elapsed_seconds": 10.644
+      }
+    },
+    "sections-11-14-payment-final-test-results.jsonl": {
+      "payment-service": {
+        "tests": 86,
+        "subtests": 85,
+        "failed": [],
+        "skipped": [],
+        "packages_failed": [],
+        "elapsed_seconds": 149.81900000000002
+      }
+    }
+  },
+  "evidence_sha256": {
+    "docs/product/payments/sections-11-14-payment-final-test-results.jsonl": "c5bc208ce8ff99eff6347b8a87ecc279413970bfa232563c3d50f1f22289215b",
+    "docs/product/payments/sections-11-14-final-test-results.jsonl": "098e551d0945e1d88507e969617efcdc34c0c111d8c180646b8149223b39ed30",
+    "tmp/payments/sections-11-14-ordinary-test-results.jsonl": "9c7b7cfa7f9fefaaad007bdf2f053d35132d744aefb2950c0536dc1427f47368"
+  },
+  "gates": {
+    "ordinary_full_suites": "PASS",
+    "race_full_suites": "PASS",
+    "real_postgresql_required": "PASS",
+    "real_redis_gateway": "PASS",
+    "real_nats_jetstream": "PASS",
+    "payment_owner_sqlc_diff": "PASS",
+    "payment_owner_contract_reproduction_110_artifacts": "PASS",
+    "router_openapi_postman_dto_event_parity": "PASS",
+    "payment_owner_gateway_vet": "PASS",
+    "payment_owner_gateway_staticcheck": "PASS",
+    "payment_owner_gateway_module_builds": "PASS",
+    "owner_tagged_cross_service_vet_staticcheck": "PASS",
+    "architecture_self_test": "PASS",
+    "architecture_boundaries": "PASS",
+    "changed_go_formatting": "PASS",
+    "changed_text_utf8": "PASS",
+    "git_diff_whitespace": "PASS",
+    "staged_source_evidence_secret_scan": "PASS",
+    "env_ignored_untracked": "PASS",
+    "certify_powershell_syntax": "PASS"
+  },
+  "methodology": "Final ordinary evidence retains Owner/Gateway run and replaces superseded Payment entries with the final full Payment ordinary run; unique package/test keys checked. Empty packages with no test files are not skipped financial tests. Nested Owner cross-service race test is exercised by the Payment parent without double counting.",
+  "provider": "Starting Paystack certification retained, not rerun; refund terminal/public delivery NOT RUN; transfers/DVA account blocked as recorded at baseline.",
+  "staging": "NOT CERTIFIED",
+  "production": "BLOCKED",
+  "ignored_env": "PRESERVED; never staged",
+  "secret_scan": {
+    "env_ignored": true,
+    "env_tracked": false,
+    "supplied_key_count": 2,
+    "files_checked": 1159,
+    "exact_key_matches": [],
+    "index_key_match": false,
+    "literal_secret_headers": [],
+    "credential_pattern_matches": []
+  },
+  "certify_execution": "Individual checks executed as recorded; full certify.ps1 wrapper not repeated after passing equivalent final gates."
+}

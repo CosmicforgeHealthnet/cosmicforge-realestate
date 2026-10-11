@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "finance.wallet.state_changed.v1"
+    },
+    "producer": {
+      "const": "payment-service"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "wallet_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "enum": [
+            "ACTIVE",
+            "RESTRICTED",
+            "CLOSED"
+          ]
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "wallet_id",
+        "state",
+        "evidence_ref",
+        "policy_version"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

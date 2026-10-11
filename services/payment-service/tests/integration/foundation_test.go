@@ -141,8 +141,8 @@ func TestWalletRolesConcurrencyAndIsolation(t *testing.T) {
 	}
 	customer := ids.New()
 	coOwner, e := f.s.EnsureWallet(f.user, core.Provision{Domain: "individual-owner", AccountID: f.account, Role: "CO_OWNER", PartyKind: "PERSON", LegalEntity: "cosmicforge-ng", Currency: "NGN", RegistrationRef: "registered-co-role"})
-	if e != nil || coOwner.IdentityID != f.w.IdentityID || coOwner.WalletID == f.w.WalletID {
-		t.Fatal("co-owner role isolation", coOwner, e)
+	if e != nil || coOwner.IdentityID != f.w.IdentityID || coOwner.WalletID != f.w.WalletID {
+		t.Fatal("co-owner purpose wallet reuse", coOwner, e)
 	}
 	if e := f.s.LinkAccount(ctx(platform.VerificationService, "", ids.Nil), f.w.IdentityID, "marketplace", customer, "verified-party-link"); e != nil {
 		t.Fatal(e)

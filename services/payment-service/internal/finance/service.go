@@ -214,8 +214,8 @@ type Intent struct {
 	CheckoutURL       *string `json:"checkout_url,omitempty"`
 }
 
-func (s *Service) route(ctx context.Context, in IntentInput, w core.Wallet) (ProviderConfig, error) {
-	rows, e := s.DB.Query(ctx, `SELECT config FROM provider_accounts WHERE legal_entity=$1`, w.LegalEntity)
+func (s *Service) route(ctx context.Context, tx pgx.Tx, in IntentInput, w core.Wallet) (ProviderConfig, error) {
+	rows, e := tx.Query(ctx, `SELECT config FROM provider_accounts WHERE legal_entity=$1`, w.LegalEntity)
 	if e != nil {
 		return ProviderConfig{}, e
 	}
@@ -280,7 +280,7 @@ func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) 
 	if e = core.DomainCaller(ctx, domain); e != nil {
 		return Intent{}, e
 	}
-	if s.Environment == "production" {
+	if s.CheckEnvironmentCapability("WALLET_FUNDING") != nil {
 		return Intent{}, core.Fail(403, "PRODUCTION_CAPABILITY_DISABLED")
 	}
 	if w.State != "ACTIVE" || in.AmountMinor <= 0 || in.RequiredLiquidityMinor < 0 || in.Currency != w.Currency || in.EvidenceRef == "" || in.PolicyVersion == "" || key == "" || len(key) > 128 || in.Email == "" {
@@ -309,7 +309,36 @@ func (s *Service) CreateIntent(ctx context.Context, in IntentInput, key string) 
 	if !errors.Is(e, pgx.ErrNoRows) {
 		return Intent{}, e
 	}
-	c, e := s.route(ctx, in, w)
+
+	if in.LockedQuoteID != nil {
+		// Share the lifecycle policy/deactivation lock before creating a new
+		// collection. Replay above preserves the canonical original result.
+		_, e = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('policy:'||p.policy_key||':'||p.jurisdiction||':'||p.contract_type||':'||p.product,0)) FROM locked_quotes q JOIN financial_policies p USING(policy_id) WHERE q.quote_id=$1`, *in.LockedQuoteID)
+		if e != nil {
+			return Intent{}, e
+		}
+		var enabled bool
+		e = tx.QueryRow(ctx, `SELECT p.active AND p.effective_from<=now() AND (p.effective_until IS NULL OR p.effective_until>now()) AND NOT EXISTS(SELECT 1 FROM policy_deactivations d WHERE d.policy_id=p.policy_id AND d.effective_at<=now()) FROM locked_quotes q JOIN financial_policies p USING(policy_id) WHERE q.quote_id=$1`, *in.LockedQuoteID).Scan(&enabled)
+		if e != nil {
+			return Intent{}, e
+		}
+		if !enabled {
+			return Intent{}, core.Fail(403, "POLICY_DISABLED_OR_NOT_EFFECTIVE")
+		}
+	}
+	// Lock the same identity as wallet control/provisioning, then read current
+	// wallet state on this transaction. Routing also must not reacquire the pool.
+	if _, e = tx.Exec(ctx, `SELECT i.identity_id FROM wallets w JOIN financial_identities i USING(identity_id) WHERE w.wallet_id=$1 FOR UPDATE OF i`, w.WalletID); e != nil {
+		return Intent{}, e
+	}
+	current, e := s.OwnWalletWith(walletCtx, tx, w.WalletID)
+	if e != nil {
+		return Intent{}, e
+	}
+	if current.State != "ACTIVE" {
+		return Intent{}, core.Fail(403, "FINANCIAL_IDENTITY_RESTRICTED")
+	}
+	c, e := s.route(ctx, tx, in, w)
 	if e != nil {
 		return Intent{}, e
 	}

@@ -17,22 +17,23 @@ Shared payment, ledger, refund, payout, settlement and reconciliation authority.
 
 ## Implemented scope
 
-Master blueprint v1.0 Sections 1–6: authenticated role wallets, immutable
-double-entry accounting, collection routing and reconciliation, versioned locked
-quotes and exact beneficiary allocations, protected funds and partial release,
-independent holds, AVAILABLE-only withdrawal reservation and original-reference
-payout recovery, eighteen disabled category policy templates, and manually
-commanded rent obligations with configured owner commission and separate deposits.
+Master blueprint v1.0 Sections 1–14 are extended locally: universal purpose
+wallets and role grants, immutable double-entry accounting, accepted quote and
+allocation workflows, protected money, manual rent, remedies/refunds, controlled
+local internal transfers, authoritative statements/accepted-terms invoices,
+independent capability evidence and an actual signed Individual Owner consumer.
 
-Live financial activation remains disabled. Test-mode payouts require explicit
-provider and fee approval, verified destinations and exact withdrawal approvals.
-There is no automatic rent collection, saved-account debit or autopay scheduler.
-Refund remedies, chargebacks and later blueprint workflows remain deferred.
+The [Sections 11–14 closure](../../docs/product/payments/PAYMENT_SECTIONS_11_14_CLOSURE.md),
+[traceability register](../../docs/product/payments/SECTIONS_11_14_TRACEABILITY.md)
+and [architecture/operations guide](../../docs/product/payments/SECTIONS_11_14_ARCHITECTURE_AND_OPERATIONS.md)
+state the final software scope and external gates. Prior closures remain historical.
+Paystack TEST collection/verification and refund submission evidence is preserved;
+terminal refunds, merchant transfers/DVAs, staging and lawful custody remain separately
+unobserved or blocked. Local fixtures do not establish financial approval.
 
-The current [Sections 4–6 closure](../../docs/product/payments/SECTIONS_4_6_CLOSURE_REPORT.md)
-and [operations guide](../../docs/product/payments/SECTIONS_4_6_OPERATIONS.md)
-record the implemented lifecycle and external gates. The documents below remain
-the historical Sections 1–3 baseline certification.
+Live collections, transfers, custody and refunds remain disabled. Customer cash-out,
+saved authorization reuse and automatic recurring rent execution remain deferred.
+There is no automatic debit worker or raw journal/balance-edit HTTP endpoint.
 
 API: `go run ./cmd/api`; worker: `go run ./cmd/worker`; migration:
 `go run ./cmd/migrate up`. Supply owned `DATABASE_URL` and standard service

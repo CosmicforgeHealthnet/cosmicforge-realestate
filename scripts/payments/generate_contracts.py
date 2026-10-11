@@ -1,4 +1,4 @@
-"""Generate the controlled Sections 1-10 OpenAPI, Postman and event contracts.
+"""Generate the controlled Sections 1-14 OpenAPI, Postman and event contracts.
 
 Only implemented HTTP surfaces are listed. Run from the repository root.
 Contracts use JSON syntax (valid YAML) for reproducible native serialization.
@@ -97,17 +97,20 @@ def spec(title, prefix, routes, internal):
         op = {"summary": method + " " + path, "operationId": (method + prefix + path).replace("/", "_").replace("{", "").replace("}", "").replace("-", "_"), "description": description, "security": [{"ServiceJWT" if internal else "UserJWT": []}], "responses": {"200": {"description": "Authoritative result (test mode; capability status is explicit)", "content": {"application/json": {"schema": obj({"data": output})}}}}, "parameters": []}
         for parameter in __import__("re").findall(r"\{([^}]+)\}",path):
             op["parameters"].append({"name":parameter,"in":"path","required":True,"schema":UUID})
-        if path.endswith("/transactions"):
+        if path.endswith(("/transactions", "/transfers")):
             op["parameters"].extend([{"name": "after", "in": "query", "schema": UUID}, {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}}])
-        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations"]:
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations", "/wallet-transfers"]:
             op["parameters"].append({"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"type": "string", "minLength": 1, "maxLength": 128}})
         if body:
             op["requestBody"] = {"required": True, "content": {"application/json": {"schema": ref(body)}}}
         for code in [400, 401, 403, 404, 409, 413, 415, 422, 500, 503]:
             op["responses"][str(code)] = {"description": "Platform error envelope; financial safety/error codes in x-error-codes.", "content": {"application/json": {"schema": ref("Error")}}}
         paths.setdefault(prefix + path, {})[method.lower()] = op
-    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-10. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
+    return {"openapi": "3.1.0", "info": {"title": title, "version": "1.0.0", "description": "Blueprint v1.0 Sections 1-14. Live custody, collections and payouts disabled; explicitly approved test-mode payout workflow available. Internal service JWT audience payment-service. Public surface requires gateway user JWT; backend validates signed gateway delegation in X-Service-Authorization. There is no arbitrary balance or journal mutation endpoint."}, "paths": paths, "components": {"schemas": SCHEMAS, "securitySchemes": {"ServiceJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "Ed25519 service JWT"}, "UserJWT": {"type": "http", "scheme": "bearer", "bearerFormat": "domain access JWT"}}}, "x-error-codes": ERROR_CODES}
 
+
+from universal_contracts import extend as extend_universal
+extend_universal(SCHEMAS, INTERNAL, PUBLIC, obj, ref, array, TEXT, UUID, DATE, MONEY, BOOL)
 
 def write(path, data):
     p = ROOT / path
@@ -147,11 +150,11 @@ for prefix, routes, token in [("/internal/v1", INTERNAL, "service_token"), ("/ap
         if body:
             request["header"].append({"key": "Content-Type", "value": "application/json"})
             request["body"] = {"mode": "raw", "raw": json.dumps(example(SCHEMAS[body]), indent=2), "options": {"raw": {"language": "json"}}}
-        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations"]:
+        if method == "POST" and path in ["/payment-intents", "/locked-quotes", "/allocation-lines/{id}/hold", "/allocation-releases", "/withdrawals", "/financial-cases", "/financial-case-facts", "/financial-case-decisions", "/refunds", "/customer-topups", "/wallet-spends","/recoverable-actions","/intent-cancellations", "/wallet-transfers"]:
             request["header"].append({"key": "Idempotency-Key", "value": "{{idempotency_key}}"})
         items.append({"name": method + " " + prefix + path, "request": request})
 items.append({"name": "POST Paystack callbacks", "request": {"method": "POST", "url": "{{gateway_base_url}}/webhooks/v1/paystack/{{entity_id}}/callbacks", "header": [{"key": "X-Paystack-Signature", "value": "{{raw_body_hmac_sha512}}"}], "description": "Use exact signed provider body; gateway injects its service JWT. No fake signature fallback."}})
-write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-10", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""},{"key":"pool_id","value":""}, {"key": "idempotency_key", "value": ""}]})
+write("postman/payment-service.postman_collection.json", {"info": {"name": "Payment Service Sections 1-14", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"}, "item": items, "variable": [{"key": "payment_base_url", "value": "http://localhost:8094"}, {"key": "gateway_base_url", "value": "http://localhost:8080"}, {"key": "entity_id", "value": ""},{"key":"pool_id","value":""}, {"key": "idempotency_key", "value": ""}]})
 
 payloads = {
     "finance.wallet.opened.v1": ref("Wallet"),
@@ -201,6 +204,9 @@ def referenced_schemas(payload):
             for child in value: visit(child)
     visit(payload)
     return needed
+
+from universal_contracts import events as universal_events
+universal_events(payloads, SCHEMAS, obj, ref, UUID, TEXT)
 
 for event, payload in payloads.items():
     schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "allOf": [{"$ref": "../../schemas/event-envelope.schema.json"}], "properties": {"event_type": {"const": event}, "producer": {"const": "payment-service"}, "payload": payload}, "components": {"schemas": referenced_schemas(payload)}}
