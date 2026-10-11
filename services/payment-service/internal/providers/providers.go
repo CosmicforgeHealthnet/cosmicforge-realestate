@@ -18,7 +18,7 @@ type ChargeRequest struct {
 	AmountMinor                          int64
 	Channels                             []string
 }
-type Initialized struct{ Reference, CheckoutURL string }
+type Initialized struct{ Reference, CheckoutURL, AccessCode string }
 type Charge struct {
 	Reference, State, Currency, Mode, IntentID string
 	AmountMinor                                int64
@@ -71,6 +71,12 @@ type DedicatedAccounts interface {
 	FindDVA(context.Context, string) (VirtualAccount, error)
 	RequeryDVA(context.Context, string, string) error
 	DeactivateDVA(context.Context, string) error
+}
+
+// DVAProviders is optional discovery, independent of any particular bank.
+type DVAProvider struct{ Slug, Name string }
+type DVAProviders interface {
+	AvailableDVAProviders(context.Context) ([]DVAProvider, error)
 }
 type Settlement struct {
 	Reference             string

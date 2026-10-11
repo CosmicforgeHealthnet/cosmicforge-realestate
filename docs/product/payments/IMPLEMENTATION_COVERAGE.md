@@ -1,5 +1,7 @@
 # Sections 1–3 implementation coverage
 
+> [Paystack TEST certification](PAYSTACK_SANDBOX_CERTIFICATION.md) supersedes historical sandbox statuses below; local implementation evidence is retained.
+
 > Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
 
 LOCAL PASS means implemented and tested within the assigned foundation; it does not mean sandbox, custody or production approval. Blueprint subsection numbers are primary. The longer implementation prompt expands them into the requirement rows below. Test names resolve under services/payment-service/tests/integration unless another module is named.
@@ -22,7 +24,7 @@ LOCAL PASS means implemented and tested within the assigned foundation; it does 
 | 3.1 / prompt 3.1–3.2 provider roles/registry | providers interfaces and deployment registration | TestProviderHTTPSCredentialIsolationAndUnknown, unsupported custody, routing fixtures — CONTRACT PASS; executable refunds/payouts/mandates deferred |
 | 3.2 / prompt 3.3 Paystack collection | Paystack init/verify/readback, card/bank_transfer, merchant fallback fetch | Official httptest wire contracts, six context-mismatch subtests, exactly-once verification — LOCAL/CONTRACT PASS; SANDBOX NOT RUN |
 | 3.2 / prompt 3.4 callback recovery | HMAC raw body, durable inbox, retry/dead/lease/replay, outbox | TestDurableWebhookRecoveryAndReplay, TestPaymentOutboxDurableRetryAndCrashLease, real embedded JetStream — INTEGRATION PASS locally |
-| 3.4 / prompt 3.5 DVA provisioning | Consent/KYC/customer validation/Titan assignment/readback/deactivation | TestDVAConsentVerificationIdempotencyAndSync, TestDVACollectionMatchingExactlyOnceAndRevokedVerification; provider HTTP fixtures — CONTRACT PASS; actual DVA eligibility EXTERNAL BLOCKED |
+| 3.4 / prompt 3.5 DVA provisioning | Consent/KYC/customer validation/Paystack provider discovery and assignment/readback/deactivation | TestDVAConsentVerificationIdempotencyAndSync, TestDVACollectionMatchingExactlyOnceAndRevokedVerification; provider HTTP fixtures — CONTRACT PASS; actual DVA eligibility EXTERNAL BLOCKED |
 | 3.2 / prompt 3.6–3.7 Manual Payouts and state | Approval/settlement references, merchant balances, append-only batches, separate collection/settlement states | Settlement-separation/reconciliation tests — LOCAL PASS; Manual Payouts activation and cash attestation external/later |
 | 3.3 / prompt routing/recovery/migration/multi-provider | Capability/entity/currency/amount/priority/fee/liquidity/failover filters; immutable intent route | TestRoutingAndUnknownOutcomeNeverRecharges covers alternate routing and original readback; TestMultipleAdapterImplementationsThroughSignedHTTPContract exercises neutral and actual Paystack adapters through the same signed HTTP contract — LOCAL PASS; funded provider migration disabled |
 | 3.1–3.4 / custody/security/final certification | DisabledCustody; mode/key/TLS checks; safe observations, logs/metrics | Restriction/reversal/context tests, live gates, final vet/staticcheck/architecture/contracts — LOCAL PASS; external approval NOT APPROVED |

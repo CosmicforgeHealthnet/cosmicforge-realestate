@@ -1,0 +1,366 @@
+{
+  "amount_minor": 100000,
+  "available_minor": 0,
+  "currency": "NGN",
+  "custody_approved": false,
+  "duplicate_receipt_count": 1,
+  "intent_id": "01a12994-ab16-763a-94bf-35fc7ba242f0",
+  "mode": "test",
+  "observations": [
+    {
+      "method": "POST",
+      "operation": "/transaction/initialize",
+      "http_status": 200,
+      "provider_status": true,
+      "access_code_returned": true
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/balance",
+      "http_status": 200,
+      "provider_status": true
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    }
+  ],
+  "provider": "paystack",
+  "receipt_atomic_confirmation": "CERTIFIED",
+  "reconciliation_collection_context": "CERTIFIED",
+  "reconciliation_findings": [
+    {
+      "kind": "BALANCE_MISMATCH",
+      "aggregate_ref": "01a12994-aae9-7427-bb0e-f8b62cf9c137",
+      "expected": "0",
+      "observed": "170000"
+    }
+  ],
+  "reference": "cf-01a12994-ab16-763a-94bf-35fc7ba242f0"
+}

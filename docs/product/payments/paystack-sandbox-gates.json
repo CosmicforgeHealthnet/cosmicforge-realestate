@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-11",
+  "environment": "local/test",
+  "integration_required": true,
+  "tools": {
+    "go": "1.26.9",
+    "sqlc": "1.31.1",
+    "staticcheck": "2026.2.1",
+    "postgresql": "18",
+    "redis": "8.8",
+    "race": "GCC/CGO",
+    "jetstream": "embedded real server"
+  },
+  "checks": [
+    {
+      "check": "Payment full normal suite",
+      "result": "PASS",
+      "top_level": 71,
+      "subtests": 74,
+      "included_in_unique_total": false
+    },
+    {
+      "check": "Payment, Owner and Gateway race regression",
+      "result": "PASS",
+      "evidence": [
+        "paystack-sandbox-payment-race-results.jsonl",
+        "paystack-sandbox-local-race-results.jsonl"
+      ]
+    },
+    {
+      "check": "Real opt-in Paystack tests",
+      "result": "PASS",
+      "tests": 3,
+      "evidence": [
+        "paystack-real-test-results.jsonl",
+        "paystack-followup-test-results.jsonl",
+        "paystack-receipt-test-results.jsonl"
+      ],
+      "qualification": "Passing suite verifies capability-specific account blocks/pending states; not universal certification."
+    },
+    {
+      "check": "go vet, staticcheck, source builds",
+      "modules": [
+        "services/payment-service",
+        "services/individual-owner-service",
+        "gateway/api-gateway"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "Payment sandbox-tag vet, staticcheck, build",
+      "result": "PASS"
+    },
+    {
+      "check": "Payment and Owner SQLC generate/diff",
+      "result": "PASS"
+    },
+    {
+      "check": "OpenAPI, event schema, DTO serialization, Postman/route parity",
+      "result": "PASS",
+      "evidence": "Named contract tests in final race JSONL"
+    },
+    {
+      "check": "Contract generation reproduction",
+      "result": "PASS",
+      "implemented_routes": 100,
+      "payment_event_schemas": 31
+    },
+    {
+      "check": "Architecture boundary gate and self-test",
+      "result": "PASS"
+    },
+    {
+      "check": "Changed Go formatting and git diff --check",
+      "result": "PASS"
+    },
+    {
+      "check": "Root .env ignored and supplied keys absent from source/evidence",
+      "result": "PASS",
+      "inspected_files": 1093
+    }
+  ],
+  "distinct_test_evidence": "paystack-sandbox-test-summary.json",
+  "top_level": 218,
+  "subtests": 74,
+  "failed_tests_or_packages": 0,
+  "skipped_tests": 0,
+  "live_flags": "DISABLED",
+  "custody": "NOT APPROVED",
+  "section_11": "NOT STARTED",
+  "push": "NOT PUSHED"
+}

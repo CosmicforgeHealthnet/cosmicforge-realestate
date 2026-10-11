@@ -1,5 +1,7 @@
 # ADR-0013 — Provider routing, unknown outcomes and custody separation
 
+Current real-provider evidence: [Paystack TEST certification](../product/payments/PAYSTACK_SANDBOX_CERTIFICATION.md). Historical Section 3 scope below does not describe current sandbox capability status.
+
 Status: accepted Section 3 implementation; commercial, sandbox and production certification remain external. Effective 10 October 2026.
 
 Provider-neutral interfaces separate Collection, DedicatedAccounts, SettlementProvider, Custody, Payout, RefundProvider and Mandates. Runtime registration implements collection/DVA/settlement adapters only. Custody returns unsupported; transfers, refunds and mandates have reserved interfaces and no executable registration. There is no mock production fallback.
@@ -10,7 +12,7 @@ A durable intent stores an immutable route/terms snapshot and provider reference
 
 Signed callbacks enter a durable normalized inbox. HMAC is verified over raw bytes; raw card/BVN payloads are not retained. Hash deduplication preserves pending retry state. Leased workers read back the provider's reference, amount, currency, merchant, mode and intent before one atomic journal/economic effect. A successful charge creates provider receivable and PAYMENT_PENDING (or FROZEN for a restricted identity), not settled cash. A later reversal restricts the pool and creates a reconciliation exception without rewriting history.
 
-Paystack transaction responses may omit customer.integration. An authenticated customer fetch establishes the merchant in that case; the adapter does not substitute a configured merchant label for provider evidence. DVA requires signed source consent, current authoritative verification, provider-identified customer, eligible merchant and Titan assignment. Unknown assignment uses readback. Existing bank mappings cannot silently be replaced; deactivation remains possible after verification/consent expires and cannot provision a new account.
+Paystack transaction responses may omit customer.integration. An authenticated customer fetch establishes the merchant in that case; the adapter does not substitute a configured merchant label for provider evidence. DVA requires signed source consent, current authoritative verification, provider-identified customer, eligible merchant and Paystack-discovered DVA provider assignment. Unknown assignment uses readback. Existing bank mappings cannot silently be replaced; deactivation remains possible after verification/consent expires and cannot provision a new account.
 
 Settlement batches are immutable observations keyed by provider pool, external reference and evidence fingerprint, so later statuses can append new evidence. Merchant balance comparison records expectations, observations and exceptions. Neither observation posts settled cash or attributes a merchant balance to a wallet. Matched transaction-level settlement-to-ledger orchestration remains a later payment lifecycle integration; the pool defaults restricted meanwhile. Manual Payouts approval metadata and settlement-account references are configuration support, not activation or legal escrow approval.
 

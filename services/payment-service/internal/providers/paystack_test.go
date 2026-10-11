@@ -82,10 +82,12 @@ func TestPaystackDVAContractAndValidationAcceptance(t *testing.T) {
 		case "/customer/CUS_fixture/identification":
 			w.WriteHeader(202)
 			w.Write([]byte(`{"status":true,"message":"Customer Identification in progress"}`))
+		case "/dedicated_account/available_providers":
+			w.Write([]byte(`{"status":true,"data":[{"provider_slug":"wema-bank","bank_name":"Wema Bank"}]}`))
 		case "/dedicated_account":
 			var body map[string]string
 			_ = json.NewDecoder(r.Body).Decode(&body)
-			if body["preferred_bank"] != "titan-paystack" || body["customer"] != "CUS_fixture" {
+			if body["preferred_bank"] != "test-bank" || body["customer"] != "CUS_fixture" {
 				t.Error(body)
 			}
 			w.Write([]byte(`{"status":true,"data":{"id":123,"active":true,"currency":"NGN","account_number":"0123456789","bank":{"slug":"titan-paystack"},"assignment":{"integration":1001},"customer":{"customer_code":"CUS_fixture"}}}`))

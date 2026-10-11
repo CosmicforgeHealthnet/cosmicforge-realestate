@@ -499,6 +499,14 @@ func (s *Service) VerifyIntent(ctx context.Context, id ids.ID) (Intent, error) {
 		if e != nil {
 			return i, e
 		}
+		// Both checkout and DVA collections retain the original receipt. Keeping
+		// this in the credit transaction prevents false missing-collection
+		// findings and leaves one immutable economic fact on duplicate readback.
+		evidence, _ := json.Marshal(map[string]string{"provider_account_id": i.ProviderAccountID.String(), "reference": i.Reference, "intent_id": i.ID.String(), "settlement_state": "PENDING"})
+		_, e = tx.Exec(ctx, `INSERT INTO collection_receipts(receipt_id,provider_account_id,external_ref,wallet_id,journal_id,amount_minor,currency,evidence) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, ids.New(), i.ProviderAccountID, i.Reference, i.WalletID, journal, i.AmountMinor, i.Currency, string(evidence))
+		if e != nil {
+			return i, e
+		}
 		_, e = tx.Exec(ctx, `UPDATE payment_intents SET state='VERIFIED_SUCCESS',credited_journal_id=$2,updated_at=now() WHERE intent_id=$1`, id, journal)
 		if e != nil {
 			return i, e

@@ -96,6 +96,7 @@ func (p *Paystack) doCall(ctx context.Context, method, path string, in, out any)
 	}
 	req.Header.Set("Authorization", "Bearer "+p.secret.Reveal())
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "CosmicForge-Payment-Service/1.0")
 	if requestID := requestcontext.From(ctx).RequestID; requestID != "" {
 		req.Header.Set("X-Request-ID", requestID)
 	}
@@ -124,8 +125,9 @@ func (p *Paystack) doCall(ctx context.Context, method, path string, in, out any)
 }
 func (p *Paystack) InitializeCharge(ctx context.Context, in ChargeRequest) (Initialized, error) {
 	var out struct {
-		Reference string `json:"reference"`
-		URL       string `json:"authorization_url"`
+		Reference  string `json:"reference"`
+		URL        string `json:"authorization_url"`
+		AccessCode string `json:"access_code"`
 	}
 	e := p.call(ctx, "POST", "/transaction/initialize", map[string]any{"email": in.Email, "amount": strconv.FormatInt(in.AmountMinor, 10), "currency": in.Currency, "reference": in.Reference, "channels": in.Channels, "metadata": map[string]string{"intent_id": in.IntentID}}, &out)
 	if e != nil {
@@ -135,7 +137,7 @@ func (p *Paystack) InitializeCharge(ctx context.Context, in ChargeRequest) (Init
 	if out.Reference != in.Reference || err != nil || u.Scheme != "https" || u.Host == "" {
 		return Initialized{}, ErrMismatch
 	}
-	return Initialized{out.Reference, out.URL}, nil
+	return Initialized{Reference: out.Reference, CheckoutURL: out.URL, AccessCode: out.AccessCode}, nil
 }
 
 type chargeWire struct {
@@ -311,14 +313,27 @@ type dvaWire struct {
 }
 
 func (p *Paystack) dva(x dvaWire) (VirtualAccount, error) {
-	if x.ID <= 0 || x.Number == "" || x.Bank.Slug != "titan-paystack" || x.Customer.Code == "" || x.Currency != "NGN" || x.Assignment.Integration != p.merchant {
+	if x.ID <= 0 || x.Number == "" || x.Bank.Slug == "" || x.Customer.Code == "" || x.Currency != "NGN" || x.Assignment.Integration != p.merchant {
 		return VirtualAccount{}, ErrMismatch
 	}
 	return VirtualAccount{ID: strconv.FormatInt(x.ID, 10), AccountNumber: x.Number, BankCode: x.Bank.Slug, CustomerRef: x.Customer.Code, Active: x.Active, MerchantID: p.merchant, Mode: p.mode}, nil
 }
 func (p *Paystack) AssignDVA(ctx context.Context, code string) (VirtualAccount, error) {
+	banks, e := p.AvailableDVAProviders(ctx)
+	if e != nil {
+		return VirtualAccount{}, e
+	}
+	if len(banks) == 0 {
+		return VirtualAccount{}, ErrUnsupported
+	}
+	// Paystack documents test-bank for test-mode assignment. Discovery must
+	// succeed first; unavailable merchant eligibility cannot be bypassed.
+	bank := banks[0].Slug
+	if p.mode == "test" {
+		bank = "test-bank"
+	}
 	var x dvaWire
-	e := p.call(ctx, "POST", "/dedicated_account", map[string]string{"customer": code, "preferred_bank": "titan-paystack"}, &x)
+	e = p.call(ctx, "POST", "/dedicated_account", map[string]string{"customer": code, "preferred_bank": bank}, &x)
 	if e != nil {
 		return VirtualAccount{}, e
 	}
@@ -326,6 +341,26 @@ func (p *Paystack) AssignDVA(ctx context.Context, code string) (VirtualAccount, 
 		return VirtualAccount{}, ErrMismatch
 	}
 	return p.dva(x)
+}
+
+func (p *Paystack) AvailableDVAProviders(ctx context.Context) ([]DVAProvider, error) {
+	var xs []struct {
+		Slug string `json:"provider_slug"`
+		Name string `json:"bank_name"`
+	}
+	if e := p.call(ctx, "GET", "/dedicated_account/available_providers", nil, &xs); e != nil {
+		return nil, e
+	}
+	out := make([]DVAProvider, 0, len(xs))
+	seen := map[string]bool{}
+	for _, x := range xs {
+		if x.Slug == "" || seen[x.Slug] {
+			return nil, ErrMismatch
+		}
+		seen[x.Slug] = true
+		out = append(out, DVAProvider{Slug: x.Slug, Name: x.Name})
+	}
+	return out, nil
 }
 func (p *Paystack) FetchDVA(ctx context.Context, id string) (VirtualAccount, error) {
 	var x dvaWire

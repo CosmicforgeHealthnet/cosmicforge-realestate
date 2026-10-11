@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/balance",
+    "http_status": 200,
+    "status": true,
+    "message": "Balances retrieved",
+    "record_count": 1
+  },
+  {
+    "path": "/dedicated_account/available_providers",
+    "http_status": 403,
+    "status": false,
+    "message": "Dedicated NUBAN is not available for your business"
+  },
+  {
+    "path": "/customer?perPage=1",
+    "http_status": 200,
+    "status": true,
+    "message": "Customers retrieved",
+    "record_count": 0
+  },
+  {
+    "path": "/settlement?perPage=1",
+    "http_status": 200,
+    "status": true,
+    "message": "Settlements retrieved",
+    "record_count": 0
+  },
+  {
+    "path": "/transaction?perPage=1",
+    "http_status": 200,
+    "status": true,
+    "message": "Transactions retrieved",
+    "record_count": 0
+  },
+  {
+    "path": "/transfer?perPage=1",
+    "http_status": 200,
+    "status": true,
+    "message": "Transfers retrieved",
+    "record_count": 0
+  },
+  {
+    "path": "/refund?perPage=1",
+    "http_status": 200,
+    "status": true,
+    "message": "Refunds retrieved",
+    "record_count": 0
+  },
+  {
+    "path": "/balance",
+    "credential": "intentionally invalid",
+    "http_status": 401,
+    "status": false,
+    "message": "Invalid key"
+  }
+]

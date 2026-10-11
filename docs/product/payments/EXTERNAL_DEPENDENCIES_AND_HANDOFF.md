@@ -1,5 +1,7 @@
 # External dependencies and Section 4 handoff
 
+> Current provider evidence and remaining account/commercial/legal blockers: [Paystack TEST certification](PAYSTACK_SANDBOX_CERTIFICATION.md). The dependency statuses below are historical Sections 1–3 observations.
+
 > Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.
 
 | Dependency | Status | Required owner/evidence |

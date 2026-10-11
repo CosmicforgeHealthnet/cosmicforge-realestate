@@ -1,0 +1,1494 @@
+{
+  "authentication": "CERTIFIED",
+  "autopay": "DESIGN RESERVED / EXECUTION DEFERRED",
+  "balance": "CERTIFIED",
+  "checkout": "CERTIFIED",
+  "controlled_lost_initialization_response": "CERTIFIED: injected locally after real successful POST, original reference read back; Paystack timeout not claimed",
+  "custody": "NOT APPROVED",
+  "dva_assignment": "NOT RUN",
+  "dva_discovery": "EXTERNAL/ACCOUNT BLOCKED",
+  "dva_funding": "NOT RUN",
+  "dva_reason": "DVA_ACCOUNT_INELIGIBLE",
+  "initialization": "CERTIFIED",
+  "initialization_idempotency": true,
+  "initialization_no_credit": true,
+  "invalid_credential_rejected": true,
+  "merchant_binding": "CERTIFIED",
+  "mode": "test",
+  "observations": [
+    {
+      "method": "GET",
+      "operation": "/balance",
+      "http_status": 200,
+      "provider_status": true
+    },
+    {
+      "method": "GET",
+      "operation": "/balance",
+      "http_status": 401,
+      "provider_status": false,
+      "classification": "INVALID_CREDENTIAL"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/dedicated_account/available_providers",
+      "http_status": 403,
+      "provider_status": false,
+      "classification": "DVA_ACCOUNT_INELIGIBLE",
+      "failure_reason": "Dedicated NUBAN is not available for your business"
+    },
+    {
+      "method": "POST",
+      "operation": "/transaction/initialize",
+      "http_status": 200,
+      "provider_status": true,
+      "access_code_returned": true
+    },
+    {
+      "method": "POST",
+      "operation": "/transaction/initialize",
+      "http_status": 200,
+      "provider_status": true,
+      "access_code_returned": true
+    },
+    {
+      "method": "POST",
+      "operation": "/transaction/initialize",
+      "http_status": 200,
+      "provider_status": true,
+      "access_code_returned": true
+    },
+    {
+      "method": "POST",
+      "operation": "/transaction/initialize",
+      "http_status": 200,
+      "provider_status": true,
+      "access_code_returned": true
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "abandoned"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "POST",
+      "operation": "/refund",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "POST",
+      "operation": "/refund",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "POST",
+      "operation": "/refund",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "success"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "POST",
+      "operation": "/refund",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/bank/resolve",
+      "http_status": 200,
+      "provider_status": true
+    },
+    {
+      "method": "POST",
+      "operation": "/transferrecipient",
+      "http_status": 201,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "POST",
+      "operation": "/transfer",
+      "http_status": 400,
+      "provider_status": false,
+      "classification": "PROVIDER_DECLINED_REQUEST",
+      "failure_reason": "Please set a phone number for your business from the compliance page on the dashboard."
+    },
+    {
+      "method": "GET",
+      "operation": "/balance",
+      "http_status": 200,
+      "provider_status": true
+    },
+    {
+      "method": "GET",
+      "operation": "/balance",
+      "http_status": 200,
+      "provider_status": true
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    },
+    {
+      "method": "GET",
+      "operation": "/refund/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/transaction/verify/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test",
+      "state": "reversal-pending"
+    },
+    {
+      "method": "GET",
+      "operation": "/customer/:original-id",
+      "http_status": 200,
+      "provider_status": true,
+      "mode": "test"
+    }
+  ],
+  "once_only_collection_journals": true,
+  "payout": "EXTERNAL/ACCOUNT BLOCKED: provider rejected test transfer; see observations",
+  "payout_reversal": "NOT RUN",
+  "public_webhook_delivery": "NOT RUN",
+  "recipient": "CERTIFIED",
+  "reconciliation": "CERTIFIED: original collection/refund readbacks and test balance, not settled custody",
+  "reconciliation_findings": [
+    {
+      "kind": "BALANCE_MISMATCH",
+      "aggregate_ref": "01a1298c-b4c9-72a6-9f5f-cd52e978d3eb",
+      "expected": "0",
+      "observed": "70000"
+    },
+    {
+      "kind": "MISSING_COLLECTION",
+      "aggregate_ref": "01a1298c-b794-7486-9089-8e58b1e1533d",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "MISSING_COLLECTION",
+      "aggregate_ref": "01a1298c-b67a-7676-9df1-65efc09fc26b",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "MISSING_COLLECTION",
+      "aggregate_ref": "01a1298c-b985-700d-9bee-249fc5e25e8b",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "MISSING_COLLECTION",
+      "aggregate_ref": "01a1298c-b503-7745-b94e-1a735a4a6581",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "STALE_UNKNOWN_REFUND",
+      "aggregate_ref": "01a1298d-1ee9-717b-9689-122c8a417304",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "STALE_UNKNOWN_REFUND",
+      "aggregate_ref": "01a1298d-7a4d-726c-abc4-d89041aa1b1e",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "STALE_UNKNOWN_REFUND",
+      "aggregate_ref": "01a1298d-d205-7358-aa16-7577a5f0a602",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "STALE_UNKNOWN_REFUND",
+      "aggregate_ref": "01a1298e-3003-7224-b3e4-4e3355e6df3f",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "CASH_COVERAGE_DEFICIT",
+      "aggregate_ref": "01a1298c-b4c9-72a6-9f5f-cd52e978d3eb",
+      "expected": "canonical matched evidence",
+      "observed": "requires review"
+    },
+    {
+      "kind": "CHARGEBACK_OR_REVERSAL_REVIEW",
+      "aggregate_ref": "01a1298c-b503-7745-b94e-1a735a4a6581",
+      "expected": "VERIFIED_SUCCESS",
+      "observed": "UNKNOWN_OUTCOME"
+    },
+    {
+      "kind": "CHARGEBACK_OR_REVERSAL_REVIEW",
+      "aggregate_ref": "01a1298c-b67a-7676-9df1-65efc09fc26b",
+      "expected": "VERIFIED_SUCCESS",
+      "observed": "UNKNOWN_OUTCOME"
+    },
+    {
+      "kind": "CHARGEBACK_OR_REVERSAL_REVIEW",
+      "aggregate_ref": "01a1298c-b794-7486-9089-8e58b1e1533d",
+      "expected": "VERIFIED_SUCCESS",
+      "observed": "UNKNOWN_OUTCOME"
+    },
+    {
+      "kind": "CHARGEBACK_OR_REVERSAL_REVIEW",
+      "aggregate_ref": "01a1298c-b985-700d-9bee-249fc5e25e8b",
+      "expected": "VERIFIED_SUCCESS",
+      "observed": "UNKNOWN_OUTCOME"
+    }
+  ],
+  "refund_reversal": "NOT RUN",
+  "transactions": [
+    {
+      "amount_minor": 100000,
+      "checkout": "CERTIFIED",
+      "currency": "NGN",
+      "duplicate_prevention": true,
+      "fee_minor": 1500,
+      "intent_id": "01a1298c-b503-7745-b94e-1a735a4a6581",
+      "over_refund_rejected": true,
+      "readback": "CERTIFIED",
+      "reference": "cf-01a1298c-b503-7745-b94e-1a735a4a6581",
+      "refund": "NOT RUN: terminal effect not authoritatively confirmed",
+      "refund_amount_minor": 40000,
+      "refund_id": "01a1298d-1ee9-717b-9689-122c8a417304",
+      "refund_state": "PROCESSING",
+      "reservation_retained": true,
+      "scenario": "partial_refund"
+    },
+    {
+      "amount_minor": 100000,
+      "checkout": "CERTIFIED",
+      "currency": "NGN",
+      "duplicate_prevention": true,
+      "fee_minor": 1500,
+      "intent_id": "01a1298c-b67a-7676-9df1-65efc09fc26b",
+      "over_refund_rejected": true,
+      "readback": "CERTIFIED",
+      "reference": "cf-01a1298c-b67a-7676-9df1-65efc09fc26b",
+      "refund": "NOT RUN: terminal effect not authoritatively confirmed",
+      "refund_amount_minor": 100000,
+      "refund_id": "01a1298d-7a4d-726c-abc4-d89041aa1b1e",
+      "refund_state": "PROCESSING",
+      "reservation_retained": true,
+      "scenario": "full_refund"
+    },
+    {
+      "amount_minor": 100000,
+      "checkout": "CERTIFIED",
+      "currency": "NGN",
+      "duplicate_prevention": true,
+      "fee_minor": 1500,
+      "intent_id": "01a1298c-b794-7486-9089-8e58b1e1533d",
+      "over_refund_rejected": true,
+      "readback": "CERTIFIED",
+      "reference": "cf-01a1298c-b794-7486-9089-8e58b1e1533d",
+      "refund": "NOT RUN: terminal effect not authoritatively confirmed",
+      "refund_amount_minor": 100000,
+      "refund_id": "01a1298d-d205-7358-aa16-7577a5f0a602",
+      "refund_state": "PROCESSING",
+      "reservation_retained": true,
+      "scenario": "failed_refund"
+    },
+    {
+      "amount_minor": 100000,
+      "checkout": "CERTIFIED",
+      "currency": "NGN",
+      "duplicate_prevention": true,
+      "fee_minor": 1500,
+      "intent_id": "01a1298c-b985-700d-9bee-249fc5e25e8b",
+      "over_refund_rejected": true,
+      "readback": "CERTIFIED",
+      "reference": "cf-01a1298c-b985-700d-9bee-249fc5e25e8b",
+      "refund": "NOT RUN: terminal effect not authoritatively confirmed",
+      "refund_amount_minor": 100000,
+      "refund_id": "01a1298e-3003-7224-b3e4-4e3355e6df3f",
+      "refund_state": "PROCESSING",
+      "reservation_retained": true,
+      "scenario": "needs_attention_refund"
+    }
+  ],
+  "verify_readback": "CERTIFIED",
+  "webhook_crypto": "LOCAL CONTRACT PASS"
+}
