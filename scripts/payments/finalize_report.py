@@ -8,8 +8,9 @@ parser.add_argument("--sections-4-6", action="store_true")
 parser.add_argument("--sections-7-10",action="store_true")
 parser.add_argument("--paystack-sandbox", action="store_true")
 parser.add_argument("--sections-11-14", action="store_true")
+parser.add_argument("--master-final", action="store_true")
 args = parser.parse_args()
-report_name = "PAYMENT_SECTIONS_11_14_CLOSURE.md" if args.sections_11_14 else "PAYSTACK_SANDBOX_CERTIFICATION.md" if args.paystack_sandbox else "SECTIONS_7_10_CLOSURE_REPORT.md" if args.sections_7_10 else "SECTIONS_4_6_CLOSURE_REPORT.md" if args.sections_4_6 else "CLOSURE_REPORT.md"
+report_name = "PAYMENT_MASTER_FINAL_CLOSURE.md" if args.master_final else "PAYMENT_SECTIONS_11_14_CLOSURE.md" if args.sections_11_14 else "PAYSTACK_SANDBOX_CERTIFICATION.md" if args.paystack_sandbox else "SECTIONS_7_10_CLOSURE_REPORT.md" if args.sections_7_10 else "SECTIONS_4_6_CLOSURE_REPORT.md" if args.sections_4_6 else "CLOSURE_REPORT.md"
 root = Path(__file__).resolve().parents[2]
 def git(*args):
     return subprocess.check_output(["git", *args], cwd=root, text=True).strip()

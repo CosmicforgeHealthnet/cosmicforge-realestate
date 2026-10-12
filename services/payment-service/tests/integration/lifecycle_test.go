@@ -104,6 +104,10 @@ type lifeFixture struct {
 }
 
 func newLife(t *testing.T, key string, amount int64) *lifeFixture {
+	return newAcceptanceLife(t, key, amount, nil, nil)
+}
+
+func newAcceptanceLife(t *testing.T, key string, amount int64, configurePolicy func(*lifecycle.Policy), configureQuote func(*lifecycle.Quote)) *lifeFixture {
 	f := setup(t)
 	l := lifecycle.New(f.s)
 	p := &payoutFixture{fakeProvider: f.fake, settled: true}
@@ -127,6 +131,9 @@ func newLife(t *testing.T, key string, amount int64) *lifeFixture {
 		t.Fatal(e)
 	}
 	policy := makePolicy(key)
+	if configurePolicy != nil {
+		configurePolicy(&policy)
+	}
 	if _, e := l.PutPolicy(admin(), policy); e != nil {
 		t.Fatal(e)
 	}
@@ -135,6 +142,9 @@ func newLife(t *testing.T, key string, amount int64) *lifeFixture {
 		t.Fatal(e)
 	}
 	q := lifecycle.Quote{ID: ids.New(), Domain: "individual-owner", BusinessRef: a.BusinessRef, PayerWalletID: f.w.WalletID, PayerType: "TENANT", PayerConsentRef: "signed-payer-consent", LegalPartyRef: a.LegalPartyRef, QuoteVersion: "accepted-v1", AgreementRef: "lease", AgreementVersion: "v1", PolicyID: policy.ID, Currency: "NGN", Jurisdiction: "NG", Schedule: "ANNUAL", AmountMinor: amount, Components: []lifecycle.Component{{Ref: "rent", Kind: "RENT", AmountMinor: amount, PayerRef: a.LegalPartyRef, Recurrence: "RECURRING"}}}
+	if configureQuote != nil {
+		configureQuote(&q)
+	}
 	if _, e := l.LockQuote(f.user, q, "quote"); e != nil {
 		t.Fatal(e)
 	}
