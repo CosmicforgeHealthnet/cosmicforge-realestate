@@ -17,6 +17,7 @@ type AcceptedCollectionInput struct {
 type AcceptedCollectionEvidence struct {
 	Quote  payment.AcceptedQuote
 	Intent payment.CollectionIntent
+	Policy payment.CollectionPolicy
 }
 type CollectionClient interface {
 	AcceptedQuote(context.Context, ids.ID) (payment.AcceptedQuote, error)
@@ -57,18 +58,45 @@ func (s *Service) PrepareAcceptedRentCollection(ctx context.Context, subj authz.
 	if q.Domain != "individual-owner" || q.BusinessRef != "rent_obligation:"+id.String() || q.Currency != o.Currency {
 		return out, precondition("LOCKED_QUOTE_CONTEXT_MISMATCH", "Accepted quote does not match this rent obligation.")
 	}
-	if !acceptedRentComponents(q, o.AmountMinor) {
-		return out, precondition("LOCKED_QUOTE_CONTEXT_MISMATCH", "Accepted recurring rent and fee components differ from the business obligation.")
+	core, ok := s.walletRegistration.(FinancialCoreClient)
+	if !ok {
+		return out, unavailable("Accepted rent policy context", "payment-service")
+	}
+	receipt, e := core.Receipt(ctx, q.ID)
+	if e != nil {
+		return out, downstream("payment-service", e)
+	}
+	business, e := s.OwnedCoreBusiness(ctx, subj, AggRentObligation, id)
+	if e != nil {
+		return out, e
+	}
+	if e = validateCorePayer(business, q, receipt.PayerContext); e != nil {
+		return out, e
+	}
+	policy, e := core.Policy(ctx, q.PolicyID)
+	if e != nil {
+		return out, downstream("payment-service", e)
+	}
+	if e = s.acceptedRentContext(ctx, o, q, policy); e != nil {
+		return out, e
 	}
 	p, e := s.q.GetProperty(ctx, s.Pool, o.PropertyID)
 	if e != nil {
 		return out, e
 	}
-	intent, e := client.CreateAcceptedCollection(ctx, p.OwnerAccountID, q, in.PayerEmail)
+	var intent payment.CollectionIntent
+	if receipt.IntentID != nil {
+		intent, e = client.Collection(coreOwnerContext(ctx, p.OwnerAccountID), *receipt.IntentID)
+	} else {
+		intent, e = client.CreateAcceptedCollection(ctx, p.OwnerAccountID, q, in.PayerEmail)
+	}
+	if e == nil && (intent.WalletID != q.WalletID || intent.AmountMinor != q.AmountMinor || intent.Currency != q.Currency) {
+		return out, precondition("PAYMENT_READBACK_CONTEXT_MISMATCH", "Existing intent does not match the accepted quote.")
+	}
 	if e != nil {
 		return out, downstream("payment-service", e)
 	}
-	return AcceptedCollectionEvidence{q, intent}, nil
+	return AcceptedCollectionEvidence{Quote: q, Intent: intent, Policy: policy}, nil
 }
 func (s *Service) RecordAcceptedRentCollection(ctx context.Context, subj authz.Subject, id ids.ID, ev AcceptedCollectionEvidence) (payment.CollectionIntent, error) {
 	o, e := s.obligationFor(ctx, subj, id)
@@ -81,8 +109,8 @@ func (s *Service) RecordAcceptedRentCollection(ctx context.Context, subj authz.S
 	if o.Kind != "RENT" || o.Status == "WAIVED" || o.Status == "PAID" || o.PaidMinor != 0 || o.RefundedMinor != 0 {
 		return ev.Intent, precondition("ACCEPTED_RENT_CONTEXT_REQUIRED", "Business obligation changed; retain and reconcile the original Financial Core intent.")
 	}
-	if !acceptedRentComponents(ev.Quote, o.AmountMinor) {
-		return ev.Intent, precondition("LOCKED_QUOTE_CONTEXT_MISMATCH", "Accepted obligation changed; reconcile the original intent.")
+	if e = s.acceptedRentContext(ctx, o, ev.Quote, ev.Policy); e != nil {
+		return ev.Intent, e
 	}
 	ref := ev.Intent.ID.String()
 	if o.PaymentIntentRef != nil && *o.PaymentIntentRef != ref {
@@ -92,7 +120,13 @@ func (s *Service) RecordAcceptedRentCollection(ctx context.Context, subj authz.S
 	if e != nil {
 		return ev.Intent, e
 	}
-	tag, e := mustTx(ctx).Exec(ctx, `INSERT INTO financial_core_collections(obligation_id,quote_id,intent_id,amount_minor,currency,snapshot,observed_state,settlement_state) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(obligation_id) DO NOTHING`, id, ev.Quote.ID, ev.Intent.ID, ev.Intent.AmountMinor, ev.Intent.Currency, string(raw), ev.Intent.State, ev.Intent.SettlementState)
+	b, e := s.OwnedCoreBusiness(ctx, subj, AggRentObligation, id)
+	if e != nil {
+		return ev.Intent, e
+	}
+	br, _ := json.Marshal(b)
+	qr, _ := json.Marshal(ev.Quote)
+	tag, e := mustTx(ctx).Exec(ctx, `INSERT INTO financial_core_collections(obligation_id,quote_id,intent_id,amount_minor,currency,snapshot,observed_state,settlement_state,owner_account_id,business_context,quote_snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT(obligation_id) DO NOTHING`, id, ev.Quote.ID, ev.Intent.ID, ev.Intent.AmountMinor, ev.Intent.Currency, string(raw), ev.Intent.State, ev.Intent.SettlementState, b.OwnerID, string(br), string(qr))
 	if e != nil {
 		return ev.Intent, e
 	}

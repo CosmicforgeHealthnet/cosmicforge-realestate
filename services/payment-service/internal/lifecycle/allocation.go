@@ -29,6 +29,51 @@ type Authority struct {
 	ExpiresAt     time.Time `json:"expires_at"`
 }
 
+// AuthorityStatus is a source-scoped read of an existing entitlement. It grants
+// no authority and does not bypass the current checks performed on allocation.
+type AuthorityStatus struct {
+	Authority
+	Active               bool   `json:"active"`
+	BeneficiaryDomain    string `json:"beneficiary_source_domain"`
+	BeneficiaryAccountID ids.ID `json:"beneficiary_source_account_id"`
+}
+
+func (s *Service) AuthorityStatus(ctx context.Context, id ids.ID) (AuthorityStatus, error) {
+	p, e := core.Caller(ctx)
+	if e != nil {
+		return AuthorityStatus{}, e
+	}
+	var out AuthorityStatus
+	var data []byte
+	var source string
+	e = s.DB.QueryRow(ctx, `SELECT snapshot,source_service,expires_at>now() AND NOT revoked FROM beneficiary_authorities WHERE authority_id=$1`, id).Scan(&data, &source, &out.Active)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return out, core.Fail(404, "AUTHORITY_NOT_FOUND")
+	}
+	if e != nil {
+		return out, e
+	}
+	if e = decode(data, &out.Authority); e != nil {
+		return out, e
+	}
+	if source != string(p.Service) && p.Service != platform.AdminService && p.Service != platform.PaymentService {
+		var ownsBusiness bool
+		e = s.DB.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM locked_quotes WHERE source_service=$1 AND business_ref=$2)`, p.Service, out.BusinessRef).Scan(&ownsBusiness)
+		if e != nil {
+			return AuthorityStatus{}, e
+		}
+		if !ownsBusiness {
+			return AuthorityStatus{}, core.Fail(403, "AUTHORITY_SOURCE_REQUIRED")
+		}
+	}
+	if out.WalletID != nil {
+		if e = s.DB.QueryRow(ctx, `SELECT w.domain,b.account_id FROM wallets w JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE w.wallet_id=$1`, out.WalletID).Scan(&out.BeneficiaryDomain, &out.BeneficiaryAccountID); e != nil {
+			return AuthorityStatus{}, e
+		}
+	}
+	return out, nil
+}
+
 func (s *Service) PutAuthority(ctx context.Context, a Authority) (Authority, error) {
 	p, e := core.Caller(ctx)
 	if e != nil {
@@ -319,7 +364,10 @@ func (s *Service) allocation(ctx context.Context, q query, id ids.ID) (a Allocat
 	return
 }
 func (s *Service) Allocation(ctx context.Context, id ids.ID) (Allocation, error) {
-	a, e := s.allocation(ctx, s.DB, id)
+	return s.publicAllocation(ctx, s.DB, id)
+}
+func (s *Service) publicAllocation(ctx context.Context, q query, id ids.ID) (Allocation, error) {
+	a, e := s.allocation(ctx, q, id)
 	if e != nil {
 		return a, e
 	}
@@ -329,7 +377,7 @@ func (s *Service) Allocation(ctx context.Context, id ids.ID) (Allocation, error)
 	}
 	if p.Service != platform.PaymentService {
 		var source string
-		e = s.DB.QueryRow(ctx, `SELECT p.source_service FROM allocation_snapshots a JOIN payment_intents p USING(intent_id) WHERE allocation_id=$1`, id).Scan(&source)
+		e = q.QueryRow(ctx, `SELECT p.source_service FROM allocation_snapshots a JOIN payment_intents p USING(intent_id) WHERE allocation_id=$1`, id).Scan(&source)
 		if e != nil {
 			return a, e
 		}
@@ -358,7 +406,7 @@ func (s *Service) Allocation(ctx context.Context, id ids.ID) (Allocation, error)
 	}
 	for n := range a.Lines {
 		l := &a.Lines[n]
-		e = s.DB.QueryRow(ctx, `SELECT state,released_minor,reserved_minor,paid_minor FROM allocation_lines WHERE line_id=$1`, l.ID).Scan(&l.State, &l.ReleasedMinor, &l.ReservedMinor, &l.PaidMinor)
+		e = q.QueryRow(ctx, `SELECT state,released_minor,reserved_minor,paid_minor FROM allocation_lines WHERE line_id=$1`, l.ID).Scan(&l.State, &l.ReleasedMinor, &l.ReservedMinor, &l.PaidMinor)
 		if e != nil {
 			return a, e
 		}

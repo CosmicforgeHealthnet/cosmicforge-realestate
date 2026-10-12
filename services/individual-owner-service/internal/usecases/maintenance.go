@@ -717,7 +717,7 @@ func (s *Service) ApproveMaintenance(ctx context.Context, subj authz.Subject, id
 	if err := schema.Validate(in); err != nil {
 		return MaintenanceView{}, err
 	}
-	if in.PaymentCollection == "PLATFORM" && s.Payment == nil {
+	if in.PaymentCollection == "PLATFORM" && s.Payment == nil && !s.hasCoreFinancial() {
 		return MaintenanceView{}, unavailable("Platform payment of providers", "payment-service")
 	}
 	var out MaintenanceView

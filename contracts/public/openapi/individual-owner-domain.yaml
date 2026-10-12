@@ -22,6 +22,63 @@ components:
         - quote_id
         - payer_email
       type: object
+    AcceptedQuote:
+      properties:
+        agreement_ref:
+          type: string
+        agreement_version:
+          type: string
+        amount_minor:
+          type: integer
+        business_ref:
+          type: string
+        components:
+          items:
+            $ref: '#/components/schemas/CoreComponent'
+          type: array
+        currency:
+          type: string
+        domain:
+          type: string
+        jurisdiction:
+          type: string
+        legal_party_ref:
+          type: string
+        payer_consent_ref:
+          type: string
+        payer_type:
+          type: string
+        payer_wallet_id:
+          format: uuid
+          type: string
+        policy_id:
+          format: uuid
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+        quote_version:
+          type: string
+        schedule:
+          type: string
+      required:
+        - quote_id
+        - domain
+        - business_ref
+        - payer_wallet_id
+        - quote_version
+        - policy_id
+        - currency
+        - jurisdiction
+        - amount_minor
+        - payer_type
+        - payer_consent_ref
+        - legal_party_ref
+        - agreement_ref
+        - agreement_version
+        - schedule
+        - components
+      type: object
     AccessDeviceInputInput:
       additionalProperties: false
       properties:
@@ -3019,6 +3076,754 @@ components:
           description: Target unit (e.g. another flat in the same building)
           format: uuid
           type: string
+      type: object
+    CoreAllocation:
+      properties:
+        allocation_id:
+          format: uuid
+          type: string
+        currency:
+          type: string
+        intent_id:
+          format: uuid
+          type: string
+        legal_entity:
+          type: string
+        lines:
+          items:
+            $ref: '#/components/schemas/CoreLine'
+          type: array
+        policy_id:
+          format: uuid
+          type: string
+        pool_id:
+          format: uuid
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - allocation_id
+        - intent_id
+        - version
+        - quote_id
+        - policy_id
+        - pool_id
+        - currency
+        - legal_entity
+        - lines
+      type: object
+    CoreAllocationRequestInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          type: string
+        lines:
+          items:
+            $ref: '#/components/schemas/CoreLineInputInput'
+          maxItems: 40
+          minItems: 1
+          type: array
+      required:
+        - business_type
+        - lines
+      type: object
+    CoreAvailability:
+      properties:
+        available_minor:
+          type: string
+        currency:
+          type: string
+        payout_pending_minor:
+          type: string
+        pool_id:
+          format: uuid
+          type: string
+        protected_minor:
+          type: string
+        reserved_minor:
+          type: string
+        settlement_pending_minor:
+          type: string
+        status:
+          items:
+            type: string
+          type: array
+        wallet_id:
+          format: uuid
+          type: string
+        withdrawable_now:
+          type: boolean
+      required:
+        - wallet_id
+        - pool_id
+        - currency
+        - available_minor
+        - protected_minor
+        - payout_pending_minor
+        - settlement_pending_minor
+        - reserved_minor
+        - withdrawable_now
+        - status
+      type: object
+    CoreBusinessContext:
+      properties:
+        accepted_cost:
+          oneOf:
+            - $ref: '#/components/schemas/Cost'
+            - type: "null"
+        agreement_ref:
+          type: string
+        agreement_version:
+          type: string
+        amount_minor:
+          type: integer
+        business_id:
+          format: uuid
+          type: string
+        business_type:
+          type: string
+        country:
+          type: string
+        currency:
+          type: string
+        owner_account_id:
+          format: uuid
+          type: string
+        payer_source_ref:
+          type: string
+        payer_types:
+          items:
+            type: string
+          type: array
+        payment_intent_ref:
+          type:
+            - string
+            - "null"
+        policy_families:
+          items:
+            type: string
+          type: array
+        property_id:
+          format: uuid
+          type: string
+        receiving_party_ref:
+          type: string
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - country
+        - business_type
+        - business_id
+        - property_id
+        - owner_account_id
+        - amount_minor
+        - currency
+        - payer_source_ref
+        - payer_types
+        - policy_families
+        - agreement_ref
+        - agreement_version
+        - status
+        - version
+      type: object
+    CoreBusinessInputInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          type: string
+      required:
+        - business_type
+      type: object
+    CoreCancelInputInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          type: string
+        evidence_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 30
+          minItems: 1
+          type: array
+      required:
+        - business_type
+        - evidence_ids
+      type: object
+    CoreCase:
+      properties:
+        authority_ref:
+          type: string
+        business_ref:
+          type: string
+        case_id:
+          format: uuid
+          type: string
+        claimant_ref:
+          type: string
+        contested_minor:
+          minimum: 1
+          type: integer
+        currency:
+          type: string
+        deposit_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        evidence_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 30
+          minItems: 1
+          type: array
+        intent_id:
+          format: uuid
+          type: string
+        kind:
+          enum:
+            - DEPOSIT_CLAIM
+            - DISPUTE
+            - CANCELLATION
+            - REFUND_REVIEW
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+        reason_ref:
+          maxLength: 500
+          type: string
+        respondent_ref:
+          type: string
+        state:
+          type: string
+      required:
+        - case_id
+        - line_id
+        - kind
+        - contested_minor
+        - claimant_ref
+        - respondent_ref
+        - authority_ref
+        - reason_ref
+        - evidence_ids
+        - intent_id
+        - quote_id
+        - business_ref
+        - currency
+        - state
+      type: object
+    CoreCaseInputInput:
+      additionalProperties: false
+      properties:
+        authority_ref:
+          type: string
+        business_type:
+          type: string
+        case_id:
+          format: uuid
+          type: string
+        claimant_ref:
+          type: string
+        contested_minor:
+          minimum: 1
+          type: integer
+        deposit_id:
+          format: uuid
+          type: string
+        evidence_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 30
+          minItems: 1
+          type: array
+        kind:
+          enum:
+            - DEPOSIT_CLAIM
+            - DISPUTE
+            - CANCELLATION
+            - REFUND_REVIEW
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        owner_claim_id:
+          format: uuid
+          type: string
+        reason_ref:
+          maxLength: 500
+          type: string
+        respondent_ref:
+          type: string
+      required:
+        - business_type
+        - case_id
+        - line_id
+        - kind
+        - contested_minor
+        - reason_ref
+        - evidence_ids
+      type: object
+    CoreCollectionInputInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          enum:
+            - rent_obligation
+            - deposit_obligation
+            - closing_milestone
+            - shortlet_booking
+            - shortlet_booking_extension
+            - maintenance_job
+            - professional_appointment
+          type: string
+        payer_email:
+          format: email
+          maxLength: 254
+          type: string
+        quote_id:
+          format: uuid
+          type: string
+      required:
+        - business_type
+        - quote_id
+        - payer_email
+      type: object
+    CoreComponent:
+      properties:
+        amount_minor:
+          type: integer
+        component_ref:
+          type: string
+        kind:
+          type: string
+        payer_ref:
+          type: string
+        recurrence:
+          type: string
+        service_evidence_ref:
+          type: string
+      required:
+        - component_ref
+        - kind
+        - amount_minor
+        - payer_ref
+        - recurrence
+      type: object
+    CoreEvidenceInputInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          type: string
+        condition:
+          maxLength: 128
+          type: string
+        evidence_id:
+          format: uuid
+          type: string
+        evidence_ref:
+          type: string
+        evidence_version:
+          type: string
+        expires_at:
+          format: date-time
+          type: string
+        human_approval_ref:
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        policy_version:
+          type: string
+      required:
+        - business_type
+        - evidence_id
+        - line_id
+        - condition
+        - expires_at
+      type: object
+    CoreHistoryEntry:
+      properties:
+        amount_minor:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        entry_id:
+          format: uuid
+          type: string
+        journal_id:
+          format: uuid
+          type: string
+        kind:
+          type: string
+        operation_ref:
+          type: string
+        side:
+          type: string
+      required:
+        - entry_id
+        - journal_id
+        - operation_ref
+        - kind
+        - side
+        - amount_minor
+        - currency
+        - created_at
+      type: object
+    CoreJournal:
+      properties:
+        journal_id:
+          format: uuid
+          type: string
+      required:
+        - journal_id
+      type: object
+    CoreLine:
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        authority_id:
+          format: uuid
+          type: string
+        component_ref:
+          maxLength: 128
+          type: string
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        kind:
+          enum:
+            - BENEFICIARY
+            - PLATFORM
+            - DEPOSIT
+            - RESERVE
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        paid_minor:
+          type: integer
+        released_minor:
+          type: integer
+        reserved_minor:
+          type: integer
+        state:
+          type: string
+        wallet_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+      required:
+        - line_id
+        - authority_id
+        - component_ref
+        - kind
+        - amount_minor
+        - currency
+        - state
+        - released_minor
+        - reserved_minor
+        - paid_minor
+      type: object
+    CoreLineInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        authority_id:
+          format: uuid
+          type: string
+        component_ref:
+          maxLength: 128
+          type: string
+        currency:
+          pattern: ^[A-Z]{3}$
+          type: string
+        kind:
+          enum:
+            - BENEFICIARY
+            - PLATFORM
+            - DEPOSIT
+            - RESERVE
+          type: string
+      required:
+        - authority_id
+        - component_ref
+        - kind
+        - amount_minor
+        - currency
+      type: object
+    CorePayerContext:
+      properties:
+        canonical_party_ref:
+          type: string
+        source_account_id:
+          format: uuid
+          type: string
+        source_domain:
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - wallet_id
+        - source_domain
+        - source_account_id
+        - canonical_party_ref
+      type: object
+    CorePayout:
+      properties:
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        payout_id:
+          format: uuid
+          type: string
+        pool_id:
+          format: uuid
+          type: string
+        provider_account_id:
+          format: uuid
+          type: string
+        provider_reference:
+          type: string
+        state:
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - payout_id
+        - line_id
+        - wallet_id
+        - amount_minor
+        - currency
+        - provider_account_id
+        - pool_id
+        - provider_reference
+        - state
+      type: object
+    CorePayoutPreference:
+      properties:
+        payout_account_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - payout_account_id
+        - version
+      type: object
+    CorePayoutPreferenceInput:
+      additionalProperties: false
+      properties:
+        payout_account_id:
+          format: uuid
+          type: string
+        version:
+          type: integer
+      required:
+        - payout_account_id
+      type: object
+    CorePayoutReference:
+      properties:
+        beneficiary_ref:
+          type: string
+        eligible:
+          type: boolean
+        expires_at:
+          format: date-time
+          type: string
+        jurisdiction:
+          type: string
+        payout_account_id:
+          format: uuid
+          type: string
+        verification_ref:
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - payout_account_id
+        - wallet_id
+        - beneficiary_ref
+        - verification_ref
+        - jurisdiction
+        - expires_at
+        - eligible
+      type: object
+    CoreReceipt:
+      properties:
+        allocations:
+          items:
+            $ref: '#/components/schemas/CoreAllocation'
+          type: array
+        award_allocations:
+          items:
+            $ref: '#/components/schemas/CoreAllocation'
+          type: array
+        collection_state:
+          type: string
+        funding_confirmed:
+          type: boolean
+        intent_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        payer_context:
+          $ref: '#/components/schemas/CorePayerContext'
+        quote:
+          $ref: '#/components/schemas/AcceptedQuote'
+        reversed_minor:
+          type: integer
+        settlement_state:
+          type: string
+      required:
+        - quote
+        - collection_state
+        - settlement_state
+        - allocations
+        - funding_confirmed
+        - reversed_minor
+        - award_allocations
+        - payer_context
+      type: object
+    CoreRecorded:
+      properties:
+        recorded:
+          type: boolean
+      required:
+        - recorded
+      type: object
+    CoreReleaseInputInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        business_type:
+          type: string
+        evidence_ids:
+          items:
+            format: uuid
+            type: string
+          maxItems: 30
+          minItems: 1
+          type: array
+        line_id:
+          format: uuid
+          type: string
+        policy_version:
+          maxLength: 128
+          type: string
+      required:
+        - business_type
+        - line_id
+        - amount_minor
+        - policy_version
+        - evidence_ids
+      type: object
+    CoreResourceInputInput:
+      additionalProperties: false
+      properties:
+        business_type:
+          type: string
+        resource_id:
+          format: uuid
+          type: string
+        resource_type:
+          enum:
+            - DEPOSIT
+            - CASE
+            - REFUND
+          type: string
+      required:
+        - business_type
+        - resource_type
+        - resource_id
+      type: object
+    CoreResourceView:
+      properties:
+        proof:
+          description: Embedded JSON document
+        resource_id:
+          format: uuid
+          type: string
+        resource_type:
+          type: string
+        state:
+          type: string
+      required:
+        - resource_type
+        - resource_id
+        - state
+        - proof
+      type: object
+    CoreStatement:
+      properties:
+        entries:
+          items:
+            $ref: '#/components/schemas/CoreHistoryEntry'
+          type: array
+        next_after:
+          format: uuid
+          type:
+            - string
+            - "null"
+        source:
+          type: string
+        wallet:
+          $ref: '#/components/schemas/Wallet'
+      required:
+        - wallet
+        - entries
+        - source
+      type: object
+    CoreWithdrawalInput:
+      additionalProperties: false
+      properties:
+        amount_minor:
+          minimum: 1
+          type: integer
+        approval_id:
+          format: uuid
+          type: string
+        line_id:
+          format: uuid
+          type: string
+        payout_account_id:
+          format: uuid
+          type: string
+        wallet_id:
+          format: uuid
+          type: string
+      required:
+        - approval_id
+        - line_id
+        - payout_account_id
+        - amount_minor
       type: object
     Cost:
       properties:
@@ -11807,6 +12612,8 @@ components:
           items:
             $ref: '#/components/schemas/WalletBalance'
           type: array
+        canonical_party_ref:
+          type: string
         historical_wallets:
           items:
             $ref: '#/components/schemas/Wallet'
@@ -11814,6 +12621,7 @@ components:
         wallet:
           $ref: '#/components/schemas/Wallet'
       required:
+        - canonical_party_ref
         - wallet
         - balances
       type: object
@@ -14300,6 +15108,512 @@ paths:
       summary: Add information or withdraw
       tags:
         - Disputes & Privacy
+  /api/v1/owner/financial-business/{business_id}/allocations:
+    post:
+      description: Core retains sole split authority. Owner checks original beneficiary records, verified ownership percentages, accepted provider/mandate and disclosed fee context before posting a protected allocation.
+      operationId: allocateCoreBusiness
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreAllocationRequestInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreAllocation'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Allocate to existing verified business beneficiaries
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/cancellations:
+    post:
+      description: 'An initialized, collected or unknown external charge is never treated as cancelled: Core requires original readback or an approved case/refund instead.'
+      operationId: cancelCoreBusinessIntent
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreCancelInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CollectionIntent'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request a contract-supported cancellation of an ended obligation
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/cases:
+    post:
+      description: Owner claimant and authority come from the stored business. Itemized deposit deductions must already be recorded. Admin retains Core decisions, awards and refund execution; this is not a bank refund approval.
+      operationId: openCoreBusinessCase
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreCaseInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreCase'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Submit an amount-specific dispute, cancellation or refund review
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/collections:
+    post:
+      description: An existing signed Core quote must match the actual business payer, contract version, disclosed amount/currency and financial policy. No fabricated consent, default beneficiary or legacy translation. Unknown outcomes retain the original business key.
+      operationId: createCoreBusinessCollection
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreCollectionInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CollectionIntent'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Collect an accepted Core quote for an existing business obligation
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/context:
+    get:
+      operationId: getCoreBusinessContext
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Existing accepted Owner aggregate type; source, payer, amount and permissions are validated against its stored records.
+          in: query
+          name: business_type
+          required: true
+          schema:
+            enum:
+              - rent_obligation
+              - deposit_obligation
+              - closing_milestone
+              - shortlet_booking
+              - shortlet_booking_extension
+              - maintenance_job
+              - professional_appointment
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreBusinessContext'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read authoritative context for an existing business obligation
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/receipt:
+    get:
+      operationId: getCoreBusinessReceipt
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: Existing accepted Owner aggregate type; source, payer, amount and permissions are validated against its stored records.
+          in: query
+          name: business_type
+          required: true
+          schema:
+            enum:
+              - rent_obligation
+              - deposit_obligation
+              - closing_milestone
+              - shortlet_booking
+              - shortlet_booking_extension
+              - maintenance_job
+              - professional_appointment
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreReceipt'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read current Core collection, settlement and allocation facts
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/reconcile:
+    post:
+      description: Readback is serialized by an Owner observation lease, outside DB transactions. Collection alone never confirms paid/settled rent or a booking. Matched funding, exact allocation and reversals are checked before applying existing business projections.
+      operationId: reconcileCoreBusiness
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreBusinessInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreReceipt'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Reconcile a binding through original Core readback
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/release-evidence:
+    post:
+      description: Evidence reference/version is derived from completed authoritative Owner facts. Another issuer's or human approval cannot be supplied as Owner prose.
+      operationId: submitCoreBusinessEvidence
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreEvidenceInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreRecorded'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Publish a recorded Owner milestone as Core evidence
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/releases:
+    post:
+      description: No release of deposits, disputed/cancelled business or uncertified milestones. Core rechecks actual funding, current authority, holds, evidence and remaining amounts; repeat the same idempotency key.
+      operationId: releaseCoreBusiness
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreReleaseInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreJournal'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request an evidence-bound eligible beneficiary release
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-business/{business_id}/resource-links:
+    post:
+      description: Signed readback validates original business, intent, payer, line, provider/pool and currency. A pending or unknown refund remains pending; amounts are not incremented on duplicate events.
+      operationId: linkCoreBusinessResource
+      parameters:
+        - in: path
+          name: business_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreResourceInputInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreResourceView'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Link a matching authoritative deposit, case or approved refund
+      tags:
+        - Financial Core Workflows
   /api/v1/owner/financial-wallet:
     get:
       description: Authenticated active Owner only. Lazily ensures the source-bound purpose wallet, then reads Financial Core balances over signed service requests. Pending/held money remains unavailable. No Owner-owned balance table or inferred custody. Dependency outage stays unavailable.
@@ -14329,6 +15643,310 @@ paths:
       summary: Read my authoritative wallet and balance buckets
       tags:
         - Financial Wallet
+  /api/v1/owner/financial-wallet/availability/{pool_id}:
+    get:
+      operationId: getCoreFinancialAvailability
+      parameters:
+        - in: path
+          name: pool_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreAvailability'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read released, protected, reserved and cooling/rail availability
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/payout-preference:
+    get:
+      operationId: getCorePayoutPreference
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CorePayoutPreference'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read my selected Core payout reference
+      tags:
+        - Financial Core Workflows
+    put:
+      description: Step-up required. If-Match selects the current preference version; 0 creates. This selects only an owned Verification-attested Core reference; it does not verify a bank or bypass Core cooling/withdrawal approvals.
+      operationId: putCorePayoutPreference
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+        - description: Quoted resource version, e.g. "3"
+          in: header
+          name: If-Match
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorePayoutPreferenceInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CorePayoutPreference'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+        "428":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Select an existing verified Core payout destination
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/payout-references:
+    get:
+      operationId: getCorePayoutReferences
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/CorePayoutReference'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read my current verified Core payout references
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/statement:
+    get:
+      description: Signed owned-wallet history. No synthetic received revenue, fabricated PDF/download reference or direct payment_db query.
+      operationId: getCoreFinancialStatement
+      parameters:
+        - description: Last Core entry UUID; forward pagination.
+          in: query
+          name: after
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CoreStatement'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read my authoritative financial ledger entries
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/withdrawals:
+    post:
+      description: Step-up required. Owned current wallet, approved line/amount/destination, active verification, cooling and provider policy are required. No customer cash-out, protected-money withdrawal or self-approved payout.
+      operationId: withdrawCoreEarnings
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoreWithdrawalInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CorePayout'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Request an already approved withdrawal of released earnings
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/withdrawals/{payout_id}:
+    get:
+      operationId: getCorePayout
+      parameters:
+        - in: path
+          name: payout_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CorePayout'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read my original payout outcome
+      tags:
+        - Financial Core Workflows
+  /api/v1/owner/financial-wallet/withdrawals/{payout_id}/readback:
+    post:
+      operationId: readbackCorePayout
+      parameters:
+        - in: path
+          name: payout_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CorePayout'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - OwnerBearer: []
+      summary: Read back the original provider payout without resubmitting
+      tags:
+        - Financial Core Workflows
   /api/v1/owner/financing/consents:
     post:
       description: Applicant financial details stay with the partner; the owner sees minimum status only.

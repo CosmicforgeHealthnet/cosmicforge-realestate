@@ -100,7 +100,7 @@ func (s *Service) validateTerms(t AgreementTerms) error {
 			}
 		}
 	}
-	if (t.RentCollection == "PLATFORM" || t.DepositHandling == "PLATFORM") && s.Payment == nil {
+	if (t.RentCollection == "PLATFORM" || t.DepositHandling == "PLATFORM") && s.Payment == nil && !s.hasCoreFinancial() {
 		return unavailable("Platform rent and deposit collection", "payment-service")
 	}
 	return nil
@@ -1069,7 +1069,7 @@ func (s *Service) ActivateAgreement(ctx context.Context, subj authz.Subject, id 
 			return err
 		}
 		t := parseTerms(v.Terms)
-		if (t.RentCollection == "PLATFORM" || t.DepositHandling == "PLATFORM") && s.Payment == nil {
+		if (t.RentCollection == "PLATFORM" || t.DepositHandling == "PLATFORM") && s.Payment == nil && !s.hasCoreFinancial() {
 			return unavailable("Platform rent and deposit collection", "payment-service")
 		}
 		if err := s.agreementTransition(ctx, a, "EFFECTIVE", "activate", ""); err != nil {

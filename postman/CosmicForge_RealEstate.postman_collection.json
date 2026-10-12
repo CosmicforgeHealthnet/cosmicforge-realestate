@@ -795,6 +795,56 @@
       "key": "quote_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "approval_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authority_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "business_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "context_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "evidence_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "line_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payout_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payout_preference_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pool_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resource_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -30980,6 +31030,993 @@
                   ]
                 },
                 "description": "Read my authoritative wallet and balance buckets.\n\nAuthenticated active Owner only. Lazily ensures the source-bound purpose wallet, then reads Financial Core balances over signed service requests. Pending/held money remains unavailable. No Owner-owned balance table or inferred custody. Dependency outage stays unavailable.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Financial Core Workflows",
+          "description": "Generated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+          "item": [
+            {
+              "name": "Read authoritative context for an existing business obligation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('context_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/context",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "context"
+                  ]
+                },
+                "description": "Read authoritative context for an existing business obligation.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Collect an accepted Core quote for an existing business obligation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/collections",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "collections"
+                  ]
+                },
+                "description": "Collect an accepted Core quote for an existing business obligation.\n\nAn existing signed Core quote must match the actual business payer, contract version, disclosed amount/currency and financial policy. No fabricated consent, default beneficiary or legacy translation. Unknown outcomes retain the original business key.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"rent_obligation\",\n  \"payer_email\": \"owner.example@example.com\",\n  \"quote_id\": \"{{quote_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Read current Core collection, settlement and allocation facts",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/receipt",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "receipt"
+                  ]
+                },
+                "description": "Read current Core collection, settlement and allocation facts.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Reconcile a binding through original Core readback",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/reconcile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "reconcile"
+                  ]
+                },
+                "description": "Reconcile a binding through original Core readback.\n\nReadback is serialized by an Owner observation lease, outside DB transactions. Collection alone never confirms paid/settled rent or a booking. Matched funding, exact allocation and reversals are checked before applying existing business projections.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Allocate to existing verified business beneficiaries",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/allocations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "allocations"
+                  ]
+                },
+                "description": "Allocate to existing verified business beneficiaries.\n\nCore retains sole split authority. Owner checks original beneficiary records, verified ownership percentages, accepted provider/mandate and disclosed fee context before posting a protected allocation.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\",\n  \"lines\": [\n    {\n      \"amount_minor\": 1,\n      \"authority_id\": \"{{authority_id}}\",\n      \"component_ref\": \"string\",\n      \"currency\": \"NGN\",\n      \"kind\": \"BENEFICIARY\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Publish a recorded Owner milestone as Core evidence",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/release-evidence",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "release-evidence"
+                  ]
+                },
+                "description": "Publish a recorded Owner milestone as Core evidence.\n\nEvidence reference/version is derived from completed authoritative Owner facts. Another issuer's or human approval cannot be supplied as Owner prose.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\",\n  \"condition\": \"string\",\n  \"evidence_id\": \"{{evidence_id}}\",\n  \"expires_at\": \"2026-12-01T10:00:00Z\",\n  \"line_id\": \"{{line_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Request an evidence-bound eligible beneficiary release",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/releases",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "releases"
+                  ]
+                },
+                "description": "Request an evidence-bound eligible beneficiary release.\n\nNo release of deposits, disputed/cancelled business or uncertified milestones. Core rechecks actual funding, current authority, holds, evidence and remaining amounts; repeat the same idempotency key.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount_minor\": 1,\n  \"business_type\": \"string\",\n  \"evidence_ids\": [\n    \"019a2b3c-0000-7000-8000-000000000001\"\n  ],\n  \"line_id\": \"{{line_id}}\",\n  \"policy_version\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Submit an amount-specific dispute, cancellation or refund review",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/cases",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "cases"
+                  ]
+                },
+                "description": "Submit an amount-specific dispute, cancellation or refund review.\n\nOwner claimant and authority come from the stored business. Itemized deposit deductions must already be recorded. Admin retains Core decisions, awards and refund execution; this is not a bank refund approval.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\",\n  \"case_id\": \"{{case_id}}\",\n  \"contested_minor\": 1,\n  \"evidence_ids\": [\n    \"019a2b3c-0000-7000-8000-000000000001\"\n  ],\n  \"kind\": \"DEPOSIT_CLAIM\",\n  \"line_id\": \"{{line_id}}\",\n  \"reason_ref\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Link a matching authoritative deposit, case or approved refund",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/resource-links",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "resource-links"
+                  ]
+                },
+                "description": "Link a matching authoritative deposit, case or approved refund.\n\nSigned readback validates original business, intent, payer, line, provider/pool and currency. A pending or unknown refund remains pending; amounts are not incremented on duplicate events.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\",\n  \"resource_id\": \"{{resource_id}}\",\n  \"resource_type\": \"DEPOSIT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Request a contract-supported cancellation of an ended obligation",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-business/{{business_id}}/cancellations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-business",
+                    "{{business_id}}",
+                    "cancellations"
+                  ]
+                },
+                "description": "Request a contract-supported cancellation of an ended obligation.\n\nAn initialized, collected or unknown external charge is never treated as cancelled: Core requires original readback or an approved case/refund instead.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_type\": \"string\",\n  \"evidence_ids\": [\n    \"019a2b3c-0000-7000-8000-000000000001\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Read my authoritative financial ledger entries",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/statement",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "statement"
+                  ]
+                },
+                "description": "Read my authoritative financial ledger entries.\n\nSigned owned-wallet history. No synthetic received revenue, fabricated PDF/download reference or direct payment_db query.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Read my current verified Core payout references",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/payout-references",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "payout-references"
+                  ]
+                },
+                "description": "Read my current verified Core payout references.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Read released, protected, reserved and cooling/rail availability",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/availability/{{pool_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "availability",
+                    "{{pool_id}}"
+                  ]
+                },
+                "description": "Read released, protected, reserved and cooling/rail availability.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Read my selected Core payout reference",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('payout_preference_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/payout-preference",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "payout-preference"
+                  ]
+                },
+                "description": "Read my selected Core payout reference.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Select an existing verified Core payout destination",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
+                      "const pick = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);",
+                      "if (pm.response.code < 300) {",
+                      "  const body = pm.response.json();",
+                      "  if (pick(body, 'data.version') !== undefined) pm.collectionVariables.set('payout_preference_version', String(pick(body, 'data.version')));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "\"{{payout_preference_version}}\""
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/payout-preference",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "payout-preference"
+                  ]
+                },
+                "description": "Select an existing verified Core payout destination. Step-up required (POST /auth/step-up first).\n\nIf-Match selects the current preference version; 0 creates. This selects only an owned Verification-attested Core reference; it does not verify a bank or bypass Core cooling/withdrawal approvals.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"payout_account_id\": \"{{payout_account_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Request an already approved withdrawal of released earnings",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/withdrawals",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "withdrawals"
+                  ]
+                },
+                "description": "Request an already approved withdrawal of released earnings. Step-up required (POST /auth/step-up first).\n\nOwned current wallet, approved line/amount/destination, active verification, cooling and provider policy are required. No customer cash-out, protected-money withdrawal or self-approved payout.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount_minor\": 1,\n  \"approval_id\": \"{{approval_id}}\",\n  \"line_id\": \"{{line_id}}\",\n  \"payout_account_id\": \"{{payout_account_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Read my original payout outcome",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/withdrawals/{{payout_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "withdrawals",
+                    "{{payout_id}}"
+                  ]
+                },
+                "description": "Read my original payout outcome.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
+              "name": "Read back the original provider payout without resubmitting",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{individual_owner_token}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/owner/financial-wallet/withdrawals/{{payout_id}}/readback",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "owner",
+                    "financial-wallet",
+                    "withdrawals",
+                    "{{payout_id}}",
+                    "readback"
+                  ]
+                },
+                "description": "Read back the original provider payout without resubmitting.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
               },
               "response": []
             }

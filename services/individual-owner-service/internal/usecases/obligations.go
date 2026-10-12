@@ -217,7 +217,7 @@ func (s *Service) projectRentIntent(ctx context.Context, o db.RentObligation, in
 	if e := s.dbq(ctx).QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM financial_core_collections WHERE obligation_id=$1)`, o.ID).Scan(&canonical); e != nil {
 		return e
 	}
-	if canonical {
+	if canonical && ctx.Value(canonicalFinancialProof{}) != true {
 		return precondition("CANONICAL_PAYMENT_EVENT_REQUIRED", "Financial Core collections cannot be projected from legacy payment states.")
 	}
 
@@ -1129,6 +1129,13 @@ func (s *Service) cancelDepositIntent(ctx context.Context, id ids.ID) error {
 // for an update not newer than the last one applied (late or replayed
 // delivery, stale read-back); the caller then leaves every projection as is.
 func (s *Service) intentIsFresh(ctx context.Context, in payment.Intent) (bool, error) {
+	canonical, e := s.isCanonicalCoreIntent(ctx, in.Ref)
+	if e != nil {
+		return false, e
+	}
+	if canonical && ctx.Value(canonicalFinancialProof{}) != true {
+		return false, precondition("CANONICAL_PAYMENT_EVENT_REQUIRED", "Legacy payloads cannot update a Core-bound business obligation.")
+	}
 	if in.Ref == "" || in.UpdatedAt.IsZero() {
 		return false, apperrors.InvalidRequest("payment intent ref and updated_at are required (ordering watermark).")
 	}

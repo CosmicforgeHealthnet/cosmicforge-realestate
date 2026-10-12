@@ -25,6 +25,7 @@ type WalletBalance struct {
 	Withdrawable bool   `json:"withdrawable"`
 }
 type WalletSnapshot struct {
+	CanonicalPartyRef string          `json:"canonical_party_ref"`
 	Wallet            Wallet          `json:"wallet"`
 	Balances          []WalletBalance `json:"balances"`
 	HistoricalWallets []Wallet        `json:"historical_wallets,omitempty"`
@@ -85,5 +86,17 @@ func (p *WalletProvisioner) Snapshot(ctx context.Context, account ids.ID) (Walle
 			history = append(history, w)
 		}
 	}
-	return WalletSnapshot{Wallet: out.Data, Balances: balances.Data, HistoricalWallets: history}, nil
+	var profile struct {
+		Data struct {
+			CanonicalPartyRef string `json:"canonical_party_ref"`
+			Wallet            Wallet `json:"wallet"`
+		} `json:"data"`
+	}
+	if e = p.Client.Do(ctx, httpx.Request{Method: "GET", Path: "/internal/v1/wallets/" + out.Data.WalletID.String() + "/profile"}, &profile); e != nil {
+		return WalletSnapshot{}, e
+	}
+	if profile.Data.Wallet.WalletID != out.Data.WalletID || profile.Data.CanonicalPartyRef == "" {
+		return WalletSnapshot{}, fmt.Errorf("canonical party context mismatch")
+	}
+	return WalletSnapshot{CanonicalPartyRef: profile.Data.CanonicalPartyRef, Wallet: out.Data, Balances: balances.Data, HistoricalWallets: history}, nil
 }

@@ -542,6 +542,20 @@
       }
     },
     {
+      "name": "GET /internal/v1/beneficiary-authorities/{id}",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{service_token}}"
+          }
+        ],
+        "url": "{{payment_base_url}}/internal/v1/beneficiary-authorities/{{entity_id}}",
+        "description": "Original issuer, Admin/Core or the authenticated service owning a locked quote for the exact business reference; read-only existing entitlement and expiry/revocation state."
+      }
+    },
+    {
       "name": "POST /internal/v1/beneficiary-authorities/{id}/revoke",
       "request": {
         "method": "POST",

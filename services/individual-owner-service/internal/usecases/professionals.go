@@ -263,7 +263,7 @@ func (s *Service) ActOnAppointment(ctx context.Context, subj authz.Subject, id i
 	if err := schema.Validate(in); err != nil {
 		return AppointmentView{}, err
 	}
-	if in.Action == "APPOINT" && in.FeeCollection == "PLATFORM" && s.Payment == nil {
+	if in.Action == "APPOINT" && in.FeeCollection == "PLATFORM" && s.Payment == nil && !s.hasCoreFinancial() {
 		return AppointmentView{}, unavailable("Platform payment of professional fees", "payment-service")
 	}
 	var out AppointmentView

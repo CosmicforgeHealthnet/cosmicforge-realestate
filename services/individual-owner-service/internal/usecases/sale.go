@@ -452,7 +452,7 @@ func (s *Service) DecideSaleOffer(ctx context.Context, subj authz.Subject, saleI
 	if settlement == "" {
 		settlement = "OFF_PLATFORM"
 	}
-	if in.Decision == "ACCEPT" && settlement == "PLATFORM" && s.Payment == nil {
+	if in.Decision == "ACCEPT" && settlement == "PLATFORM" && s.Payment == nil && !s.hasCoreFinancial() {
 		return SaleView{}, unavailable("Platform settlement of the purchase price", "payment-service")
 	}
 	var out SaleView

@@ -30,5 +30,17 @@ func (s *Service) OwnFinancialWallet(ctx context.Context, subj authz.Subject) (p
 	if e != nil {
 		return out, downstream("payment-service", e)
 	}
+	// Structural source identity only, used to correlate canonical payout events.
+	// No balances or verification verdicts are copied into an Owner ledger.
+	if _, e = s.Pool.Exec(ctx, `INSERT INTO financial_core_wallet_links(wallet_id,owner_account_id,legal_entity,currency) VALUES($1,$2,$3,$4) ON CONFLICT(wallet_id) DO NOTHING`, out.Wallet.WalletID, account.AccountID, out.Wallet.LegalEntity, out.Wallet.Currency); e != nil {
+		return out, e
+	}
+	var matches bool
+	if e = s.Pool.QueryRow(ctx, `SELECT owner_account_id=$2 AND legal_entity=$3 AND currency=$4 FROM financial_core_wallet_links WHERE wallet_id=$1`, out.Wallet.WalletID, account.AccountID, out.Wallet.LegalEntity, out.Wallet.Currency).Scan(&matches); e != nil {
+		return out, e
+	}
+	if !matches {
+		return out, precondition("WALLET_SOURCE_CONTEXT_MISMATCH", "Structural financial wallet identity does not match its Owner.")
+	}
 	return out, nil
 }

@@ -31,6 +31,16 @@ are scheduled by the specification's workstreams (§23, IO-2…IO-16).
 | §16 step-up for payout changes, sensitive document grants, property transfer | step-up rules on payout/tax writes, transfers and privacy verification | PASS (LOCAL). |
 | §23 IO-1 Service bootstrapping & local auth | `31ef5fc` … `ecf5ee4` | **IO-1: PASS (LOCAL/CONTRACT)** except OAuth adapters (BLOCKED, Appendix D "DOMAIN IMPLEMENTATION": provider selection pending). |
 
+## Sections 12–13 financial integration (2026-10-13)
+
+The current combined integration/product matrix, actual reused versus changed scope,
+financial qualifications and certification evidence are maintained in
+[SECTIONS_12_13_INTEGRATION_CLOSURE.md](SECTIONS_12_13_INTEGRATION_CLOSURE.md).
+The following older closure matrices remain historical evidence. Blanket statements
+that every PLATFORM workflow is unavailable or that Payment Core is unimplemented
+are superseded by the signed typed consumer; real provider, source-party, legal and
+production approvals remain separate. The generic legacy configuration guard stays.
+
 ## Section 13 closure (2026-10-09, from `9f731b5`)
 
 All 30 product areas of spec §13 were re-audited against the stored specification text and the code at
@@ -424,7 +434,7 @@ families 3–7 are not live-integration evidence.
 | S12-01 | Verification Service (IDENTITY, PROPERTY_AUTHORITY) | PASS | CONTRACT (both) | real-process E2E: owner → real verification-service (sandbox provider) → `verification.verified.v1` → owner consumer; production KYC provider not selected |
 | S12-02 | Media & Document Service | PASS | CONTRACT (evidence metadata, deed/photo checks, access policy, generated-PDF upload and download, deletion event) / LOCAL (data-room and application-evidence downloads) | real-process run exposed that identity evidence must be uploaded `DOMAIN_RESTRICTED` (the class default `ADMIN_RESTRICTED` hides it from the owner's ownership check); contract documented on `POST /verification` |
 | S12-03 | Notification Service | PASS | CONTRACT | 25 owner templates seeded (drift-tested); E2E delivery of activation code through the real service |
-| S12-04 | Payment Service | BLOCKED | — | contract + fakes; config refuses `PAYMENT_SERVICE_URL`; all PLATFORM money answers 503 |
+| S12-04 | Payment Service | LOCAL / CONTRACT integration; external gates remain | Real Owner/Core processes, signed HTTP, real DB/NATS and synthetic provider/operator fixtures | Typed accepted workflows via `PAYMENT_WALLET_SERVICE_URL`; generic `PAYMENT_SERVICE_URL` still refused. Current qualifications/evidence: consolidated closure. |
 | S12-05 | Marketplace | PASS (LOCAL) · live BLOCKED | internal APIs + events + customer-notification recipient contract; marketplace-service not built |
 | S12-06 | Property Manager | PASS | LOCAL | internal APIs + consumers; producer not built |
 | S12-07 | Artisan | PASS | LOCAL | provider callbacks + consumers; producer not built |

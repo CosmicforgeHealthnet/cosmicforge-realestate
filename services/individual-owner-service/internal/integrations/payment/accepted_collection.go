@@ -10,25 +10,30 @@ import (
 
 // AcceptedQuote is the published Financial Core locked-quote consumer contract.
 type AcceptedQuote struct {
-	ID           ids.ID `json:"quote_id"`
-	Domain       string `json:"domain"`
-	BusinessRef  string `json:"business_ref"`
-	WalletID     ids.ID `json:"payer_wallet_id"`
-	QuoteVersion string `json:"quote_version"`
-	PolicyID     ids.ID `json:"policy_id"`
-	Currency     string `json:"currency"`
-	Jurisdiction string `json:"jurisdiction"`
-	AmountMinor  int64  `json:"amount_minor"`
-	Components   []struct {
-		Kind        string `json:"kind"`
-		Recurrence  string `json:"recurrence"`
-		AmountMinor int64  `json:"amount_minor"`
-	} `json:"components"`
+	ID               ids.ID          `json:"quote_id"`
+	Domain           string          `json:"domain"`
+	BusinessRef      string          `json:"business_ref"`
+	WalletID         ids.ID          `json:"payer_wallet_id"`
+	QuoteVersion     string          `json:"quote_version"`
+	PolicyID         ids.ID          `json:"policy_id"`
+	Currency         string          `json:"currency"`
+	Jurisdiction     string          `json:"jurisdiction"`
+	AmountMinor      int64           `json:"amount_minor"`
+	PayerType        string          `json:"payer_type"`
+	PayerConsentRef  string          `json:"payer_consent_ref"`
+	LegalPartyRef    string          `json:"legal_party_ref"`
+	AgreementRef     string          `json:"agreement_ref"`
+	AgreementVersion string          `json:"agreement_version"`
+	Schedule         string          `json:"schedule"`
+	Components       []CoreComponent `json:"components"`
 }
 type CollectionPolicy struct {
-	Key             string `json:"policy_key"`
-	Version         string `json:"version"`
-	RequiresCustody bool   `json:"requires_custody"`
+	Key              string   `json:"policy_key"`
+	Version          string   `json:"version"`
+	RequiresCustody  bool     `json:"requires_custody"`
+	Conditions       []string `json:"release_conditions"`
+	EvidenceServices []string `json:"evidence_services"`
+	HumanReview      bool     `json:"human_review"`
 }
 type CollectionIntent struct {
 	ID              ids.ID  `json:"intent_id"`

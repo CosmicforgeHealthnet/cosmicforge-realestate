@@ -40,6 +40,12 @@ func (h handler) registerLifecycle(r chi.Router) {
 		v, e := h.l.PutAuthority(r.Context(), in)
 		respond(w, r, v, e)
 	}))
+	r.Get("/beneficiary-authorities/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if id, ok := parseID(w, r); ok {
+			v, e := h.l.AuthorityStatus(r.Context(), id)
+			respond(w, r, v, e)
+		}
+	})
 	r.Post("/beneficiary-authorities/{id}/revoke", command(func(w http.ResponseWriter, r *http.Request, in struct {
 		EvidenceRef string `json:"evidence_ref"`
 	}) {

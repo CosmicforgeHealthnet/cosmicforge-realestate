@@ -40,9 +40,10 @@ func TestRestrictionRetentionAndVerifiedPayoutReferences(t *testing.T) {
 		t.Fatal("manager read owner banking")
 	}
 	refs, e := f.s.PayoutReferences(f.user, f.w.WalletID)
-	if e != nil || len(refs) != 1 || refs[0].Eligible {
+	if e != nil || len(refs) != 1 || !refs[0].Eligible {
 		t.Fatal(refs, e)
 	}
+	// Eligibility is a current verified reference, never a payout approval.
 	i, _ := f.intent("restrict-collection")
 	f.fake.success(i)
 	control := core.IdentityControl{State: "RESTRICTED", EvidenceRef: "admin-case", PolicyVersion: "risk-v1"}
@@ -51,6 +52,10 @@ func TestRestrictionRetentionAndVerifiedPayoutReferences(t *testing.T) {
 	}
 	if e = f.s.ControlIdentity(admin, f.w.IdentityID, control); e != nil {
 		t.Fatal(e)
+	}
+	refs, e = f.s.PayoutReferences(f.user, f.w.WalletID)
+	if e != nil || len(refs) != 1 || refs[0].Eligible {
+		t.Fatal("restricted reference remained eligible", refs, e)
 	}
 	if _, e = f.s.VerifyIntent(f.user, i.ID); e != nil {
 		t.Fatal(e)

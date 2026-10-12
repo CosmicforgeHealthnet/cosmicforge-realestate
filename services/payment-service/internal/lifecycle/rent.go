@@ -400,11 +400,22 @@ func (s *Service) RentAllocation(ctx context.Context, id ids.ID, intent ids.ID) 
 // Receipt is a projection of immutable quote/components and confirmed financial
 // states. It never converts a deposit to rent or claims an unconfirmed payout.
 type Receipt struct {
-	Quote           Quote        `json:"quote"`
-	IntentID        *ids.ID      `json:"intent_id,omitempty"`
-	CollectionState string       `json:"collection_state"`
-	SettlementState string       `json:"settlement_state"`
-	Allocations     []Allocation `json:"allocations"`
+	Quote            Quote             `json:"quote"`
+	IntentID         *ids.ID           `json:"intent_id,omitempty"`
+	CollectionState  string            `json:"collection_state"`
+	SettlementState  string            `json:"settlement_state"`
+	Allocations      []Allocation      `json:"allocations"`
+	FundingConfirmed bool              `json:"funding_confirmed"`
+	ReversedMinor    int64             `json:"reversed_minor"`
+	AwardAllocations []Allocation      `json:"award_allocations"`
+	PayerContext     QuotePayerContext `json:"payer_context"`
+}
+
+type QuotePayerContext struct {
+	WalletID          ids.ID `json:"wallet_id"`
+	Domain            string `json:"source_domain"`
+	AccountID         ids.ID `json:"source_account_id"`
+	CanonicalPartyRef string `json:"canonical_party_ref"`
 }
 
 func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
@@ -412,9 +423,25 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 	if e != nil {
 		return Receipt{}, e
 	}
-	out := Receipt{Quote: q, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", Allocations: []Allocation{}}
+	out := Receipt{Quote: q, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", Allocations: []Allocation{}, AwardAllocations: []Allocation{}}
+	profile, e := s.WalletProfile(trusted(ctx), q.PayerWalletID)
+	if e != nil {
+		return out, e
+	}
+	// The monetary facts belong to one read-only snapshot. Source access and
+	// canonical-party checks use their existing authorization, without changing
+	// any ledger, funding, release or provider rule.
+	tx, e := s.DB.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	if e != nil {
+		return out, e
+	}
+	defer tx.Rollback(ctx)
+	out.PayerContext = QuotePayerContext{WalletID: q.PayerWalletID, Domain: profile.Wallet.Domain, CanonicalPartyRef: profile.CanonicalPartyRef}
+	if e = tx.QueryRow(ctx, `SELECT b.account_id FROM wallets w JOIN identity_bindings b ON b.identity_id=w.identity_id AND b.domain=w.domain WHERE w.wallet_id=$1`, q.PayerWalletID).Scan(&out.PayerContext.AccountID); e != nil {
+		return out, e
+	}
 	var intent ids.ID
-	e = s.DB.QueryRow(ctx, `SELECT intent_id,state,settlement_state FROM payment_intents WHERE locked_quote_id=$1`, quote).Scan(&intent, &out.CollectionState, &out.SettlementState)
+	e = tx.QueryRow(ctx, `SELECT intent_id,state,settlement_state FROM payment_intents WHERE locked_quote_id=$1`, quote).Scan(&intent, &out.CollectionState, &out.SettlementState)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return out, nil
 	}
@@ -422,7 +449,12 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 		return out, e
 	}
 	out.IntentID = &intent
-	rows, e := s.DB.Query(ctx, `SELECT allocation_id FROM allocation_snapshots WHERE intent_id=$1 ORDER BY version`, intent)
+	// Read-only compatibility facts. Owner cannot infer current backing or an
+	// executed deposit award from collection state or a legal decision alone.
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM transaction_funding WHERE intent_id=$1),COALESCE((SELECT sum(amount_minor) FROM financial_reversals WHERE intent_id=$1 AND refund_id IS NULL AND payout_id IS NULL),0)::bigint`, intent).Scan(&out.FundingConfirmed, &out.ReversedMinor); e != nil {
+		return out, e
+	}
+	rows, e := tx.Query(ctx, `SELECT allocation_id FROM allocation_snapshots WHERE intent_id=$1 ORDER BY version`, intent)
 	if e != nil {
 		return out, e
 	}
@@ -441,7 +473,7 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 		return out, e
 	}
 	for _, id := range xs {
-		a, e := s.Allocation(ctx, id)
+		a, e := s.publicAllocation(ctx, tx, id)
 		if e != nil {
 			var denied *apperrors.Error
 			if errors.As(e, &denied) && denied.Status == 403 {
@@ -452,6 +484,35 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 			return out, e
 		}
 		out.Allocations = append(out.Allocations, a)
+	}
+	awardRows, e := tx.Query(ctx, `SELECT a.allocation_id FROM allocation_snapshots a JOIN payment_intents i USING(intent_id) WHERE i.route_snapshot->>'funding_source'='CASE_AWARD' AND i.route_snapshot->>'original_intent_id'=$1 ORDER BY a.version,a.allocation_id`, intent.String())
+	if e != nil {
+		return out, e
+	}
+	var awards []ids.ID
+	for awardRows.Next() {
+		var id ids.ID
+		if e = awardRows.Scan(&id); e != nil {
+			awardRows.Close()
+			return out, e
+		}
+		awards = append(awards, id)
+	}
+	e = awardRows.Err()
+	awardRows.Close()
+	if e != nil {
+		return out, e
+	}
+	for _, id := range awards {
+		a, e := s.publicAllocation(ctx, tx, id)
+		if e != nil {
+			var denied *apperrors.Error
+			if errors.As(e, &denied) && denied.Status == 403 {
+				continue
+			}
+			return out, e
+		}
+		out.AwardAllocations = append(out.AwardAllocations, a)
 	}
 	return out, nil
 }

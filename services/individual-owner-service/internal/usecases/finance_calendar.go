@@ -319,10 +319,10 @@ func (s *Service) yieldFigures(ctx context.Context, account ids.ID, propertyID *
 		val AS (SELECT DISTINCT ON (v.property_id) v.property_id, v.value_minor, v.currency, v.basis FROM property_valuations v
 		         WHERE v.property_id IN (SELECT property_id FROM props) ORDER BY v.property_id, v.valued_on DESC, v.created_at DESC)
 		SELECT v.currency, count(*), sum(v.value_minor)::bigint, array_agg(DISTINCT v.basis),
-		  coalesce((SELECT sum(o.paid_minor) FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
+		  coalesce((SELECT sum(GREATEST(0,o.paid_minor-o.refunded_minor)) FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
 		             WHERE t.property_id IN (SELECT property_id FROM val x WHERE x.currency = v.currency) AND o.currency = v.currency
 		               AND o.due_date BETWEEN $4 AND $5), 0)::bigint
-		+ coalesce((SELECT sum(b.paid_minor - b.refunded_minor) FROM shortlet_bookings b
+		+ coalesce((SELECT sum(`+shortletRevenueSQL+`) FROM shortlet_bookings b
 		             WHERE b.property_id IN (SELECT property_id FROM val x WHERE x.currency = v.currency) AND b.currency = v.currency
 		               AND b.status IN ('CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','DISPUTED') AND b.check_in BETWEEN $4 AND $5), 0)::bigint
 		FROM val v GROUP BY v.currency`, account, s.now(), propertyID, from, to)

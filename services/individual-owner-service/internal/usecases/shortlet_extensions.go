@@ -310,7 +310,7 @@ func (s *Service) answerExtension(ctx context.Context, b db.ShortletBooking, id 
 		return ExtensionView{}, precondition("EXTENSION_NOT_ALLOWED", "The guest is no longer checked in.")
 	}
 	if e.PaymentCollection == "PLATFORM" && e.AmountMinor > 0 {
-		if s.Payment == nil {
+		if s.Payment == nil && !s.hasCoreFinancial() {
 			return ExtensionView{}, unavailable("Platform payment for stays", "payment-service")
 		}
 		lp, err := s.legalPolicy(ctx, b.PropertyID)

@@ -13,7 +13,7 @@ import (
 // DomainRoutes is the complete Sections 6–13 route registry.
 func DomainRoutes() []Route {
 	var rs []Route
-	for _, group := range [][]Route{financialWalletRoutes(), accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), delegationRoutes(), listingRoutes(),
+	for _, group := range [][]Route{financialWalletRoutes(), coreFinancialRoutes(), accountRoutes(), bankingRoutes(), propertyRoutes(), ownershipRoutes(), delegationRoutes(), listingRoutes(),
 		leadRoutes(), viewingRoutes(), applicationRoutes(), customerRoutes(), agreementRoutes(), tenancyRoutes(), utilityRoutes(), tenancyInternalRoutes(),
 		commercialRoutes(), saleRoutes(), commercialSaleInternalRoutes(), shortletRoutes(), shortletInternalRoutes(),
 		maintenanceRoutes(), professionalRoutes(), providerInternalRoutes(), oversightRoutes(), oversightAdminRoutes(), partnerRoutes(), accessRoutes(),

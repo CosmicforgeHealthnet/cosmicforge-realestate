@@ -16,26 +16,27 @@ consumes it (tests/e2e). Staging and production are not certified.
 |---|---|---|---|---|---|---|
 | 1 | `verification.*` (`individual-owner-service--verification`) | verification-service (implemented) | `submitted`, `processing`, `manual_review_required`, `verified`, `rejected`, `expired` | `contracts/events/verification/*.v1.schema.json` | `verificationPayload` | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`verified`) |
 | 2 | `media.*` (`individual-owner-service--media`) | media-document-service (implemented) | `ready`, `rejected`, `deleted` | `contracts/events/media/*.v1.schema.json` | `ApplyMediaEvent` payload | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`deleted`) |
-| 3 | `payment.*` (`individual-owner-service--payment`) | payment-service (Sections 1–3 foundation implemented) | `intent.updated`, `refund.updated` | `finance.*` foundation schemas published; no `payment.*` lifecycle schemas yet | `PaymentIntentEvent`, `PaymentRefundEvent` (README "Consumed events") | LOCAL PASS · full lifecycle integration deferred to Section 4+ |
+| 3 | canonical `finance.*`, historical `payment.*` (`individual-owner-service--payment`) | payment-service (implemented Financial Core) | 17 supported canonical v1 types; legacy `intent.updated`/`refund.updated` only for historical bindings | `contracts/events/payments/*.v1.schema.json` (34 published schemas) | Signed Core truth readback, original binding/aggregate, lease/retry, immutable resource IDs; no legacy updates to Core-bound intents | LOCAL / CONTRACT; actual process + JetStream collection/allocation/recovery evidence; provider/production gates remain |
 | 4 | `manager.*` (`individual-owner-service--property-manager`) | property-manager-service (**not implemented**) | `mandate.responded`, `activity.recorded` | none published | `ManagerResponseEvent`, `ManagerActivityEvent` | LOCAL PASS · live **BLOCKED** |
 | 5 | `artisan.*` (`individual-owner-service--artisan`) | artisan-service (**not implemented**) | `quote.submitted`, `job.event_recorded` | none published | `ArtisanQuoteEvent`, `ArtisanJobEvent` | LOCAL PASS · live **BLOCKED** |
 | 6 | `professional.*` (`individual-owner-service--professional-services`) | professional-services-service (**not implemented**) | `engagement.updated` | none published | `ProfessionalUpdateEvent` | LOCAL PASS · live **BLOCKED** |
 | 7 | `marketplace.*` (`individual-owner-service--marketplace`) | marketplace-service (**not implemented**) | `listing.reported` | none published | `ListingReportedEvent` | LOCAL PASS · live **BLOCKED** |
 
-The payment foundation publishes eight `finance.*.v1` schemas under
-`contracts/events/payments`, covering internal wallet, collection and pending
-ledger facts. A verified collection is not a held/released business payment;
-the owner consumer deliberately rejects those types. Automatic Owner wallet
-registration instead uses the signed, durable wallet registration adapter.
-The owner `payment.intent.updated.v1` and `payment.refund.updated.v1` lifecycle
-contracts remain reserved for Section 4 onward. Families 4–7 have no producer
-code or schema files. Their payload shapes are this service's consumer contract, so
-the producer teams must adopt them or negotiate a change. The real-process run
-confirms this: the owner worker logs `stream not found` for those five
-consumers and retries. It does not fail and it does not fabricate data.
-`TestUpstreamFixturesMatchProducerSchemas` validates the foundation envelope
-and its safe rejection, and detects newly published `payment.*` lifecycle
-schemas or schemas for families 4–7, forcing a compatibility update.
+The current payment consumer accepts only the canonical types documented in
+[the consolidated integration closure](SECTIONS_12_13_INTEGRATION_CLOSURE.md).
+Collection is a hint for signed original Core readback, never a paid/settled
+business outcome. Customer wallet spend adopts its existing Core intent.
+Reconciliation exceptions support both published aggregates: custody pool and
+payment intent. Payout results retain original wallet/provider/pool correlation.
+Duplicate and stale events use fresh truth; confirmed refund IDs are recomputed,
+not incremented, and expired observation claims recover through the existing worker.
+
+Real source backends for manager/artisan/professional/marketplace remain absent.
+Their signed simulators and payloads certify local boundary behavior only. Real
+notification/verification/media evidence is retained at its original source SHA.
+Historical generic `payment.*` payloads remain reserved; Core is not asked to
+publish invented legacy events. Unknown references retry until their source binding
+is committed; wrong source, aggregate or version is rejected.
 
 ## Safety rules (all families)
 
@@ -63,7 +64,7 @@ exercises this path.
 
 ## Remaining to certify
 
-- Producer implementations and schemas for families 3–7. Until they exist,
+- Actual producer implementations and usable schemas for families 4–7. Until they exist,
   live integration stays BLOCKED.
 - Real-process coverage of the other verification and media types, such as
   `rejected` and `expired`. These have CONTRACT PASS (schema plus consumer) but

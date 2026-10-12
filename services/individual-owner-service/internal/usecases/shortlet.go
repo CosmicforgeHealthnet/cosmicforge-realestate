@@ -159,7 +159,7 @@ func (s *Service) PutShortletSettings(ctx context.Context, subj authz.Subject, l
 	if in.MaxNights < in.MinNights {
 		return ShortletSettingsView{}, apperrors.InvalidRequest("max_nights must be at least min_nights.")
 	}
-	if in.PaymentCollection == "PLATFORM" && s.Payment == nil {
+	if in.PaymentCollection == "PLATFORM" && s.Payment == nil && !s.hasCoreFinancial() {
 		return ShortletSettingsView{}, unavailable("Platform payment for stays", "payment-service")
 	}
 	if in.ExternalCalendarRef != nil && s.CalendarSync == nil {

@@ -665,6 +665,31 @@ type FinanceOffer struct {
 	UpdatedAt             time.Time
 }
 
+type FinancialCoreAllocationLine struct {
+	LineID           ids.ID
+	OriginalIntentID ids.ID
+	AllocationID     ids.ID
+	Award            bool
+	Snapshot         []byte
+}
+
+type FinancialCoreBusinessBinding struct {
+	BusinessType    string
+	BusinessID      ids.ID
+	PropertyID      ids.ID
+	OwnerAccountID  ids.ID
+	QuoteID         ids.ID
+	IntentID        ids.ID
+	AmountMinor     int64
+	Currency        string
+	BusinessContext []byte
+	QuoteSnapshot   []byte
+	IntentSnapshot  []byte
+	ObservedState   string
+	SettlementState string
+	UpdatedAt       time.Time
+}
+
 type FinancialCoreCollection struct {
 	ObligationID    ids.ID
 	QuoteID         ids.ID
@@ -675,6 +700,39 @@ type FinancialCoreCollection struct {
 	ObservedState   string
 	SettlementState string
 	UpdatedAt       time.Time
+	OwnerAccountID  *ids.ID
+	BusinessContext []byte
+	QuoteSnapshot   []byte
+}
+
+type FinancialCorePayoutPreference struct {
+	OwnerAccountID  ids.ID
+	PayoutAccountID ids.ID
+	UpdatedAt       time.Time
+	Version         int64
+}
+
+type FinancialCoreReadbackLease struct {
+	IntentID      ids.ID
+	ClaimID       *ids.ID
+	ExpiresAt     *time.Time
+	LastAttemptAt *time.Time
+}
+
+type FinancialCoreResourceLink struct {
+	ResourceType string
+	ResourceID   ids.ID
+	IntentID     ids.ID
+	Snapshot     []byte
+	State        string
+	UpdatedAt    time.Time
+}
+
+type FinancialCoreWalletLink struct {
+	WalletID       ids.ID
+	OwnerAccountID ids.ID
+	LegalEntity    string
+	Currency       string
 }
 
 type FreshnessCheck struct {

@@ -13,8 +13,11 @@ import (
 )
 
 const listPayoutReferences = `-- name: ListPayoutReferences :many
-SELECT payout_account_id,wallet_id,beneficiary_ref,verification_ref,jurisdiction,expires_at
-FROM payout_account_refs WHERE wallet_id=$1 ORDER BY payout_account_id
+SELECT r.payout_account_id,r.wallet_id,r.beneficiary_ref,r.verification_ref,r.jurisdiction,r.expires_at,
+ (r.expires_at>now() AND EXISTS(SELECT 1 FROM wallets w JOIN financial_identities i USING(identity_id)
+ JOIN verification_refs v USING(identity_id) WHERE w.wallet_id=r.wallet_id AND i.state='ACTIVE'
+ AND v.verification_ref=r.verification_ref AND v.state='VERIFIED' AND v.expires_at>now()))::boolean AS eligible
+FROM payout_account_refs r WHERE r.wallet_id=$1 ORDER BY r.payout_account_id
 `
 
 type ListPayoutReferencesRow struct {
@@ -24,6 +27,7 @@ type ListPayoutReferencesRow struct {
 	VerificationRef string
 	Jurisdiction    string
 	ExpiresAt       time.Time
+	Eligible        bool
 }
 
 func (q *Queries) ListPayoutReferences(ctx context.Context, db DBTX, walletID ids.ID) ([]ListPayoutReferencesRow, error) {
@@ -42,6 +46,7 @@ func (q *Queries) ListPayoutReferences(ctx context.Context, db DBTX, walletID id
 			&i.VerificationRef,
 			&i.Jurisdiction,
 			&i.ExpiresAt,
+			&i.Eligible,
 		); err != nil {
 			return nil, err
 		}

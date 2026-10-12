@@ -1,5 +1,7 @@
 # External dependencies and Section 4 handoff
 
+> Current Owner compatibility handoff: [Owner Sections 12–13 integration closure](../individual-owner/SECTIONS_12_13_INTEGRATION_CLOSURE.md). The existing signed wallet client now consumes accepted business/receipt/authority/remedy/statement/payout contracts. Core adds scoped read compatibility and current verified-reference eligibility only; this does not approve payout execution or replace any production gate. Earlier Section 1–3 descriptions below remain historical.
+
 > Current provider evidence and remaining account/commercial/legal blockers: [Paystack TEST certification](PAYSTACK_SANDBOX_CERTIFICATION.md). The dependency statuses below are historical Sections 1–3 observations.
 
 > Historical Sections 1–3 baseline. The current [Sections 4–6 closure](SECTIONS_4_6_CLOSURE_REPORT.md) and [operations guide](SECTIONS_4_6_OPERATIONS.md) supersede deferred lifecycle descriptions below. Original test evidence and scope are retained.

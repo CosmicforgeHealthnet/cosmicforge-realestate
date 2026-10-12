@@ -120,7 +120,7 @@ var (
 			"PARTIAL":        {"PAID", "OVERDUE", "DISPUTED"},
 			"OVERDUE":        {"PARTIAL", "PAID", "DISPUTED", "WAIVED"},
 			"DISPUTED":       {"DUE", "OVERDUE", "PAID", "WAIVED", "REFUND_PENDING"},
-			"PAID":           {"REFUND_PENDING", "DISPUTED"},
+			"PAID":           {"REFUND_PENDING", "DISPUTED", "PARTIAL"},
 			"REFUND_PENDING": {"REFUNDED", "PAID"},
 		})
 

@@ -80,6 +80,16 @@ type PortfolioReport struct {
 	Sources            string           `json:"sources"`
 }
 
+// Whole-property operating proceeds, not withdrawable earnings. Core refund
+// references retain component identity, so returning a protected deposit does
+// not subtract the same liability from stay income twice. Legacy aggregate
+// refunds without attribution remain conservative, never invented income.
+const shortletRevenueSQL = `GREATEST(0,b.paid_minor-b.refunded_minor-
+ LEAST(b.paid_minor,COALESCE((b.cost_snapshot->>'refundable_total_minor')::bigint,0)+
+ COALESCE((SELECT sum((fee->>'amount_minor')::bigint) FROM jsonb_array_elements(b.cost_snapshot->'lines') fee WHERE fee->>'payable_to'<>'OWNER' AND COALESCE((fee->>'refundable')::boolean,false)=false),0))+
+ COALESCE((SELECT sum((r.snapshot->>'amount_minor')::bigint) FROM financial_core_resource_links r WHERE r.intent_id::text=b.payment_intent_ref AND r.resource_type='REFUND' AND r.state='CONFIRMED_REFUNDED' AND r.snapshot->>'component_kind' NOT IN ('PLATFORM','ONBOARDING','LEGAL') AND
+ (r.snapshot->>'component_kind'='DEPOSIT' OR EXISTS(SELECT 1 FROM jsonb_array_elements(b.cost_snapshot->'lines') fee WHERE fee->>'code'=r.snapshot->>'component_ref' AND fee->>'payable_to'<>'OWNER'))),0))`
+
 const propsCTE = `WITH props AS (SELECT DISTINCT property_id FROM property_access WHERE account_id = $1
 	AND (valid_until IS NULL OR valid_until > $2) AND ($3::uuid IS NULL OR property_id = $3))`
 
@@ -89,7 +99,7 @@ func (s *Service) portfolioFigures(ctx context.Context, account ids.ID, property
 	r := PortfolioReport{From: from.Format(time.DateOnly), To: to.Format(time.DateOnly), PropertyID: propertyID, ListingsByStatus: map[string]int64{},
 		RentDue: Money{}, RentCollected: Money{}, Arrears: Money{}, DepositsHeld: Money{}, MaintenanceSpend: Money{}, ProfessionalFees: Money{},
 		NetIncome: Money{}, Shortlet: ShortletFigures{Revenue: Money{}, ADR: Money{}},
-		Sources: "Owner-domain records; money figures are payment-service projections (read-back and events) or recorded off-platform evidence."}
+		Sources: "Property business proceeds from payment-service projections or recorded off-platform evidence; refundable liabilities and confirmed refunds are excluded. These are not owned-wallet balances or bank statements; unattributed legacy refunds use a conservative basis."}
 	leaf := `('UNIT','ROOM','SHOP','OFFICE','WAREHOUSE')`
 	active := `('ACTIVE','RENEWAL_PENDING','TERMINATION_PENDING','MOVE_OUT_PENDING')`
 	err := q.QueryRow(ctx, propsCTE+`
@@ -143,7 +153,7 @@ func (s *Service) portfolioFigures(ctx context.Context, account ids.ID, property
 		return rows.Err()
 	}
 	end := to.AddDate(0, 0, 1)
-	if err := money(` SELECT o.currency, coalesce(sum(o.amount_minor),0)::bigint, coalesce(sum(o.paid_minor),0)::bigint,
+	if err := money(` SELECT o.currency, coalesce(sum(o.amount_minor),0)::bigint, coalesce(sum(GREATEST(0,o.paid_minor-o.refunded_minor)),0)::bigint,
 			coalesce(sum(CASE WHEN o.status IN ('OVERDUE','PARTIAL') THEN o.amount_minor - o.paid_minor ELSE 0 END),0)::bigint
 		  FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
 		 WHERE t.property_id IN (SELECT property_id FROM props) AND o.due_date >= $4 AND o.due_date <= $5 AND o.status <> 'WAIVED' GROUP BY o.currency`,
@@ -160,9 +170,9 @@ func (s *Service) portfolioFigures(ctx context.Context, account ids.ID, property
 		return r, err
 	}
 	nights := map[string]int64{}
-	if err := money(` SELECT currency, coalesce(sum(paid_minor - refunded_minor),0)::bigint, coalesce(sum(check_out - check_in),0)::bigint FROM shortlet_bookings
-		 WHERE property_id IN (SELECT property_id FROM props) AND status IN ('CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','DISPUTED')
-		   AND check_in >= $4 AND check_in <= $5 GROUP BY currency`,
+	if err := money(` SELECT b.currency, coalesce(sum(`+shortletRevenueSQL+`),0)::bigint, coalesce(sum(b.check_out - b.check_in),0)::bigint FROM shortlet_bookings b
+		 WHERE b.property_id IN (SELECT property_id FROM props) AND status IN ('CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','DISPUTED')
+		   AND b.check_in >= $4 AND b.check_in <= $5 GROUP BY b.currency`,
 		[]any{from, to}, func(c string, v []int64) {
 			r.Shortlet.Revenue.add(c, v[0])
 			nights[c] += v[1]

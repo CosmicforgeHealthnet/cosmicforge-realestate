@@ -128,7 +128,7 @@ func (s *Service) PayoutReferences(ctx context.Context, wallet ids.ID) ([]Payout
 	}
 	result := []PayoutReference{}
 	for _, row := range rows {
-		x := PayoutReference{ID: row.PayoutAccountID, PayoutReferenceInput: PayoutReferenceInput{WalletID: row.WalletID, BeneficiaryRef: row.BeneficiaryRef, VerificationRef: row.VerificationRef, Jurisdiction: row.Jurisdiction, ExpiresAt: row.ExpiresAt}}
+		x := PayoutReference{ID: row.PayoutAccountID, Eligible: row.Eligible, PayoutReferenceInput: PayoutReferenceInput{WalletID: row.WalletID, BeneficiaryRef: row.BeneficiaryRef, VerificationRef: row.VerificationRef, Jurisdiction: row.Jurisdiction, ExpiresAt: row.ExpiresAt}}
 		result = append(result, x)
 	}
 	return result, nil

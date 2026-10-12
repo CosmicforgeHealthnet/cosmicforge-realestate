@@ -15,6 +15,7 @@ def extend(root, schemas, routes, obj, ref, array, text, uuid):
         ("POST","/financial-policy-deactivations","PolicyDeactivation",recorded,"Admin only; append an evidenced effective deactivation without editing accepted policy history."),
         ("GET","/financial-policies/{id}",None,ref("Policy"),"Signed caller; historical policy version."),
         ("POST","/beneficiary-authorities","Authority",ref("Authority"),"Authoritative domain; ownership percentages verified by owner/business; manager fee mandates issued by owner/business only; platform requires Admin."),
+        ("GET","/beneficiary-authorities/{id}",None,ref("AuthorityStatus"),"Original issuer, Admin/Core or the authenticated service owning a locked quote for the exact business reference; read-only existing entitlement and expiry/revocation state."),
         ("POST","/beneficiary-authorities/{id}/revoke","Evidence",recorded,"Original issuer or Admin; irreversible evidenced revocation."),
         ("POST","/locked-quotes","Quote",ref("Quote"),"Original business domain; immutable full accepted quote, payer consent and components. Idempotency-Key required."),
         ("GET","/locked-quotes/{id}",None,ref("Quote"),"Original source or delegated payer only."),

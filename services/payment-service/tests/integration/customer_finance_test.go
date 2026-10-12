@@ -16,8 +16,10 @@ import (
 )
 
 func customerFixture(t *testing.T, f *lifeFixture) (core.Wallet, context.Context, lifecycle.Policy) {
+	return customerFixtureFor(t, f, ids.New())
+}
+func customerFixtureFor(t *testing.T, f *lifeFixture, account ids.ID) (core.Wallet, context.Context, lifecycle.Policy) {
 	t.Helper()
-	account := ids.New()
 	user := ctx(platform.MarketplaceService, platform.DomainMarketplace, account)
 	w, e := f.s.EnsureWallet(user, core.Provision{Domain: "marketplace", AccountID: account, Role: "CUSTOMER", PartyKind: "PERSON", LegalEntity: f.w.LegalEntity, Currency: "NGN", RegistrationRef: "marketplace-customer"})
 	if e != nil {
@@ -42,8 +44,11 @@ func customerFixture(t *testing.T, f *lifeFixture) (core.Wallet, context.Context
 	return w, user, policy
 }
 func fundedCustomer(t *testing.T, f *lifeFixture, w core.Wallet, user context.Context, policy lifecycle.Policy) lifecycle.Topup {
+	return fundedCustomerAmount(t, f, w, user, policy, 10000)
+}
+func fundedCustomerAmount(t *testing.T, f *lifeFixture, w core.Wallet, user context.Context, policy lifecycle.Policy, amount int64) lifecycle.Topup {
 	t.Helper()
-	in := lifecycle.TopupRequest{ID: ids.New(), WalletID: w.WalletID, PolicyID: policy.ID, AmountMinor: 10000, Currency: "NGN", Country: "NG", Email: "customer@example.invalid", ConsentRef: "customer-funding-consent", ExpiresAt: time.Now().Add(time.Hour)}
+	in := lifecycle.TopupRequest{ID: ids.New(), WalletID: w.WalletID, PolicyID: policy.ID, AmountMinor: amount, Currency: "NGN", Country: "NG", Email: "customer@example.invalid", ConsentRef: "customer-funding-consent", ExpiresAt: time.Now().Add(time.Hour)}
 	top, e := f.l.RequestTopup(user, in, "fund")
 	if e != nil {
 		t.Fatal(e)

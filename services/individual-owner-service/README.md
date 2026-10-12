@@ -10,11 +10,23 @@ Individual Property Owner. Implementation status, requirement-by-requirement, is
 ownership, properties, listings, pricing, availability, leads, viewings, applications, agreements, tenancy,
 rent/deposits, utilities, commercial/land/sale, short-let, delegation, maintenance, professionals, disputes,
 privacy, reports/insights/dashboard, financing, insurance and smart access. Features that depend on services
-or providers that do not exist yet (payment-service, e-signature, calendar sync, smart locks, financing/
+or providers that do not exist yet (e-signature, calendar sync, smart locks, financing/
 insurance partners, CF Meet, maps) answer `503 FEATURE_UNAVAILABLE`; see the coverage register for the
 exact status and certification level of every item.
 The authoritative specification is
 [`docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf`](../../docs/product/individual-owner/CosmicForge_Real_Estate_Individual_Owner_Backend_Implementation_Spec_v1.0.pdf).
+
+## Current Financial Core integration
+
+`PAYMENT_WALLET_SERVICE_URL` reuses the signed wallet client for accepted financial
+workflows, original receipt/resource readback, verified beneficiaries, owned history,
+payout preferences and independently approved withdrawals. `PAYMENT_SERVICE_URL`
+remains refused because its generic legacy commands lack accepted quote/party/consent
+context. Source business truth stays here; balances, allocation, funding, release,
+refund execution, provider reconciliation and financial approvals stay in Payment Core.
+See the [current Sections 12–13 closure](../../docs/product/individual-owner/SECTIONS_12_13_INTEGRATION_CLOSURE.md)
+for supported workflows, exact evidence and external prerequisites. A test fixture is
+not production custody, bank verification or a real tenant/beneficiary approval.
 
 ## Account and authentication ownership
 

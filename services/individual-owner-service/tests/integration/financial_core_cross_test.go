@@ -47,7 +47,10 @@ func TestFinancialCoreConsumerContract(t *testing.T) {
 	h.app.Service.SetWalletRegistration(client)
 	pending := h.register(false)
 	h.expect(h.get(pending, "/financial-wallet"), 422, "WALLET_ACTIVATION_PENDING")
-	o, l := h.liveListing("Cross Service Contract Street")
+	o := h.register(true)
+	h.verifyIdentity(o)
+	p := h.createProperty(o, "Cross Service Contract Street")
+	l := h.liveOf(o, p, "RENT_LONG_TERM", map[string]any{"min_term_months": 12, "furnishing": "UNFURNISHED"}, map[string]any{"currency": "NGN", "base_amount_minor": 360000000, "base_period": "YEAR", "payment_cycle": "ANNUAL", "deposit_amount_minor": 50000000, "fees": []map[string]any{{"code": "service_charge", "category": "SERVICE_CHARGE", "label": "Accepted recurring fee", "calculation": "FIXED", "amount_minor": 20000000, "frequency": "PER_CYCLE", "mandatory": true, "payable_to": "OWNER"}}})
 	var snap payment.WalletSnapshot
 	h.get(o, "/financial-wallet").data(t, &snap)
 	h.get(o, "/financial-wallet").data(t, &snap)
@@ -65,6 +68,7 @@ func TestFinancialCoreConsumerContract(t *testing.T) {
 	c := customer()
 	h.acceptedOffer(o, l, c, day(h.clock.now(), 1))
 	agreement := h.agreementOf(o, l.PropertyID, "RENTAL_OFFER")
+	agreement.CurrentVersion.Terms.RentCollection = "PLATFORM"
 	agreement = h.prepareDraft(o, agreement, h.agreementTemplate("RESIDENTIAL_LEASE"), nil)
 	agreement = h.signOffline(o, c, agreement)
 	h.post(o, "/agreements/"+agreement.ID.String()+"/activate", nil).data(t, &agreement)
@@ -92,7 +96,7 @@ func TestFinancialCoreConsumerContract(t *testing.T) {
 		}
 	}
 	var q payment.AcceptedQuote
-	fixture("quote", map[string]any{"obligation_id": obligation.ID, "owner_id": o.id, "amount_minor": obligation.AmountMinor, "rent_minor": h.tenancy(o, *agreement.TenancyID).RentMinor}, &q)
+	fixture("quote", map[string]any{"obligation_id": obligation.ID, "owner_id": o.id, "amount_minor": obligation.AmountMinor, "rent_minor": h.tenancy(o, *agreement.TenancyID).RentMinor, "customer_id": c.ActorID, "agreement_ref": agreement.ID.String(), "agreement_version": strconv.Itoa(int(agreement.CurrentVersion.VersionNo))}, &q)
 	path := "/rent-obligations/" + obligation.ID.String() + "/financial-collection"
 	body := map[string]any{"quote_id": q.ID, "payer_email": "tenant@example.invalid"}
 	h.expect(h.post(other, path, body), 404, "")
@@ -188,4 +192,7 @@ func TestFinancialCoreConsumerContract(t *testing.T) {
 	if h.count(`SELECT count(*) FROM financial_core_collections WHERE obligation_id=$1 AND observed_state='VERIFIED_SUCCESS' AND settlement_state='PENDING'`, obligation.ID) != 1 {
 		t.Fatal("canonical event observation lost")
 	}
+	fixture("fund", map[string]any{"intent_id": intent.ID}, nil)
+	certifyAdditionalCoreJourneys(t, client, base)
+
 }
