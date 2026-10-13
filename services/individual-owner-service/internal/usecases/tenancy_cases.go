@@ -679,7 +679,11 @@ func (s *Service) IssueNotice(ctx context.Context, subj authz.Subject, id ids.ID
 			return err
 		}
 		now := s.now()
-		eff := domain.NoticeEffectiveDate(now, days, n.RequestedEffectiveDate)
+		businessDay, err := s.businessDate(ctx, t.PropertyID, now)
+		if err != nil {
+			return err
+		}
+		eff := domain.NoticeEffectiveDate(businessDay, days, n.RequestedEffectiveDate)
 		if err := s.q.SetNoticeIssued(ctx, mustTx(ctx), db.SetNoticeIssuedParams{ID: id, IssuedAt: &now, EffectiveDate: &eff, PolicyVersion: &s.Policy.Version}); err != nil {
 			return err
 		}
@@ -898,7 +902,11 @@ func (s *Service) CustomerGiveNotice(ctx context.Context, subj authz.Subject, te
 		if err != nil {
 			return err
 		}
-		eff := domain.NoticeEffectiveDate(now, days, n.RequestedEffectiveDate)
+		businessDay, err := s.businessDate(ctx, t.PropertyID, now)
+		if err != nil {
+			return err
+		}
+		eff := domain.NoticeEffectiveDate(businessDay, days, n.RequestedEffectiveDate)
 		if err := s.q.SetNoticeIssued(ctx, tx, db.SetNoticeIssuedParams{ID: n.ID, IssuedAt: &now, EffectiveDate: &eff, PolicyVersion: &s.Policy.Version}); err != nil {
 			return err
 		}

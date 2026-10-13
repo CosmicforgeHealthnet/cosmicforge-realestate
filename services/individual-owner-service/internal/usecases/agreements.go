@@ -1143,9 +1143,12 @@ func (s *Service) createEnvelope(ctx context.Context, id ids.ID) error {
 			req.Signers = append(req.Signers, esign.Signer{ParticipantID: p.ID, Name: p.DisplayName, Email: deref(p.SigningEmail), Order: i + 1})
 		}
 	}
-	env, err := s.ESign.CreateEnvelope(ctx, req, fmt.Sprintf("agreement:%s:v%d", id, v.VersionNo))
+	env, err := s.recoverEnvelope(ctx, id, req, fmt.Sprintf("agreement:%s:v%d", id, v.VersionNo))
 	if err != nil {
 		return err
+	}
+	if env.Ref == "" {
+		return nil
 	}
 	return s.InTx(ctx, func(ctx context.Context) error {
 		cur, err := s.q.GetAgreementForUpdate(ctx, mustTx(ctx), id)

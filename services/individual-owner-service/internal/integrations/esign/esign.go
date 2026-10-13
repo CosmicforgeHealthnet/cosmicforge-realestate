@@ -71,3 +71,9 @@ type API interface {
 	GetEnvelope(ctx context.Context, ref string) (Envelope, error)
 	VoidEnvelope(ctx context.Context, ref, reason string) error
 }
+
+// ReadbackAPI resolves an ambiguous creation by its original accepted request
+// and key. found=false is definitive absence; an inconclusive lookup is an error.
+type ReadbackAPI interface {
+	LookupEnvelope(context.Context, EnvelopeRequest, string) (Envelope, bool, error)
+}

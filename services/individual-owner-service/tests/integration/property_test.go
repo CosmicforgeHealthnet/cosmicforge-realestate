@@ -192,6 +192,45 @@ func TestIdentityVerificationEventsAreIdempotentAndOrdered(t *testing.T) {
 	}
 }
 
+func TestVerificationSubjectBindingAndLostExpiryReadback(t *testing.T) {
+	h := newHarness(t)
+	o, l := h.liveListing("14 Verification Readback Road")
+	ctx := context.Background()
+	var vid ids.ID
+	if err := h.db.Pool.QueryRow(ctx, `SELECT verification_id FROM verification_links WHERE property_id=$1 AND status='VERIFIED'`, l.PropertyID).Scan(&vid); err != nil {
+		t.Fatal(err)
+	}
+	c, err := h.verif.Get(ctx, vid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Status = "EXPIRED"
+	c.Subject.ID = ids.New()
+	if err := h.app.Service.ApplyVerificationEvent(ctx, verificationEvent(t, c)); err == nil {
+		t.Fatal("a different property's outcome changed this case")
+	}
+	h.verif.mu.Lock()
+	h.verif.cases[vid].Subject.ID = c.Subject.ID
+	h.verif.mu.Unlock()
+	if err := h.app.Service.SyncVerification(ctx, vid); err == nil {
+		t.Fatal("mismatched readback subject accepted")
+	}
+	h.verif.mu.Lock()
+	h.verif.cases[vid].Subject.ID = l.PropertyID
+	h.verif.mu.Unlock()
+	// Source expired authority, but the expiry delivery was lost.
+	h.verif.decide(t, vid, "EXPIRED", "SOURCE_EXPIRED", nil)
+	if _, err := h.db.Pool.Exec(ctx, `UPDATE verification_links SET last_synced_at=$2 WHERE verification_id=$1`, vid, h.clock.now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if err := h.app.Service.ReconcileVerifications(ctx, 50); err != nil {
+		t.Fatal(err)
+	}
+	if got := h.listing(o, l.ID); got.Status != "PAUSED" {
+		t.Fatalf("lost expiry left publication live: %s", got.Status)
+	}
+}
+
 func TestPropertyLifecycleOwnershipVerificationAndEvents(t *testing.T) {
 	h := newHarness(t)
 	o := h.register(true)

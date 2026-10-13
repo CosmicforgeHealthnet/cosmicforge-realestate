@@ -793,7 +793,7 @@ func (s *Service) RunPrivacyJobs(ctx context.Context, batch int32) error {
 		if err != nil || n == 0 {
 			return err
 		}
-		return s.record(ctx, "privacy.retention.guest_anonymization", "privacy_retention", ids.Nil, map[string]any{"guests": n},
+		return s.record(ctx, "privacy.retention.guest_anonymization", "privacy_retention", ids.New(), map[string]any{"guests": n},
 			map[string]any{"retention": s.Policy.Domain.GuestDataRetention.String(), "holds": "open damage claims and disputes"})
 	})
 }

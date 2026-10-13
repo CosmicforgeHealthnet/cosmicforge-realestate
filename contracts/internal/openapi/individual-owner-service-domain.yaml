@@ -5418,6 +5418,27 @@ components:
         - status
         - created_at
       type: object
+    ReconciliationIssue:
+      properties:
+        action:
+          type: string
+        code:
+          type: string
+        observed_at:
+          format: date-time
+          type: string
+        resource_id:
+          format: uuid
+          type: string
+        state:
+          type: string
+      required:
+        - code
+        - resource_id
+        - state
+        - action
+        - observed_at
+      type: object
     RecordView:
       properties:
         allowed_next_statuses:
@@ -7180,6 +7201,37 @@ paths:
       security:
         - ServiceBearer: []
       summary: Decide a correction/deletion/objection/restriction
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/reconciliation:
+    get:
+      description: Requires an attributable Admin actor. Read-only, bounded to 500 oldest issues. Existing workers recover safe cases; material conflicts require manual review. This view never infers provider success or rewrites money.
+      operationId: adminGetReconciliation
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/ReconciliationIssue'
+                    type: array
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Classified reference, delivery and original-operation recovery issues
       tags:
         - _Admin
   /internal/v1/owner/admin/tenancies/{tenancy_id}/deposit/resolution:

@@ -42,7 +42,7 @@ func (h *harness) leaseAwaitingDepositResponse(line1 string) (*owner, string, us
 	t := h.t
 	o, l := h.liveListing(line1)
 	c := customer()
-	h.acceptedOffer(o, l, c, day(h.clock.now(), 1))
+	h.acceptedOffer(o, l, c, day(h.clock.now(), 0)) // This fixture moves in immediately, within the accepted period.
 	a := h.agreementOf(o, l.PropertyID, "RENTAL_OFFER")
 	a = h.prepareDraft(o, a, h.agreementTemplate("RESIDENTIAL_LEASE"), nil)
 	a = h.signOffline(o, c, a)

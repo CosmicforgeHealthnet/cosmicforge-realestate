@@ -51,3 +51,28 @@ func TestCoreWorkflowHistoryCannotBeReassignedOrRolledBack(t *testing.T) {
 		t.Fatal("original issuer/history changed")
 	}
 }
+
+func TestExternalOperationMigrationRetainsPopulatedHistory(t *testing.T) {
+	h := newHarness(t)
+	o := h.register(true)
+	ctx := context.Background()
+	if _, err := h.db.Pool.Exec(ctx, `INSERT INTO owner_external_operations(operation_key,kind,aggregate_id,request_hash,state,created_at,updated_at) VALUES('TEST retained operation','ESIGN_ENVELOPE',$1,'TEST fingerprint','UNKNOWN',now(),now())`, o.id); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := fs.ReadFile(migrations.FS, "00022_external_operation_recovery.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	down := strings.SplitN(string(raw), "-- +goose Down", 2)[1]
+	tx, err := h.db.Pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(ctx)
+	if _, err := tx.Exec(ctx, down); err == nil {
+		t.Fatal("populated provider operation history was destructively rolled back")
+	}
+	if h.count(`SELECT count(*) FROM owner_external_operations WHERE aggregate_id=$1 AND state='UNKNOWN'`, o.id) != 1 {
+		t.Fatal("original unknown operation lost")
+	}
+}

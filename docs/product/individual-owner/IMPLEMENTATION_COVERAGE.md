@@ -524,3 +524,8 @@ services, `tests/e2e`) with PostgreSQL 16, Redis, NATS (embedded) and MinIO. Res
 
 Deployment wiring (staging/production compose entries, `promote.yml` digest input) is intentionally
 not added until an owner image digest exists from a working CI and deployment is approved.
+
+
+## Sections 14–15 closure — 2026-10-13
+
+The authoritative current combined42-step/16-control register is [Sections14–15 closure](SECTIONS_14_15_IMPLEMENTATION_CLOSURE.md), based on development44cce026. Existing historical sections above retain their own revisions and qualifications. New work is limited to demonstrated clock/start-date, verification binding/lost-expiry, provider uncertainty/fencing, audit/retention, reconciliation and scoped real-Media data-room gaps, plus extensions of existing process/control tests. Migration22 is additive and retains populated operation history. Effective Owner137/Gateway22/Shared135/platformE2E5+5 passed after two documented fixture corrections; four affected Core tests and all10 additional process stories passed. No historical Payment91+85 evidence is relabelled fresh. External providers/services, O-001–O-012, staging and production remain independently blocked/unapproved. See the report for the exact URL-revocation lifetime qualification and all outstanding prerequisites. Scope stops after Section15.

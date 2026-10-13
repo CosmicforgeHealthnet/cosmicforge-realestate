@@ -28,6 +28,12 @@ func (p *platformEnv) capturedCode(destination string) string {
 	re := regexp.MustCompile(`\b(\d{6})\b`)
 	var code string
 	testkit.Eventually(p.t, 20*time.Second, func() bool {
+		if p.smtp != nil {
+			if c := re.FindStringSubmatch(p.smtp.message(destination)); c != nil {
+				code = c[1]
+			}
+			return code != ""
+		}
 		f, err := os.Open(p.captureFile)
 		if err != nil {
 			return false

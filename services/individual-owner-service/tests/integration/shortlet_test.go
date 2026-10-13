@@ -80,6 +80,33 @@ func dayN(t time.Time, n int) string {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC).AddDate(0, 0, n).Format(time.DateOnly)
 }
 
+func TestShortletPropertyClockAndAccessWindow(t *testing.T) {
+	h := newHarness(t)
+	o, l := h.shortletListing("14 Local Clock Road")
+	var prop usecases.PropertyView
+	h.get(o, "/properties/"+l.PropertyID.String()).data(t, &prop)
+	h.expect(h.write(o, "PATCH", "/properties/"+prop.ID.String(), prop.Version, map[string]any{"timezone": "America/Los_Angeles"}), 200, "")
+	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/shortlet/settings", 0, shortletSettings("OFF_PLATFORM", true, false)), 200, "")
+	// At 00:30 UTC it is still the previous business date in Los Angeles.
+	base := h.clock.now()
+	in := dayN(base, 2)
+	b := h.requestBooking(customer(), bookingBody(l, in, dayN(base, 4), "Clock Guest"))
+	arrival, _ := time.Parse(time.DateOnly, in)
+	h.clock.advance(arrival.Add(30 * time.Minute).Sub(h.clock.now()))
+	h.relogin(o)
+	h.expect(h.write(o, "PATCH", "/shortlet/bookings/"+b.ID.String(), h.booking(o, b.ID).Version, map[string]any{"action": "CHECK_IN"}), 422, "TOO_EARLY")
+	r := h.post(o, "/access/devices", map[string]any{"property_id": prop.ID, "device_type": "LOCKBOX", "label": "Business clock box"})
+	h.expect(r, 201, "")
+	var dev usecases.AccessDeviceView
+	r.data(t, &dev)
+	// Date-only checkout is not authorization for an extra day of access.
+	out, _ := time.Parse(time.DateOnly, dayN(base, 4))
+	grant := map[string]any{"device_id": dev.ID, "relation_type": "shortlet_booking", "relation_id": b.ID, "starts_at": arrival.Add(22 * time.Hour), "ends_at": out.Add(23 * time.Hour)}
+	h.expect(h.post(o, "/access/grants", grant), 422, "OUTSIDE_RELATION_PERIOD")
+	grant["ends_at"] = out.Add(18 * time.Hour) // 11:00 PDT
+	h.expect(h.post(o, "/access/grants", grant), 201, "")
+}
+
 func bookingBody(l usecases.ListingView, in, out string, guest string) map[string]any {
 	return map[string]any{"listing_id": l.ID, "check_in": in, "check_out": out, "guests": 2,
 		"guest_list": []map[string]any{{"display_name": guest, "primary": true}, {"display_name": "Companion"}}}

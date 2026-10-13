@@ -72,6 +72,9 @@ func closureRoutes() []Route {
 
 func closureAdminRoutes() []Route {
 	return []Route{
+		Get("/admin/reconciliation", "adminGetReconciliation", tagAdmin, "Classified reference, delivery and original-operation recovery issues",
+			func(c *Call) ([]usecases.ReconciliationIssue, error) { return c.S.ReconciliationIssues(c.Ctx, c.Subj) }).Internal().
+			Describe("Requires an attributable Admin actor. Read-only, bounded to 500 oldest issues. Existing workers recover safe cases; material conflicts require manual review. This view never infers provider success or rewrites money."),
 		Get("/admin/accounts/{account_id}/assistance", "adminGetAssistance", tagAdmin, "Live assistance authorizations and accessibility needs (audited)",
 			func(c *Call) (usecases.AdminAssistanceView, error) {
 				return c.S.AdminGetAssistance(c.Ctx, c.Subj, c.ID("account_id"))

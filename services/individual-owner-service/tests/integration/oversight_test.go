@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"testing"
 	"time"
@@ -9,7 +10,64 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 )
+
+func TestReconciliationIsClassifiedAndAdminScoped(t *testing.T) {
+	h := newHarness(t)
+	o := h.register(true)
+	ctx := context.Background()
+	if _, err := h.db.Pool.Exec(ctx, `UPDATE outbox_events SET dead_at=$2 WHERE aggregate_id=$1`, o.id, h.clock.now()); err != nil {
+		t.Fatal(err)
+	}
+	path := internal + "/admin/reconciliation"
+	h.expect(h.do(call{method: "GET", path: path, as: platform.AdminService}), 403, "")
+	h.expect(h.do(call{method: "GET", path: path, as: platform.MarketplaceService, delegate: adminActor()}), 403, "")
+	r := h.do(call{method: "GET", path: path, as: platform.AdminService, delegate: adminActor()})
+	h.expect(r, 200, "")
+	var issues []usecases.ReconciliationIssue
+	r.data(t, &issues)
+	found := false
+	for _, issue := range issues {
+		if issue.Code == "OUTBOX_DELIVERY_FAILED" && issue.State == "DEAD" && issue.Action == "MANUAL_REVIEW" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("failed delivery not classified: %+v", issues)
+	}
+	if h.count(`SELECT count(*) FROM outbox_events WHERE aggregate_id=$1 AND dead_at IS NOT NULL`, o.id) == 0 {
+		t.Fatal("readback silently rewrote failed delivery")
+	}
+}
+
+func TestGuestRetentionPreservesHoldsAndAuditsEligibleAnonymization(t *testing.T) {
+	h := newHarness(t)
+	o, l := h.shortletListing("15 Guest Retention Road")
+	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/shortlet/settings", 0, shortletSettings("OFF_PLATFORM", true, false)), 200, "")
+	c := customer()
+	b := h.requestBooking(c, bookingBody(l, dayN(h.clock.now(), 2), dayN(h.clock.now(), 4), "Retained Guest"))
+	h.expect(h.write(o, "PATCH", "/shortlet/bookings/"+b.ID.String(), h.booking(o, b.ID).Version, map[string]any{"action": "CANCEL", "reason_code": "TEST_CANCELLATION"}), 200, "")
+	held := h.requestBooking(c, bookingBody(l, dayN(h.clock.now(), 6), dayN(h.clock.now(), 8), "Held Guest"))
+	h.expect(h.write(o, "PATCH", "/shortlet/bookings/"+held.ID.String(), h.booking(o, held.ID).Version, map[string]any{"action": "CANCEL", "reason_code": "TEST_CANCELLED_DISPUTED"}), 200, "")
+	h.expect(h.post(o, "/disputes", map[string]any{"target_type": "shortlet_booking", "target_id": held.ID, "category": "PRIVACY", "summary": "Preserve evidence for active TEST case"}), 201, "")
+	h.clock.advance(h.app.Service.Policy.Domain.GuestDataRetention + 30*24*time.Hour)
+	if err := h.app.Service.RunPrivacyJobs(context.Background(), 50); err != nil {
+		t.Fatal(err)
+	}
+	if h.count(`SELECT count(*) FROM shortlet_guests WHERE booking_id=$1 AND display_name<>'Guest'`, b.ID) != 0 {
+		t.Fatal("eligible guest PII was not anonymized")
+	}
+	if h.count(`SELECT count(*) FROM audit_events WHERE action='privacy.retention.guest_anonymization'`) == 0 {
+		t.Fatal("anonymization lacks immutable audit")
+	}
+	if h.count(`SELECT count(*) FROM shortlet_bookings WHERE id=$1 AND customer_ref_id=$2`, b.ID, c.ActorID) != 1 {
+		t.Fatal("authoritative financial/source party reference erased")
+	}
+	if h.count(`SELECT count(*) FROM shortlet_guests WHERE booking_id=$1 AND display_name='Held Guest'`, held.ID) != 1 {
+		t.Fatal("open dispute hold lost required guest evidence")
+	}
+}
 
 func TestDisputesConsentsAndPrivacyRequests(t *testing.T) {
 	h := newHarness(t)

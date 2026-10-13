@@ -254,7 +254,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 SELECT * FROM rent_obligation_status_history WHERE obligation_id = $1 ORDER BY occurred_at, id;
 
 -- name: ObligationsToOpen :many
-SELECT o.id FROM rent_obligations o WHERE o.status = 'SCHEDULED' AND o.due_date <= sqlc.arg(open_until)::date
+SELECT o.id FROM rent_obligations o JOIN properties p ON p.id=o.property_id WHERE o.status = 'SCHEDULED' AND o.due_date <= (sqlc.arg(open_until)::timestamptz AT TIME ZONE p.timezone)::date
  ORDER BY o.due_date LIMIT sqlc.arg(max_rows);
 
 -- name: ObligationsNeedingIntent :many
@@ -263,8 +263,8 @@ SELECT o.id FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
  ORDER BY o.due_date LIMIT $1;
 
 -- name: ObligationsToMarkOverdue :many
-SELECT o.id FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
- WHERE o.status IN ('DUE','PARTIAL') AND o.due_date + t.late_fee_grace_days < sqlc.arg(today)::date
+SELECT o.id FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id JOIN properties p ON p.id=o.property_id
+ WHERE o.status IN ('DUE','PARTIAL') AND o.due_date + t.late_fee_grace_days < (sqlc.arg(today)::timestamptz AT TIME ZONE p.timezone)::date
  ORDER BY o.due_date LIMIT sqlc.arg(max_rows);
 
 -- name: ObligationsToReconcile :many

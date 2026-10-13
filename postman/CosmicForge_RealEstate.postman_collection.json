@@ -11004,6 +11004,49 @@
               "response": []
             },
             {
+              "name": "Classified reference, delivery and original-operation recovery issues",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/admin/reconciliation",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "admin",
+                    "reconciliation"
+                  ]
+                },
+                "description": "Classified reference, delivery and original-operation recovery issues.\n\nRequires an attributable Admin actor. Read-only, bounded to 500 oldest issues. Existing workers recover safe cases; material conflicts require manual review. This view never infers provider success or rewrites money.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand."
+              },
+              "response": []
+            },
+            {
               "name": "Live assistance authorizations and accessibility needs (audited)",
               "event": [
                 {

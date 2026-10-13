@@ -139,12 +139,62 @@ func (h *harness) runJobs(names ...string) {
 	}
 }
 
+func TestMoveInCannotPrecedeAcceptedBusinessPeriod(t *testing.T) {
+	h := newHarness(t)
+	o := h.register(true)
+	p := h.createProperty(o, "15 Accepted Start Road")
+	h.verifyProperty(o, p.ID)
+	tpl := h.agreementTemplate("RESIDENTIAL_LEASE")
+	r := h.post(o, "/agreements", map[string]any{"property_id": p.ID, "agreement_kind": "RESIDENTIAL_LEASE", "template_id": tpl, "terms": map[string]any{"start_date": day(h.clock.now(), 10), "term_months": 12, "currency": "NGN", "rent_minor": 1000, "frequency": "MONTHLY", "due_day": 1, "rent_collection": "OFF_PLATFORM", "deposit_handling": "NONE"}, "tenant": map[string]any{"display_name": "Period Tenant"}})
+	h.expect(r, 201, "")
+	var a usecases.AgreementView
+	r.data(t, &a)
+	a = h.signOffline(o, nil, h.prepareDraft(o, a, tpl, nil))
+	h.post(o, "/agreements/"+a.ID.String()+"/activate", nil).data(t, &a)
+	h.expect(h.post(o, "/tenancies/"+a.TenancyID.String()+"/move-in", nil), 422, "AGREEMENT_NOT_STARTED")
+	h.clock.advance(10 * 24 * time.Hour)
+	h.relogin(o)
+	h.expect(h.post(o, "/tenancies/"+a.TenancyID.String()+"/move-in", nil), 200, "")
+}
+
+func TestRentArrearsUsesPropertyBusinessDate(t *testing.T) {
+	h := newHarness(t, withPayment) // Date/projection test only; no real money is certified.
+	now := h.clock.now()
+	cutover := time.Date(now.Year(), now.Month()+1, 15, 0, 30, 0, 0, time.UTC)
+	h.clock.advance(cutover.Sub(now))
+	o := h.register(true)
+	p := h.createProperty(o, "15 Rent Clock Road")
+	h.expect(h.write(o, "PATCH", "/properties/"+p.ID.String(), p.Version, map[string]any{"timezone": "America/Los_Angeles"}), 200, "")
+	h.verifyProperty(o, p.ID)
+	tpl := h.agreementTemplate("RESIDENTIAL_LEASE")
+	r := h.post(o, "/agreements", map[string]any{"property_id": p.ID, "agreement_kind": "RESIDENTIAL_LEASE", "template_id": tpl, "terms": map[string]any{"start_date": day(cutover, -1), "term_months": 12, "currency": "NGN", "rent_minor": 1000, "frequency": "MONTHLY", "due_day": 14, "rent_collection": "PLATFORM", "deposit_handling": "NONE"}, "tenant": map[string]any{"display_name": "Clock Tenant"}})
+	h.expect(r, 201, "")
+	var a usecases.AgreementView
+	r.data(t, &a)
+	a = h.signOffline(o, nil, h.prepareDraft(o, a, tpl, nil))
+	h.post(o, "/agreements/"+a.ID.String()+"/activate", nil).data(t, &a)
+	path := "/tenancies/" + a.TenancyID.String() + "/rent-obligations"
+	h.runJobs("rent-obligations-arrears")
+	var obligations []usecases.RentObligationView
+	h.get(o, path).data(t, &obligations)
+	if len(obligations) == 0 || obligations[0].Status == "OVERDUE" {
+		t.Fatal("rent became overdue before property midnight")
+	}
+	h.clock.advance(9 * time.Hour)
+	h.relogin(o)
+	h.runJobs("rent-obligations-arrears")
+	h.get(o, path).data(t, &obligations)
+	if obligations[0].Status != "OVERDUE" {
+		t.Fatalf("rent not overdue after local midnight: %s", obligations[0].Status)
+	}
+}
+
 func TestResidentialLeaseLifecycle(t *testing.T) {
 	h := newHarness(t, withPayment)
 	ctx := context.Background()
 	o, l := h.liveListing("60 Tenancy Crescent")
 	c := customer()
-	start := day(h.clock.now(), 3)
+	start := day(h.clock.now(), 0)
 	off := h.acceptedOffer(o, l, c, start)
 
 	// Acceptance prepared the agreement from the frozen price snapshot.
@@ -314,14 +364,14 @@ func TestResidentialLeaseLifecycle(t *testing.T) {
 	}
 	var add usecases.AgreementView
 	h.get(o, "/agreements/"+rn.AddendumAgreementID.String()).data(t, &add)
-	if add.AgreementKind != "RENEWAL_ADDENDUM" || add.CurrentVersion.Terms.RentMinor != 380000000 || add.CurrentVersion.Terms.StartDate != h.clock.now().AddDate(1, 0, 3).Format(time.DateOnly) {
+	if add.AgreementKind != "RENEWAL_ADDENDUM" || add.CurrentVersion.Terms.RentMinor != 380000000 || add.CurrentVersion.Terms.StartDate != h.clock.now().AddDate(1, 0, 0).Format(time.DateOnly) {
 		t.Fatalf("addendum %+v", add.CurrentVersion)
 	}
 	add = h.prepareDraft(o, add, h.agreementTemplate("RENEWAL_ADDENDUM"), nil)
 	add = h.signOffline(o, c, add)
 	h.expect(h.post(o, "/agreements/"+add.ID.String()+"/activate", nil), 200, "")
 	tn = h.tenancy(o, tid)
-	if tn.Status != "ACTIVE" || tn.EndDate == nil || *tn.EndDate != h.clock.now().AddDate(2, 0, 2).Format(time.DateOnly) {
+	if tn.Status != "ACTIVE" || tn.EndDate == nil || *tn.EndDate != h.clock.now().AddDate(2, 0, -1).Format(time.DateOnly) {
 		t.Fatalf("renewed tenancy %+v", tn)
 	}
 
@@ -515,7 +565,7 @@ func TestDirectAgreementOffPlatformAndAuthorization(t *testing.T) {
 }
 
 func TestElectronicSignatureReconciliation(t *testing.T) {
-	h := newHarness(t, func(h *harness) { h.esign = newFakeESign() })
+	h := newHarness(t, func(h *harness) { h.esign = newFakeESign(); h.esign.failAfterCreate = true })
 	o := h.register(true)
 	p := h.createProperty(o, "62 Envelope Street")
 	h.verifyProperty(o, p.ID)

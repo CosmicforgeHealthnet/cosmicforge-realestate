@@ -15,6 +15,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/pagination"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
 )
 
 // Sale transactions (§13.17–§13.19). The sale aggregate is independent of
@@ -1375,6 +1376,8 @@ func (s *Service) GranteeDownloadURL(ctx context.Context, subj authz.Subject, ro
 	}
 	var doc db.DataRoomDocument
 	var purpose string
+	var grantID ids.ID
+	var validUntil time.Time
 	err := s.InTx(ctx, func(ctx context.Context) error {
 		_, g, err := s.granteeGrant(ctx, subj, roomID)
 		if err != nil {
@@ -1389,6 +1392,8 @@ func (s *Service) GranteeDownloadURL(ctx context.Context, subj authz.Subject, ro
 			return err
 		}
 		purpose = g.Purpose
+		grantID = g.ID
+		validUntil = g.ExpiresAt
 		if err := s.q.TouchDataRoomGrant(ctx, tx, db.TouchDataRoomGrantParams{ID: g.ID, LastAccessedAt: &now}); err != nil {
 			return err
 		}
@@ -1401,9 +1406,43 @@ func (s *Service) GranteeDownloadURL(ctx context.Context, subj authz.Subject, ro
 	if err != nil {
 		return DataRoomDownload{}, err
 	}
-	dl, err := s.Media.DownloadURL(ctx, doc.MediaID, purpose)
+	// This is an authorized Owner-domain proxy read, not a delegation of the
+	// buyer's identity to Media. Owner owns this document and enforces the
+	// recipient's active purpose grant; both services retain the same trace.
+	// Keep the original actor on Owner audit records and clear it only for
+	// the downstream domain-service read, which Media explicitly supports.
+	proxyCtx := requestcontext.WithActor(ctx, requestcontext.Actor{})
+	m, err := s.Media.Get(proxyCtx, doc.MediaID)
 	if err != nil {
 		return DataRoomDownload{}, downstream("media-document-service", err)
+	}
+	if m.OwnerDomain != string(platform.DomainIndividualOwner) || m.Status != "READY" {
+		return DataRoomDownload{}, precondition("DATA_ROOM_MEDIA_UNUSABLE", "The referenced Owner document is not ready for sharing.")
+	}
+	dl, err := s.Media.DownloadURL(proxyCtx, doc.MediaID, purpose)
+	if err != nil {
+		return DataRoomDownload{}, downstream("media-document-service", err)
+	}
+	if dl.ExpiresAt.After(validUntil) {
+		return DataRoomDownload{}, precondition("PURPOSE_WINDOW_TOO_SHORT", "The media URL would outlive this purpose grant. A new authorized grant is required.")
+	}
+	// Revocation or room closure during the downstream call must prevent a
+	// newly returned URL. Previously issued URLs retain Media's bounded TTL.
+	if err := s.InTx(ctx, func(ctx context.Context) error {
+		_, g, err := s.granteeGrant(ctx, subj, roomID)
+		if err != nil {
+			return err
+		}
+		if g.ID != grantID {
+			return notFound("data_room_grant")
+		}
+		cur, err := s.q.GetDataRoomDocument(ctx, mustTx(ctx), db.GetDataRoomDocumentParams{ID: docID, DataRoomID: roomID})
+		if err != nil || cur.MediaID != doc.MediaID || (len(g.Categories) > 0 && !slices.Contains(g.Categories, cur.Category)) {
+			return notFound("data_room_document")
+		}
+		return s.record(ctx, "sale.data_room.download_confirmed", "data_room", roomID, map[string]any{"grant_id": grantID, "document_id": docID, "purpose": purpose}, map[string]any{"privileged_read": true})
+	}); err != nil {
+		return DataRoomDownload{}, err
 	}
 	return DataRoomDownload{DocumentID: docID, URL: dl.URL, ExpiresAt: dl.ExpiresAt}, nil
 }

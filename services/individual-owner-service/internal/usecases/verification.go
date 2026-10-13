@@ -346,7 +346,7 @@ func (s *Service) ApplyVerificationEvent(ctx context.Context, e events.Envelope)
 	if err := json.Unmarshal(e.Payload, &p); err != nil {
 		return events.Permanent(err)
 	}
-	if p.Status != want || p.VerificationID.IsZero() {
+	if p.Status != want || p.VerificationID.IsZero() || e.AggregateID != p.VerificationID {
 		return events.Permanent(fmt.Errorf("%s: payload status %q does not match the event type", e.EventType, p.Status))
 	}
 	if p.Subject.Domain != string(platform.DomainIndividualOwner) {
@@ -369,6 +369,9 @@ func (s *Service) SyncVerification(ctx context.Context, verificationID ids.ID) e
 	c, err := s.Verification.Get(ctx, verificationID)
 	if err != nil {
 		return downstream("verification-service", err)
+	}
+	if c.VerificationID != verificationID {
+		return precondition("VERIFICATION_CONTEXT_MISMATCH", "Verification readback returned a different case.")
 	}
 	return s.InTx(ctx, func(ctx context.Context) error {
 		err := s.applyVerification(ctx, verificationPayload{VerificationID: c.VerificationID, VerificationType: c.Type, Subject: c.Subject,
@@ -413,8 +416,14 @@ func (s *Service) applyVerification(ctx context.Context, p verificationPayload, 
 	if err != nil {
 		return err
 	}
-	// Out-of-order protection: never move backwards; EXPIRED only after VERIFIED.
-	if linkRank[p.Status] < linkRank[l.Status] || (p.Status == l.Status) || (p.Status == "EXPIRED" && l.Status != "VERIFIED") {
+	if p.Subject.Domain != string(platform.DomainIndividualOwner) || p.Subject.Type != l.SubjectType || p.Subject.ID != l.SubjectID || p.VerificationType != l.VerificationType {
+		return events.Permanent(fmt.Errorf("verification case subject/type does not match its stored link"))
+	}
+	if _, ok := linkRank[p.Status]; !ok {
+		return events.Permanent(fmt.Errorf("unsupported verification status %q", p.Status))
+	}
+	// Never regress or apply an older outcome; EXPIRED only after VERIFIED.
+	if linkRank[p.Status] < linkRank[l.Status] || (p.Status == l.Status) || (p.Status == "EXPIRED" && l.Status != "VERIFIED") || (l.LastEventAt != nil && at.Before(*l.LastEventAt)) {
 		_, err := s.q.UpdateVerificationLink(ctx, tx, db.UpdateVerificationLinkParams{VerificationID: l.VerificationID, Status: l.Status, ReasonCode: l.ReasonCode,
 			DecidedAt: l.DecidedAt, ExpiresAt: l.ExpiresAt, LastEventAt: l.LastEventAt, LastSyncedAt: now})
 		return err

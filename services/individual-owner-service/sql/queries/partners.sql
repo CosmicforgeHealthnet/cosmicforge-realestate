@@ -110,7 +110,9 @@ SELECT id FROM access_grants WHERE relation_type = $1 AND relation_id = $2 AND s
 
 -- name: GrantsToProvision :many
 SELECT g.id FROM access_grants g JOIN access_devices d ON d.id = g.device_id
- WHERE g.status = 'APPROVED' AND d.provider_device_ref IS NOT NULL AND g.credential_ref IS NULL AND g.ends_at > sqlc.arg(now)::timestamptz
+ WHERE d.provider_device_ref IS NOT NULL AND g.credential_ref IS NULL AND
+ ((g.status='APPROVED' AND g.ends_at>sqlc.arg(now)::timestamptz) OR EXISTS
+ (SELECT 1 FROM owner_external_operations o WHERE o.kind='SMART_ACCESS_PROVISION' AND o.aggregate_id=g.id AND o.state IN ('UNKNOWN','CONFIRMED')))
  ORDER BY g.starts_at LIMIT sqlc.arg(max_rows);
 
 -- name: GrantsToActivate :many

@@ -428,7 +428,7 @@ UPDATE verification_links SET status = $2, reason_code = $3, decided_at = $4, ex
 RETURNING *;
 
 -- name: StaleOpenVerificationLinks :many
-SELECT * FROM verification_links WHERE status IN ('SUBMITTED','PROCESSING','MANUAL_REVIEW') AND last_synced_at < $1
+SELECT * FROM verification_links WHERE status IN ('SUBMITTED','PROCESSING','MANUAL_REVIEW','VERIFIED') AND last_synced_at < $1
  ORDER BY last_synced_at LIMIT $2;
 
 -- name: IdentityVerified :one

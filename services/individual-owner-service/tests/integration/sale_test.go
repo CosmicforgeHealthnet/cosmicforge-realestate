@@ -164,10 +164,23 @@ func TestPropertySaleOffersClosingAndDataRoom(t *testing.T) {
 		t.Fatalf("access log %d", n)
 	}
 	h.get(o, spath+"/data-room").data(t, &room)
-	for _, g := range room.Grants {
-		if g.GranteeDomain == "marketplace" {
-			h.expect(h.post(o, spath+"/data-room/grants/"+g.ID.String()+"/revoke", nil), 200, "")
+	for _, grant := range room.Grants {
+		if grant.GranteeDomain != "marketplace" {
+			continue
 		}
+		tooLong := grant.ExpiresAt.Add(time.Minute)
+		h.media.mu.Lock()
+		h.media.downloadExpiry = &tooLong
+		h.media.mu.Unlock()
+		h.expect(dl(platform.MarketplaceService, c1, titleDoc), 422, "PURPOSE_WINDOW_TOO_SHORT")
+		h.media.mu.Lock()
+		h.media.downloadExpiry = nil
+		h.media.onDownload = func() { h.expect(h.post(o, spath+"/data-room/grants/"+grant.ID.String()+"/revoke", nil), 200, "") }
+		h.media.mu.Unlock()
+		h.expect(dl(platform.MarketplaceService, c1, titleDoc), 404, "")
+		h.media.mu.Lock()
+		h.media.onDownload = nil
+		h.media.mu.Unlock()
 	}
 	h.expect(dl(platform.MarketplaceService, c1, titleDoc), 404, "")
 
@@ -292,7 +305,7 @@ func TestCommercialTermsLOIAndLandTerms(t *testing.T) {
 	l := h.liveOf(o, p, "COMMERCIAL_LEASE", map[string]any{"permitted_use": "Office", "min_term_months": 12},
 		map[string]any{"currency": "NGN", "base_amount_minor": 1200000000, "base_period": "YEAR", "payment_cycle": "ANNUAL"})
 	biz := customer()
-	loiTerms := map[string]any{"start_date": day(h.clock.now(), 30), "term_months": 24, "currency": "NGN", "rent_minor": 1200000000, "frequency": "ANNUAL",
+	loiTerms := map[string]any{"start_date": day(h.clock.now(), 0), "term_months": 24, "currency": "NGN", "rent_minor": 1200000000, "frequency": "ANNUAL",
 		"rent_free_months": 6, "commercial": map[string]any{"permitted_use": "Office", "service_charge_by": "TENANT", "insurance_by": "OWNER", "repairs_by": "SHARED"}}
 	body := map[string]any{"listing_id": l.ID, "business_name": "Acme Ltd", "business_verification_ref": "bv-123", "terms": loiTerms}
 	h.expect(h.asCustomer(biz, "POST", "/commercial-lois", body), 422, "RENT_FREE_INVALID")

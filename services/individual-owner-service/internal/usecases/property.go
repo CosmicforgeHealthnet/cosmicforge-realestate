@@ -303,6 +303,9 @@ func (s *Service) createPropertyTx(ctx context.Context, accountID ids.ID, in Cre
 	if tz == "" {
 		tz = "Africa/Lagos"
 	}
+	if err := validateTimezone(tz); err != nil {
+		return db.Property{}, err
+	}
 	p, err := s.q.InsertProperty(ctx, tx, db.InsertPropertyParams{ID: id, OwnerAccountID: accountID, Category: in.Category, PropertyType: in.PropertyType,
 		Title: strings.TrimSpace(in.Title), Description: in.Description, Timezone: tz, Bedrooms: in.Bedrooms, Bathrooms: in.Bathrooms,
 		FloorAreaSqm: in.FloorAreaSqm, YearBuilt: in.YearBuilt, ExternalRef: in.ExternalRef, ImportID: importID, CreatedAt: now})
@@ -532,6 +535,9 @@ func (s *Service) UpdateProperty(ctx context.Context, subj authz.Subject, id ids
 		}
 		if in.Timezone != nil {
 			tz = *in.Timezone
+			if err := validateTimezone(tz); err != nil {
+				return err
+			}
 		}
 		desc := p.Description
 		if in.Description != nil {

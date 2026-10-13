@@ -347,8 +347,19 @@ func (s *Service) MoveIn(ctx context.Context, subj authz.Subject, id ids.ID, in 
 			}
 			at = *in.MoveInAt
 		}
+		businessDay, err := s.businessDate(ctx, t.PropertyID, at)
+		if err != nil {
+			return err
+		}
+		if businessDay.Before(t.StartDate) {
+			return precondition("AGREEMENT_NOT_STARTED", "Move-in requires the accepted agreement's property-local start date.")
+		}
 		if t.RentCollection == "PLATFORM" {
-			ok, err := s.q.InitialObligationsSettled(ctx, tx, db.InitialObligationsSettledParams{TenancyID: t.ID, Today: dayOf(now)})
+			today, err := s.businessDate(ctx, t.PropertyID, now)
+			if err != nil {
+				return err
+			}
+			ok, err := s.q.InitialObligationsSettled(ctx, tx, db.InitialObligationsSettledParams{TenancyID: t.ID, Today: today})
 			if err != nil {
 				return err
 			}

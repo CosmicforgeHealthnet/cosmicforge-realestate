@@ -616,8 +616,12 @@ func (s *Service) CustomerRequestBooking(ctx context.Context, subj authz.Subject
 			return err
 		}
 		nights := int32(len(domain.Nights(checkIn, checkOut)))
+		today, err := s.businessDate(ctx, l.PropertyID, now)
+		if err != nil {
+			return err
+		}
 		switch {
-		case checkIn.Before(dayOf(now)):
+		case checkIn.Before(today):
 			return apperrors.InvalidRequest("check_in cannot be in the past.")
 		case nights < 1:
 			return apperrors.InvalidRequest("check_out must be after check_in.")
@@ -887,7 +891,10 @@ func (s *Service) ActOnBooking(ctx context.Context, subj authz.Subject, id ids.I
 			return err
 		}
 		tx, now := mustTx(ctx), s.now()
-		today := dayOf(now)
+		today, err := s.businessDate(ctx, b.PropertyID, now)
+		if err != nil {
+			return err
+		}
 		reason := deref(in.ReasonCode)
 		switch in.Action {
 		case "APPROVE":

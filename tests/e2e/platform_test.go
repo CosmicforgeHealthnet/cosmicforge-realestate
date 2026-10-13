@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"syscall"
 	"testing"
@@ -55,6 +56,13 @@ var components = []component{
 
 var binDir string
 
+func binaryPath(dir, name string) string {
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	return filepath.Join(dir, name)
+}
+
 func TestMain(m *testing.M) {
 	code := func() int {
 		if os.Getenv("CF_TEST_POSTGRES_URL") == "" {
@@ -68,10 +76,10 @@ func TestMain(m *testing.M) {
 		binDir = dir
 		for _, c := range components {
 			for _, cmd := range c.cmds {
-				out := filepath.Join(dir, c.name+"-"+cmd)
-				b := exec.Command("go", "build", "-o", out, "./cmd/"+cmd)
+				out := binaryPath(dir, c.name+"-"+cmd)
+				b := exec.Command("go", "build", "-race", "-o", out, "./cmd/"+cmd)
 				b.Dir = c.dir
-				b.Env = append(os.Environ(), "CGO_ENABLED=0")
+				b.Env = append(os.Environ(), "CGO_ENABLED=1")
 				if msg, err := b.CombinedOutput(); err != nil {
 					fmt.Fprintf(os.Stderr, "build %s/%s: %v\n%s", c.name, cmd, err, msg)
 					return 1
@@ -108,6 +116,7 @@ type platformEnv struct {
 	captureFile string
 	// ownerDB is individual-owner-service's database (owner platform only).
 	ownerDB *testkit.Database
+	smtp    *smtpCapture
 }
 
 type proc struct {
@@ -139,7 +148,7 @@ func freeAddr(t *testing.T) string {
 
 func (p *platformEnv) start(name, bin string, env map[string]string) *proc {
 	p.t.Helper()
-	cmd := exec.Command(filepath.Join(binDir, bin))
+	cmd := exec.Command(binaryPath(binDir, bin))
 	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
 	for k, v := range env {
 		cmd.Env = append(cmd.Env, k+"="+v)
@@ -155,7 +164,7 @@ func (p *platformEnv) start(name, bin string, env map[string]string) *proc {
 
 func (p *platformEnv) run(bin string, env map[string]string, args ...string) {
 	p.t.Helper()
-	cmd := exec.Command(filepath.Join(binDir, bin), args...)
+	cmd := exec.Command(binaryPath(binDir, bin), args...)
 	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
 	for k, v := range env {
 		cmd.Env = append(cmd.Env, k+"="+v)
@@ -168,12 +177,16 @@ func (p *platformEnv) run(bin string, env map[string]string, args ...string) {
 func (p *platformEnv) stop() {
 	for i := len(p.procs) - 1; i >= 0; i-- {
 		pr := p.procs[i]
-		_ = pr.cmd.Process.Signal(syscall.SIGTERM)
+		if runtime.GOOS == "windows" {
+			_ = pr.cmd.Process.Kill()
+		} else {
+			_ = pr.cmd.Process.Signal(syscall.SIGTERM)
+		}
 		done := make(chan error, 1)
 		go func() { done <- pr.cmd.Wait() }()
 		select {
 		case err := <-done:
-			if err != nil {
+			if err != nil && runtime.GOOS != "windows" {
 				p.t.Errorf("%s exited uncleanly on SIGTERM: %v", pr.name, err)
 			}
 		case <-time.After(30 * time.Second):

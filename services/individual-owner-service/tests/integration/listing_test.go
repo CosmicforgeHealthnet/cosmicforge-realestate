@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -223,6 +224,23 @@ func TestListingPublicationPricingAndVersions(t *testing.T) {
 		}
 	}
 	h.validateEvents(l.ID)
+	// Section 14.1 / 15-A: concurrent publication cannot create two atomic
+	// state/outbox transitions, even with different command keys.
+	_, raceListing := h.publishableListing(o, "15 Concurrent Publication Road")
+	racePath := "/listings/" + raceListing.ID.String()
+	var wg sync.WaitGroup
+	for range 8 {
+		wg.Go(func() {
+			r := h.post(o, racePath+"/publish", nil)
+			if r.status != 200 && r.status != 409 {
+				t.Errorf("concurrent publication: %d", r.status)
+			}
+		})
+	}
+	wg.Wait()
+	if h.outboxTypes(raceListing.ID)["listing.published.v1"] != 1 {
+		t.Fatal("concurrent publication duplicated the durable event")
+	}
 }
 
 func TestListingFreshnessAvailabilityReportsAndModeration(t *testing.T) {
@@ -404,6 +422,20 @@ func TestManagerDelegationLifecycleAndCapabilityEnforcement(t *testing.T) {
 	if _, err := h.db.Pool.Exec(ctx, `INSERT INTO manager_permissions (id, assignment_id, version_no, capabilities, currency, created_by_account, created_at)
 		VALUES ($1,$2,99,ARRAY['payout.manage'],'NGN',$3,now())`, ids.New(), as.ID, o.id); err == nil {
 		t.Fatal("payout.manage must be rejected by the database")
+	}
+	// Competing permission edits use the same accepted version. Exactly one
+	// may commit; the other must conflict rather than widen a stale mandate.
+	h.get(o, "/manager-assignments/"+as.ID.String()).data(t, &as)
+	statuses := make([]int, 2)
+	var edits sync.WaitGroup
+	for i := range 2 {
+		edits.Go(func() {
+			statuses[i] = h.write(o, "PATCH", "/manager-assignments/"+as.ID.String(), as.Version, map[string]any{"capabilities": []string{"property.view"}, "spend_limit_minor": int64(i + 1)}).status
+		})
+	}
+	edits.Wait()
+	if !((statuses[0] == 200 && statuses[1] == 409) || (statuses[1] == 200 && statuses[0] == 409)) {
+		t.Fatalf("competing mandate edits: %v", statuses)
 	}
 
 	// Revocation is immediate.

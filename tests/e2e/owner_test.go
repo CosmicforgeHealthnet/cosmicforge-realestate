@@ -5,9 +5,11 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
+	"net"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -41,7 +43,7 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	services := []platform.Service{platform.APIGateway, platform.NotificationService, platform.IndividualOwnerService, platform.AdminService}
 	if withProducers {
 		// marketplace-service only signs test requests (it is not implemented).
-		services = append(services, platform.VerificationService, platform.MediaDocumentService, platform.MarketplaceService)
+		services = append(services, platform.VerificationService, platform.MediaDocumentService, platform.MarketplaceService, platform.PropertyManagerService)
 	}
 	for _, s := range services {
 		k := newKey(string(s) + "-e2e")
@@ -63,7 +65,7 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	}
 	dbs := map[platform.Service]string{}
 	for _, s := range services[1:] {
-		if s == platform.AdminService || s == platform.MarketplaceService {
+		if s == platform.AdminService || s == platform.MarketplaceService || s == platform.PropertyManagerService {
 			continue
 		}
 		db := testkit.NewDatabase(t, nil)
@@ -91,7 +93,13 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 		waitReady(t, "http://"+workerAddr)
 	}
 	p.captureFile = filepath.Join(t.TempDir(), "notifications.jsonl")
-	launch(platform.NotificationService, "NOTIFY_DEV_CAPTURE_FILE", p.captureFile)
+	if runtime.GOOS == "windows" {
+		p.smtp = startSMTPCapture(t)
+		host, port, _ := net.SplitHostPort(p.smtp.addr)
+		launch(platform.NotificationService, "NOTIFY_EMAIL_PROVIDER", "smtp", "SMTP_HOST", host, "SMTP_PORT", port, "SMTP_FROM", "test@cosmicforge.example", "SMTP_REQUIRE_TLS", "false")
+	} else {
+		launch(platform.NotificationService, "NOTIFY_DEV_CAPTURE_FILE", p.captureFile)
+	}
 	var producerEnv []string
 	gatewayUpstreams := map[string]string{}
 	if withProducers {

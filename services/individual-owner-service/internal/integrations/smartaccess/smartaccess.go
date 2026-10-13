@@ -28,3 +28,10 @@ type API interface {
 	Provision(ctx context.Context, req ProvisionRequest, idemKey string) (credentialRef string, err error)
 	Revoke(ctx context.Context, deviceRef, credentialRef, idemKey string) error
 }
+
+// ReadbackAPI is required to recover an ambiguous provisioning attempt.
+// found=false must mean definitive absence at the provider; timeouts/pending
+// results are errors. The observation must bind to the ORIGINAL request/key.
+type ReadbackAPI interface {
+	LookupProvision(context.Context, ProvisionRequest, string) (credentialRef string, found bool, err error)
+}

@@ -3202,7 +3202,7 @@ func (q *Queries) SetPropertyRestriction(ctx context.Context, db DBTX, arg SetPr
 }
 
 const staleOpenVerificationLinks = `-- name: StaleOpenVerificationLinks :many
-SELECT id, verification_id, verification_type, subject_type, subject_id, account_id, property_id, ownership_record_id, status, reason_code, decided_at, expires_at, last_event_at, last_synced_at, created_at FROM verification_links WHERE status IN ('SUBMITTED','PROCESSING','MANUAL_REVIEW') AND last_synced_at < $1
+SELECT id, verification_id, verification_type, subject_type, subject_id, account_id, property_id, ownership_record_id, status, reason_code, decided_at, expires_at, last_event_at, last_synced_at, created_at FROM verification_links WHERE status IN ('SUBMITTED','PROCESSING','MANUAL_REVIEW','VERIFIED') AND last_synced_at < $1
  ORDER BY last_synced_at LIMIT $2
 `
 

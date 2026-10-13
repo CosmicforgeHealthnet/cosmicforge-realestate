@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -39,9 +40,13 @@ func (f *fakeFinancing) Decide(_ context.Context, partnerRef, offerRef, decision
 }
 
 type fakeSmartAccess struct {
-	mu      sync.Mutex
-	issued  map[string]string // credential -> device
-	revoked []string
+	mu              sync.Mutex
+	issued          map[string]string // credential -> device
+	revoked         []string
+	requests        map[string]smartaccess.ProvisionRequest
+	creates         int
+	failAfterCreate bool
+	lookupDown      bool
 }
 
 func (f *fakeSmartAccess) Provision(_ context.Context, req smartaccess.ProvisionRequest, key string) (string, error) {
@@ -51,8 +56,91 @@ func (f *fakeSmartAccess) Provision(_ context.Context, req smartaccess.Provision
 		f.issued = map[string]string{}
 	}
 	ref := "cred-" + key
+	f.creates++
 	f.issued[ref] = req.DeviceRef
+	if f.requests == nil {
+		f.requests = map[string]smartaccess.ProvisionRequest{}
+	}
+	f.requests[key] = req
+	if f.failAfterCreate {
+		f.failAfterCreate = false
+		return "", fmt.Errorf("simulated timeout after provider accepted original operation")
+	}
 	return ref, nil
+}
+
+func (f *fakeSmartAccess) LookupProvision(_ context.Context, req smartaccess.ProvisionRequest, key string) (string, bool, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.lookupDown {
+		return "", false, fmt.Errorf("simulated unavailable original-operation readback")
+	}
+	stored, ok := f.requests[key]
+	if !ok {
+		return "", false, nil
+	}
+	if stored != req {
+		return "", false, fmt.Errorf("original request differs")
+	}
+	return "cred-" + key, true, nil
+}
+
+func TestSmartAccessUnknownOutcomeRecoveryAndFencing(t *testing.T) {
+	h := newHarness(t, func(h *harness) { h.smart = &fakeSmartAccess{failAfterCreate: true} })
+	o, l := h.shortletListing("15 Unknown Access Road")
+	h.expect(h.write(o, "PUT", "/listings/"+l.ID.String()+"/shortlet/settings", 0, shortletSettings("OFF_PLATFORM", true, false)), 200, "")
+	now := h.clock.now()
+	b := h.requestBooking(customer(), bookingBody(l, dayN(now, 2), dayN(now, 4), "Recovery Guest"))
+	r := h.post(o, "/access/devices", map[string]any{"property_id": l.PropertyID, "device_type": "SMART_LOCK", "label": "Contract-only lock", "provider_device_ref": "test-lock"})
+	var dev usecases.AccessDeviceView
+	r.data(t, &dev)
+	arrival, _ := time.Parse(time.DateOnly, b.CheckIn)
+	departure, _ := time.Parse(time.DateOnly, b.CheckOut)
+	r = h.post(o, "/access/grants", map[string]any{"device_id": dev.ID, "relation_type": "shortlet_booking", "relation_id": b.ID, "starts_at": arrival.Add(14 * time.Hour), "ends_at": departure})
+	h.expect(r, 201, "")
+	var g usecases.GrantView
+	r.data(t, &g)
+	h.runJobs("smart-access-expiry")
+	if h.count(`SELECT count(*) FROM owner_external_operations WHERE aggregate_id=$1 AND state='UNKNOWN'`, g.ID) != 1 {
+		t.Fatal("timeout did not retain original unknown operation")
+	}
+	h.smart.mu.Lock()
+	h.smart.lookupDown = true
+	h.smart.mu.Unlock()
+	h.runJobs("smart-access-expiry")
+	if h.count(`SELECT count(*) FROM owner_external_operations WHERE aggregate_id=$1 AND state='UNKNOWN'`, g.ID) != 1 {
+		t.Fatal("unavailable readback inferred a terminal result")
+	}
+	h.smart.mu.Lock()
+	h.smart.lookupDown = false
+	h.smart.mu.Unlock()
+	// Simulate a crash with a persisted worker lease, then expiration/takeover.
+	_, err := h.db.Pool.Exec(context.Background(), `UPDATE owner_external_operations SET lease_token=$2,lease_until=$3 WHERE aggregate_id=$1`, g.ID, ids.New(), now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h.runJobs("smart-access-expiry")
+	h.clock.advance(2 * time.Minute)
+	var wg sync.WaitGroup
+	for range 8 {
+		wg.Go(func() {
+			if err := h.app.Service.RunAccessJobs(context.Background(), 50); err != nil {
+				t.Errorf("concurrent recovery: %v", err)
+			}
+		})
+	}
+	wg.Wait()
+	h.smart.mu.Lock()
+	creates := h.smart.creates
+	h.smart.mu.Unlock()
+	if creates != 1 || h.count(`SELECT count(*) FROM access_grants WHERE id=$1 AND credential_ref IS NOT NULL AND status='ISSUED'`, g.ID) != 1 {
+		t.Fatalf("original readback recovery creates=%d", creates)
+	}
+	for _, sql := range []string{`TRUNCATE audit_events`, `TRUNCATE property_history`, `TRUNCATE lifecycle_transitions`, `DELETE FROM owner_external_operations`, `UPDATE owner_external_operations SET request_hash='changed'`, `UPDATE owner_external_operations SET result='"other"'`} {
+		if _, err := h.db.Pool.Exec(context.Background(), sql); err == nil {
+			t.Fatalf("history mutation allowed: %s", sql)
+		}
+	}
 }
 
 func (f *fakeSmartAccess) Revoke(_ context.Context, _, cred, _ string) error {

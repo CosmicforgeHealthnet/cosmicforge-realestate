@@ -136,8 +136,10 @@ type fakeMedia struct {
 	uploads map[ids.ID][]byte
 	byKey   map[string]ids.ID
 	// grants holds the last access-policy grants set per file; policyCalls counts calls.
-	grants      map[ids.ID][]media.Grant
-	policyCalls int
+	grants         map[ids.ID][]media.Grant
+	policyCalls    int
+	onDownload     func()
+	downloadExpiry *time.Time
 }
 
 func newFakeMedia() *fakeMedia { return &fakeMedia{files: map[ids.ID]media.Media{}} }
@@ -162,7 +164,17 @@ func (f *fakeMedia) Get(_ context.Context, id ids.ID) (media.Media, error) {
 }
 
 func (f *fakeMedia) DownloadURL(_ context.Context, id ids.ID, _ string) (media.Download, error) {
-	return media.Download{URL: "https://media.invalid/" + id.String(), ExpiresAt: time.Now().Add(time.Minute)}, nil
+	f.mu.Lock()
+	callback, expiry := f.onDownload, f.downloadExpiry
+	f.mu.Unlock()
+	if callback != nil {
+		callback()
+	}
+	until := time.Now().Add(time.Minute)
+	if expiry != nil {
+		until = *expiry
+	}
+	return media.Download{URL: "https://media.invalid/" + id.String(), ExpiresAt: until}, nil
 }
 
 func (f *fakeMedia) ReplaceAccessPolicy(_ context.Context, id ids.ID, _ string, grants []media.Grant, _ string) error {
@@ -352,10 +364,11 @@ func (f *fakePayment) completeReleases() []payment.DepositReleaseRequest {
 
 // fakeESign stands in for an e-sign provider adapter (none is selected).
 type fakeESign struct {
-	mu        sync.Mutex
-	envelopes map[string]*esign.Envelope
-	byKey     map[string]string
-	creates   int
+	mu              sync.Mutex
+	envelopes       map[string]*esign.Envelope
+	byKey           map[string]string
+	creates         int
+	failAfterCreate bool
 }
 
 func newFakeESign() *fakeESign {
@@ -374,7 +387,21 @@ func (f *fakeESign) CreateEnvelope(_ context.Context, req esign.EnvelopeRequest,
 		env.Signers = append(env.Signers, esign.SignerStatus{ParticipantID: s.ParticipantID, SignerRef: "sgn_" + ids.New().String()[28:], Status: esign.SignerSent})
 	}
 	f.envelopes[env.Ref], f.byKey[key] = env, env.Ref
+	if f.failAfterCreate {
+		f.failAfterCreate = false
+		return esign.Envelope{}, fmt.Errorf("simulated timeout after envelope creation")
+	}
 	return *env, nil
+}
+
+func (f *fakeESign) LookupEnvelope(_ context.Context, _ esign.EnvelopeRequest, key string) (esign.Envelope, bool, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	ref, ok := f.byKey[key]
+	if !ok {
+		return esign.Envelope{}, false, nil
+	}
+	return *f.envelopes[ref], true, nil
 }
 
 func (f *fakeESign) GetEnvelope(_ context.Context, ref string) (esign.Envelope, error) {

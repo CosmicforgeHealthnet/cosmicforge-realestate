@@ -199,8 +199,14 @@ func (s *Service) derivedStatus(ctx context.Context, o db.RentObligation) string
 		return "PARTIAL"
 	}
 	t, err := s.q.GetTenancy(ctx, mustTx(ctx), o.TenancyID)
-	today := dayOf(s.now())
-	if err == nil && o.DueDate.AddDate(0, 0, int(t.LateFeeGraceDays)).Before(today) {
+	if err != nil {
+		return o.Status
+	}
+	today, err := s.businessDate(ctx, o.PropertyID, s.now())
+	if err != nil {
+		return o.Status
+	}
+	if o.DueDate.AddDate(0, 0, int(t.LateFeeGraceDays)).Before(today) {
 		return "OVERDUE"
 	}
 	return "DUE"
@@ -670,8 +676,7 @@ func (s *Service) RunRentSchedule(ctx context.Context, batch int32) error {
 // payment truth by read-back.
 func (s *Service) RunRentObligations(ctx context.Context, batch int32) error {
 	now := s.now()
-	today := dayOf(now)
-	open, err := s.q.ObligationsToOpen(ctx, s.Pool, db.ObligationsToOpenParams{OpenUntil: today.Add(s.Policy.Domain.RentIntentLead), MaxRows: batch})
+	open, err := s.q.ObligationsToOpen(ctx, s.Pool, db.ObligationsToOpenParams{OpenUntil: now.Add(s.Policy.Domain.RentIntentLead), MaxRows: batch})
 	if err != nil {
 		return err
 	}
@@ -680,7 +685,7 @@ func (s *Service) RunRentObligations(ctx context.Context, batch int32) error {
 			return err
 		}
 	}
-	overdue, err := s.q.ObligationsToMarkOverdue(ctx, s.Pool, db.ObligationsToMarkOverdueParams{Today: today, MaxRows: batch})
+	overdue, err := s.q.ObligationsToMarkOverdue(ctx, s.Pool, db.ObligationsToMarkOverdueParams{Today: now, MaxRows: batch})
 	if err != nil {
 		return err
 	}

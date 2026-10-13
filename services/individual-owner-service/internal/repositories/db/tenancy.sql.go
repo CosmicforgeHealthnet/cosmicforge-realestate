@@ -3579,8 +3579,8 @@ func (q *Queries) ObligationsToCancelIntent(ctx context.Context, db DBTX, limit 
 }
 
 const obligationsToMarkOverdue = `-- name: ObligationsToMarkOverdue :many
-SELECT o.id FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id
- WHERE o.status IN ('DUE','PARTIAL') AND o.due_date + t.late_fee_grace_days < $1::date
+SELECT o.id FROM rent_obligations o JOIN tenancies t ON t.id = o.tenancy_id JOIN properties p ON p.id=o.property_id
+ WHERE o.status IN ('DUE','PARTIAL') AND o.due_date + t.late_fee_grace_days < ($1::timestamptz AT TIME ZONE p.timezone)::date
  ORDER BY o.due_date LIMIT $2
 `
 
@@ -3610,7 +3610,7 @@ func (q *Queries) ObligationsToMarkOverdue(ctx context.Context, db DBTX, arg Obl
 }
 
 const obligationsToOpen = `-- name: ObligationsToOpen :many
-SELECT o.id FROM rent_obligations o WHERE o.status = 'SCHEDULED' AND o.due_date <= $1::date
+SELECT o.id FROM rent_obligations o JOIN properties p ON p.id=o.property_id WHERE o.status = 'SCHEDULED' AND o.due_date <= ($1::timestamptz AT TIME ZONE p.timezone)::date
  ORDER BY o.due_date LIMIT $2
 `
 

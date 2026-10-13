@@ -184,12 +184,34 @@ func (s *Service) loadRelation(ctx context.Context, typ string, id ids.ID) (rela
 			r.until = &e
 		}
 		r.open = slices.Contains([]string{"PENDING_MOVE_IN", "ACTIVE", "RENEWAL_PENDING", "TERMINATION_PENDING", "MOVE_OUT_PENDING"}, status)
+		if err == nil {
+			p, e := s.q.GetProperty(ctx, q, r.propertyID)
+			if e != nil {
+				return r, e
+			}
+			if e = validateTimezone(p.Timezone); e != nil {
+				return r, e
+			}
+			a := checkInAt(start, "00:00", p.Timezone)
+			r.from = &a
+			if r.until != nil {
+				b := checkInAt(*r.until, "00:00", p.Timezone)
+				r.until = &b
+			}
+		}
 	case "shortlet_booking":
 		var in, out time.Time
-		err = q.QueryRow(ctx, `SELECT property_id, customer_ref_id, status, check_in, check_out FROM shortlet_bookings WHERE id = $1`, id).
-			Scan(&r.propertyID, &r.principalRef, &status, &in, &out)
-		e := out.AddDate(0, 0, 1)
-		r.purpose, r.principalDomain, r.principalLabel, r.from, r.until, r.open = "GUEST", string(platform.DomainMarketplace), "Guest", &in, &e,
+		var checkIn, checkOut, zone string
+		err = q.QueryRow(ctx, `SELECT b.property_id, b.customer_ref_id, b.status, b.check_in, b.check_out, s.check_in_time, s.check_out_time, p.timezone
+		 FROM shortlet_bookings b JOIN shortlet_settings s ON s.listing_id=b.listing_id JOIN properties p ON p.id=b.property_id WHERE b.id=$1`, id).
+			Scan(&r.propertyID, &r.principalRef, &status, &in, &out, &checkIn, &checkOut, &zone)
+		if err == nil {
+			if err = validateTimezone(zone); err != nil {
+				return r, err
+			}
+			in, out = checkInAt(in, checkIn, zone), checkInAt(out, checkOut, zone)
+		}
+		r.purpose, r.principalDomain, r.principalLabel, r.from, r.until, r.open = "GUEST", string(platform.DomainMarketplace), "Guest", &in, &out,
 			status == "CONFIRMED" || status == "CHECKED_IN"
 	case "manager_assignment":
 		var a, b time.Time
@@ -570,20 +592,26 @@ func (s *Service) RunAccessJobs(ctx context.Context, batch int32) error {
 			if err != nil {
 				return err
 			}
-			ref, err := s.SmartAccess.Provision(ctx, smartaccess.ProvisionRequest{DeviceRef: *dev.ProviderDeviceRef, GrantRef: g.ID.String(), PrincipalLabel: g.PrincipalLabel,
-				StartsAt: g.StartsAt, EndsAt: g.EndsAt}, "access_grant:"+g.ID.String()+":provision")
+			ref, err := s.provisionCredential(ctx, id, smartaccess.ProvisionRequest{DeviceRef: *dev.ProviderDeviceRef, GrantRef: g.ID.String(), PrincipalLabel: g.PrincipalLabel,
+				StartsAt: g.StartsAt, EndsAt: g.EndsAt}, g.Status == "APPROVED" && g.EndsAt.After(now))
 			if err != nil {
 				s.Logger.WarnContext(ctx, "credential provisioning deferred", "grant_id", id, "error", err)
 				continue
 			}
+			if ref == "" {
+				continue
+			}
 			if err := s.InTx(ctx, func(ctx context.Context) error {
 				cur, err := s.q.GetAccessGrant(ctx, mustTx(ctx), id)
-				if err != nil || cur.Status != "APPROVED" {
-					return err // ended meanwhile: the credential is revoked below
+				if err != nil || cur.CredentialRef != nil {
+					return err
 				}
 				if err := s.q.SetGrantCredential(ctx, mustTx(ctx), db.SetGrantCredentialParams{ID: id, CredentialRef: &ref, UpdatedAt: s.now()}); err != nil {
 					return err
 				}
+				if cur.Status != "APPROVED" {
+					return nil
+				} // retain the reference for revocation/recovery
 				_, err = s.grantTo(ctx, id, "ISSUED", "provision", "", "SYSTEM")
 				return err
 			}); err != nil && !benign(err) {

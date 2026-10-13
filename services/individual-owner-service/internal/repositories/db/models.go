@@ -1406,6 +1406,19 @@ type OwnerCredential struct {
 	RevokedAt       *time.Time
 }
 
+type OwnerExternalOperation struct {
+	OperationKey string
+	Kind         string
+	AggregateID  ids.ID
+	RequestHash  string
+	State        string
+	Result       []byte
+	LeaseToken   *ids.ID
+	LeaseUntil   *time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type OwnerProfile struct {
 	AccountID          ids.ID
 	PreferredName      *string
