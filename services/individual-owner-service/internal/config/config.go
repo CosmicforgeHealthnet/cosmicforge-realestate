@@ -4,6 +4,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -99,7 +100,9 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.HTTPAddr = l.String("HTTP_ADDR", defAddr)
 	c.ShutdownTimeout = l.Duration("SHUTDOWN_TIMEOUT", 20*time.Second)
 	c.DatabaseURL = l.Secret("DATABASE_URL", true)
-	c.DBMaxConns = int32(l.Int("DB_MAX_CONNS", 10))
+	dbMax := l.Int("DB_MAX_CONNS", 10)
+	l.Check(dbMax >= 1 && dbMax <= 1000, "DB_MAX_CONNS must be between 1 and 1000")
+	c.DBMaxConns = int32(dbMax)
 
 	c.TokenIssuer = l.String("OWNER_TOKEN_ISSUER", string(platform.IndividualOwnerService))
 	c.TokenAudience = l.String("OWNER_TOKEN_AUDIENCE", sharedauth.DefaultAudience)
@@ -107,11 +110,17 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	kid := l.Required("OWNER_ACCESS_TOKEN_KEY_ID")
 	// OWNER_AUTH_PRIVATE_KEY[_FILE] is the specification's name (§19); the
 	// original OWNER_ACCESS_TOKEN_PRIVATE_KEY remains accepted.
-	priv := l.Secret("OWNER_AUTH_PRIVATE_KEY", false)
+	priv := l.Secret("OWNER_ACCESS_TOKEN_PRIVATE_KEY", false)
+	alias := l.Secret("OWNER_AUTH_PRIVATE_KEY", false)
 	if priv.Reveal() == "" {
-		priv = l.Secret("OWNER_ACCESS_TOKEN_PRIVATE_KEY", true)
+		priv = alias
+	} else if alias.Reveal() != "" {
+		a, ae := security.ParseEd25519PrivateKey(priv.Reveal())
+		b, be := security.ParseEd25519PrivateKey(alias.Reveal())
+		l.Check(ae == nil && be == nil && bytes.Equal(a, b), "Owner signing-key aliases conflict or are invalid")
 	}
-	retired := l.String("OWNER_ACCESS_TOKEN_RETIRED_KEYS", "")
+	l.Check(priv.Reveal() != "", "OWNER_ACCESS_TOKEN_PRIVATE_KEY or OWNER_AUTH_PRIVATE_KEY is required (direct or file-backed)")
+	retired := l.Secret("OWNER_ACCESS_TOKEN_RETIRED_KEYS", false).Reveal()
 	c.SessionLifetime = l.Duration("OWNER_SESSION_MAX_LIFETIME", 30*24*time.Hour)
 	c.RefreshIdleTTL = l.Duration("OWNER_REFRESH_TOKEN_IDLE_TTL", 30*24*time.Hour)
 	c.StepUpWindow = l.Duration("OWNER_STEP_UP_WINDOW", 5*time.Minute)
@@ -177,8 +186,9 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.OTLPInsecure = l.Bool("OTEL_EXPORTER_OTLP_INSECURE", false)
 	c.SampleRatio = l.Float("OTEL_TRACES_SAMPLER_RATIO", 0.1)
 	if mode == ModeWorker {
-		c.NATSURL = l.Required("NATS_URL")
+		c.NATSURL = l.Secret("NATS_URL", true).Reveal()
 	}
+	validateRuntime(l, c, mode)
 	if err := l.Err(); err != nil {
 		return nil, err
 	}
@@ -196,7 +206,8 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 			problems = append(problems, "OWNER_ACCESS_TOKEN_RETIRED_KEYS must be a JSON array of {kid, public_key}")
 		}
 		for _, s := range specs {
-			if _, err := security.ParseEd25519PublicKey(s.PublicKey); err != nil || s.KID == "" || s.KID == kid {
+			_, duplicate := c.RetiredKeys[s.KID]
+			if _, err := security.ParseEd25519PublicKey(s.PublicKey); err != nil || s.KID == "" || s.KID == kid || duplicate {
 				problems = append(problems, "OWNER_ACCESS_TOKEN_RETIRED_KEYS contains an invalid key")
 				continue
 			}
@@ -280,7 +291,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		// No OAuth/OIDC adapter is implemented or certified (Appendix D).
 		problems = append(problems, "OWNER_OAUTH_PROVIDERS must be empty: no OAuth provider adapter is available")
 	}
-	if p.MaxLoginFailures < 1 || p.CodeMaxAttempts < 1 || p.CodeMaxAttempts > 10 || p.CodeSendLimit < 1 || p.ClosureCoolingOff <= 0 {
+	if p.MaxLoginFailures < 1 || p.CodeMaxAttempts < 1 || p.CodeMaxAttempts > 10 || p.CodeSendLimit < 1 || p.ClosureCoolingOff <= 0 || p.PasswordPolicy.MinLength < usecases.DefaultPolicy().PasswordPolicy.MinLength || p.PasswordPolicy.MinLength > p.PasswordPolicy.MaxLength {
 		problems = append(problems, "security policy values are out of range")
 	}
 	if memory < int(passwords.DefaultParams.MemoryKiB) || memory > 256*1024 || iterations < int(passwords.DefaultParams.Iterations) || iterations > 10 || parallelism < int(passwords.DefaultParams.Parallelism) || parallelism > 8 || c.PasswordWorkers < 1 || c.PasswordWorkers > 8 {
@@ -294,7 +305,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	}
 	id, err := serviceauth.LoadIdentity(l, platform.IndividualOwnerService)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid SERVICE_AUTH configuration (key, trusted registry or token lifetime)")
 	}
 	c.Identity = id
 	return c, nil

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +34,7 @@ type folder struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
 	Item        []json.RawMessage `json:"item"`
+	Event       []pmEvent         `json:"event,omitempty"`
 }
 
 type kv struct {
@@ -40,9 +43,10 @@ type kv struct {
 }
 
 type pmURL struct {
-	Raw  string   `json:"raw"`
-	Host []string `json:"host"`
-	Path []string `json:"path"`
+	Raw   string   `json:"raw"`
+	Host  []string `json:"host"`
+	Path  []string `json:"path"`
+	Query []kv     `json:"query,omitempty"`
 }
 
 type pmBody struct {
@@ -118,8 +122,25 @@ func postmanItem(rt ohttp.Route, vars map[string]bool) pmItem {
 		return "{{" + name + "}}"
 	})
 	raw := host + path
+	queries := []kv{}
+	for _, q := range rt.Query {
+		vars[q.Name] = true
+		value := "{{" + q.Name + "}}"
+		if len(q.Enum) > 0 {
+			value = q.Enum[0]
+		}
+		queries = append(queries, kv{q.Name, value})
+	}
 	if rt.List {
-		raw += "?limit=20"
+		queries = append(queries, kv{"limit", "20"})
+	}
+	for i, q := range queries {
+		if i == 0 {
+			raw += "?"
+		} else {
+			raw += "&"
+		}
+		raw += q.Key + "=" + q.Value
 	}
 	headers := []kv{{"X-Request-ID", "{{request_id}}"}, {"Authorization", auth}}
 	var body *pmBody
@@ -139,12 +160,12 @@ func postmanItem(rt ohttp.Route, vars map[string]bool) pmItem {
 	}
 	desc := rt.Summary + "."
 	if rt.StepUp {
-		desc += " Step-up required (POST /auth/step-up first)."
+		desc += " Recent session authentication required (POST /auth/step-up). Sensitive financial, ownership and access actions additionally require enrolled MFA and an independent recent second factor."
 	}
 	if rt.Doc != "" {
 		desc += "\n\n" + rt.Doc
 	}
-	desc += "\n\n" + marker
+	desc += "\n\n" + executionBoundary + "\n\nSaved responses illustrate the declared wire schema, not executed provider results or approved business state. Error codes depend on the violated domain rule.\n\n" + marker
 	exec := []string{
 		fmt.Sprintf("pm.test('status is %d', () => pm.response.to.have.status(%d));", rt.Status, rt.Status),
 		"pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));",
@@ -152,6 +173,11 @@ func postmanItem(rt ohttp.Route, vars map[string]bool) pmItem {
 	captures := map[string]string{}
 	for k, v := range rt.Captures {
 		captures[k] = v
+	}
+	for k, v := range inferredCaptures(rt) {
+		if _, exists := captures[k]; !exists {
+			captures[k] = v
+		}
 	}
 	if (rt.Method == "GET" && !rt.List || rt.IfMatch) && hasVersion(rt.Resp) {
 		captures[versionVar(rt)] = "data.version"
@@ -166,14 +192,177 @@ func postmanItem(rt ohttp.Route, vars map[string]bool) pmItem {
 		sortStrings(keys)
 		for _, k := range keys {
 			vars[k] = true
-			exec = append(exec, fmt.Sprintf("  if (pick(body, '%s') !== undefined) pm.collectionVariables.set('%s', String(pick(body, '%s')));", captures[k], k, captures[k]))
+			exec = append(exec, fmt.Sprintf("  if (pick(body, '%s') != null) pm.environment.set('%s', String(pick(body, '%s')));", captures[k], k, captures[k]))
 		}
 		exec = append(exec, "}")
 	}
 	segs := strings.Split(strings.TrimPrefix(path, "/"), "/")
-	return pmItem{Name: rt.Summary, Event: []pmEvent{{Listen: "test", Script: pmScript{Type: "text/javascript", Exec: exec}}},
-		Request:  pmRequest{Method: rt.Method, Header: headers, URL: pmURL{Raw: raw, Host: []string{host}, Path: segs}, Description: desc, Body: body},
-		Response: []any{}}
+	req := pmRequest{Method: rt.Method, Header: headers, URL: pmURL{Raw: raw, Host: []string{host}, Path: segs, Query: queries}, Description: desc, Body: body}
+	return pmItem{Name: rt.Summary, Event: []pmEvent{{Listen: "test", Script: pmScript{Type: "text/javascript", Exec: exec}}}, Request: req, Response: postmanResponses(rt, req)}
+}
+
+func inferredCaptures(rt ohttp.Route) map[string]string {
+	out := map[string]string{}
+	if rt.List || rt.Resp == nil {
+		return out
+	}
+	t := rt.Resp
+	for t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return out
+	}
+	// These exact response types expose authoritative IDs; list results are
+	// deliberately not selected automatically on the user's behalf.
+	name := map[string]string{"ApplicationView": "application_id", "TenancyView": "tenancy_id", "AgreementView": "agreement_id"}[t.Name()]
+	if name != "" {
+		out[name] = "data.id"
+	}
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		wire := schema.JSONName(field)
+		if wire == "tenancy_id" {
+			out["tenancy_id"] = "data.tenancy_id"
+		}
+		if wire == "intent_id" {
+			out["payment_intent_id"] = "data.intent_id"
+		}
+	}
+	return out
+}
+
+const executionBoundary = "Runtime integrations remain unavailable unless implemented and independently certified: real CF Meet, e-sign, external calendar/listing sync, physical smart devices, maps/geocoding, licensed financing/insurance and future Marketplace/Manager/Artisan/Professional services. Financial Core contracts do not approve custody, escrow, DVA or transfers."
+
+func postmanResponses(rt ohttp.Route, req pmRequest) []any {
+	c := schema.Components{}
+	s := responseSchema(rt, c)
+	body := schemaExample(s, c, 0)
+	response := func(code int, value any, name string) any {
+		b, _ := json.MarshalIndent(value, "", "  ")
+		return map[string]any{"name": name, "originalRequest": map[string]any{"method": req.Method, "url": req.URL.Raw}, "status": http.StatusText(code), "code": code, "header": []kv{{"Content-Type", "application/json"}, {"X-Request-ID", "example-request-id"}}, "body": string(b)}
+	}
+	out := []any{response(rt.Status, body, "Schema illustration — "+http.StatusText(rt.Status))}
+	for _, code := range errorStatuses(rt) {
+		value := map[string]any{"error": map[string]any{"code": errorExampleCode(code), "message": http.StatusText(code) + " (illustrative; see domain error code)", "request_id": "example-request-id"}}
+		out = append(out, response(code, value, "Error envelope illustration — "+http.StatusText(code)))
+	}
+	return out
+}
+
+func errorExampleCode(code int) string {
+	switch code {
+	case 400:
+		return "INVALID_REQUEST"
+	case 401:
+		return "AUTHENTICATION_REQUIRED"
+	case 403:
+		return "PERMISSION_DENIED"
+	case 404:
+		return "NOT_FOUND"
+	case 409:
+		return "CONFLICT"
+	case 428:
+		return "VERSION_REQUIRED"
+	case 422:
+		return "UNPROCESSABLE_ENTITY"
+	case 429:
+		return "RATE_LIMITED"
+	case 503:
+		return "FEATURE_UNAVAILABLE"
+	default:
+		return "INTERNAL_ERROR"
+	}
+}
+
+// Generate response illustrations from the same JSON Schema as OpenAPI.
+// Only required fields are emitted; nullable fields use null, never a guessed state.
+func schemaExample(s map[string]any, c schema.Components, depth int) any {
+	if depth > 30 {
+		return nil
+	}
+	if ref, ok := s["$ref"].(string); ok {
+		if ref == "#/components/schemas/Page" {
+			return map[string]any{"next_cursor": nil, "has_more": false}
+		}
+		return schemaExample(c[strings.TrimPrefix(ref, "#/components/schemas/")], c, depth+1)
+	}
+	if _, ok := s["oneOf"]; ok {
+		return nil
+	}
+	if _, ok := s["type"].([]any); ok {
+		return nil
+	}
+	if enum, ok := s["enum"].([]any); ok && len(enum) > 0 {
+		return enum[0]
+	}
+	switch s["type"] {
+	case "object":
+		obj := map[string]any{}
+		props, _ := s["properties"].(map[string]any)
+		required, _ := s["required"].([]any)
+		for _, name := range required {
+			k := name.(string)
+			p, _ := props[k].(map[string]any)
+			obj[k] = schemaExample(p, c, depth+1)
+		}
+		return obj
+	case "array":
+		n := 0
+		if m, ok := s["minItems"].(int); ok {
+			n = m
+		}
+		if m, ok := s["minItems"].(int64); ok {
+			n = int(m)
+		}
+		out := []any{}
+		items, _ := s["items"].(map[string]any)
+		for i := 0; i < n; i++ {
+			out = append(out, schemaExample(items, c, depth+1))
+		}
+		return out
+	case "boolean":
+		return false
+	case "integer", "number":
+		if m, ok := s["minimum"]; ok {
+			return m
+		}
+		return 0
+	case "string":
+		if pattern, ok := s["pattern"].(string); ok {
+			return patternExample(pattern)
+		}
+		switch s["format"] {
+		case "uuid":
+			return "019a2b3c-0000-7000-8000-000000000001"
+		case "date-time":
+			return "2026-12-01T10:00:00Z"
+		case "date":
+			return "2026-12-01"
+		case "email":
+			return "owner.example@example.com"
+		case "uri":
+			return "https://example.invalid"
+		}
+		if s["pattern"] == "^[A-Z]{3}$" {
+			return "NGN"
+		}
+		if s["pattern"] == "^[A-Z]{2}$" {
+			return "NG"
+		}
+		return "example"
+	default:
+		return map[string]any{}
+	}
+}
+
+func patternExample(pattern string) string {
+	for _, candidate := range []string{"NGN", "NG", "0123456789", "15:00", "due_diligence", "REVIEWED", "example", "019a2b3c-0000-7000-8000-000000000001"} {
+		if ok, _ := regexp.MatchString("^(?:"+pattern+")$", candidate); ok {
+			return candidate
+		}
+	}
+	panic("apidoc: pattern needs a documented example: " + pattern)
 }
 
 func sortStrings(s []string) {
@@ -284,7 +473,7 @@ func scalar(t reflect.Type, name string, r schema.Rules) any {
 			return "https://example.com"
 		}
 		if r.Pattern != "" {
-			return "VALUE"
+			return patternExample(r.Pattern)
 		}
 		switch {
 		case strings.Contains(name, "title"):
@@ -379,6 +568,12 @@ func MergePostman(raw []byte) ([]byte, error) {
 		}
 		top.Item = subs
 		top.Description = ownerFolderDescription
+		top.Event = []pmEvent{{Listen: "prerequest", Script: pmScript{Type: "text/javascript", Exec: []string{
+			"// Set this only when deliberately retrying the same command and body.",
+			"const retryKey = pm.environment.get('owner_retry_idempotency_key');",
+			"if (retryKey) pm.variables.set('idempotency_key', retryKey);",
+		}}}}
+		vars["owner_retry_idempotency_key"] = true
 		b, err := rawJSON(top)
 		if err != nil {
 			return nil, err
@@ -431,4 +626,4 @@ func rawJSON(v any) (json.RawMessage, error) {
 const ownerFolderDescription = "Individual Owner (individual-owner-service). Frontend requests go through the gateway with {{individual_owner_token}}; " +
 	"_Internal and _Admin requests call the service directly with a service JWT ({{service_token}}). Implemented: Section 5 account security " +
 	"(Frontend, _Admin) and the Sections 6–13 domain API generated from the route registry (profile, banking & tax, properties, ownership & " +
-	"verification and later contexts). Features whose dependency is not configured answer 503 FEATURE_UNAVAILABLE."
+	"verification and later contexts). Features whose dependency is not configured answer 503 FEATURE_UNAVAILABLE. " + executionBoundary

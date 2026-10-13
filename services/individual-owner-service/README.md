@@ -54,6 +54,12 @@ microservice. Reusable primitives come from `shared/go` (`auth`, `jwt`, `passwor
 dispatch, closure finalization, housekeeping and the Section 11 domain jobs listed by
 `usecases.DomainJobs`), `/app/migrate up|down-to|status|version`.
 
+`/app/api readinesscheck` and `/app/worker readinesscheck` probe `/ready` before
+loading process secrets; container dependencies use this command so database,
+schema, required broker/consumer or shutdown failures cannot appear ready.
+`healthcheck` retains the existing `/health` liveness probe. Container execution
+and SIGTERM certification remain independent release gates.
+
 ## Configuration
 
 | Variable | Required | Notes |
@@ -65,12 +71,37 @@ dispatch, closure finalization, housekeeping and the Section 11 domain jobs list
 | `OWNER_CODE_PEPPER[_FILE]` | yes | ≥ 32 bytes; HMAC key for codes, tokens, device keys, recovery codes |
 | `OWNER_MFA_ENCRYPTION_KEY_ID`, `OWNER_MFA_ENCRYPTION_KEY[_FILE]` | yes | 32-byte base64 AES key; `OWNER_MFA_RETIRED_KEYS` for rotation |
 | `NOTIFICATION_SERVICE_URL` | yes | one-time codes and security alerts |
-| `NATS_URL` | worker | JetStream (`REALESTATE_OWNER`, `realestate.owner.>`) |
+| `NATS_URL[_FILE]` | worker | JetStream (`REALESTATE_OWNER`, `realestate.owner.>`) |
 | `OWNER_SECURITY_POLICY_VERSION` and `OWNER_*` policy knobs | no | lockout, code TTL/attempts/limits, MFA fallbacks, activation rule (`EMAIL` default), closure cooling-off (30 days) |
 | `OWNER_OAUTH_PROVIDERS` | must be empty | no OAuth/OIDC adapter is certified; startup fails otherwise |
 | `VERIFICATION_SERVICE_URL`, `MEDIA_SERVICE_URL` | recommended | identity/authority verification and evidence/media; dependent features answer 503 when unset |
 | `PAYMENT_SERVICE_URL`, `ESIGN_PROVIDER`, `EXTERNAL_CALENDAR_PROVIDER`, `FINANCING_PROVIDER`, `INSURANCE_PROVIDER`, `SMART_ACCESS_PROVIDER` | must be empty | no implemented contract/adapter yet; startup fails otherwise so nobody believes the feature is live |
 | `DOMAIN_WORKER_INTERVAL`, `PROPERTY_IMPORT_LEASE` | no | Section 11 job cadence and import lease |
+
+Section 19 delivery validation additionally bounds `DB_MAX_CONNS` to 1–1000 before
+conversion, validates `HTTP_ADDR` port 1–65535, positive worker/security durations,
+HTTP(S) dependency URLs, literal NATS subjects, broker URL schemes and finite OTEL
+sampling 0–1. `OTEL_EXPORTER_OTLP_ENDPOINT` is collector `host:port`. Optional
+dependency absence retains existing degradation; absent-provider selectors and
+endpoint variables refuse activation. Owner does not use Redis; Gateway budgets do.
+
+`OWNER_AUTH_PRIVATE_KEY[_FILE]` aliases the established access-signing variable.
+The established name takes precedence only when both definitions parse to the same
+key; conflicting or invalid pairs fail startup. Direct and `_FILE` for one secret
+must not coexist. Retired access keys now support `_FILE`, reject duplicate IDs and
+retain the existing rotation protocol. Issuer/audience overrides must match the
+Gateway's explicitly provisioned trust configuration; defaults remain
+`individual-owner-service` / `cosmicforge-realestate-api`. Wrong claims remain denied.
+
+On Unix staging/production, secret files must be regular files with no world access
+or group write; file ownership/group must allow the distroless process to read them.
+Windows ACL enforcement is a deployment prerequisite, not a POSIX-mode claim.
+Safe startup errors name variables, never supplied values or file paths. Add new
+public keys to peer trust before switching signing key IDs; retain old user/MFA
+keys until tokens/encrypted seeds expire or migrate. Rotating the code pepper
+invalidates pending HMAC-bound codes/device keys; coordinate that operational change.
+Provision actual secrets through approved storage using
+`infrastructure/docker/service-env/individual-owner-service.env.example`.
 
 ## Consumed events (consumer contract)
 

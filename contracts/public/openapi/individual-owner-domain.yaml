@@ -12712,7 +12712,9 @@ info:
       (Idempotent-Replayed: true); same key + different body → 409 IDEMPOTENCY_CONFLICT.
     * PATCH/PUT require If-Match with the quoted resource version from GET (428 when missing,
       409 VERSION_CONFLICT when stale). Singleton resources accept If-Match: "0" to create.
-    * Operations marked step-up need a re-authentication within the step-up window (403 STEP_UP_REQUIRED).
+    * Operations marked step-up need recent session authentication (403 STEP_UP_REQUIRED).
+      Sensitive financial, ownership and access actions additionally require enrolled MFA and an
+      independent recent second factor; a password or phone OTP alone does not satisfy them.
     * Collections use cursor pagination: {"data": [...], "page": {"next_cursor", "has_more"}}.
     * Features whose external dependency is not configured or not implemented answer
       503 FEATURE_UNAVAILABLE (never a simulated success).

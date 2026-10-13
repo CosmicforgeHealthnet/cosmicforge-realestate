@@ -81,15 +81,11 @@ jobs:
           else
             echo "image=${{ env.IMAGE_PREFIX }}/${{ matrix.component }}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
           fi
-      - name: Smoke test (runs as non-root, all binaries present)
-        if: github.event_name == 'pull_request'
-        run: |
-          img="${{ steps.ref.outputs.image }}"
-          test "$(docker inspect --format '{{.Config.User}}' "$img")" = "nonroot:nonroot"
-          docker run --rm "$img" /app/api healthcheck && exit 1 || true # no server running: probe must fail
-          if [ "${{ matrix.component }}" != "api-gateway" ]; then
-            docker run --rm "$img" /app/migrate version 2>&1 | grep -qi "database_url\|DATABASE_URL"
-          fi
+      - name: Pull pushed digest for smoke inspection
+        if: github.event_name != 'pull_request'
+        run: docker pull '${{ steps.ref.outputs.image }}'
+      - name: Smoke test (non-root, all binaries, probes fail without a server)
+        run: bash scripts/ci/check-image-smoke.sh '${{ steps.ref.outputs.image }}' '${{ matrix.component }}'
       - name: Vulnerability scan (Trivy, HIGH/CRITICAL with a fix available)
         # Container pinned by digest (no third-party action dependency). PR
         # images are read from the local daemon; pushed images from GHCR.

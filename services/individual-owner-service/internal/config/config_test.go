@@ -4,6 +4,8 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -21,6 +23,109 @@ func baseEnv(t *testing.T) map[string]string {
 		"OWNER_ACCESS_TOKEN_KEY_ID": "io-at-1", "OWNER_ACCESS_TOKEN_PRIVATE_KEY": security.EncodeEd25519Seed(user),
 		"OWNER_CODE_PEPPER": strings.Repeat("z", 40), "OWNER_MFA_ENCRYPTION_KEY_ID": "mfa-1",
 		"OWNER_MFA_ENCRYPTION_KEY": base64.StdEncoding.EncodeToString(make([]byte, 32)),
+	}
+}
+
+func TestDeliveryRuntimeConfigurationRejectsUnsafeValues(t *testing.T) {
+	for _, pair := range [][2]string{
+		{"DB_MAX_CONNS", "0"}, {"DB_MAX_CONNS", "4294967297"}, {"HTTP_ADDR", ":0"}, {"HTTP_ADDR", "localhost:65536"},
+		{"DATABASE_URL", "postgres://%invalid"}, {"LOG_LEVEL", "verbose"}, {"OUTBOX_POLL_INTERVAL", "0s"},
+		{"SHUTDOWN_TIMEOUT", "40s"}, {"OWNER_CODE_TTL", "-1s"}, {"OWNER_PASSWORD_MIN_LENGTH", "1"},
+		{"OTEL_TRACES_SAMPLER_RATIO", "NaN"}, {"OTEL_TRACES_SAMPLER_RATIO", "1.1"}, {"OTEL_EXPORTER_OTLP_ENDPOINT", "https://collector"},
+		{"NOTIFICATION_SERVICE_URL", "http://secret:password@example.com"}, {"MEDIA_SERVICE_URL", "file:///tmp/media"},
+		{"NATS_SUBJECT_PREFIX", "realestate.*"}, {"SERVICE_AUTH_TOKEN_TTL", "0s"}, {"MAPS_PROVIDER", "maps"},
+		{"CFMEET_BASE_URL", "https://meet.example.com"}, {"EXTERNAL_LISTING_PROVIDERS", "ical"}, {"MANAGER_SERVICE_URL", "http://manager"},
+		{"SERVICE_AUTH_TRUSTED_KEYS", "[]"},
+		{"OWNER_PASSWORD_MIN_LENGTH", "129"},
+	} {
+		t.Run(pair[0]+"/"+pair[1], func(t *testing.T) {
+			env := baseEnv(t)
+			env[pair[0]] = pair[1]
+			if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+				t.Fatal("invalid setting accepted")
+			}
+		})
+	}
+	for _, value := range []string{"http://broker", "nats://", "nats://broker/path", "nats://broker:70000", "nats://broker:0"} {
+		env := baseEnv(t)
+		env["NATS_URL"] = value
+		if _, err := Load(sharedcfg.FromMap(env), ModeWorker); err == nil {
+			t.Fatal("bad NATS URL accepted")
+		}
+	}
+	env := baseEnv(t)
+	env["NATS_URL"] = "nats://localhost:4222,tls://backup:4222"
+	if _, err := Load(sharedcfg.FromMap(env), ModeWorker); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "broker-url")
+	if err := os.WriteFile(path, []byte(env["NATS_URL"]), 0600); err != nil {
+		t.Fatal(err)
+	}
+	delete(env, "NATS_URL")
+	env["NATS_URL_FILE"] = path
+	if _, err := Load(sharedcfg.FromMap(env), ModeWorker); err != nil {
+		t.Fatal("broker secret file rejected", err)
+	}
+}
+
+func TestSigningAliasesAndSecretFiles(t *testing.T) {
+	env := baseEnv(t)
+	key := env["OWNER_ACCESS_TOKEN_PRIVATE_KEY"]
+	env["OWNER_AUTH_PRIVATE_KEY"] = key
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err != nil {
+		t.Fatal("identical alias rejected", err)
+	}
+	_, other, _ := ed25519.GenerateKey(nil)
+	env["OWNER_AUTH_PRIVATE_KEY"] = security.EncodeEd25519Seed(other)
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+		t.Fatal("conflicting aliases accepted")
+	}
+	delete(env, "OWNER_ACCESS_TOKEN_PRIVATE_KEY")
+	delete(env, "OWNER_AUTH_PRIVATE_KEY")
+	path := filepath.Join(t.TempDir(), "owner-key")
+	if err := os.WriteFile(path, []byte(key), 0600); err != nil {
+		t.Fatal(err)
+	}
+	env["OWNER_AUTH_PRIVATE_KEY_FILE"] = path
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err != nil {
+		t.Fatal("file alias rejected", err)
+	}
+	env["OWNER_AUTH_PRIVATE_KEY"] = key
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+		t.Fatal("direct/file coexistence accepted")
+	}
+	delete(env, "OWNER_AUTH_PRIVATE_KEY")
+	env["OWNER_AUTH_PRIVATE_KEY_FILE"] = filepath.Join(t.TempDir(), "missing-sensitive-path")
+	_, err := Load(sharedcfg.FromMap(env), ModeAPI)
+	if err == nil || strings.Contains(err.Error(), key) || strings.Contains(err.Error(), "missing-sensitive-path") {
+		t.Fatal("missing file accepted or secret/path leaked")
+	}
+}
+
+func TestSigningRotationRejectsDuplicateKeyID(t *testing.T) {
+	env := baseEnv(t)
+	pub, _, _ := ed25519.GenerateKey(nil)
+	s := map[string]string{"kid": "retired", "public_key": security.EncodeEd25519PublicKey(pub)}
+	b, _ := json.Marshal([]map[string]string{s, s})
+	env["OWNER_ACCESS_TOKEN_RETIRED_KEYS"] = string(b)
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+		t.Fatal("duplicate rotation key accepted")
+	}
+	env = baseEnv(t)
+	peer := map[string]any{"service": "api-gateway", "keys": []map[string]string{s, s}}
+	b, _ = json.Marshal([]map[string]any{peer})
+	env["SERVICE_AUTH_TRUSTED_KEYS"] = string(b)
+	if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+		t.Fatal("duplicate peer key accepted")
+	}
+	peer["service"] = "private-marker-must-not-appear"
+	peer["keys"] = []map[string]string{s}
+	b, _ = json.Marshal([]map[string]any{peer})
+	env["SERVICE_AUTH_TRUSTED_KEYS"] = string(b)
+	_, err := Load(sharedcfg.FromMap(env), ModeAPI)
+	if err == nil || strings.Contains(err.Error(), "private-marker") {
+		t.Fatal("invalid peer accepted or config content leaked")
 	}
 }
 

@@ -73,7 +73,21 @@ Individual Owner (`02 Individual Owner`) variables:
 `_Internal` requests use `service_token` (a short-lived service JWT minted by a backend
 engineer); frontend requests use `access_token` through `base_url` (the API Gateway).
 
-The collection pre-request script generates a fresh `request_id` and `idempotency_key` for each request unless a request deliberately overrides them.
+The collection pre-request script generates a fresh `request_id` and `idempotency_key` for each request. Under `02 Individual Owner`, set `owner_retry_idempotency_key` in the selected environment only when retrying the same command with the same body; the Owner folder overrides the generated key. Clear it before a new command. A changed body under that key returns an idempotency conflict. Captured Owner IDs/versions are written to the selected environment so blank environment values cannot shadow collection captures. List responses are not automatically selected on behalf of the user.
+
+Owner handoff contains 365 public and 90 signed internal/admin requests, including
+implemented specification aliases. Domain request/success illustrations validate
+against the same schemas used by OpenAPI, with relevant saved error envelopes.
+Illustrations do not certify a provider execution. Account recovery/sign-in code
+examples omit delivery status, matching the backend's account-existence protection.
+`_Admin` and `_Internal` remain separate from public operations. Owner has no direct
+provider webhook endpoint; signed adapter/source callbacks are internal operations.
+Provider webhooks belong in the provider-owning service's `_Webhooks` folder.
+
+Real CF Meet, signature/calendar/device/geocoding/licensed partner execution,
+future domain backends, custody/escrow, DVA and transfer eligibility retain the
+independent blockers in the final Owner delivery report. Development/staging
+URLs and tokens require approved environment provisioning; never export secrets.
 
 ## Authentication
 

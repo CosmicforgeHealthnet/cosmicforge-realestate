@@ -1,0 +1,15 @@
+.git
+.env
+**/.env
+**/.env.*
+!**/.env.example
+tmp
+attachments
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/credentials.json
+**/coverage.out
+**/*.test
+**/*.exe

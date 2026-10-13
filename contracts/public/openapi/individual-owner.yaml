@@ -6,7 +6,8 @@ info:
     Owner-facing API of individual-owner-service (owner of `individual_owner_db`), reached only
     through the API Gateway under `/api/v1/owner/*`. Implemented scope: Section 5 — domain-owned
     accounts, authentication, sessions, devices, MFA, step-up, recovery and the account lifecycle.
-    Property, listing and later business APIs (Sections 6–8) are NOT part of this version.
+    Property, listing and later business APIs are documented in the companion
+    `individual-owner-domain.yaml`; this document covers account/security operations only.
 
     Authentication
     * Credential-presenting routes (`/auth/register`, `/auth/login`, OTP, MFA, refresh, password

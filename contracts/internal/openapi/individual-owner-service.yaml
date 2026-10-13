@@ -14,9 +14,9 @@ info:
       and may carry `If-Match: "<account version>"`. Admin actions go through the account
       state machine; there is no direct state write.
 
-    Not yet implemented (blocked on the Individual Owner specification, Sections 6–9):
-    `GET /internal/v1/owner/listings/{id}`, `GET /internal/v1/owner/properties/{id}/public-summary`
-    and the property/listing/manager contracts.
+    Implemented property/listing/manager and other domain contracts are documented
+    in the companion `individual-owner-service-domain.yaml`. Future producer/service
+    deployment remains independently pending; source contracts do not certify it.
 
     `/.well-known/jwks.json` publishes the public keys of owner access tokens for the API
     Gateway's trusted-issuer configuration (`jwks_url`).

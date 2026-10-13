@@ -102,7 +102,9 @@ Conventions
   (Idempotent-Replayed: true); same key + different body → 409 IDEMPOTENCY_CONFLICT.
 * PATCH/PUT require If-Match with the quoted resource version from GET (428 when missing,
   409 VERSION_CONFLICT when stale). Singleton resources accept If-Match: "0" to create.
-* Operations marked step-up need a re-authentication within the step-up window (403 STEP_UP_REQUIRED).
+* Operations marked step-up need recent session authentication (403 STEP_UP_REQUIRED).
+  Sensitive financial, ownership and access actions additionally require enrolled MFA and an
+  independent recent second factor; a password or phone OTP alone does not satisfy them.
 * Collections use cursor pagination: {"data": [...], "page": {"next_cursor", "has_more"}}.
 * Features whose external dependency is not configured or not implemented answer
   503 FEATURE_UNAVAILABLE (never a simulated success).`
@@ -156,24 +158,10 @@ func operation(rt ohttp.Route, comps schema.Components) map[string]any {
 	if rt.Req != nil && rt.Req != reflect.TypeFor[ohttp.Empty]() {
 		op["requestBody"] = map[string]any{"required": true, "content": map[string]any{"application/json": map[string]any{"schema": comps.Ref(rt.Req, true)}}}
 	}
-	var body map[string]any
-	if rt.List {
-		body = map[string]any{"type": "object", "required": []any{"data", "page"}, "properties": map[string]any{
-			"data": map[string]any{"type": "array", "items": comps.Ref(rt.Resp, false)}, "page": map[string]any{"$ref": "#/components/schemas/Page"}}}
-	} else {
-		body = map[string]any{"type": "object", "required": []any{"data"}, "properties": map[string]any{"data": comps.Ref(rt.Resp, false)}}
-	}
+	body := responseSchema(rt, comps)
 	responses := map[string]any{strconv.Itoa(rt.Status): map[string]any{"description": http.StatusText(rt.Status),
 		"content": map[string]any{"application/json": map[string]any{"schema": body}}}}
-	codes := []int{400, 401, 403, 404}
-	if rt.Idempotent || rt.IfMatch {
-		codes = append(codes, 409)
-	}
-	if rt.IfMatch {
-		codes = append(codes, 428)
-	}
-	codes = append(codes, rt.Errors...)
-	for _, c := range codes {
+	for _, c := range errorStatuses(rt) {
 		responses[strconv.Itoa(c)] = map[string]any{"$ref": "#/components/responses/Error"}
 	}
 	op["responses"] = responses
@@ -183,6 +171,37 @@ func operation(rt ohttp.Route, comps schema.Components) map[string]any {
 	}
 	op["security"] = []any{map[string]any{sec: []any{}}}
 	return op
+}
+
+func responseSchema(rt ohttp.Route, comps schema.Components) map[string]any {
+	var body map[string]any
+	if rt.List {
+		body = map[string]any{"type": "object", "required": []any{"data", "page"}, "properties": map[string]any{
+			"data": map[string]any{"type": "array", "items": comps.Ref(rt.Resp, false)}, "page": map[string]any{"$ref": "#/components/schemas/Page"}}}
+	} else {
+		body = map[string]any{"type": "object", "required": []any{"data"}, "properties": map[string]any{"data": comps.Ref(rt.Resp, false)}}
+	}
+	return body
+}
+
+func errorStatuses(rt ohttp.Route) []int {
+	codes := []int{400, 401, 403, 404}
+	if rt.Idempotent || rt.IfMatch {
+		codes = append(codes, 409)
+	}
+	if rt.IfMatch {
+		codes = append(codes, 428)
+	}
+	codes = append(codes, rt.Errors...)
+	seen := map[int]bool{}
+	unique := []int{}
+	for _, c := range codes {
+		if !seen[c] {
+			unique = append(unique, c)
+			seen[c] = true
+		}
+	}
+	return unique
 }
 
 func toAny(ss []string) []any {

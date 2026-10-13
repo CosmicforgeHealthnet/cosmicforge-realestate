@@ -17,7 +17,6 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/buildinfo"
 	sharedcfg "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
-	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/health"
 	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/logging"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
@@ -25,7 +24,7 @@ import (
 )
 
 func main() {
-	health.RunProbeIfRequested(os.Args, envOr("HTTP_ADDR", ":8081"))
+	app.RunProbeIfRequested(os.Args, envOr("HTTP_ADDR", ":8081"))
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "individual-owner-service worker:", err)
 		os.Exit(1)
