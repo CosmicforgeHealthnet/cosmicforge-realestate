@@ -13,6 +13,7 @@ import (
 
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/logging"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
 )
 
@@ -58,7 +59,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	if e.Status >= 500 {
 		logging.FromContext(ctx).ErrorContext(ctx, "request failed",
 			"code", e.Code, "status", e.Status, "error", errString(err),
-			"method", r.Method, "path", r.URL.Path)
+			"method", r.Method, "route", observability.Route(r))
 	}
 	if e.RetryAfterSeconds > 0 {
 		w.Header().Set("Retry-After", strconv.Itoa(e.RetryAfterSeconds))

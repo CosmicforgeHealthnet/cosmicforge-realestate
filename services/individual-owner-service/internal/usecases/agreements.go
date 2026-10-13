@@ -1045,11 +1045,13 @@ func (s *Service) CancelAgreement(ctx context.Context, subj authz.Subject, id id
 // VoidEnvelopeBeforeCancel voids an outstanding e-sign envelope (pre phase,
 // outside the transaction). A failure leaves the agreement unchanged.
 func (s *Service) VoidEnvelopeBeforeCancel(ctx context.Context, subj authz.Subject, id ids.ID) (struct{}, error) {
-	a, _, err := s.agreementFor(ctx, subj, id, authz.Read(authz.CapAgreementsManage))
+	a, _, err := s.agreementFor(ctx, subj, id, authz.Do(authz.CapAgreementsManage))
 	if err != nil || a.Status != "SIGNING" || a.EsignEnvelopeRef == nil || s.ESign == nil {
 		return struct{}{}, err
 	}
-	if err := s.ESign.VoidEnvelope(ctx, *a.EsignEnvelopeRef, "agreement cancelled by owner"); err != nil {
+	cctx, cancel := providerContext(ctx, "e-sign read/void")
+	defer cancel()
+	if err := s.ESign.VoidEnvelope(cctx, *a.EsignEnvelopeRef, "agreement cancelled by owner"); err != nil {
 		return struct{}{}, downstream("e-sign provider", err)
 	}
 	return struct{}{}, nil
@@ -1167,7 +1169,10 @@ func (s *Service) readBackEnvelope(ctx context.Context, id ids.ID) error {
 	if err != nil || a.EsignEnvelopeRef == nil {
 		return err
 	}
-	env, err := s.ESign.GetEnvelope(ctx, *a.EsignEnvelopeRef)
+	cctx, cancel := providerContext(ctx, "e-sign read/void")
+	defer cancel()
+	env, err := s.ESign.GetEnvelope(cctx, *a.EsignEnvelopeRef)
+	providerOutcome(cctx, err)
 	if err != nil {
 		return err
 	}

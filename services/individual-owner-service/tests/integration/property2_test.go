@@ -107,6 +107,7 @@ func TestInternalPublicSummaryAdminRestrictionAndCapabilities(t *testing.T) {
 func TestBankingAndTaxProfile(t *testing.T) {
 	h := newHarness(t)
 	o := h.register(true)
+	h.secure(o)
 	acct := map[string]any{"bank_code": "058", "bank_name": "GTBank", "account_name": "Ada Owner", "account_number": "0123456789", "currency": "NGN"}
 	// payment-service is not implemented: honest 503, nothing stored.
 	h.verifyIdentity(o)
@@ -133,6 +134,7 @@ func TestBankingAndTaxProfile(t *testing.T) {
 func TestPayoutAccountsWithPaymentContract(t *testing.T) {
 	h := newHarness(t, func(h *harness) { h.pay = &fakePayment{status: "VERIFIED", match: "MATCH"} })
 	o := h.register(true)
+	h.secure(o)
 	acct := map[string]any{"bank_code": "058", "bank_name": "GTBank", "account_name": "Ada Owner", "account_number": "0123456789", "currency": "NGN"}
 	h.expect(h.post(o, "/payout-accounts", acct), 422, "IDENTITY_VERIFICATION_REQUIRED")
 	h.verifyIdentity(o)

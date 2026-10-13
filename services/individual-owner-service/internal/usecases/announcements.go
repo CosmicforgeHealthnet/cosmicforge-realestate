@@ -224,9 +224,12 @@ func (s *Service) RunCustomerNotifications(ctx context.Context, batch int32) err
 		default:
 			vars := map[string]string{}
 			_ = json.Unmarshal(n.Variables, &vars)
-			res, err := s.CustomerNotify.Notify(ctx, customernotify.Request{NotificationID: n.ID, RecipientDomain: n.RecipientDomain, RecipientRef: n.RecipientRef,
+			cctx, cancel := providerContext(ctx, "recipient notification")
+			res, err := s.CustomerNotify.Notify(cctx, customernotify.Request{NotificationID: n.ID, RecipientDomain: n.RecipientDomain, RecipientRef: n.RecipientRef,
 				RelationshipType: n.RelationshipType, RelationshipID: n.RelationshipID, PropertyID: n.PropertyID, Purpose: n.Purpose, Variables: vars},
 				"customer_notification:"+n.ID.String())
+			providerOutcome(cctx, err)
+			cancel()
 			set.Attempts = 1
 			var re *httpx.RemoteError
 			switch {

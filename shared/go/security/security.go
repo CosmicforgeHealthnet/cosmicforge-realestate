@@ -176,6 +176,7 @@ var sensitiveKeyFragments = []string{
 	"private_key", "privatekey", "signing_key", "api_key", "apikey",
 	"credential", "session_key", "refresh", "otp_code", "card_number",
 	"cvv", "signature", "dsn", "database_url",
+	"signed_url", "download_url", "document_url", "identity_document", "account_number", "otp", "mfa_code",
 }
 
 // IsSensitiveKey reports whether a field/attribute name denotes a secret.

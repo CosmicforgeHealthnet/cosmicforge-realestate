@@ -301,6 +301,9 @@ func (s *Service) AddCoOwner(ctx context.Context, subj authz.Subject, propertyID
 	if err := schema.Validate(in); err != nil {
 		return PartyView{}, err
 	}
+	if _, err := s.authorize(ctx, subj, "owner.sensitive_grant", ids.Nil); err != nil {
+		return PartyView{}, err
+	}
 	rep := in.PartyRole == "AUTHORIZED_REPRESENTATIVE" || in.PartyRole == "ESTATE_EXECUTOR"
 	for _, c := range in.Capabilities {
 		if !authz.IsDelegable(authz.Capability(c)) {
@@ -424,6 +427,9 @@ func (s *Service) ownershipStructureChanged(ctx context.Context, propertyID ids.
 
 // RemoveParty revokes a party (never the primary owner).
 func (s *Service) RemoveParty(ctx context.Context, subj authz.Subject, propertyID, partyID ids.ID) (PartyView, error) {
+	if _, err := s.authorize(ctx, subj, "owner.sensitive_grant", ids.Nil); err != nil {
+		return PartyView{}, err
+	}
 	var out PartyView
 	err := s.InTx(ctx, func(ctx context.Context) error {
 		if _, err := s.authorize(ctx, subj, authz.Do(authz.CapOwnershipManage), propertyID); err != nil {

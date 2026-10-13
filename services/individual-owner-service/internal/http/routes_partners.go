@@ -34,9 +34,12 @@ func partnerRoutes() []Route {
 			func(c *Call, _ Page) (pagination.Response[usecases.FinanceOfferView], error) {
 				return slice(c.S.ListFinanceOffers(c.Ctx, c.Subj))
 			}),
-		Command("POST", "/financing/offers/{offer_id}/decision", "decideFinanceOffer", tagFinancing, "Accept (with payout preference) or decline an offer", http.StatusOK,
-			func(c *Call, in *usecases.FinanceDecisionInput) (usecases.FinanceOfferView, error) {
-				return c.S.DecideFinanceOffer(c.Ctx, c.Subj, c.ID("offer_id"), *in)
+		CommandPre("POST", "/financing/offers/{offer_id}/decision", "decideFinanceOffer", tagFinancing, "Accept (with payout preference) or decline an offer", http.StatusOK,
+			func(c *Call, in *usecases.FinanceDecisionInput) (usecases.FinanceDecisionEvidence, error) {
+				return c.S.PrepareFinanceDecision(c.Ctx, c.Subj, c.ID("offer_id"), *in)
+			},
+			func(c *Call, in *usecases.FinanceDecisionInput, ev usecases.FinanceDecisionEvidence) (usecases.FinanceOfferView, error) {
+				return c.S.DecideFinanceOffer(c.Ctx, c.Subj, c.ID("offer_id"), *in, ev)
 			}).Errs(409, 503),
 		List("/insurance/options", "getInsuranceOptions", tagFinancing, "Partner insurance products for a property",
 			func(c *Call, _ Page) (pagination.Response[usecases.InsuranceProductView], error) {

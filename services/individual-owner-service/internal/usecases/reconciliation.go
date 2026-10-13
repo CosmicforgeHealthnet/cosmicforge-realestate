@@ -26,6 +26,8 @@ func (s *Service) ReconciliationIssues(ctx context.Context, subj authz.Subject) 
 	now := s.now()
 	rows, err := s.Pool.Query(ctx, `SELECT code,resource_id,state,action,observed_at FROM (
  SELECT 'VERIFICATION_READBACK_DUE' AS code, verification_id AS resource_id,status AS state,'EXISTING_VERIFICATION_WORKER' AS action,last_synced_at AS observed_at FROM verification_links WHERE status IN ('SUBMITTED','PROCESSING','MANUAL_REVIEW','VERIFIED') AND last_synced_at<$1::timestamptz-interval '15 minutes'
+ UNION ALL SELECT 'EVENT_REVIEW_REQUIRED',id,failure_class,'ORIGINAL_STREAM_REVIEW',observed_at FROM owner_event_review r WHERE NOT EXISTS(SELECT 1 FROM owner_event_review_decisions d WHERE d.review_id=r.id)
+ UNION ALL SELECT 'WALLET_REGISTRATION_REVIEW',account_id,'EXHAUSTED','ORIGINAL_WALLET_READBACK',next_attempt_at FROM wallet_registration_delivery WHERE delivered_at IS NULL AND attempts>=20
  UNION ALL SELECT 'MEDIA_READBACK_REQUIRED',media_id,media_status,'MEDIA_STATUS_READBACK',updated_at FROM property_media_links WHERE media_status='PENDING' AND updated_at<$1::timestamptz-interval '15 minutes'
  UNION ALL SELECT 'OUTBOX_DELIVERY_FAILED',event_id,CASE WHEN dead_at IS NULL THEN 'PENDING' ELSE 'DEAD' END,CASE WHEN dead_at IS NULL THEN 'EXISTING_OUTBOX_WORKER' ELSE 'MANUAL_REVIEW' END,created_at FROM outbox_events WHERE published_at IS NULL AND (dead_at IS NOT NULL OR created_at<$1::timestamptz-interval '15 minutes')
  UNION ALL SELECT 'NOTIFICATION_DELIVERY_FAILED',dispatch_id,status,CASE WHEN status='DEAD' THEN 'MANUAL_REVIEW' ELSE 'EXISTING_NOTIFICATION_WORKER' END,created_at FROM notification_dispatches WHERE status='DEAD' OR (status='PENDING' AND created_at<$1::timestamptz-interval '15 minutes')

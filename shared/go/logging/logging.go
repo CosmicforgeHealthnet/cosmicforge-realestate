@@ -14,6 +14,7 @@ package logging
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"os"
@@ -82,10 +83,38 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 			return a
 		}
 	}
-	if security.IsSensitiveKey(a.Key) {
+	if security.IsSensitiveKey(a.Key) || a.Key == "error" || a.Key == "panic" {
 		return slog.String(a.Key, security.Redacted)
 	}
+	if a.Value.Kind() == slog.KindAny {
+		// Structured payloads do not pass through ReplaceAttr recursively.
+		// Convert to JSON data, then apply the same policy to every nested key.
+		if b, err := json.Marshal(a.Value.Any()); err == nil {
+			var v any
+			if json.Unmarshal(b, &v) == nil {
+				a.Value = slog.AnyValue(redactNested(v))
+			}
+		}
+	}
 	return a
+}
+
+func redactNested(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		for k, item := range x {
+			if security.IsSensitiveKey(k) || k == "error" || k == "panic" {
+				x[k] = security.Redacted
+			} else {
+				x[k] = redactNested(item)
+			}
+		}
+	case []any:
+		for i := range x {
+			x[i] = redactNested(x[i])
+		}
+	}
+	return v
 }
 
 // contextHandler appends request-scoped fields from ctx.

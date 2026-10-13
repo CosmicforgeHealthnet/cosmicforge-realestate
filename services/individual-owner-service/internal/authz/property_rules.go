@@ -147,14 +147,17 @@ func PropertyRules() []Rule {
 			r.CoOwnerConsent = true
 		case CapAccessGrant:
 			r.StepUp = true
+			r.RequireMFA = true
 		}
 		rules = append(rules, r)
 	}
 	ownerOnly := func(c Capability, roles []Role, stepUp, consent, verified bool) Rule {
 		return Rule{Action: Do(c), PropertyScoped: true, Roles: roles, Capability: c, AccountStatuses: activeOnly,
-			StepUp: stepUp, CoOwnerConsent: consent, RequireVerifiedAuthority: verified}
+			StepUp: stepUp, RequireMFA: stepUp, CoOwnerConsent: consent, RequireVerifiedAuthority: verified}
 	}
 	rules = append(rules,
+		// A manager can request access; only an MFA-verified owner can approve.
+		Rule{Action: "access.request", PropertyScoped: true, Roles: []Role{RoleManager}, Capability: CapAccessGrant, Services: managerSvc},
 		// Ownership evidence/parties: owners and co-owners; representatives
 		// only when explicitly granted (probate executors, attorneys).
 		ownerOnly(CapOwnershipManage, ownerSide, false, false, false),
@@ -170,7 +173,8 @@ func PropertyRules() []Rule {
 		Rule{Action: ActProfileRead, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActProfileWrite, SelfService: true, AccountStatuses: signedIn},
 		Rule{Action: ActPayoutRead, SelfService: true, AccountStatuses: signedIn},
-		Rule{Action: ActPayoutWrite, SelfService: true, AccountStatuses: activeOnly, StepUp: true},
+		Rule{Action: ActPayoutWrite, SelfService: true, AccountStatuses: activeOnly, StepUp: true, RequireMFA: true},
+		Rule{Action: "owner.sensitive_grant", SelfService: true, AccountStatuses: activeOnly, StepUp: true, RequireMFA: true},
 		Rule{Action: ActTaxWrite, SelfService: true, AccountStatuses: activeOnly, StepUp: true},
 		Rule{Action: ActPropertyCreate, SelfService: true, AccountStatuses: activeOnly},
 		Rule{Action: ActPortfolioRead, SelfService: true, AccountStatuses: signedIn},

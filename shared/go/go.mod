@@ -5,6 +5,7 @@ go 1.26.0
 toolchain go1.26.9
 
 require (
+	github.com/go-chi/chi/v5 v5.4.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/nats-io/nats-server/v2 v2.15.0
 	github.com/nats-io/nats.go v1.51.0

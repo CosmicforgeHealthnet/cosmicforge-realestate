@@ -68,11 +68,13 @@ const (
 
 // AccountContext is the verified state of the acting owner account/session.
 type AccountContext struct {
-	AccountID  ids.ID
-	SessionID  ids.ID
-	Status     domain.AccountStatus
-	StepUpAt   *time.Time
-	MFAEnabled bool
+	AccountID    ids.ID
+	SessionID    ids.ID
+	Status       domain.AccountStatus
+	StepUpAt     *time.Time
+	StepUpMethod string
+	AuthMethod   string
+	MFAEnabled   bool
 }
 
 // Subject is the evaluated principal.
@@ -280,6 +282,9 @@ func (e *Engine) evaluate(ctx context.Context, s Subject, a Action, res Resource
 }
 
 func (e *Engine) evaluateService(ctx context.Context, r Rule, s Subject, res Resource) Decision {
+	if r.RequireMFA {
+		return deny(http.StatusForbidden, "OWNER_SESSION_REQUIRED", "A current owner session with recent MFA is required.")
+	}
 	var grant *ServiceGrant
 	for i := range r.Services {
 		if r.Services[i].Service == s.Service {
@@ -327,7 +332,7 @@ func (e *Engine) evaluateOwner(ctx context.Context, r Rule, s Subject, res Resou
 		// Never reveal whether another account exists (IDOR).
 		return deny(http.StatusNotFound, "ACCOUNT_NOT_FOUND", "Account not found.")
 	}
-	if r.RequireMFA && !acc.MFAEnabled {
+	if r.RequireMFA && (!acc.MFAEnabled || !slices.Contains([]string{"TOTP", "SMS", "EMAIL", "RECOVERY_CODE"}, acc.StepUpMethod) || (acc.AuthMethod == "PHONE_OTP" && acc.StepUpMethod == "SMS")) {
 		return deny(http.StatusForbidden, "MFA_REQUIRED", "This operation requires multi-factor authentication to be enabled.")
 	}
 	if r.StepUp && (acc.StepUpAt == nil || e.now().Sub(*acc.StepUpAt) > e.stepUp || acc.StepUpAt.After(e.now().Add(time.Minute))) {

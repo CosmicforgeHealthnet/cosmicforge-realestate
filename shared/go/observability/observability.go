@@ -11,12 +11,14 @@ package observability
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 	"time"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"github.com/go-chi/chi/v5"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/metric"
@@ -26,6 +28,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
+	"strconv"
 )
 
 // Config configures telemetry.
@@ -84,37 +87,115 @@ func Setup(ctx context.Context, cfg Config) (func(context.Context) error, error)
 	mp := sdkmetric.NewMeterProvider(mopts...)
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(mp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 	return func(ctx context.Context) error {
 		return errors.Join(tp.Shutdown(ctx), mp.Shutdown(ctx))
 	}, nil
 }
 
-// HTTPMiddleware creates a server span per request and extracts inbound
-// trace context. Install it before requestcontext.Middleware.
+// Route returns a bounded router template; unmatched URLs never become labels.
+func Route(r *http.Request) string {
+	if c := chi.RouteContext(r.Context()); c != nil {
+		if route := c.RoutePattern(); route != "" {
+			return route
+		}
+	}
+	return "unmatched"
+}
+
+type responseStatus struct {
+	http.ResponseWriter
+	code int
+}
+
+func (w *responseStatus) WriteHeader(code int) {
+	if w.code == 0 {
+		w.code = code
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+func (w *responseStatus) Write(b []byte) (int, error) {
+	if w.code == 0 {
+		w.code = 200
+	}
+	return w.ResponseWriter.Write(b)
+}
+func (w *responseStatus) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+
+// HTTPMiddleware measures normalized routes without headers, raw URLs or bodies.
 func HTTPMiddleware(operation string) func(http.Handler) http.Handler {
+	requests := NewCounter(operation, "http_requests_total", "Completed HTTP requests")
+	duration := NewHistogram(operation, "http_request_duration_seconds", "HTTP request duration", "s")
 	return func(next http.Handler) http.Handler {
-		return otelhttp.NewHandler(next, operation,
-			otelhttp.WithSpanNameFormatter(func(_ string, r *http.Request) string {
-				return r.Method + " " + r.URL.Path
-			}),
-			otelhttp.WithFilter(func(r *http.Request) bool {
-				switch r.URL.Path {
-				case "/health", "/ready", "/version":
-					return false
-				}
-				return true
-			}),
-		)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" || r.URL.Path == "/ready" || r.URL.Path == "/version" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			parent := otel.GetTextMapPropagator().Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+			ctx, span := Tracer(operation).Start(parent, "HTTP", trace.WithSpanKind(trace.SpanKindServer))
+			defer span.End()
+			start := time.Now()
+			rec := &responseStatus{ResponseWriter: w}
+			r = r.WithContext(ctx)
+			next.ServeHTTP(rec, r)
+			route := Route(r)
+			status := rec.code
+			if status == 0 {
+				status = 200
+			}
+			method := r.Method
+			switch method {
+			case "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS":
+			default:
+				method = "OTHER"
+			}
+			attrs := []attribute.KeyValue{attribute.String("http.route", route), attribute.String("http.request.method", method), attribute.Int("http.response.status_code", status)}
+			span.SetName(method + " " + route)
+			span.SetAttributes(attrs...)
+			if status >= 500 {
+				span.SetStatus(codes.Error, "HTTP server failure")
+			}
+			requests.Add(ctx, 1, attrs...)
+			duration.Record(ctx, time.Since(start).Seconds(), attrs...)
+		})
 	}
 }
 
-// HTTPTransport wraps an outbound transport with client spans and context injection.
+type httpTransport struct{ base http.RoundTripper }
+
+func (t httpTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	ctx, span := Tracer("service-http").Start(r.Context(), "HTTP outbound", trace.WithSpanKind(trace.SpanKindClient))
+	defer span.End()
+	req := r.Clone(ctx)
+	req.Header = r.Header.Clone()
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+	resp, err := t.base.RoundTrip(req)
+	if err != nil {
+		span.SetStatus(codes.Error, "HTTP transport failure")
+		kind := "transport"
+		var ne net.Error
+		if errors.Is(err, context.Canceled) {
+			kind = "cancelled"
+		} else if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &ne) && ne.Timeout()) {
+			kind = "timeout"
+		}
+		NewCounter("service-http", "external_http_failures_total", "Failed bounded service HTTP calls").Add(ctx, 1, attribute.String("kind", kind))
+	} else {
+		span.SetAttributes(attribute.String("http.response.status_code", strconv.Itoa(resp.StatusCode)))
+		if resp.StatusCode >= 500 {
+			span.SetStatus(codes.Error, "HTTP dependency failure")
+		}
+	}
+	return resp, err
+}
+
+// HTTPTransport preserves caller timeouts and propagates traces without exporting URLs or credentials.
 func HTTPTransport(base http.RoundTripper) http.RoundTripper {
 	if base == nil {
 		base = http.DefaultTransport
 	}
-	return otelhttp.NewTransport(base)
+	return httpTransport{base}
 }
 
 // Tracer returns a named tracer from the global provider.

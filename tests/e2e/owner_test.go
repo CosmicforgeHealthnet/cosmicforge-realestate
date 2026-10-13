@@ -34,6 +34,10 @@ import (
 // producers, the real verification-service and media-document-service run
 // too and the owner consumes their events from JetStream.
 func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
+	return startOwnerPlatformConfigured(t, nil, producers...)
+}
+
+func startOwnerPlatformConfigured(t *testing.T, overrides map[string]string, producers ...bool) *platformEnv {
 	t.Helper()
 	withProducers := len(producers) > 0 && producers[0]
 	testkit.PostgresAdminURL(t)
@@ -59,9 +63,13 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 	}
 	base := func(s platform.Service) map[string]string {
 		k := keys[s]
-		return map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "NATS_URL": p.nats.URL,
+		m := map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "NATS_URL": p.nats.URL,
 			"SERVICE_AUTH_KEY_ID": k.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(k.priv), "SERVICE_AUTH_TRUSTED_KEYS": string(trusted),
 			"OUTBOX_POLL_INTERVAL": "100ms", "DISPATCH_POLL_INTERVAL": "100ms"}
+		for k, v := range overrides {
+			m[k] = v
+		}
+		return m
 	}
 	dbs := map[platform.Service]string{}
 	for _, s := range services[1:] {
@@ -133,6 +141,9 @@ func startOwnerPlatform(t *testing.T, producers ...bool) *platformEnv {
 		"SERVICE_AUTH_KEY_ID": gk.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(gk.priv),
 		"GATEWAY_UPSTREAM_INDIVIDUAL_OWNER_SERVICE_URL": p.internal[platform.IndividualOwnerService],
 		"GATEWAY_UPSTREAM_NOTIFICATION_SERVICE_URL":     p.internal[platform.NotificationService]}
+	for k, v := range overrides {
+		gwEnv[k] = v
+	}
 	for k, v := range gatewayUpstreams {
 		gwEnv[k] = v
 	}

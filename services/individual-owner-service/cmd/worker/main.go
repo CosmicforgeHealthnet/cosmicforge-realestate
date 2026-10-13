@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -20,6 +21,7 @@ import (
 	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/logging"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
 )
 
 func main() {
@@ -43,7 +45,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = shutdownTel(context.Background()) }()
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = shutdownTel(ctx)
+	}()
 	a, err := app.Build(ctx, cfg, log, app.Overrides{})
 	if err != nil {
 		return err
@@ -56,6 +62,7 @@ func run() error {
 	defer conn.Close()
 
 	r := chi.NewRouter()
+	r.Use(requestcontext.Middleware, httpx.WithLogger(log), httpx.Recoverer)
 	a.Health.Register(r)
 	var wg sync.WaitGroup
 	wg.Add(1)

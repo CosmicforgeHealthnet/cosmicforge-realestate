@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/app"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/config"
@@ -39,7 +40,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = shutdownTel(context.Background()) }()
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = shutdownTel(ctx)
+	}()
 	a, err := app.Build(ctx, cfg, log, app.Overrides{})
 	if err != nil {
 		return err

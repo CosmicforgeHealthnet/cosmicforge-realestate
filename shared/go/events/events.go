@@ -28,6 +28,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
 )
@@ -229,6 +230,9 @@ func MarkProcessed(ctx context.Context, tx database.Querier, consumer string, e 
 		ON CONFLICT (consumer, event_id) DO NOTHING`, consumer, e.EventID, e.EventType)
 	if err != nil {
 		return false, err
+	}
+	if tag.RowsAffected() == 0 {
+		observability.NewCounter("events", "event_duplicates_total", "Duplicate delivery observations").Add(ctx, 1)
 	}
 	return tag.RowsAffected() == 1, nil
 }

@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,6 +28,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/smartaccess"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/verification"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/telemetry"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/workers"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/auth"
@@ -42,19 +44,25 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/sessions"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // App holds wired components.
 type App struct {
-	Cfg     *config.Config
-	Log     *slog.Logger
-	Pool    *pgxpool.Pool
-	Service *usecases.Service
-	Idem    *idempotency.Store
-	Outbox  *outbox.Store
-	Health  *health.Handler
-	Router  http.Handler
-	JWKS    jwt.JWKS
+	Cfg             *config.Config
+	Log             *slog.Logger
+	Pool            *pgxpool.Pool
+	Service         *usecases.Service
+	Idem            *idempotency.Store
+	Outbox          *outbox.Store
+	Health          *health.Handler
+	Router          http.Handler
+	JWKS            jwt.JWKS
+	metrics         metric.Registration
+	consumerMetrics metric.Registration
+	consumers       sync.Map
+	consumerCancel  context.CancelFunc
+	consumerWG      sync.WaitGroup
 }
 
 // Overrides lets tests substitute collaborators.
@@ -107,7 +115,11 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 	}
 	pw := ov.Passwords
 	if pw == nil {
-		if pw, err = passwords.NewHasher(passwords.DefaultParams, cfg.PasswordWorkers); err != nil {
+		params := cfg.PasswordParams
+		if params.MemoryKiB == 0 {
+			params = passwords.DefaultParams
+		}
+		if pw, err = passwords.NewHasher(params, cfg.PasswordWorkers); err != nil {
 			return fail(err)
 		}
 	}
@@ -156,7 +168,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 	}
 	a.Health = health.New(string(platform.IndividualOwnerService), cfg.Environment, 2*time.Second,
 		// Payment wallet provisioning is asynchronous and never blocks readiness.
-		health.Check{Name: "postgres", Fn: database.Ping(pool)})
+		health.Check{Name: "postgres", Fn: database.Ping(pool)}, health.Check{Name: "owner_schema", Fn: a.schemaReady})
 	if cfg.PaymentWalletServiceURL != "" {
 		wc, err := payment.NewWalletProvisioner(cfg.PaymentWalletServiceURL, cfg.Identity.Signer, cfg.PaymentLegalEntity, cfg.Policy.Domain.DefaultCurrency)
 		if err != nil {
@@ -165,11 +177,28 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, ov Overrid
 		a.Service.SetWalletRegistration(wc)
 	}
 	a.Router = ohttp.NewRouter(ohttp.Config{Service: a.Service, Idempotency: a.Idem, Verifier: cfg.Identity.Verifier, Health: a.Health, Logger: log, JWKS: a.JWKS})
+	a.metrics, err = telemetry.Register(pool)
+	if err != nil {
+		return fail(err)
+	}
 	return a, nil
 }
 
 // Close waits for background deliveries and releases resources.
 func (a *App) Close() {
+	if a.Health != nil {
+		a.Health.SetShuttingDown()
+	}
+	if a.consumerCancel != nil {
+		a.consumerCancel()
+		a.consumerWG.Wait()
+	}
+	if a.consumerMetrics != nil {
+		_ = a.consumerMetrics.Unregister()
+	}
+	if a.metrics != nil {
+		_ = a.metrics.Unregister()
+	}
 	a.Service.Wait()
 	a.Pool.Close()
 }
@@ -203,8 +232,19 @@ func (a *App) Worker(ctx context.Context) (*workers.Runner, *jetstream.Conn, err
 		return nil, nil, err
 	}
 	a.Health = health.New(string(platform.IndividualOwnerService), a.Cfg.Environment, 2*time.Second,
-		health.Check{Name: "postgres", Fn: database.Ping(a.Pool)}, health.Check{Name: "nats", Fn: conn.Ready})
+		health.Check{Name: "postgres", Fn: database.Ping(a.Pool)}, health.Check{Name: "nats", Fn: conn.Ready},
+		health.Check{Name: "owner_schema", Fn: a.schemaReady},
+		health.Check{Name: "outbox_stream", Fn: func(ctx context.Context) error {
+			_, err := conn.JetStream().Stream(ctx, jetstream.StreamName(a.Cfg.SubjectPrefix, "owner"))
+			return err
+		}},
+		health.Check{Name: "consumers", Fn: func(ctx context.Context) error { return a.consumerReady(ctx, conn) }},
+		health.Check{Name: "worker_context", Fn: func(context.Context) error { return ctx.Err() }})
 	a.StartConsumers(ctx, conn)
+	if err := a.registerConsumerMetrics(conn); err != nil {
+		conn.Close()
+		return nil, nil, err
+	}
 	return a.WorkerRunner(relay, owner), conn, nil
 }
 
@@ -213,13 +253,18 @@ func (a *App) Worker(ctx context.Context) (*workers.Runner, *jetstream.Conn, err
 // instead of failing the worker; duplicates and redeliveries are absorbed by
 // processed_events inside each handler's transaction.
 func (a *App) StartConsumers(ctx context.Context, conn *jetstream.Conn) {
+	ctx, a.consumerCancel = context.WithCancel(ctx)
 	for _, c := range a.Service.Consumers(a.Cfg.SubjectPrefix) {
+		a.consumerWG.Add(1)
 		go func(c usecases.ConsumerSpec) {
+			defer a.consumerWG.Done()
+			defer a.consumers.Store(c.Name, false)
 			for {
 				cons, err := conn.Consume(ctx, jetstream.ConsumerConfig{Stream: jetstream.StreamName(a.Cfg.SubjectPrefix, c.Stream), Durable: c.Name,
-					FilterSubjects: c.Filters, MaxDeliver: 20, Backoff: []time.Duration{time.Second, 5 * time.Second, 30 * time.Second}},
+					FilterSubjects: c.Filters, MaxDeliver: 20, Backoff: []time.Duration{time.Second, 5 * time.Second, 30 * time.Second}, OnFailure: a.Service.RetainEventFailure},
 					func(ctx context.Context, d events.Delivery) error { return c.Handle(ctx, d.Envelope) })
 				if err == nil {
+					a.consumers.Store(c.Name, true)
 					a.Log.Info("event consumer started", "consumer", c.Name)
 					<-ctx.Done()
 					cons.Stop()

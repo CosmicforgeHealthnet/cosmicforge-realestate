@@ -10,6 +10,8 @@ import (
 )
 
 func (s *Service) recoverEnvelope(ctx context.Context, id ids.ID, req esign.EnvelopeRequest, key string) (esign.Envelope, error) {
+	cctx, cancel := providerContext(ctx, "e-sign create/readback")
+	defer cancel()
 	op, claimed, err := s.claimExternal(ctx, "ESIGN_ENVELOPE", id, key, req)
 	var env esign.Envelope
 	if err != nil || !claimed {
@@ -25,7 +27,8 @@ func (s *Service) recoverEnvelope(ctx context.Context, id ids.ID, req esign.Enve
 			return env, s.finishExternal(ctx, op, nil, true)
 		}
 		var found bool
-		env, found, err = lookup.LookupEnvelope(ctx, req, key)
+		env, found, err = lookup.LookupEnvelope(cctx, req, key)
+		providerOutcome(cctx, err)
 		if err != nil {
 			_ = s.finishExternal(ctx, op, nil, false)
 			return env, err
@@ -37,7 +40,8 @@ func (s *Service) recoverEnvelope(ctx context.Context, id ids.ID, req esign.Enve
 			return env, s.finishExternal(ctx, op, env, false)
 		}
 	}
-	env, err = s.ESign.CreateEnvelope(ctx, req, key)
+	env, err = s.ESign.CreateEnvelope(cctx, req, key)
+	providerOutcome(cctx, err)
 	if err != nil {
 		_ = s.finishExternal(ctx, op, nil, false)
 		return esign.Envelope{}, err

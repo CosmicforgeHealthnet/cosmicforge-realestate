@@ -71,6 +71,7 @@ func (p *platformEnv) restartOwner() {
 }
 
 func (p *platformEnv) certifyPrimaryOwnerJourneys(tok string, ownerID, propertyID, listingID, photo, deed ids.ID) {
+	p.secureOwnerFixture(tok)
 	root := p.t
 	run := func(name string, fn func()) {
 		root.Run(name, func(t *testing.T) { p.t = t; defer func() { p.t = root }(); fn() })

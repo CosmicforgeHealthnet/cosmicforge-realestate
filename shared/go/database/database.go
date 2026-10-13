@@ -14,7 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // Querier is satisfied by *pgxpool.Pool, *pgxpool.Conn and pgx.Tx.
@@ -55,6 +57,7 @@ func Open(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 		// Never include the DSN (it contains a password).
 		return nil, errors.New("database: invalid DATABASE_URL")
 	}
+	pc.ConnConfig.Tracer = queryTelemetry{}
 	if cfg.MaxConns > 0 {
 		pc.MaxConns = cfg.MaxConns
 	}
@@ -144,6 +147,8 @@ type TxOptions struct {
 // perform external network calls (providers, other services, object storage)
 // — keep transactions short and local.
 func WithTx(ctx context.Context, db Beginner, opts TxOptions, fn func(ctx context.Context, tx pgx.Tx) error) error {
+	ctx, span := observability.StartSpan(ctx, "database", "DB transaction")
+	defer span.End()
 	attempts := opts.MaxAttempts
 	if attempts <= 0 {
 		attempts = 3
@@ -152,8 +157,12 @@ func WithTx(ctx context.Context, db Beginner, opts TxOptions, fn func(ctx contex
 	for i := 1; i <= attempts; i++ {
 		err = runTx(ctx, db, opts.TxOptions, fn)
 		if err == nil || !IsRetryable(err) || i == attempts {
+			if err != nil {
+				span.SetStatus(codes.Error, "Transaction failed")
+			}
 			return err
 		}
+		observability.NewCounter("database", "db_transaction_retries_total", "Retried local transactions").Add(ctx, 1)
 		backoff := time.Duration(10*i)*time.Millisecond + time.Duration(rand.IntN(10))*time.Millisecond
 		select {
 		case <-ctx.Done():

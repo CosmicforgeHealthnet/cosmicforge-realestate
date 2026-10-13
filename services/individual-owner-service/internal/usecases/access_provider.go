@@ -10,6 +10,8 @@ import (
 )
 
 func (s *Service) provisionCredential(ctx context.Context, id ids.ID, req smartaccess.ProvisionRequest, allowCreate bool) (string, error) {
+	cctx, cancel := providerContext(ctx, "smart-access provision/readback")
+	defer cancel()
 	key := "access_grant:" + id.String() + ":provision"
 	op, claimed, err := s.claimExternal(ctx, "SMART_ACCESS_PROVISION", id, key, req)
 	if err != nil || !claimed {
@@ -26,7 +28,8 @@ func (s *Service) provisionCredential(ctx context.Context, id ids.ID, req smarta
 			return "", s.finishExternal(ctx, op, nil, true)
 		}
 		var found bool
-		ref, found, err = lookup.LookupProvision(ctx, req, key)
+		ref, found, err = lookup.LookupProvision(cctx, req, key)
+		providerOutcome(cctx, err)
 		if err != nil {
 			_ = s.finishExternal(ctx, op, nil, false)
 			return "", err
@@ -41,7 +44,8 @@ func (s *Service) provisionCredential(ctx context.Context, id ids.ID, req smarta
 	if !allowCreate {
 		return "", s.finishExternal(ctx, op, nil, true)
 	}
-	ref, err = s.SmartAccess.Provision(ctx, req, key)
+	ref, err = s.SmartAccess.Provision(cctx, req, key)
+	providerOutcome(cctx, err)
 	if err != nil {
 		_ = s.finishExternal(ctx, op, nil, false)
 		return "", err

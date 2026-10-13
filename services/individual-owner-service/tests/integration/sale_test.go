@@ -43,6 +43,7 @@ var salePricing = map[string]any{"currency": "NGN", "base_amount_minor": 9000000
 func (h *harness) saleListing(line1 string) (*owner, usecases.ListingView) {
 	h.t.Helper()
 	o := h.register(true)
+	h.secure(o)
 	h.verifyIdentity(o)
 	p := h.createProperty(o, line1)
 	return o, h.liveOf(o, p, "SALE", map[string]any{"title_document_type": "CERTIFICATE_OF_OCCUPANCY"}, salePricing)
@@ -278,6 +279,7 @@ func (h *harness) offerSale(offerID ids.ID) ids.ID {
 func TestCommercialTermsLOIAndLandTerms(t *testing.T) {
 	h := newHarness(t, withPayment)
 	o := h.register(true)
+	h.secure(o)
 	h.verifyIdentity(o)
 	home := h.createProperty(o, "72 Not Commercial")
 	terms := map[string]any{"permitted_uses": []string{"OFFICE", "RETAIL"}, "zoning_class": "C2", "fit_out_allowed": true, "max_fit_out_days": 90,

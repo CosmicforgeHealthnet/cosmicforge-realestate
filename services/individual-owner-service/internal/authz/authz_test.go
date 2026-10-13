@@ -15,6 +15,30 @@ var now = time.Date(2026, 10, 9, 12, 0, 0, 0, time.UTC)
 
 func tp(t time.Time) *time.Time { return &t }
 
+func TestSensitiveRulesRequireAnIndependentRecentFactor(t *testing.T) {
+	e := New(Config{Rules: AllRules(), Now: func() time.Time { return now }})
+	s := owner(domain.StatusActive, tp(now))
+	s.Account.MFAEnabled = true
+	s.Account.AuthMethod = "PHONE_OTP"
+	s.Account.StepUpMethod = "SMS"
+	if d := e.Authorize(context.Background(), s, ActPayoutWrite, Resource{}); d.Code != "MFA_REQUIRED" {
+		t.Fatal("phone first factor reused as second factor", d)
+	}
+	s.Account.AuthMethod = "PASSWORD"
+	s.Account.StepUpMethod = "PASSWORD"
+	if d := e.Authorize(context.Background(), s, ActPayoutWrite, Resource{}); d.Code != "MFA_REQUIRED" {
+		t.Fatal("enrollment alone accepted", d)
+	}
+	s.Account.StepUpMethod = "TOTP"
+	if d := e.Authorize(context.Background(), s, ActPayoutWrite, Resource{}); !d.Allowed {
+		t.Fatal(d)
+	}
+	s.Account.StepUpAt = tp(now.Add(-6 * time.Minute))
+	if d := e.Authorize(context.Background(), s, ActPayoutWrite, Resource{}); d.Code != "STEP_UP_REQUIRED" {
+		t.Fatal("stale MFA accepted", d)
+	}
+}
+
 type fakeResolver struct {
 	facts map[ids.ID]PropertyFacts
 	err   error

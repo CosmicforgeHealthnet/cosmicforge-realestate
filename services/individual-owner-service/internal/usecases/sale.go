@@ -1283,6 +1283,9 @@ type DataRoomGrantInput struct {
 
 // GrantDataRoomAccess grants least-privilege access to a buyer or professional.
 func (s *Service) GrantDataRoomAccess(ctx context.Context, subj authz.Subject, saleID ids.ID, in DataRoomGrantInput) (DataRoomView, error) {
+	if _, err := s.authorize(ctx, subj, "owner.sensitive_grant", ids.Nil); err != nil {
+		return DataRoomView{}, err
+	}
 	if err := schema.Validate(in); err != nil {
 		return DataRoomView{}, err
 	}

@@ -7,6 +7,7 @@ toolchain go1.26.9
 require (
 	github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go v0.0.0
 	github.com/alicebob/miniredis/v2 v2.39.0
+	github.com/jackc/pgx/v5 v5.11.0
 	github.com/johannesboyne/gofakes3 v1.2.0
 	github.com/nats-io/nats.go v1.51.0
 )
@@ -16,6 +17,7 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
+	github.com/go-chi/chi/v5 v5.4.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
@@ -23,7 +25,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.11.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect

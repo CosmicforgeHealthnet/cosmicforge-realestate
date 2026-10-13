@@ -97,7 +97,9 @@ func (s *Service) FinancingOptions(ctx context.Context, subj authz.Subject, list
 	} else if err != nil {
 		return nil, err
 	}
-	offers, err := s.Financing.Options(ctx, req, "financing_options:"+l.ID.String()+":"+s.now().Format("2006010215"))
+	cctx, cancel := providerContext(ctx, "partner request/decision")
+	defer cancel()
+	offers, err := s.Financing.Options(cctx, req, "financing_options:"+l.ID.String()+":"+s.now().Format("2006010215"))
 	if err != nil {
 		return nil, downstream("financing-partner", err)
 	}
@@ -162,35 +164,84 @@ type FinanceDecisionInput struct {
 	PayoutPreference string `json:"payout_preference,omitempty" v:"enum=UPFRONT|AS_COLLECTED"`
 }
 
-// DecideFinanceOffer tells the partner the owner's choice, then records it.
-func (s *Service) DecideFinanceOffer(ctx context.Context, subj authz.Subject, id ids.ID, in FinanceDecisionInput) (FinanceOfferView, error) {
+// FinanceDecisionEvidence binds a provider result to original accepted terms.
+type FinanceDecisionEvidence struct {
+	offerID, accountID ids.ID
+	input              FinanceDecisionInput
+}
+
+// PrepareFinanceDecision commits the original operation before calling a partner.
+func (s *Service) PrepareFinanceDecision(ctx context.Context, subj authz.Subject, id ids.ID, in FinanceDecisionInput) (FinanceDecisionEvidence, error) {
 	if err := schema.Validate(in); err != nil {
-		return FinanceOfferView{}, err
+		return FinanceDecisionEvidence{}, err
 	}
 	if in.Decision == "ACCEPT" && in.PayoutPreference == "" {
-		return FinanceOfferView{}, apperrors.InvalidRequest("payout_preference is required to accept.")
+		return FinanceDecisionEvidence{}, apperrors.InvalidRequest("payout_preference is required to accept.")
 	}
 	if _, err := s.authorize(ctx, subj, authz.ActFinancingConsent, ids.Nil); err != nil {
-		return FinanceOfferView{}, err
+		return FinanceDecisionEvidence{}, err
 	}
 	o, err := s.q.GetFinanceOfferForUpdate(ctx, s.Pool, id)
 	if isNoRows(err) || (err == nil && o.AccountID != accountOf(subj)) {
-		return FinanceOfferView{}, notFound("finance_offer")
+		return FinanceDecisionEvidence{}, notFound("finance_offer")
 	}
 	if err != nil {
-		return FinanceOfferView{}, err
+		return FinanceDecisionEvidence{}, err
 	}
 	if o.Status != "OFFERED" || (o.ExpiresAt != nil && !o.ExpiresAt.After(s.now())) {
-		return FinanceOfferView{}, conflict("OFFER_NOT_OPEN", "The offer is no longer open.")
+		return FinanceDecisionEvidence{}, conflict("OFFER_NOT_OPEN", "The offer is no longer open.")
 	}
 	if s.Financing == nil {
-		return FinanceOfferView{}, unavailable("Financing decisions", "a financing partner")
+		return FinanceDecisionEvidence{}, unavailable("Financing decisions", "a financing partner")
 	}
-	if err := s.Financing.Decide(ctx, o.PartnerRef, o.ExternalOfferRef, in.Decision, in.PayoutPreference, "finance_offer:"+id.String()+":"+in.Decision); err != nil {
-		return FinanceOfferView{}, downstream("financing-partner", err)
+	request := struct{ Partner, Offer, Decision, Preference string }{o.PartnerRef, o.ExternalOfferRef, in.Decision, in.PayoutPreference}
+	op, claimed, err := s.claimExternal(ctx, "FINANCING_DECISION", id, "finance_offer:"+id.String()+":decision", request)
+	if err != nil {
+		return FinanceDecisionEvidence{}, err
+	}
+	if !claimed {
+		return FinanceDecisionEvidence{}, conflict("EXTERNAL_OPERATION_IN_PROGRESS", "Read back the original partner operation.")
+	}
+	if len(op.result) == 0 {
+		if op.recovering {
+			_ = s.finishExternal(ctx, op, nil, true)
+			return FinanceDecisionEvidence{}, conflict("PARTNER_DECISION_REVIEW_REQUIRED", "The original decision needs partner readback before another command.")
+		}
+		cctx, cancel := providerContext(ctx, "partner request/decision")
+		err = s.Financing.Decide(cctx, o.PartnerRef, o.ExternalOfferRef, in.Decision, in.PayoutPreference, "finance_offer:"+id.String()+":decision")
+		providerOutcome(cctx, err)
+		cancel()
+		if err != nil {
+			_ = s.finishExternal(ctx, op, nil, false)
+			return FinanceDecisionEvidence{}, downstream("financing-partner", err)
+		}
+		if err = s.finishExternal(ctx, op, true, false); err != nil {
+			return FinanceDecisionEvidence{}, err
+		}
+	}
+	return FinanceDecisionEvidence{offerID: id, accountID: accountOf(subj), input: in}, nil
+}
+
+func (s *Service) DecideFinanceOffer(ctx context.Context, subj authz.Subject, id ids.ID, in FinanceDecisionInput, ev FinanceDecisionEvidence) (FinanceOfferView, error) {
+	if _, err := s.authorize(ctx, subj, authz.ActFinancingConsent, ids.Nil); err != nil {
+		return FinanceOfferView{}, err
+	}
+	if ev.offerID != id || ev.accountID != accountOf(subj) || ev.input != in {
+		return FinanceOfferView{}, precondition("PARTNER_DECISION_EVIDENCE_REQUIRED", "Use the original confirmed partner decision.")
 	}
 	var out FinanceOfferView
-	err = s.InTx(ctx, func(ctx context.Context) error {
+
+	err := s.InTx(ctx, func(ctx context.Context) error {
+		offer, err := s.q.GetFinanceOfferForUpdate(ctx, mustTx(ctx), id)
+		if isNoRows(err) || (err == nil && offer.AccountID != accountOf(subj)) {
+			return notFound("finance_offer")
+		}
+		if err != nil {
+			return err
+		}
+		if offer.Status != "OFFERED" {
+			return conflict("OFFER_NOT_OPEN", "The offer is no longer open.")
+		}
 		status := map[string]string{"ACCEPT": "ACCEPTED", "DECLINE": "DECLINED"}[in.Decision]
 		if err := s.q.SetFinanceOfferDecision(ctx, mustTx(ctx), db.SetFinanceOfferDecisionParams{ID: id, Status: status, OwnerPayoutPreference: strp(in.PayoutPreference),
 			DecidedAt: ptr(s.now())}); err != nil {
@@ -241,7 +292,9 @@ func (s *Service) InsuranceOptions(ctx context.Context, subj authz.Subject, prop
 		propertyID).Scan(&ptype, &cc); err != nil {
 		return nil, err
 	}
-	ps, err := s.Insurance.Options(ctx, propertyID, ptype, cc)
+	cctx, cancel := providerContext(ctx, "partner request/decision")
+	defer cancel()
+	ps, err := s.Insurance.Options(cctx, propertyID, ptype, cc)
 	if err != nil {
 		return nil, downstream("insurance-partner", err)
 	}

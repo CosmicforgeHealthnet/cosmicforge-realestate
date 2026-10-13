@@ -9,6 +9,7 @@ import (
 
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/logging"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 )
 
 // WithLogger stores the logger in each request context.
@@ -98,7 +99,7 @@ func AccessLog(next http.Handler) http.Handler {
 			level = slog.LevelWarn
 		}
 		logging.FromContext(r.Context()).Log(r.Context(), level, "http request",
-			"method", r.Method, "path", r.URL.Path, "status", status,
+			"method", r.Method, "route", observability.Route(r), "status", status,
 			"bytes", rec.Bytes, "duration_ms", time.Since(start).Milliseconds())
 	})
 }

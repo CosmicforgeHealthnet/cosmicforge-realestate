@@ -845,6 +845,11 @@
       "key": "resource_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "review_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -10994,6 +10999,69 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"action\": \"PAUSE\",\n  \"reason_code\": \"VALUE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Record a referenced poison-event review decision",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('request id echoed', () => pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{request_id}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{service_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{idempotency_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{individual_owner_service_url}}/internal/v1/owner/admin/reconciliation/events/{{review_id}}/decision",
+                  "host": [
+                    "{{individual_owner_service_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "owner",
+                    "admin",
+                    "reconciliation",
+                    "events",
+                    "{{review_id}}",
+                    "decision"
+                  ]
+                },
+                "description": "Record a referenced poison-event review decision.\n\nRequires an attributable Admin actor and an evidence reference. Retains an immutable decision. Does not execute replay or approve financial movement.\n\nGenerated from the individual-owner-service route registry (cmd/apidocgen); do not edit by hand.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"decision\": \"REPLAY_APPROVED\",\n  \"evidence_ref\": \"019a2b3c-0000-7000-8000-000000000001\",\n  \"reason_code\": \"VALUE\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"

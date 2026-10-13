@@ -17,6 +17,7 @@ package workers
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/codes"
 	"log/slog"
 	"sync"
 	"time"
@@ -135,11 +136,16 @@ func (r *Runner) Run(ctx context.Context) {
 			defer t.Stop()
 			for {
 				jctx := requestcontext.Job(ctx, "owner-"+name)
+				jctx, span := observability.StartSpan(jctx, "individual-owner-service", "worker "+name)
+				start := time.Now()
 				r.cycles.Add(jctx, 1, attribute.String("loop", name))
 				if err := fn(jctx); err != nil && ctx.Err() == nil {
+					span.SetStatus(codes.Error, "Worker cycle failed")
 					r.failure.Add(jctx, 1, attribute.String("loop", name))
 					r.log.ErrorContext(jctx, "worker loop failed", "loop", name, "error", err.Error())
 				}
+				observability.NewHistogram("individual-owner-service", "owner_worker_duration_seconds", "Worker cycle duration", "s").Record(jctx, time.Since(start).Seconds(), attribute.String("loop", name))
+				span.End()
 				select {
 				case <-ctx.Done():
 					return

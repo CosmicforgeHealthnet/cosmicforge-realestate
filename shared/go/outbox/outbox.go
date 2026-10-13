@@ -119,11 +119,18 @@ func (s *Store) ReclaimExpired(ctx context.Context) (int64, error) {
 		UPDATE outbox_events SET lease_owner = NULL, lease_expires_at = NULL
 		 WHERE published_at IS NULL AND dead_at IS NULL
 		   AND lease_owner IS NOT NULL AND lease_expires_at < now()`)
+	if err == nil && tag.RowsAffected() > 0 {
+		observability.NewCounter("outbox", "outbox_leases_recovered_total", "Expired leases released").Add(ctx, tag.RowsAffected())
+	}
 	return tag.RowsAffected(), err
 }
 
 // Claim leases up to limit due events for owner.
 func (s *Store) Claim(ctx context.Context, owner string, limit int, lease time.Duration) ([]Claimed, error) {
+	start := time.Now()
+	defer func() {
+		observability.NewHistogram("outbox", "outbox_claim_duration_seconds", "Durable claim duration", "s").Record(ctx, time.Since(start).Seconds())
+	}()
 	rows, err := s.db.Query(ctx, `
 		WITH due AS (
 		    SELECT event_id FROM outbox_events

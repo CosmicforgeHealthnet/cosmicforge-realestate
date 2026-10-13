@@ -49,6 +49,12 @@ func validPlatform(p string) string {
 // startSessionTx records the device, detects unrecognized devices, starts a
 // refresh-session family and mints an access token — all in tx.
 func (s *Service) startSessionTx(ctx context.Context, tx pgx.Tx, acc db.OwnerAccount, m loginMethod, ci ClientInfo) (AuthResult, error) {
+	if !domain.AccountStatus(acc.Status).CanAuthenticate() {
+		return AuthResult{}, domain.ErrAccountUnavailable()
+	}
+	if err := s.checkLock(acc); err != nil {
+		return AuthResult{}, err
+	}
 	now := s.now()
 	ctx = withAccountActor(ctx, acc.AccountID)
 	if err := s.q.ResetLoginFailures(ctx, tx, db.ResetLoginFailuresParams{AccountID: acc.AccountID, UpdatedAt: now}); err != nil {
@@ -88,14 +94,16 @@ func (s *Service) startSessionTx(ctx context.Context, tx pgx.Tx, acc db.OwnerAcc
 	suspicious := known > 0 && !recognized
 	create := &db.CreateSessionParams{AuthMethod: m.auth, MfaMethod: strp(m.mfa), AuthenticatedAt: now,
 		UserAgent: strp(truncate(ci.UserAgent, 512)), IpAddress: ci.IP, StepUpAt: &now}
-	stepMethod := MFASMS
+	stepMethod := ""
 	if m.auth == AuthPassword {
 		stepMethod = AuthPassword
 	}
 	if m.mfa != "" {
 		stepMethod = m.mfa
 	}
-	create.StepUpMethod = &stepMethod
+	if stepMethod != "" {
+		create.StepUpMethod = &stepMethod
+	}
 	var devID ids.ID
 	if device != nil {
 		devID = device.DeviceID
@@ -205,9 +213,11 @@ func (s *Service) Login(ctx context.Context, email, password string, ci ClientIn
 	if !domain.AccountStatus(acc.Status).CanAuthenticate() {
 		return AuthResult{}, s.denyUnavailable(ctx, acc, ci)
 	}
+	var upgradedHash string
 	if rehash {
-		if h, herr := s.Passwords.Hash(ctx, password); herr == nil {
-			_ = s.q.RehashPassword(ctx, s.Pool, db.RehashPasswordParams{AccountID: acc.AccountID, PasswordHash: h, UpdatedAt: s.now()})
+		upgradedHash, err = s.Passwords.Hash(ctx, password)
+		if err != nil {
+			return AuthResult{}, err
 		}
 	}
 	var res AuthResult
@@ -215,6 +225,22 @@ func (s *Service) Login(ctx context.Context, email, password string, ci ClientIn
 		locked, err := s.lockAccount(ctx, tx, acc.AccountID)
 		if err != nil {
 			return err
+		}
+		// A concurrent reset must not allow a session from the old password.
+		if locked.PasswordHash != acc.PasswordHash {
+			return domain.ErrInvalidCredentials()
+		}
+		if !domain.AccountStatus(locked.Status).CanAuthenticate() {
+			return domain.ErrAccountUnavailable()
+		}
+		if err := s.checkLock(locked); err != nil {
+			return err
+		}
+		if upgradedHash != "" {
+			if err := s.q.RehashPassword(ctx, tx, db.RehashPasswordParams{AccountID: acc.AccountID, PasswordHash: upgradedHash, UpdatedAt: s.now()}); err != nil {
+				return err
+			}
+			locked.PasswordHash = upgradedHash
 		}
 		if locked.MfaEnabled {
 			res, err = s.beginMFA(ctx, tx, locked, AuthPassword)
@@ -671,5 +697,5 @@ func (s *Service) AuthenticateAccess(ctx context.Context, rawToken string, gatew
 		return authz.Subject{}, domain.ErrAccountUnavailable()
 	}
 	return authz.Subject{Kind: authz.KindOwnerSession, ActorDomain: platform.DomainIndividualOwner, ActorID: p.ActorID,
-		Account: &authz.AccountContext{AccountID: row.AccountID, SessionID: row.SessionID, Status: st, StepUpAt: row.StepUpAt, MFAEnabled: row.MfaEnabled}}, nil
+		Account: &authz.AccountContext{AccountID: row.AccountID, SessionID: row.SessionID, Status: st, StepUpAt: row.StepUpAt, StepUpMethod: deref(row.StepUpMethod), AuthMethod: row.AuthMethod, MFAEnabled: row.MfaEnabled}}, nil
 }

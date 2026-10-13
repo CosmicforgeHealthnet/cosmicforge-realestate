@@ -317,13 +317,14 @@ func (h *harness) expect(r result, status int, code string) {
 
 // owner is a registered owner with an authenticated session.
 type owner struct {
-	id       ids.ID
-	email    string
-	password string
-	access   string
-	refresh  string
-	session  ids.ID
-	device   string
+	secureFixture bool
+	id            ids.ID
+	email         string
+	password      string
+	access        string
+	refresh       string
+	session       ids.ID
+	device        string
 }
 
 type authResult struct {
@@ -369,7 +370,31 @@ func (h *harness) login(o *owner, device string) (result, authResult) {
 	if r.status == 200 {
 		r.data(h.t, &a)
 	}
+	if o.secureFixture && a.MFA != nil {
+		h.expect(h.do(call{method: "POST", path: "/api/v1/owner/auth/mfa/send", body: map[string]any{"mfa_token": a.MFA.MFAToken, "method": "EMAIL"}}), 202, "")
+		r = h.do(call{method: "POST", path: "/api/v1/owner/auth/mfa/verify", body: map[string]any{"mfa_token": a.MFA.MFAToken, "method": "EMAIL", "code": h.notify.lastCode(h.t, o.email)}})
+		h.expect(r, 200, "")
+		r.data(h.t, &a)
+	}
 	return r, a
+}
+
+// secure enrolls and verifies real session-bound MFA for a sensitive fixture.
+// Plain registration/authentication tests retain their non-MFA fixtures.
+func (h *harness) secure(o *owner) {
+	h.t.Helper()
+	if !o.secureFixture {
+		r := h.do(call{method: "POST", path: "/api/v1/owner/me/mfa/totp/setup", token: o.access})
+		h.expect(r, 201, "")
+		secret := h.totpSecret(o)
+		h.expect(h.do(call{method: "POST", path: "/api/v1/owner/me/mfa/totp/confirm", token: o.access, body: map[string]any{"code": totp(secret, h.clock.now(), 0)}}), 200, "")
+		o.secureFixture = true
+	}
+	r := h.do(call{method: "POST", path: "/api/v1/owner/auth/step-up/challenge", token: o.access, body: map[string]any{"method": "EMAIL"}})
+	h.expect(r, 202, "")
+	var ch usecases.ChallengeView
+	r.data(h.t, &ch)
+	h.expect(h.do(call{method: "POST", path: "/api/v1/owner/auth/step-up", token: o.access, body: map[string]any{"method": "EMAIL", "challenge_id": ch.ChallengeID, "code": h.notify.lastCode(h.t, o.email)}}), 200, "")
 }
 
 func (h *harness) status(id ids.ID) string {

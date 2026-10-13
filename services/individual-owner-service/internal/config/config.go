@@ -17,6 +17,7 @@ import (
 	sharedcfg "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/jwt"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/passwords"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/serviceauth"
@@ -51,6 +52,7 @@ type Config struct {
 	RefreshIdleTTL   time.Duration
 	StepUpWindow     time.Duration
 	PasswordWorkers  int
+	PasswordParams   passwords.Params
 	CodePepper       security.Secret
 	MFAKeyID         string
 	MFAKey           []byte
@@ -114,6 +116,13 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	c.RefreshIdleTTL = l.Duration("OWNER_REFRESH_TOKEN_IDLE_TTL", 30*24*time.Hour)
 	c.StepUpWindow = l.Duration("OWNER_STEP_UP_WINDOW", 5*time.Minute)
 	c.PasswordWorkers = l.Int("OWNER_PASSWORD_HASH_CONCURRENCY", 4)
+	c.PasswordParams = passwords.DefaultParams
+	memory := l.Int("OWNER_ARGON2_MEMORY_KIB", int(passwords.DefaultParams.MemoryKiB))
+	iterations := l.Int("OWNER_ARGON2_ITERATIONS", int(passwords.DefaultParams.Iterations))
+	parallelism := l.Int("OWNER_ARGON2_PARALLELISM", int(passwords.DefaultParams.Parallelism))
+	c.PasswordParams.MemoryKiB = uint32(memory)
+	c.PasswordParams.Iterations = uint32(iterations)
+	c.PasswordParams.Parallelism = uint8(parallelism)
 	c.CodePepper = l.Secret("OWNER_CODE_PEPPER", true)
 	c.MFAKeyID = l.Required("OWNER_MFA_ENCRYPTION_KEY_ID")
 	mfaKey := l.Secret("OWNER_MFA_ENCRYPTION_KEY", true)
@@ -203,6 +212,18 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	if c.MFAKey, err = decodeKey(mfaKey.Reveal()); err != nil {
 		problems = append(problems, "OWNER_MFA_ENCRYPTION_KEY must be 32 bytes (base64)")
 	}
+	if c.Environment == sharedcfg.EnvProduction || c.Environment == sharedcfg.EnvStaging {
+		allZero := len(c.MFAKey) > 0
+		for _, b := range c.MFAKey {
+			if b != 0 {
+				allZero = false
+				break
+			}
+		}
+		if allZero {
+			problems = append(problems, "MFA encryption key cannot be the all-zero test key in deployed environments")
+		}
+	}
 	c.MFARetiredKeys = map[string][]byte{}
 	if v := mfaRetired.Reveal(); v != "" {
 		var m map[string]string
@@ -261,6 +282,9 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	}
 	if p.MaxLoginFailures < 1 || p.CodeMaxAttempts < 1 || p.CodeMaxAttempts > 10 || p.CodeSendLimit < 1 || p.ClosureCoolingOff <= 0 {
 		problems = append(problems, "security policy values are out of range")
+	}
+	if memory < int(passwords.DefaultParams.MemoryKiB) || memory > 256*1024 || iterations < int(passwords.DefaultParams.Iterations) || iterations > 10 || parallelism < int(passwords.DefaultParams.Parallelism) || parallelism > 8 || c.PasswordWorkers < 1 || c.PasswordWorkers > 8 {
+		problems = append(problems, "Argon2 work factors must preserve the platform baseline and bounded resource ceiling")
 	}
 	if c.SessionLifetime <= 0 || c.RefreshIdleTTL <= 0 || c.StepUpWindow <= 0 || c.StepUpWindow > 30*time.Minute {
 		problems = append(problems, "session lifetime, refresh idle TTL and step-up window (<=30m) must be positive")

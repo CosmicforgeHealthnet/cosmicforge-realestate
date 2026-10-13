@@ -37,6 +37,32 @@ func TestLoadValidConfiguration(t *testing.T) {
 	}
 }
 
+func TestPasswordWorkFactorsCannotWeakenOrExhaustPolicy(t *testing.T) {
+	for _, pair := range [][2]string{{"OWNER_ARGON2_MEMORY_KIB", "8192"}, {"OWNER_ARGON2_MEMORY_KIB", "999999999"}, {"OWNER_ARGON2_ITERATIONS", "1"}, {"OWNER_ARGON2_PARALLELISM", "258"}, {"OWNER_PASSWORD_HASH_CONCURRENCY", "0"}} {
+		env := baseEnv(t)
+		env[pair[0]] = pair[1]
+		if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+			t.Fatal("unsafe work factor accepted", pair[0])
+		}
+	}
+	env := baseEnv(t)
+	env["OWNER_ARGON2_ITERATIONS"] = "4"
+	cfg, err := Load(sharedcfg.FromMap(env), ModeAPI)
+	if err != nil || cfg.PasswordParams.Iterations != 4 {
+		t.Fatal("stronger parameters unavailable", err)
+	}
+}
+
+func TestDeployedMFAKeyCannotUseZeroTestFixture(t *testing.T) {
+	for _, environment := range []string{"staging", "production"} {
+		env := baseEnv(t)
+		env["APP_ENV"] = environment
+		if _, err := Load(sharedcfg.FromMap(env), ModeAPI); err == nil {
+			t.Fatal("all-zero deployed MFA key accepted")
+		}
+	}
+}
+
 func TestLoadFailsFast(t *testing.T) {
 	cases := map[string]func(map[string]string){
 		"missing pepper":                func(m map[string]string) { delete(m, "OWNER_CODE_PEPPER") },

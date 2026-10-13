@@ -48,8 +48,8 @@ func TestWriteErrorEnvelopeIncludesRequestIDAndHidesCause(t *testing.T) {
 	if strings.Contains(rec.Body.String(), "SELECT") {
 		t.Fatal("cause leaked to client")
 	}
-	if !strings.Contains(logs.String(), "SELECT * FROM secrets failed") || !strings.Contains(logs.String(), "req-abc") {
-		t.Fatalf("cause should be logged with request id: %s", logs.String())
+	if strings.Contains(logs.String(), "SELECT * FROM secrets failed") || !strings.Contains(logs.String(), "req-abc") || !strings.Contains(logs.String(), "INTERNAL_ERROR") {
+		t.Fatalf("opaque cause and safe code/request ID expected: %s", logs.String())
 	}
 	if rec.Header().Get("Content-Type") != ContentTypeJSON {
 		t.Fatal("content type")

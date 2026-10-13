@@ -468,6 +468,7 @@ func TestUnitsParcelsAssetsMediaAndImports(t *testing.T) {
 func TestCoOwnersConsentAndGuardedTransfer(t *testing.T) {
 	h := newHarness(t)
 	o := h.register(true)
+	h.secure(o)
 	co := h.register(true)
 	buyer := h.register(true)
 	p := h.createProperty(o, "8 Transfer Street")

@@ -1855,7 +1855,10 @@ func (s *Service) runExternalCalendars(ctx context.Context, batch int32) error {
 		return err
 	}
 	for _, st := range settings {
-		ranges, err := s.CalendarSync.Fetch(ctx, *st.ExternalCalendarRef)
+		cctx, cancel := providerContext(ctx, "external calendar fetch")
+		ranges, err := s.CalendarSync.Fetch(cctx, *st.ExternalCalendarRef)
+		providerOutcome(cctx, err)
+		cancel()
 		if err != nil {
 			s.Logger.WarnContext(ctx, "external calendar fetch deferred", "listing_id", st.ListingID, "error", err)
 			continue

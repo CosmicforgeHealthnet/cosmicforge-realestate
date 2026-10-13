@@ -1406,6 +1406,28 @@ type OwnerCredential struct {
 	RevokedAt       *time.Time
 }
 
+type OwnerEventReview struct {
+	ID             ids.ID
+	Consumer       string
+	Stream         string
+	StreamSequence int64
+	EventID        string
+	PayloadSha256  string
+	FailureClass   string
+	Attempt        int64
+	ObservedAt     time.Time
+}
+
+type OwnerEventReviewDecision struct {
+	ID          ids.ID
+	ReviewID    ids.ID
+	Decision    string
+	ReasonCode  string
+	EvidenceRef ids.ID
+	ActorID     ids.ID
+	DecidedAt   time.Time
+}
+
 type OwnerExternalOperation struct {
 	OperationKey string
 	Kind         string

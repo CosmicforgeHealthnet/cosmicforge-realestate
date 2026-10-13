@@ -21,8 +21,10 @@ import (
 	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/idempotency"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/pagination"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 // Route registry for the Sections 6–13 domain API. Every route is declared
@@ -254,7 +256,7 @@ func CommandPre[Req, Resp, P any](method, path, op, tag, summary string, status 
 				body, req, err = decodeBody[Req](w, r)
 			}
 			if err != nil {
-				httpx.WriteError(w, r, err)
+				writeOperationError(w, r, err)
 				return
 			}
 			var p P
@@ -305,7 +307,7 @@ func Update[Req, Resp any](method, path, op, tag, summary string, upsert bool, f
 				resp, err = fn(c, req)
 			}
 			if err != nil {
-				httpx.WriteError(w, r, err)
+				writeOperationError(w, r, err)
 				return
 			}
 			setETag(w, resp)
@@ -332,7 +334,7 @@ func Query[Req, Resp any](path, op, tag, summary string, fn func(c *Call, req *R
 				resp, err = fn(c, req)
 			}
 			if err != nil {
-				httpx.WriteError(w, r, err)
+				writeOperationError(w, r, err)
 				return
 			}
 			httpx.WriteData(w, http.StatusOK, resp)
@@ -352,7 +354,7 @@ func Get[Resp any](path, op, tag, summary string, fn func(c *Call) (Resp, error)
 				resp, err = fn(c)
 			}
 			if err != nil {
-				httpx.WriteError(w, r, err)
+				writeOperationError(w, r, err)
 				return
 			}
 			setETag(w, resp)
@@ -378,7 +380,7 @@ func List[Item any](path, op, tag, summary string, fn func(c *Call, p Page) (pag
 				resp, err = fn(c, p)
 			}
 			if err != nil {
-				httpx.WriteError(w, r, err)
+				writeOperationError(w, r, err)
 				return
 			}
 			httpx.WriteJSON(w, http.StatusOK, resp)
@@ -394,4 +396,13 @@ func (h *Handler) mountRoutes(r chi.Router, aud Audience) {
 			r.Method(rt.Method, rt.Path, rt.handler(h, rt))
 		}
 	}
+}
+
+func writeOperationError(w http.ResponseWriter, r *http.Request, err error) {
+	code := apperrors.CodeOf(err)
+	switch code {
+	case "CALENDAR_CONFLICT", "DATES_UNAVAILABLE":
+		observability.NewCounter("individual-owner-service", "owner_booking_conflicts_total", "Rejected overlapping booking/calendar commands").Add(r.Context(), 1, attribute.String("code", code))
+	}
+	httpx.WriteError(w, r, err)
 }

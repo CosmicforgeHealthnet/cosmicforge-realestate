@@ -62,6 +62,21 @@ func TestSecretsRedacted(t *testing.T) {
 	}
 }
 
+func TestNestedSecretsAndOpaqueErrors(t *testing.T) {
+	var buf bytes.Buffer
+	l := New(Config{Service: "owner", Environment: "test", Output: &buf})
+	l.Error("provider call failed", "error", "request https://private.example/download?signature=TEST-private-url otp TEST-otp",
+		"error_class", "DEPENDENCY_TIMEOUT", "payload", map[string]any{"safe": "diagnostic", "nested": []any{map[string]any{"mfa_code": "TEST-mfa", "account_number": "TEST-bank", "document_url": "TEST-document", "refresh_token": "TEST-refresh"}}})
+	for _, value := range []string{"TEST-private-url", "TEST-otp", "TEST-mfa", "TEST-bank", "TEST-document", "TEST-refresh"} {
+		if strings.Contains(buf.String(), value) {
+			t.Fatalf("sensitive fixture leaked: %s", value)
+		}
+	}
+	if !strings.Contains(buf.String(), "DEPENDENCY_TIMEOUT") || !strings.Contains(buf.String(), "diagnostic") {
+		t.Fatal("safe diagnostics lost")
+	}
+}
+
 func TestLevels(t *testing.T) {
 	var buf bytes.Buffer
 	l := New(Config{Service: "s", Environment: "test", Output: &buf, Level: "warn"})

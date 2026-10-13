@@ -36,6 +36,7 @@ func TestOwnershipTransferAfterSale(t *testing.T) {
 	h.expect(h.post(o, spath+"/offers/"+off.ID.String()+"/decision", map[string]any{"decision": "ACCEPT"}), 200, "")
 
 	buyer, other, stranger := h.register(true), h.register(true), h.register(true)
+	h.secure(stranger)
 	h.verifyIdentity(buyer)
 	open := func(email string) result {
 		return h.post(o, spath+"/ownership-transfer", map[string]any{"to_email": email, "reason": "Completed sale"})

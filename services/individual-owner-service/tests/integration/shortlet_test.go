@@ -43,6 +43,7 @@ func (h *harness) shortletListing(line1 string) (*owner, usecases.ListingView) {
 func (h *harness) shortletListingPriced(line1 string, nightly int64) (*owner, usecases.ListingView) {
 	h.t.Helper()
 	o := h.register(true)
+	h.secure(o)
 	h.verifyIdentity(o)
 	p := h.createProperty(o, line1)
 	h.verifyProperty(o, p.ID)

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/authz"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/dbx"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/domain"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/smartaccess"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/lifecycle"
@@ -307,7 +308,11 @@ func (s *Service) CreateGrant(ctx context.Context, subj authz.Subject, in GrantI
 		if err != nil {
 			return err
 		}
-		d, err := s.authorize(ctx, subj, authz.Do(authz.CapAccessGrant), dev.PropertyID)
+		action := authz.Do(authz.CapAccessGrant)
+		if subj.Kind == authz.KindService {
+			action = "access.request"
+		}
+		d, err := s.authorize(ctx, subj, action, dev.PropertyID)
 		if err != nil {
 			if apperrors.CodeOf(err) == "PROPERTY_NOT_FOUND" {
 				return notFound("access_device")
@@ -454,7 +459,7 @@ func (s *Service) ActOnGrant(ctx context.Context, subj authz.Subject, id ids.ID,
 				err = s.notifyOwner(ctx, p.OwnerAccountID, TemplateAccessCompromised, map[string]string{"device_label": dev.Label})
 				if err == nil {
 					err = s.record(ctx, "access.grant.compromised", AggAccessGrant, id, map[string]any{"device_id": dev.ID},
-						map[string]any{"security": true, "action_required": map[bool]string{true: "credential revoked at provider", false: "rekey or replace the physical access item"}[dev.ProviderDeviceRef != nil]})
+						map[string]any{"security": true, "action_required": map[bool]string{true: "provider credential revocation pending", false: "rekey or replace the physical access item"}[dev.ProviderDeviceRef != nil]})
 				}
 			}
 		}
@@ -478,6 +483,11 @@ func (s *Service) ActOnGrant(ctx context.Context, subj authz.Subject, id ids.ID,
 
 // revokeCredential revokes a provider credential (best effort; the worker retries).
 func (s *Service) revokeCredential(ctx context.Context, id ids.ID) {
+	// HTTP idempotency may still own the outer transaction. The existing
+	// access worker retries only after the revocation record is committed.
+	if _, inTx := dbx.Tx(ctx); inTx {
+		return
+	}
 	if s.SmartAccess == nil {
 		return
 	}
@@ -489,7 +499,9 @@ func (s *Service) revokeCredential(ctx context.Context, id ids.ID) {
 	if err != nil || dev.ProviderDeviceRef == nil {
 		return
 	}
-	if err := s.SmartAccess.Revoke(ctx, *dev.ProviderDeviceRef, *g.CredentialRef, "access_grant:"+id.String()+":revoke"); err != nil {
+	cctx, cancel := providerContext(ctx, "smart-access revoke")
+	defer cancel()
+	if err := s.SmartAccess.Revoke(cctx, *dev.ProviderDeviceRef, *g.CredentialRef, "access_grant:"+id.String()+":revoke"); err != nil {
 		s.Logger.WarnContext(ctx, "credential revocation deferred", "grant_id", id, "error", err)
 		return
 	}
@@ -619,7 +631,9 @@ func (s *Service) RunAccessJobs(ctx context.Context, batch int32) error {
 			}
 			if cur, err := s.q.GetAccessGrant(ctx, s.Pool, id); err == nil && cur.CredentialRef == nil {
 				// Ended before the credential was recorded: revoke it at once.
-				_ = s.SmartAccess.Revoke(ctx, *dev.ProviderDeviceRef, ref, "access_grant:"+id.String()+":revoke")
+				cctx, cancel := providerContext(ctx, "smart-access revoke")
+				_ = s.SmartAccess.Revoke(cctx, *dev.ProviderDeviceRef, ref, "access_grant:"+id.String()+":revoke")
+				cancel()
 			}
 		}
 	}

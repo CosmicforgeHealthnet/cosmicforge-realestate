@@ -600,7 +600,7 @@ func certifyAdditionalCoreJourneys(t *testing.T, client *payment.WalletProvision
 		j.release(o, "rent_obligation", first.ID, allocation.Lines[0], "SIGNED_AGREEMENT", "approved-fixture-v1")
 		var approval payment.CoreWithdrawal
 		j.fixture("payout-approval", map[string]any{"owner_id": o.id, "line_id": allocation.Lines[0].ID, "amount_minor": 50000000}, &approval)
-		h.expect(h.do(call{method: "POST", path: api + "/auth/step-up", token: o.access, body: map[string]any{"method": "PASSWORD", "password": o.password}}), 200, "")
+		h.secure(o)
 		var pref usecases.CorePayoutPreference
 		h.do(call{method: "PUT", path: api + "/financial-wallet/payout-preference", token: o.access, key: key(), headers: map[string]string{"If-Match": `"0"`}, body: map[string]any{"payout_account_id": approval.PayoutAccountID}}).data(t, &pref)
 		j.fixture("payout-state", map[string]any{"unknown": true}, nil)

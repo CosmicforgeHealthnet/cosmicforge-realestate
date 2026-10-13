@@ -2865,6 +2865,43 @@ components:
         - submitted_to_verification
         - created_at
       type: object
+    EventReviewDecision:
+      properties:
+        decision:
+          enum:
+            - REPLAY_APPROVED
+            - NO_ACTION
+          type: string
+        evidence_ref:
+          format: uuid
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+        - reason_code
+        - evidence_ref
+      type: object
+    EventReviewDecisionInput:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - REPLAY_APPROVED
+            - NO_ACTION
+          type: string
+        evidence_ref:
+          format: uuid
+          type: string
+        reason_code:
+          pattern: ^(?:[A-Z][A-Z0-9_]{1,63})$
+          type: string
+      required:
+        - decision
+        - reason_code
+        - evidence_ref
+      type: object
     EvidenceGrantView:
       properties:
         access_count:
@@ -7232,6 +7269,57 @@ paths:
       security:
         - ServiceBearer: []
       summary: Classified reference, delivery and original-operation recovery issues
+      tags:
+        - _Admin
+  /internal/v1/owner/admin/reconciliation/events/{review_id}/decision:
+    post:
+      description: Requires an attributable Admin actor and an evidence reference. Retains an immutable decision. Does not execute replay or approve financial movement.
+      operationId: adminDecideEventReview
+      parameters:
+        - in: path
+          name: review_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 255
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventReviewDecisionInput'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EventReviewDecision'
+                required:
+                  - data
+                type: object
+          description: OK
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          $ref: '#/components/responses/Error'
+        "403":
+          $ref: '#/components/responses/Error'
+        "404":
+          $ref: '#/components/responses/Error'
+        "409":
+          $ref: '#/components/responses/Error'
+      security:
+        - ServiceBearer: []
+      summary: Record a referenced poison-event review decision
       tags:
         - _Admin
   /internal/v1/owner/admin/tenancies/{tenancy_id}/deposit/resolution:

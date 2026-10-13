@@ -72,6 +72,10 @@ func closureRoutes() []Route {
 
 func closureAdminRoutes() []Route {
 	return []Route{
+		Command("POST", "/admin/reconciliation/events/{review_id}/decision", "adminDecideEventReview", tagAdmin, "Record a referenced poison-event review decision", http.StatusOK,
+			func(c *Call, in *usecases.EventReviewDecision) (usecases.EventReviewDecision, error) {
+				return c.S.DecideEventReview(c.Ctx, c.Subj, c.ID("review_id"), *in)
+			}).Internal().Describe("Requires an attributable Admin actor and an evidence reference. Retains an immutable decision. Does not execute replay or approve financial movement.").Errs(409),
 		Get("/admin/reconciliation", "adminGetReconciliation", tagAdmin, "Classified reference, delivery and original-operation recovery issues",
 			func(c *Call) ([]usecases.ReconciliationIssue, error) { return c.S.ReconciliationIssues(c.Ctx, c.Subj) }).Internal().
 			Describe("Requires an attributable Admin actor. Read-only, bounded to 500 oldest issues. Existing workers recover safe cases; material conflicts require manual review. This view never infers provider success or rewrites money."),

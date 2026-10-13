@@ -23,7 +23,12 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/observability"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/requestcontext"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 // Config configures the connection.
@@ -142,6 +147,8 @@ func (c *Conn) EnsureStream(ctx context.Context, sc StreamConfig) error {
 
 // Publish implements events.Publisher.
 func (c *Conn) Publish(ctx context.Context, subject string, e events.Envelope) (events.PublishAck, error) {
+	ctx, span := observability.StartSpan(ctx, "jetstream", "NATS publish")
+	defer span.End()
 	data, err := e.Marshal()
 	if err != nil {
 		return events.PublishAck{}, err
@@ -151,11 +158,14 @@ func (c *Conn) Publish(ctx context.Context, subject string, e events.Envelope) (
 	msg := &nats.Msg{Subject: subject, Data: data, Header: nats.Header{}}
 	msg.Header.Set("Content-Type", "application/json")
 	msg.Header.Set("Event-Type", e.EventType)
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(msg.Header))
 	if e.TraceID != "" {
 		msg.Header.Set("Trace-Id", e.TraceID)
 	}
 	ack, err := c.js.PublishMsg(ctx, msg, jetstream.WithMsgID(e.EventID.String()))
 	if err != nil {
+		span.SetStatus(codes.Error, "NATS publish failure")
+		observability.NewCounter("jetstream", "event_publish_failures_total", "NATS publish failures").Add(ctx, 1)
 		return events.PublishAck{}, err
 	}
 	return events.PublishAck{Stream: ack.Stream, Sequence: ack.Sequence, Duplicate: ack.Duplicate}, nil
@@ -170,6 +180,19 @@ type ConsumerConfig struct {
 	MaxDeliver     int
 	Backoff        []time.Duration
 	HandlerTimeout time.Duration
+	// OnFailure retains terminal delivery evidence before termination. Raw
+	// payloads stay in the original stream, never in logs or review metadata.
+	OnFailure func(context.Context, Failure) error
+}
+
+type Failure struct {
+	Consumer string
+	Stream   string
+	Sequence uint64
+	Attempt  uint64
+	EventID  string
+	Digest   string
+	Class    string
 }
 
 // Consumer is a running consumer.
@@ -233,13 +256,38 @@ func (c *Conn) handle(m jetstream.Msg, cfg ConsumerConfig, h events.Handler) {
 		attempt = meta.NumDelivered
 	}
 	env, err := events.Unmarshal(m.Data())
-	if err != nil {
-		c.log.Error("poison event terminated", "consumer", cfg.Durable, "subject", m.Subject(), "error", err.Error())
-		_ = m.Term()
-		return
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.HandlerTimeout)
 	defer cancel()
+	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.HeaderCarrier(m.Headers()))
+	ctx, span := observability.StartSpan(ctx, "jetstream", "NATS consume")
+	defer span.End()
+	terminal := func(class string) {
+		f := Failure{Consumer: cfg.Durable, Attempt: attempt, Digest: security.SHA256Hex(m.Data()), Class: class}
+		if meta != nil {
+			f.Stream, f.Sequence = meta.Stream, meta.Sequence.Stream
+		}
+		if !env.EventID.IsZero() {
+			f.EventID = env.EventID.String()
+		}
+		span.SetStatus(codes.Error, "Event requires review")
+		if cfg.OnFailure != nil {
+			fctx, fcancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+			defer fcancel()
+			if ferr := cfg.OnFailure(fctx, f); ferr != nil {
+				c.log.Error("event review persistence failed; original stream replay required", "consumer", cfg.Durable, "stream", f.Stream, "sequence", f.Sequence)
+				observability.NewCounter("jetstream", "event_review_persistence_failures_total", "Review persistence failures").Add(ctx, 1)
+				_ = m.NakWithDelay(30 * time.Second)
+				return
+			}
+		}
+		observability.NewCounter("jetstream", "event_terminal_failures_total", "Terminal event failures").Add(ctx, 1)
+		_ = m.Term()
+	}
+	if err != nil {
+		c.log.Error("poison event requires review", "consumer", cfg.Durable, "error", err.Error())
+		terminal("MALFORMED")
+		return
+	}
 	ctx = requestcontext.With(ctx, requestcontext.Values{RequestID: env.Metadata["request_id"], TraceID: env.TraceID})
 	err = h(ctx, events.Delivery{Envelope: env, Subject: m.Subject(), Attempt: attempt})
 	switch {
@@ -250,12 +298,12 @@ func (c *Conn) handle(m jetstream.Msg, cfg ConsumerConfig, h events.Handler) {
 	case events.IsPermanent(err):
 		c.log.Error("event permanently rejected", "consumer", cfg.Durable, "event_id", env.EventID.String(),
 			"event_type", env.EventType, "error", err.Error())
-		_ = m.Term()
+		terminal("PERMANENT")
 	default:
 		if attempt >= uint64(cfg.MaxDeliver) {
 			c.log.Error("event exhausted deliveries", "consumer", cfg.Durable, "event_id", env.EventID.String(),
 				"attempt", attempt, "error", err.Error())
-			_ = m.Term()
+			terminal("EXHAUSTED")
 			return
 		}
 		delay := time.Duration(attempt) * time.Second

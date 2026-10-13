@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/dbx"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/financing"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/integrations/smartaccess"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/individual-owner-service/internal/usecases"
@@ -19,8 +20,10 @@ import (
 // fakeFinancing and fakeSmartAccess stand in for partner/device adapters
 // that do not exist yet (tests only; never certification evidence).
 type fakeFinancing struct {
-	mu        sync.Mutex
-	decisions []string
+	mu              sync.Mutex
+	decisions       []string
+	failAfterAccept bool
+	beforeDecision  func(context.Context)
 }
 
 func (f *fakeFinancing) Options(_ context.Context, req financing.OptionsRequest, _ string) ([]financing.Offer, error) {
@@ -32,11 +35,49 @@ func (f *fakeFinancing) Options(_ context.Context, req financing.OptionsRequest,
 	}, nil
 }
 
-func (f *fakeFinancing) Decide(_ context.Context, partnerRef, offerRef, decision, payout, _ string) error {
+func (f *fakeFinancing) Decide(ctx context.Context, partnerRef, offerRef, decision, payout, _ string) error {
+	if f.beforeDecision != nil {
+		f.beforeDecision(ctx)
+	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.decisions = append(f.decisions, offerRef+":"+decision+":"+payout)
+	if f.failAfterAccept {
+		return fmt.Errorf("TEST timeout after partner accepted original decision")
+	}
 	return nil
+}
+
+func TestFinancingDecisionRetainsUnknownAndAvoidsTransactionLocks(t *testing.T) {
+	h := newHarness(t, func(h *harness) { h.fin = &fakeFinancing{failAfterAccept: true} })
+	o, l := h.liveListing("TEST partner recovery lane")
+	h.expect(h.post(o, "/financing/consents", map[string]any{"decision": "GRANTED", "policy_version": "TEST-policy"}), 200, "")
+	var offers []usecases.FinanceOfferView
+	h.get(o, "/financing/options?listing_id="+l.ID.String()).data(t, &offers)
+	if len(offers) != 1 {
+		t.Fatal("missing TEST offer")
+	}
+	h.fin.beforeDecision = func(ctx context.Context) {
+		if _, ok := dbx.Tx(ctx); ok {
+			t.Fatal("partner command runs inside DB transaction")
+		}
+		if _, ok := ctx.Deadline(); !ok {
+			t.Fatal("provider command has no deadline")
+		}
+		if h.count(`SELECT count(*) FROM owner_external_operations WHERE kind='FINANCING_DECISION' AND aggregate_id=$1 AND state='UNKNOWN'`, offers[0].ID) != 1 {
+			t.Fatal("intent not durable before provider")
+		}
+	}
+	path := "/financing/offers/" + offers[0].ID.String() + "/decision"
+	in := map[string]any{"decision": "ACCEPT", "payout_preference": "UPFRONT"}
+	h.expect(h.post(o, path, in), 503, "DEPENDENCY_UNAVAILABLE")
+	h.expect(h.post(o, path, in), 409, "PARTNER_DECISION_REVIEW_REQUIRED")
+	if len(h.fin.decisions) != 1 {
+		t.Fatal("unknown partner decision resubmitted")
+	}
+	if h.count(`SELECT count(*) FROM owner_external_operations WHERE kind='FINANCING_DECISION' AND state='MANUAL_REVIEW'`) != 1 {
+		t.Fatal("unresolved partner operation not escalated")
+	}
 }
 
 type fakeSmartAccess struct {
@@ -280,7 +321,7 @@ func TestSmartAccessGrantsLifecycle(t *testing.T) {
 		}
 	}
 
-	// Activation at check-in; a compromised credential is revoked at once.
+	// Activation at check-in; compromise is committed before provider revocation.
 	h.clock.advance(2*24*time.Hour + 15*time.Hour)
 	h.runJobs("smart-access-expiry")
 	h.relogin(o)
@@ -292,6 +333,7 @@ func TestSmartAccessGrantsLifecycle(t *testing.T) {
 			t.Fatalf("after compromise %+v", list)
 		}
 	}
+	h.runJobs("smart-access-expiry")
 	h.smart.mu.Lock()
 	revoked := len(h.smart.revoked)
 	h.smart.mu.Unlock()
