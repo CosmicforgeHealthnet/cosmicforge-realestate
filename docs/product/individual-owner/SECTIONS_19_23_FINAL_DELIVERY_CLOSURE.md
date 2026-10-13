@@ -2,6 +2,41 @@
 
 Authority: the user's final delivery prompt and original Owner specification Sections 19–23 (PDF pages 27–29). Starting revision: `798b6fbf97b44b425e8802201208892cf4c85363`, branch `development`, clean local tree, identical remote head. No deployment is authorized.
 
+## Current release-gate update — 13 October 2026 (supersedes initial blocked-CI verdicts)
+
+**Verified code revision:** `0d8d14fe3a50cdee90a38ca6ca28f338ceed5d4a` on `development`, following the original Sections 19–23 delivery commit `3ee918b92bc403ddf4f1406c82596b9cd7e254ed`. The intervening commit `fix(ci): synchronize Go module dependencies` changes only 14 `go.mod` / `go.sum` files across the affected Go modules. It does not modify Owner/Payment business logic, migrations, endpoints, fee policy, or provider permissions. The dependency drift causing the original `go mod tidy`, read-only test/build, `govulncheck`, and image failures is corrected.
+
+All **five required GitHub Actions workflows completed successfully at the verified code revision: 35/35 jobs PASS, zero failed/skipped jobs.** Unlike the initial attempts, these jobs ran their steps. The exact run/attempt links and job counts are:
+
+| Workflow | Run | Jobs | Current CI verdict |
+|---|---|---:|---|
+| [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/38457933393) | `38457933393` | **18/18 PASS** | Lint, tests including Owner/Payment/Media, real-process E2E, SQLC and architecture PASS |
+| [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/38457933362) | `38457933362` | **8/8 PASS** | Gitleaks, govulncheck and Trivy IaC/config PASS |
+| [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/38457933719) | `38457933719` | **7/7 PASS** | All six service image jobs and combined digest-artifact job PASS |
+| [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/38457933398) | `38457933398` | **1/1 PASS** | Contract validation PASS |
+| [Architecture structure](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/38457933400) | `38457933400` | **1/1 PASS** | Repository structure PASS |
+
+**Image evidence:** The Individual Owner image job built and pushed its image, pulled the pushed digest for inspection, passed the non-root/binaries/probe smoke gate and the Trivy image HIGH/CRITICAL-with-fix policy, and uploaded `digest-individual-owner-service`. The combined `image-digests` artifact and five other service digest artifacts exist on the successful Images run. An immutable digest artifact **exists**; this report does not invent or substitute a literal SHA-256 image digest for the downloadable artifact.
+
+### Updated independent verdicts at verified code revision
+
+| Area | Updated verified outcome |
+|---|---|
+| Section 19 — configuration and secrets | **LOCAL PASS**; real staging secrets and permission checks remain deployment prerequisites |
+| Section 20 — migration, image and deployment | **PARTIAL FOR DEPLOYMENT**: local migration/SQLC PASS; certified CI image build, pushed-digest smoke and image vulnerability gate **PASS**; staging deployment/migrations/readiness/backup and rollback **NOT RUN** |
+| Section 21 — OpenAPI/Postman | **PASS**, now with Contracts workflow green |
+| Section 22 — test/certification matrix | **CI + AVAILABLE LOCAL TEST/SECURITY/IMAGE GATES PASS** (T01–T22 in the available scope); deployed dependencies, operational drills and production security review remain open |
+| Section 23 — IO-1 through IO-15 | **LOCAL PASS** with existing external-provider/source qualifications |
+| Section 23 — IO-16 | **PARTIAL FOR RELEASE**, not failed: CI/image gates now passed; staging deployment/acceptance and approvals remain outstanding |
+| GitHub Actions | **35/35 JOBS PASS** at code revision `0d8d14f` |
+| Owner Docker/GHCR image gate | **PASS** at that source revision; source-matched immutable digest artifact available |
+| Staging | **NOT CERTIFIED**; pending overlays not activated and no deployed verification completed |
+| Production | **BLOCKED**, independently of CI; no lawful custody/PSP/legal/security/operations clearance |
+
+**Outstanding prerequisites:** Provision staging secrets and Owner-specific DB/runtime roles; review the existing digest artifact and deploy through the authorized branch/change gates; run staging migration, readiness/dependency-failure, five primary journeys, broker recovery, backup/restore and rollback proof. Obtain operational security/retention and monitoring approval; certify actual downstream service producers/providers. All Payment decisions `O-001` through `O-012` remain **OPEN**. No staging/production deployment, live-money activation or regulator/provider approval is inferred.
+
+**Provenance boundary:** The original `3ee918b` discovery/register, blocked CI evidence, unexecuted image notes and local test logs below are preserved as the historical state *at that delivery revision*. This dated update is the current authority for CI and image certification at `0d8d14f`. Any later documentation-only commit is not itself represented as having executed these workflows.
+
 ## Combined discovery and gap register
 
 This is the single baseline discovery pass. Prior reports remain historical evidence at their recorded revisions; unchanged foundations are reused.
@@ -25,7 +60,7 @@ This is the single baseline discovery pass. Prior reports remain historical evid
 | 23 IO-16 | CERTIFICATION BLOCKED | Local results do not replace mandatory CI, image and staging certification. |
 | Provider/legal O-001–O-012 | APPROVAL PENDING / EXTERNAL BLOCKED | All OPEN; no new approval supplied. Preserve production restrictions and exact external prerequisites. |
 
-## Final independent verdicts
+## Original delivery verdicts at `3ee918b` (historical; superseded by the current CI update above)
 
 | Scope | Verdict and boundary |
 |---|---|
@@ -155,7 +190,7 @@ F means fresh current-task race evidence above; H16/H14/C retain their own recor
 | 7 Service boundaries | Architecture self-test/check PASS; no cross-service DB/import/second ledger. Existing architecture gate's `go list -mod=mod` changed other module manifests transiently; those ten tool side effects were reviewed, archived and restored to baseline. Only Owner's required tidy delta remains. |
 | 8 Clean repository/verified branch heads | Baseline matched; final ordinary fast-forward/remote/tree evidence in post-commit export. This does not authorize staging promotion. |
 
-### Actual security/CI execution
+### Initial delivery security/CI execution (historical evidence at `3ee918b`)
 
 Gitleaks8.28 scans57 baseline commits with no leaks. Source export excludes ignored `.env`/temporary output and scans the actual prospective tracked delivery. Exact supplied-key/credential diff review additionally checks the index. Owner govulncheck1.8 executes source/symbol scanning with Go1.26.9, vulnerability DB updated2026-10-08; exit0. Trivy0.75 official Windows artifact checksum verified: six implemented Dockerfiles,20 successful checks each, zero HIGH/CRITICAL failures. Six scaffold-only Dockerfiles have no instructions and emit parse warnings; this is not certification of future services. Trivy does not certify Compose runtime networking/resources/secret grants; those are separately rendered/audited. Current pinned CI Trivy0.57 container execution is unexecuted, and its old release download returned unavailable; the fresh native0.75 result is identified separately, not relabelled as the pinned CI result.
 
