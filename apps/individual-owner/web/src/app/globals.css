@@ -733,3 +733,22 @@
  .record-form .wizard-progress li{min-width:0}
  .detail-toolbar{padding:12px}
 }
+
+
+/* Record overview and safe multi-step authoring, reused by every module. */
+.record-overview-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 25px;border-radius:18px;background:linear-gradient(115deg,var(--card),var(--subtle));border:1px solid var(--premium-border);box-shadow:var(--premium-shadow);margin:0 0 20px;position:relative;overflow:hidden}
+.record-overview-banner::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--action),var(--success))}
+.record-overview-main{min-width:0}
+.record-overview-main .eyebrow{color:var(--action)}
+.record-overview-main h2{font-size:clamp(20px,1.8vw,28px);margin:7px 0;letter-spacing:-.045em;overflow-wrap:anywhere}
+.record-overview-main p{font-size:11px;max-width:570px}
+.record-overview-facts{display:flex;gap:18px;flex-shrink:0}
+.record-overview-facts>div{display:flex;flex-direction:column;gap:10px;justify-content:center;min-width:90px;border-left:1px solid var(--premium-border);padding-left:18px}
+.record-overview-facts>div>span:not(.status){font-size:10px;color:var(--muted);font-weight:630}
+.record-overview-facts>div>strong{font-size:20px;letter-spacing:-.045em}
+.record-form-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 17px;border:1px solid var(--premium-border);border-radius:13px;background:var(--subtle);margin:12px 0 20px}
+.record-form-intro strong{font-size:12px;font-weight:720}
+.record-form-intro p{font-size:11px;margin-top:5px}
+.record-form-intro>span{font-size:10px;white-space:nowrap;padding:8px 11px;border-radius:10px;background:var(--card);font-weight:790;color:var(--action)}
+@media(max-width:900px){.record-overview-banner{align-items:flex-start;flex-direction:column}.record-overview-facts{width:100%;justify-content:space-between;gap:10px}.record-overview-facts>div{min-width:0;flex:1}}
+@media(max-width:767px){.record-overview-banner{padding:20px 16px}.record-overview-facts{flex-wrap:wrap}.record-overview-facts>div{padding-left:10px}.record-overview-facts>div:first-child{padding-left:0;border-left:0}.record-form-intro{align-items:flex-start;flex-direction:column}.record-form-intro>span{align-self:flex-start}}
