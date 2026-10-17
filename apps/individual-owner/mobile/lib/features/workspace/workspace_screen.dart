@@ -8,6 +8,7 @@ import '../dashboard/dashboard_screen.dart';
 import 'workspace_controller.dart';
 import 'record_form.dart';
 import 'record_detail.dart';
+import 'workspace_experience.dart';
 import 'workspace_preference.dart';
 
 class WorkspaceScreen extends ConsumerStatefulWidget {
@@ -172,6 +173,13 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
             ),
           ),
         if (widget.id == null) ...[
+          WorkspaceExperience(
+            slug: widget.slug,
+            recordCount: rows.length,
+            statusCount: rows.map((r) => r.status).toSet().length,
+            propertyScoped: scope != 'all',
+          ),
+          const SizedBox(height: 15),
           SizedBox(
             height: 56,
             child: ListView(
