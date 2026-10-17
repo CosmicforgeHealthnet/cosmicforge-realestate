@@ -4,6 +4,7 @@ import { render,screen,fireEvent,waitFor } from '@testing-library/react';
 import { it,expect } from 'vitest';
 import { Providers } from '@/app/providers';
 import { DashboardScreen } from '@/features/dashboard/dashboard-screen';
+import { DashboardHub } from '@/features/dashboard/dashboard-hub';
 import {useWorkspace} from '@/features/workspace/use-workspace';
 import { WorkspacePreferences } from '@/features/settings/workspace-preferences';
 import { ThemeProvider,useTheme } from '@/design/theme-provider';
@@ -38,4 +39,17 @@ it('switches and restores the selected theme',()=>{
   expect(localStorage.getItem('cosmicforge.theme.v1')).toBe('dark');
   view.unmount();render(<ThemeProvider><ThemeButton/></ThemeProvider>);
   expect(screen.getByRole('button',{name:'Dark'})).toBeInTheDocument();localStorage.clear();
+});
+
+it('provides key owner shortcuts and a genuine 30-module dashboard directory',()=>{
+  const view=render(<DashboardHub/>);
+  expect(screen.getByRole('link',{name:/Properties Manage your portfolio/i})).toHaveAttribute('href','/workspace/properties');
+  expect(screen.getByRole('link',{name:/Finance & wallet Example balances/i})).toHaveAttribute('href','/workspace/financial');
+  const toggle=screen.getByRole('button',{name:/Explore all 30 areas/i});
+  expect(toggle).toHaveAttribute('aria-expanded','false');
+  fireEvent.click(toggle);
+  expect(screen.getByRole('button',{name:/Hide full directory/i})).toHaveAttribute('aria-expanded','true');
+  expect(view.container.querySelectorAll('.owner-module-links a')).toHaveLength(30);
+  expect(view.container.querySelector('.owner-module-links a[href="/workspace/insurance"]')).not.toBeNull();
+  expect(view.container.querySelector('.owner-module-links a[href="/workspace/access"]')).not.toBeNull();
 });
