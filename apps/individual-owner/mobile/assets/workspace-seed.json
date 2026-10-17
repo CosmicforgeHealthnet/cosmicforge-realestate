@@ -388,6 +388,21 @@
       }
     },
     {
+      "type": "slot",
+      "id": "demo-slot-01",
+      "status": "OPEN",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Viewing slots · Demo",
+        "listingId": "demo-listing-01",
+        "date": "2026-10-24",
+        "time": "10:00",
+        "representative": "Sample fictional representative · Demo",
+        "consent": false
+      }
+    },
+    {
       "type": "viewing",
       "id": "demo-viewing-01",
       "status": "APPROVED",

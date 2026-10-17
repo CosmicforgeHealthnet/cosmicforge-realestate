@@ -1,0 +1,408 @@
+[
+  {
+    "id": "11",
+    "title": "Supplementary utilities and service charges",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "utility",
+        "type": "utility",
+        "data": {
+          "title": "Journey water account",
+          "propertyId": "demo-property-01",
+          "unitId": "demo-unit-01",
+          "category": "Water",
+          "reference": "Fictional meter",
+          "allocation": "Metered"
+        }
+      },
+      {
+        "op": "create",
+        "alias": "meter",
+        "type": "meter",
+        "data": {
+          "title": "Journey water reading",
+          "utilityId": "$utility",
+          "date": "2026-10-24",
+          "reading": 100,
+          "evidence": "meter.txt"
+        }
+      },
+      {
+        "op": "create",
+        "type": "meter",
+        "data": {
+          "title": "Invalid decreasing reading",
+          "utilityId": "$utility",
+          "date": "2026-10-25",
+          "reading": 90,
+          "evidence": "meter.txt"
+        },
+        "error": "INVALID"
+      },
+      {
+        "op": "create",
+        "alias": "bill",
+        "type": "bill",
+        "data": {
+          "title": "Journey water bill",
+          "utilityId": "$utility",
+          "amountMinor": 250000,
+          "due": "2026-10-26",
+          "notes": "Fictional bill"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "bill",
+        "action": "observe"
+      },
+      {
+        "op": "transition",
+        "target": "bill",
+        "action": "dispute"
+      },
+      {
+        "op": "transition",
+        "target": "bill",
+        "action": "resolve"
+      },
+      {
+        "op": "assert",
+        "target": "bill",
+        "key": "status",
+        "value": "DUE"
+      },
+      {
+        "op": "create",
+        "alias": "budget",
+        "type": "budget",
+        "data": {
+          "title": "Journey service budget",
+          "propertyId": "demo-property-01",
+          "amountMinor": 1000000,
+          "start": "2026-10-18",
+          "end": "2026-11-18",
+          "allocation": "Example equal shares"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "budget",
+        "action": "approve"
+      },
+      {
+        "op": "create",
+        "alias": "charge",
+        "type": "charge",
+        "data": {
+          "title": "Journey cleaning charge",
+          "budgetId": "$budget",
+          "amountMinor": 200000,
+          "category": "Cleaning",
+          "notes": "Example item"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "charge",
+        "action": "allocate"
+      },
+      {
+        "op": "transition",
+        "target": "charge",
+        "action": "dispute"
+      },
+      {
+        "op": "assert",
+        "target": "charge",
+        "key": "status",
+        "value": "DISPUTED"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "title": "Supplementary appointments, assets, evidence and viewing slots",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "appointment",
+        "type": "appointment",
+        "data": {
+          "title": "Journey survey appointment",
+          "propertyId": "demo-property-01",
+          "category": "Inspection",
+          "provider": "Fictional inspector",
+          "date": "2026-10-24",
+          "evidence": "findings.txt",
+          "findings": "Example human findings"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "appointment",
+        "action": "schedule"
+      },
+      {
+        "op": "transition",
+        "target": "appointment",
+        "action": "deliver"
+      },
+      {
+        "op": "transition",
+        "target": "appointment",
+        "action": "accept"
+      },
+      {
+        "op": "assert",
+        "target": "appointment",
+        "key": "status",
+        "value": "ACCEPTED"
+      },
+      {
+        "op": "create",
+        "alias": "asset",
+        "type": "asset",
+        "data": {
+          "title": "Journey example pump",
+          "propertyId": "demo-property-01",
+          "category": "Water pump",
+          "condition": "Serviceable",
+          "notes": "Mock"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "asset",
+        "action": "retire"
+      },
+      {
+        "op": "create",
+        "alias": "media",
+        "type": "media",
+        "data": {
+          "title": "Journey sample image",
+          "propertyId": "demo-property-01",
+          "category": "Illustration",
+          "evidence": "sample.png",
+          "notes": "Metadata only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "media",
+        "action": "attach"
+      },
+      {
+        "op": "create",
+        "alias": "slot",
+        "type": "slot",
+        "data": {
+          "title": "Journey afternoon slot",
+          "listingId": "demo-listing-01",
+          "date": "2026-10-24",
+          "time": "15:00",
+          "representative": "Owner Demo",
+          "consent": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "slot",
+        "action": "request"
+      },
+      {
+        "op": "bind",
+        "alias": "viewing",
+        "type": "viewing",
+        "key": "title",
+        "value": "Viewing request from slot"
+      },
+      {
+        "op": "transition",
+        "target": "viewing",
+        "action": "approve"
+      },
+      {
+        "op": "transition",
+        "target": "viewing",
+        "action": "noshow"
+      },
+      {
+        "op": "assert",
+        "target": "viewing",
+        "key": "status",
+        "value": "NO_SHOW"
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "title": "Supplementary insurance and disconnected access metadata",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "insurance",
+        "type": "insurance",
+        "data": {
+          "title": "Journey insurance record",
+          "propertyId": "demo-property-01",
+          "reference": "Fictional policy example",
+          "expires": "2026-12-31",
+          "information": "No certified coverage"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "insurance",
+        "action": "reminder"
+      },
+      {
+        "op": "assert",
+        "target": "insurance",
+        "key": "status",
+        "value": "REMINDER_RECORDED"
+      },
+      {
+        "op": "create",
+        "alias": "device",
+        "type": "device",
+        "data": {
+          "title": "Journey fictional reader",
+          "propertyId": "demo-property-01",
+          "reference": "reader-demo",
+          "kind": "Demo door reader",
+          "notes": "No hardware"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "device",
+        "action": "review"
+      },
+      {
+        "op": "create",
+        "alias": "grant",
+        "type": "accessgrant",
+        "data": {
+          "title": "Journey fictional guest access",
+          "deviceId": "$device",
+          "recipient": "Guest Demo",
+          "expires": "2026-10-25",
+          "notes": "No code"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "grant",
+        "action": "revoke"
+      },
+      {
+        "op": "assert",
+        "target": "grant",
+        "key": "status",
+        "value": "REVOKED"
+      },
+      {
+        "op": "create",
+        "alias": "document",
+        "type": "documentgrant",
+        "data": {
+          "title": "Journey document grant",
+          "saleId": "demo-sale-01",
+          "evidence": "room.txt",
+          "recipient": "Buyer Demo",
+          "expires": "2026-10-25"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "document",
+        "action": "revoke"
+      },
+      {
+        "op": "assert",
+        "target": "document",
+        "key": "status",
+        "value": "REVOKED"
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "title": "Supplementary authority and quote conflict guards",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "transfer",
+        "type": "transfer",
+        "data": {
+          "title": "Journey consent guard",
+          "propertyId": "demo-property-01",
+          "recipient": "Recipient Demo",
+          "consent": true,
+          "notes": "Requires real mock consent record"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "transfer",
+        "action": "request",
+        "error": "CONSENT"
+      },
+      {
+        "op": "create",
+        "alias": "representative",
+        "type": "party",
+        "data": {
+          "title": "Journey representative",
+          "propertyId": "demo-property-01",
+          "name": "Helper Demo",
+          "share": 0,
+          "role": "Representative",
+          "notes": "No title authority"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "representative",
+        "action": "accept"
+      },
+      {
+        "op": "alias",
+        "alias": "quote",
+        "id": "demo-quote-01"
+      },
+      {
+        "op": "transition",
+        "target": "quote",
+        "action": "approve"
+      },
+      {
+        "op": "create",
+        "alias": "otherquote",
+        "type": "quote",
+        "data": {
+          "title": "Journey competing quote",
+          "requestId": "demo-maintenance-01",
+          "provider": "Fictional other provider",
+          "amountMinor": 1400000,
+          "scope": "Sample competing quote"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "otherquote",
+        "action": "approve",
+        "error": "CONFLICT"
+      },
+      {
+        "op": "assert",
+        "target": "otherquote",
+        "key": "status",
+        "value": "RECEIVED"
+      }
+    ]
+  }
+]

@@ -2,3 +2,7 @@
 coverage/
 playwright-report/
 test-results/
+
+/*-qa.log
+/journey-debug*.log
+/qa-debug.png

@@ -1,7 +1,9 @@
 import {describe,it,expect} from 'vitest';
 import definition from '../../shared/workflows.json';
 import fixture from '../../shared/workspace-seed.json';
-import stories from '../../shared/journeys.json';
+import coreStories from '../../shared/journeys.json';
+import supplements from '../../shared/supplementary-journeys.json';
+const stories=[...coreStories,...supplements];
 import {WorkspaceEngine,MockFault} from '@/lib/mock/workspace-engine';
 import type {WorkspaceSchema,WorkspaceState,Values,WorkspaceCommand} from '@/lib/contracts/workspace';
 const schema=definition as WorkspaceSchema,seed=fixture as unknown as WorkspaceState;

@@ -157,6 +157,7 @@
       "gate": "A",
       "pairIds": [],
       "types": [
+        "slot",
         "viewing"
       ]
     },
@@ -1195,7 +1196,7 @@
           "label": "Proposed share (%)",
           "kind": "number",
           "required": true,
-          "min": 1,
+          "min": 0,
           "max": 100
         },
         {
@@ -1837,6 +1838,86 @@
           "confirm": true
         }
       ]
+    },
+    {
+      "id": "slot",
+      "label": "Viewing slots",
+      "module": "viewings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "date",
+          "label": "Slot date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "time",
+          "label": "Slot time (UTC)",
+          "kind": "time",
+          "required": true
+        },
+        {
+          "key": "representative",
+          "label": "Fictional representative",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "consent",
+          "label": "Occupant consent recorded in demo",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "OPEN",
+      "actions": [
+        {
+          "id": "request",
+          "label": "Prepare request for this slot",
+          "from": [
+            "OPEN"
+          ],
+          "to": "REQUESTED",
+          "effects": [
+            {
+              "type": "viewing",
+              "status": "REQUESTED",
+              "data": {
+                "title": "Viewing request from slot",
+                "listingId": "$listingId",
+                "date": "$date",
+                "time": "$time",
+                "representative": "$representative",
+                "consent": "$consent"
+              }
+            }
+          ]
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel viewing slot",
+          "from": [
+            "OPEN"
+          ],
+          "to": "CANCELLED",
+          "confirm": true
+        }
+      ],
+      "calendar": true
     },
     {
       "id": "viewing",
@@ -4169,6 +4250,7 @@
             "RECEIVED"
           ],
           "to": "APPROVED",
+          "guard": "quote_choice",
           "stepUp": true,
           "updateRelated": {
             "via": "requestId",

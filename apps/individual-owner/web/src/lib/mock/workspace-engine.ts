@@ -62,6 +62,8 @@ export class WorkspaceEngine {
     const known=new Set(spec.fields.map(f=>f.key));for(const key of Object.keys(data))if(!known.has(key))fail('INVALID',`Unsupported field: ${key}`);
     if(this.state.records.some(r=>r.type===spec.id&&r.id!==id&&String(r.data.title).trim().toLowerCase()===String(data.title).trim().toLowerCase()))fail('CONFLICT','A record with this title already exists.');
     if(data.start&&data.end&&String(data.start)>=String(data.end))fail('INVALID','End date must be after start date.');
+    if(spec.id==='party'&&((data.role==='Representative'&&data.share!==0)||(data.role==='Co-owner'&&Number(data.share)<1)))fail('INVALID','Representatives have zero title share; co-owner shares must be positive.');
+    if(['accessgrant','documentgrant'].includes(spec.id)&&String(data.expires)<this.state.date)fail('INVALID','Choose a grant expiry on or after the demo date.');
     if(spec.guard==='shares'){const total=this.state.records.filter(r=>r.type==='party'&&r.id!==id&&r.data.propertyId===data.propertyId&&!['DECLINED'].includes(r.status)).reduce((n,r)=>n+Number(r.data.share),0);if(total+Number(data.share)>100)fail('INVALID','Combined proposed ownership shares cannot exceed 100%.')}
     if(spec.guard==='meter'){const previous=this.state.records.filter(r=>r.type==='meter'&&r.id!==id&&r.data.utilityId===data.utilityId&&String(r.data.date)<=String(data.date));if(previous.some(r=>Number(r.data.reading)>Number(data.reading)))fail('INVALID','Meter reading cannot decrease from the previous recorded value.')}
     if(spec.id==='renewal'&&String(data.newEnd)<=String(this.record(String(data.tenancyId),'tenancy').data.end))fail('INVALID','Renewal end must extend the tenancy.');
@@ -78,6 +80,8 @@ export class WorkspaceEngine {
   }
   private guard(name:string,r:DomainRecord){const data=r.data,records=this.state.records,property=this.propertyOf(r);
     if(name==='claim_reviewed'&&!records.some(x=>x.type==='ownership'&&x.id===data.claimId&&x.status==='DEMO_REVIEWED'))fail('PENDING','Record a simulated ownership-claim review before property review.');
+    if(['publish','consent'].includes(name)){const purpose=name==='publish'?'Listing':'Ownership transfer';for(const party of records.filter(x=>x.type==='party'&&x.data.propertyId===property&&x.data.role==='Co-owner'&&x.status==='ACCEPTED'))if(!records.some(x=>x.type==='consent'&&x.data.partyId===party.id&&x.data.purpose===purpose&&x.status==='APPROVED'&&String(x.data.expires)>=this.state.date))fail('CONSENT','Each accepted co-owner must record current consent for this purpose.');}
+    if(name==='quote_choice'&&records.some(x=>x.type==='quote'&&x.id!==r.id&&x.data.requestId===data.requestId&&x.status==='APPROVED'))fail('CONFLICT','A quote is already approved for this request.');
     if(name==='publish'){
       if(!records.some(x=>x.type==='verification'&&x.data.propertyId===property&&x.status==='DEMO_REVIEWED'))fail('PENDING','A separate simulated property review is required.');
       if(!records.some(x=>x.type==='pricing'&&x.data.listingId===r.id&&x.status==='APPLIED'))fail('INVALID','Apply an example pricing model before publication.');

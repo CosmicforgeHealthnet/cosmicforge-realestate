@@ -1,3 +1,5 @@
+import {vi} from 'vitest';
+vi.mock('next/navigation',()=>({useRouter:()=>({push:vi.fn()})}));
 import { render,screen,fireEvent,waitFor } from '@testing-library/react';
 import { it,expect } from 'vitest';
 import { Providers } from '@/app/providers';

@@ -259,6 +259,18 @@ class WorkspaceEngine {
         data['start'].toString().compareTo(data['end'].toString()) >= 0) {
       fault('INVALID', 'End date must be after start date.');
     }
+    if (definition['id'] == 'party' &&
+        ((data['role'] == 'Representative' && data['share'] != 0) ||
+            (data['role'] == 'Co-owner' && (data['share'] as num) < 1))) {
+      fault(
+        'INVALID',
+        'Representatives have zero title share; co-owner shares must be positive.',
+      );
+    }
+    if (['accessgrant', 'documentgrant'].contains(definition['id']) &&
+        data['expires'].toString().compareTo(_state['date']) < 0) {
+      fault('INVALID', 'Choose a grant expiry on or after the demo date.');
+    }
     if (definition['guard'] == 'shares') {
       final total = records
           .where(
@@ -355,6 +367,40 @@ class WorkspaceEngine {
         'PENDING',
         'Record simulated ownership review before property review.',
       );
+    }
+    if (['publish', 'consent'].contains(name)) {
+      final purpose = name == 'publish' ? 'Listing' : 'Ownership transfer';
+      for (final party in records.where(
+        (x) =>
+            x['type'] == 'party' &&
+            x['data']['propertyId'] == property &&
+            x['data']['role'] == 'Co-owner' &&
+            x['status'] == 'ACCEPTED',
+      )) {
+        if (!records.any(
+          (x) =>
+              x['type'] == 'consent' &&
+              x['data']['partyId'] == party['id'] &&
+              x['data']['purpose'] == purpose &&
+              x['status'] == 'APPROVED' &&
+              x['data']['expires'].toString().compareTo(_state['date']) >= 0,
+        )) {
+          fault(
+            'CONSENT',
+            'Each accepted co-owner must record current consent for this purpose.',
+          );
+        }
+      }
+    }
+    if (name == 'quote_choice' &&
+        records.any(
+          (x) =>
+              x['type'] == 'quote' &&
+              x['id'] != row['id'] &&
+              x['data']['requestId'] == data['requestId'] &&
+              x['status'] == 'APPROVED',
+        )) {
+      fault('CONFLICT', 'A quote is already approved for this request.');
     }
     if (name == 'publish') {
       if (!records.any(

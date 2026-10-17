@@ -10,8 +10,13 @@ dynamic at(dynamic value, String path) =>
     path.split('.').fold<dynamic>(value, (v, k) => v[k]);
 void main() {
   final schema = readJson('workflows'), seed = readJson('workspace-seed');
-  final stories =
-      jsonDecode(File('../shared/journeys.json').readAsStringSync()) as List;
+  final stories = [
+    ...jsonDecode(File('../shared/journeys.json').readAsStringSync()) as List,
+    ...jsonDecode(
+          File('../shared/supplementary-journeys.json').readAsStringSync(),
+        )
+        as List,
+  ];
   for (final story in stories) {
     test('${story["id"]}: ${story["title"]}', () {
       final engine = WorkspaceEngine(schema, seed),

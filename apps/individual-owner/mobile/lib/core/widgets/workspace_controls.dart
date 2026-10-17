@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final draftGuardProvider = NotifierProvider<DraftGuard, bool>(DraftGuard.new);
+
+class DraftGuard extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void mark(bool value) => state = value;
+}
+
 final propertyScopeProvider = NotifierProvider<PropertyScope, String>(
   PropertyScope.new,
 );

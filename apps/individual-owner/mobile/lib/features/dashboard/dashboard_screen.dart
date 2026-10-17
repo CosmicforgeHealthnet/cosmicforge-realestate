@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/models/dashboard.dart';
 import '../../core/widgets/async_states.dart';
 import 'dashboard_controller.dart';
+import 'dashboard_workbench.dart';
+import '../workspace/workspace_controller.dart';
+import '../../core/widgets/workspace_controls.dart';
 
 String demoMoney(int minor) {
   final digits = (minor ~/ 100).toString().replaceAllMapped(
@@ -50,28 +53,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         const SizedBox(height: 8),
         const Text('A clear view of your properties and what needs attention.'),
         const SizedBox(height: 20),
-        DropdownButtonFormField<DemoScenario>(
-          initialValue: _scenario,
-          decoration: const InputDecoration(labelText: 'Demo scenario'),
-          items: const [
-            DropdownMenuItem(
-              value: DemoScenario.populated,
-              child: Text('Sample portfolio'),
-            ),
-            DropdownMenuItem(
-              value: DemoScenario.empty,
-              child: Text('Empty portfolio'),
-            ),
-            DropdownMenuItem(
-              value: DemoScenario.error,
-              child: Text('Repository error'),
+        ExpansionTile(
+          title: const Text('Developer QA scenarios'),
+          children: [
+            DropdownButtonFormField<DemoScenario>(
+              initialValue: _scenario,
+              decoration: const InputDecoration(labelText: 'Demo scenario'),
+              items: const [
+                DropdownMenuItem(
+                  value: DemoScenario.populated,
+                  child: Text('Sample portfolio'),
+                ),
+                DropdownMenuItem(
+                  value: DemoScenario.empty,
+                  child: Text('Empty portfolio'),
+                ),
+                DropdownMenuItem(
+                  value: DemoScenario.error,
+                  child: Text('Repository error'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() => _scenario = value);
+                ref
+                    .read(workspaceProvider.notifier)
+                    .scenario(
+                      value == DemoScenario.empty
+                          ? 'empty'
+                          : value == DemoScenario.error
+                          ? 'failed_operation'
+                          : 'normal',
+                    )
+                    .then(
+                      (_) =>
+                          ref.read(dashboardProvider.notifier).scenario(value),
+                    );
+              },
             ),
           ],
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() => _scenario = value);
-            ref.read(dashboardProvider.notifier).scenario(value);
-          },
         ),
         const SizedBox(height: 16),
         const DemoPanel(
@@ -103,7 +123,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SizedBox(height: 24),
         const Text(
-          'Foundation preview · No backend connected',
+          'Interactive mock · No backend connected',
           textAlign: TextAlign.center,
         ),
       ],
@@ -111,6 +131,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _content(BuildContext context, Dashboard data) {
+    final scope = ref.watch(propertyScopeProvider);
+    data = Dashboard(
+      workspaceName: data.workspaceName,
+      properties: data.properties
+          .where((p) => scope == 'all' || p.id == scope)
+          .toList(),
+      tasks: data.tasks,
+      balances: data.balances,
+    );
     final properties = data.properties
         .where((p) => _kind == 'All' || p.kind == _kind)
         .toList();
@@ -213,21 +242,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               const SizedBox(height: 12),
               Wrap(
                 spacing: 6,
-                children: ['All', 'Residential', 'Commercial', 'Short-let']
-                    .map(
-                      (kind) => FilterChip(
-                        label: Text(kind),
-                        selected: _kind == kind,
-                        onSelected: (_) => setState(() => _kind = kind),
-                      ),
-                    )
-                    .toList(),
+                children:
+                    ['All', 'Residential', 'Commercial', 'Short-let', 'Land']
+                        .map(
+                          (kind) => FilterChip(
+                            label: Text(kind),
+                            selected: _kind == kind,
+                            onSelected: (_) => setState(() => _kind = kind),
+                          ),
+                        )
+                        .toList(),
               ),
               if (properties.isEmpty)
                 const EmptyView(
                   title: 'No sample properties here',
                   message:
-                      'Choose another type, or switch to Sample portfolio. Creation workflows follow in later sections.',
+                      'Choose another type, or switch to Sample portfolio. Create a fictional property to begin.',
                 ),
               ...properties.map(
                 (property) => ListTile(
@@ -301,6 +331,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 16),
+        const DashboardWorkbench(),
         TextButton(
           onPressed: () => context.go('/more'),
           child: const Text('Browse all 30 product areas →'),
@@ -312,20 +343,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _metric(double width, String label, String value, IconData icon) =>
       SizedBox(
         width: width,
-        child: DemoPanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(height: 12),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+        child: InkWell(
+          onTap: () => context.push(
+            label.contains('tasks')
+                ? '/workspace/maintenance'
+                : label.contains('properties')
+                ? '/workspace/properties'
+                : '/workspace/properties?tab=unit',
+          ),
+          child: DemoPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(height: 12),
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(label, style: Theme.of(context).textTheme.bodySmall),
-            ],
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
         ),
       );

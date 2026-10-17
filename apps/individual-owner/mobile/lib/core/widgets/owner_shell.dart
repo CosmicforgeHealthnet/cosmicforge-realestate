@@ -1,8 +1,8 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/dashboard_controller.dart';
 import 'workspace_controls.dart';
+import '../../features/workspace/workspace_controller.dart';
+import '../models/workspace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,14 +27,24 @@ class OwnerShell extends ConsumerWidget {
         : (location.startsWith('/properties/') ||
               location.startsWith('/workspace/properties/'))
         ? 1
+        : location.startsWith('/workspace/listings/')
+        ? 2
+        : location.startsWith('/workspace/financial/')
+        ? 3
         : 4;
     return Scaffold(
       appBar: AppBar(
         leading: location == '/'
             ? const Icon(Icons.apartment_rounded)
             : BackButton(
-                onPressed: () =>
-                    context.canPop() ? context.pop() : context.go('/'),
+                onPressed: () => context.canPop()
+                    ? context.pop()
+                    : context.go(
+                        location.startsWith('/workspace/') &&
+                                location.split('/').length > 3
+                            ? '/workspace/${location.split('/')[2]}'
+                            : '/',
+                      ),
               ),
         title: const Text(
           'CosmicForge',
@@ -44,19 +54,25 @@ class OwnerShell extends ConsumerWidget {
           IconButton(
             tooltip: 'Search workspace',
             icon: const Icon(Icons.search),
-            onPressed: () async {
-              final modules =
-                  (jsonDecode(
-                            await rootBundle.loadString('assets/modules.json'),
-                          )
-                          as List)
-                      .cast<Map<String, dynamic>>();
-              if (!context.mounted) return;
+            onPressed: () {
+              final definition = ref
+                  .read(workspaceDefinitionProvider)
+                  .asData
+                  ?.value;
+              final modules = (definition?['modules'] as List? ?? [])
+                  .cast<Map<String, dynamic>>();
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
                 useSafeArea: true,
-                builder: (context) => _WorkspaceSearch(modules),
+                builder: (context) => _WorkspaceSearch(
+                  modules,
+                  ['permission_denied', 'expired_session'].contains(
+                        ref.read(workspaceProvider).asData?.value.scenario,
+                      )
+                      ? []
+                      : ref.read(workspaceProvider).asData?.value.records ?? [],
+                ),
               );
             },
           ),
@@ -78,6 +94,14 @@ class OwnerShell extends ConsumerWidget {
                   .properties
                   .map((p) => PopupMenuItem(value: p.id, child: Text(p.name))),
               const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: '/workspace/notifications',
+                child: Text('Notifications'),
+              ),
+              const PopupMenuItem(
+                value: '/demo-lab',
+                child: Text('Developer QA'),
+              ),
               const PopupMenuItem(
                 value: '/workspace/identity',
                 child: Text('Profile & security'),
@@ -138,7 +162,8 @@ class OwnerShell extends ConsumerWidget {
 }
 
 class _WorkspaceSearch extends StatefulWidget {
-  const _WorkspaceSearch(this.modules);
+  const _WorkspaceSearch(this.modules, this.records);
+  final List<WorkspaceRecord> records;
   final List<Map<String, dynamic>> modules;
   @override
   State<_WorkspaceSearch> createState() => _WorkspaceSearchState();
@@ -165,24 +190,46 @@ class _WorkspaceSearchState extends State<_WorkspaceSearch> {
           ),
           Expanded(
             child: ListView(
-              children: widget.modules
-                  .where(
-                    (m) => (m['title'] as String).toLowerCase().contains(
-                      search.toLowerCase(),
+              children: [
+                if (search.trim().isNotEmpty)
+                  ...widget.records
+                      .where(
+                        (r) => r.data['title']
+                            .toString()
+                            .toLowerCase()
+                            .contains(search.toLowerCase()),
+                      )
+                      .take(25)
+                      .map(
+                        (r) => ListTile(
+                          title: Text(r.data['title']),
+                          subtitle: Text(r.type),
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.push(
+                              '/workspace/${widget.modules.firstWhere((m) => (m['types'] as List? ?? []).contains(r.type), orElse: () => {'slug': 'properties'})['slug']}/${r.type}/${r.id}',
+                            );
+                          },
+                        ),
+                      ),
+                ...widget.modules
+                    .where(
+                      (m) => (m['title'] as String).toLowerCase().contains(
+                        search.toLowerCase(),
+                      ),
+                    )
+                    .map(
+                      (m) => ListTile(
+                        title: Text(m['title']),
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.push(
+                            m['id'] == '01' ? '/' : '/workspace/${m["slug"]}',
+                          );
+                        },
+                      ),
                     ),
-                  )
-                  .map(
-                    (m) => ListTile(
-                      title: Text(m['title']),
-                      onTap: () {
-                        Navigator.pop(context);
-                        context.push(
-                          m['id'] == '01' ? '/' : '/workspace/${m["slug"]}',
-                        );
-                      },
-                    ),
-                  )
-                  .toList(),
+              ],
             ),
           ),
         ],

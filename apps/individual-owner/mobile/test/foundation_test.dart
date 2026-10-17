@@ -20,7 +20,13 @@ ProviderContainer testContainer() => ProviderContainer(
   overrides: [
     modulesProvider.overrideWith((ref) async => moduleFixture),
     ownerRepositoryProvider.overrideWithValue(
-      MockOwnerRepository(load: () async => fixture),
+      MockOwnerRepository(
+        loadDefinition: () async =>
+            File('assets/workflows.json').readAsStringSync(),
+        loadUniverse: () async =>
+            File('assets/workspace-seed.json').readAsStringSync(),
+        load: () async => fixture,
+      ),
     ),
   ],
 );
@@ -42,7 +48,11 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const ProviderScope(child: OwnerApp()));
+    final container = testContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const OwnerApp()),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Welcome back, Alex.'), findsOneWidget);
     await tester.tap(find.byTooltip('Switch to dark theme'));
@@ -53,13 +63,27 @@ void main() {
     );
     await tester.tap(find.text('Properties').last);
     await tester.pumpAndSettle();
-    expect(find.text('Workflow implementation pending'), findsOneWidget);
-    await tester.tap(find.text('View sample property overview'));
+    expect(find.text('Properties, units, land & assets'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('record-demo-property-01')),
+      300,
+      scrollable: find
+          .byWidgetPredicate(
+            (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+          )
+          .last,
+    );
+    await tester.drag(find.byType(ListView).last, const Offset(0, -250));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('record-demo-property-01')));
     await tester.pumpAndSettle();
     expect(find.text('Sapphire Court · Demo'), findsOneWidget);
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    expect(find.text('Workflow implementation pending'), findsOneWidget);
+    expect(
+      container.read(routerProvider).routeInformationProvider.value.uri.path,
+      '/workspace/properties',
+    );
     await tester.tap(find.text('More').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Insurance');
@@ -67,7 +91,12 @@ void main() {
     expect(find.text('Insurance & protection'), findsOneWidget);
     await tester.tap(find.text('Insurance & protection'));
     await tester.pumpAndSettle();
-    expect(find.text('External capability unavailable'), findsOneWidget);
+    expect(
+      find.text(
+        'No insurer is connected. No policy issuance, coverage guarantee or underwriting is available.',
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
   testWidgets(
@@ -107,7 +136,15 @@ void main() {
       await tester.pumpAndSettle();
       container.read(routerProvider).go('/workspace/settings');
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Save demo preference'));
+      await tester.scrollUntilVisible(
+        find.text('Save demo preference'),
+        300,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .last,
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Save demo preference'));
       await tester.pumpAndSettle();
@@ -116,7 +153,15 @@ void main() {
         find.byType(TextFormField),
         'My fictional workspace',
       );
-      await tester.ensureVisible(find.text('Save demo preference'));
+      await tester.scrollUntilVisible(
+        find.text('Save demo preference'),
+        300,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .last,
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Save demo preference'));
       await tester.pumpAndSettle();
