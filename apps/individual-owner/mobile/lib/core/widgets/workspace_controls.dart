@@ -77,12 +77,38 @@ class StatusChip extends StatelessWidget {
   const StatusChip(this.status, {super.key});
   final String status;
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      status.replaceAll('_', ' '),
-      style: Theme.of(context).textTheme.labelSmall,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final upper = status.toUpperCase();
+    final tone = [
+      'ACTIVE', 'APPROVED', 'COMPLETED', 'PUBLISHED', 'PAID',
+      'ACCEPTED', 'RESOLVED', 'VERIFIED',
+    ].any(upper.contains)
+        ? (Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF58D4BC) : const Color(0xFF087A66))
+        : ['REJECT', 'CANCEL', 'DENIED', 'DISPUT', 'RESTRICT', 'FAILED']
+                .any(upper.contains)
+            ? colors.error
+            : ['PENDING', 'REVIEW', 'DRAFT', 'CORRECTION', 'AWAIT']
+                    .any(upper.contains)
+                ? (Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFFF2BD69) : const Color(0xFF9A6507))
+                : colors.primary;
+    return Chip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+      backgroundColor: tone.withValues(alpha: 0.10),
+      side: BorderSide(color: tone.withValues(alpha: 0.20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+      label: Text(
+        status.replaceAll('_', ' '),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: tone,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 }
 
 class WorkspaceHeading extends StatelessWidget {
@@ -90,16 +116,45 @@ class WorkspaceHeading extends StatelessWidget {
   final String title;
   final String? subtitle;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.headlineSmall),
-        if (subtitle != null) Text(subtitle!),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 19),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 4,
+            height: 46,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [primary, primary.withValues(alpha: 0.28)],
+              ),
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 7),
+                  Text(
+                    subtitle!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 bool isDemoCalendarDate(WorkspaceRecord record, DateTime date) {
