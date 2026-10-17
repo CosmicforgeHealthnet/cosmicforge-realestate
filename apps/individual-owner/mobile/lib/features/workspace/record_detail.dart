@@ -179,6 +179,48 @@ class _RecordDetailState extends ConsumerState<RecordDetail> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 15),
+          padding: const EdgeInsets.fromLTRB(19, 20, 19, 18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(19),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: .14),
+                Theme.of(context).colorScheme.surface,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'WORKSPACE DETAIL',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  letterSpacing: .95,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(record.data['title'].toString(), style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              Text(
+                'A local demonstration record. No external operation, legal transfer or real settlement.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 13),
+              Wrap(spacing: 8, runSpacing: 8, children: [
+                StatusChip(record.status),
+                Chip(label: Text('Version ${record.version}')),
+                Chip(label: Text('${related.length} connected records')),
+              ]),
+            ],
+          ),
+        ),
         DemoPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
