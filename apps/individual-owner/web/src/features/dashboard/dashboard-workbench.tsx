@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import type {CSSProperties} from 'react';
 import {useRouter} from 'next/navigation';
 import {ArrowRight,ArrowUpRight,Bell,CalendarDays,ChartNoAxesCombined,Clock3,Wrench} from 'lucide-react';
 import {useWorkspace,recordPath,deriveWorkspace} from '@/features/workspace/use-workspace';
@@ -40,7 +41,7 @@ export function DashboardWorkbench(){
       </section>
       <section className="card owner-performance" aria-labelledby="owner-performance-title">
         <div className="owner-section-header"><div><span className="eyebrow">LIVE IN THIS DEMO</span><h2 id="owner-performance-title">Portfolio intelligence</h2></div><ChartNoAxesCombined size={23} aria-hidden="true"/></div>
-        <div className="owner-occupancy-visual"><div className="owner-occupancy-ring" style={{'--owner-fill':`${occupancy}%`} as React.CSSProperties}><div><strong>{Math.round(occupancy)}%</strong><span>Occupancy</span></div></div><div><h3>Healthy visibility into your assets</h3><p>Occupancy is calculated from fictional unit records, not an invented revenue trend.</p><Link href="/workspace/reports">Explore all insights <ArrowUpRight size={14} aria-hidden="true"/></Link></div></div>
+        <div className="owner-occupancy-visual"><div className="owner-occupancy-ring" style={{'--owner-fill':`${occupancy}%`} as CSSProperties}><div><strong>{Math.round(occupancy)}%</strong><span>Occupancy</span></div></div><div><h3>Healthy visibility into your assets</h3><p>Occupancy is calculated from fictional unit records, not an invented revenue trend.</p><Link href="/workspace/reports">Explore all insights <ArrowUpRight size={14} aria-hidden="true"/></Link></div></div>
         <div className="owner-performance-stats">{stats.map(s=><div key={s.label}><span>{s.label}</span><strong>{s.value}</strong></div>)}</div>
         <div className="owner-performance-note">Figures refresh from the active mock portfolio and selected property scope.</div>
       </section>
