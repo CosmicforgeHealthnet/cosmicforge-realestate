@@ -34,6 +34,17 @@ class _RecordFormState extends ConsumerState<RecordForm> {
   bool _saving = false;
   String _message = '';
   List<Json> get _fields => (widget.spec['fields'] as List).cast<Json>();
+  static const _wizardLabels = <String, List<String>>{
+    'property':['Property profile','Units & attributes','Review property'],
+    'listing':['Choose property','Presentation & terms','Preview listing'],
+    'application':['Applicant details','Supporting evidence','Review decision'],
+    'verification':['Choose property','Evidence details','Submit for demo'],
+    'agreement':['Agreement parties','Terms & dates','Review agreement'],
+    'booking':['Guest & unit','Stay dates','Review booking'],
+    'maintenance':['Describe issue','Schedule & evidence','Review request'],
+    'sale':['Offer details','Due diligence','Closing milestones'],
+  };
+
   @override
   void initState() {
     super.initState();
@@ -146,8 +157,32 @@ class _RecordFormState extends ConsumerState<RecordForm> {
                   : 'Edit ${widget.spec["label"]}',
               subtitle: 'Step ${_step + 1} / $groups · Fictional data only',
             ),
-            const Text(
-              'Records stay local. Evidence selection stores only filename metadata; no document is uploaded.',
+            if (groups > 1) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(7),
+                child: LinearProgressIndicator(
+                  value: (_step + 1) / groups,
+                  minHeight: 7,
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                (_wizardLabels[widget.spec['id']] ?? ['General information','Details & relationships','Review demo record'])[_step],
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 14),
+            ],
+            Container(
+              padding: const EdgeInsets.all(13),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: .055),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Fictional information only. Changes stay in this demo; selected evidence stores filename metadata, never file contents.',
+              ),
             ),
             const SizedBox(height: 20),
             ...fields.map(field),
