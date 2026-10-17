@@ -1,0 +1,3 @@
+# Integrity baseline must retain exact archive bytes on every checkout, including Windows.
+stitch_individual_owner_design_system.zip -text
+design/stitch/original/** -text

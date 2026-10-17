@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'on-error': '#ffffff', 'on-primary-fixed': '#00164e', 'secondary-container': '#9cf3e1', 'tertiary-fixed': '#dce1ff', 'surface-container': '#e7eeff', 'brand-sapphire': '#2459E0', 'status-danger': '#C93647', 'finance-held': '#7048E8', 'on-tertiary-container': '#dce1ff', 'on-primary': '#ffffff', 'on-surface-variant': '#434654', 'on-secondary': '#ffffff', 'surface-container-low': '#f0f3ff', 'border-default': '#DCE4F0', 'surface-variant': '#d5e3ff', 'surface-container-highest': '#d5e3ff', 'text-dark': '#ECF3FF', 'status-positive-dark': '#58D4BC', 'surface-tint': '#1852d9', 'surface-bright': '#f9f9ff', 'status-warning': '#9A6507', 'on-tertiary-fixed-variant': '#053ab0', 'on-secondary-fixed-variant': '#005046', 'ink-secondary': '#536479', 'canvas-dark': '#0C1525', 'surface': '#f9f9ff', 'primary-fixed': '#dce1ff', 'card-light': '#FFFFFF', 'on-background': '#0c1c31', 'brand-hover': '#1743B8', 'secondary': '#006b5d', 'tertiary-fixed-dim': '#b6c4ff', 'on-tertiary-fixed': '#001550', 'error': '#ba1a1a', 'finance-available': '#087A66', 'secondary-fixed': '#9cf3e1', 'on-tertiary': '#ffffff', 'primary-container': '#2459e0', 'surface-dim': '#ccdbf8', 'ink-primary': '#17263C', 'outline': '#747686', 'text-dark-secondary': '#ADC0D9', 'on-secondary-fixed': '#00201b', 'on-error-container': '#93000a', 'surface-container-high': '#dee8ff', 'background': '#f9f9ff', 'inverse-primary': '#b5c4ff', 'on-secondary-container': '#037163', 'outline-variant': '#c3c5d7', 'brand-dark-action': '#6C96FF', 'tertiary': '#1441b6', 'card-dark': '#17253A', 'secondary-fixed-dim': '#80d6c5', 'on-primary-fixed-variant': '#003baf', 'surface-container-lowest': '#ffffff', 'border-dark': '#344966', 'canvas-light': '#F6F8FC', 'status-warning-dark': '#F2BD69', 'status-positive': '#087A66', 'finance-pending': '#2459E0', 'on-primary-container': '#dce1ff', 'status-danger-dark': '#FF8694', 'finance-restricted': '#C93647', 'inverse-surface': '#223147', 'inverse-on-surface': '#ebf1ff', 'surface-subtle-light': '#EDF2FA', 'primary': '#0041bc', 'primary-fixed-dim': '#b5c4ff', 'error-container': '#ffdad6', 'on-surface': '#0c1c31', 'surface-subtle-dark': '#1E3048', 'tertiary-container': '#375bcf' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': { 'gutter': '1.5rem', 'gutter-mobile': '1rem', 'space-xl': '2rem', 'space-sm': '0.5rem', 'space-xs': '0.25rem', 'space-lg': '1.5rem', 'margin': '2rem', 'space-md': '1rem', 'margin-mobile': '1rem' }, 'fontFamily': { 'headline-sm': ['Inter'], 'label-md': ['Inter'], 'display-hero-mobile': ['Inter'], 'headline-lg-mobile': ['Inter'], 'headline-md': ['Inter'], 'headline-lg': ['Inter'], 'body-md': ['Inter'], 'body-bold': ['Inter'], 'meta-numeric': ['Inter'], 'display-hero': ['Inter'], 'body-lg': ['Inter'], 'label-sm': ['Inter'] }, 'fontSize': { 'headline-sm': ['18px', { 'lineHeight': '26px', 'fontWeight': '600' }], 'label-md': ['13px', { 'lineHeight': '18px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'display-hero-mobile': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '700' }], 'headline-lg-mobile': ['26px', { 'lineHeight': '34px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'headline-md': ['22px', { 'lineHeight': '30px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'headline-lg': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '600' }], 'body-md': ['14px', { 'lineHeight': '20px', 'fontWeight': '400' }], 'body-bold': ['14px', { 'lineHeight': '20px', 'fontWeight': '600' }], 'meta-numeric': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.03em', 'fontWeight': '600' }], 'display-hero': ['44px', { 'lineHeight': '52px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'body-lg': ['16px', { 'lineHeight': '24px', 'fontWeight': '400' }], 'label-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.02em', 'fontWeight': '500' }] } } } }</script></head><body class="bg-canvas-light text-on-surface font-body-md min-h-screen"><aside class="fixed left-0 top-0 h-screen w-[248px] bg-card-light border-r border-border-default z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-[72px] px-space-md border-b border-border-default flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-sm min-w-0"><img alt="CosmicForge Real Estate Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UzOze_DVp8fg8BQyy4Ch8YsarjeBEL4tGTYGh06366nhw_6pzXTdEWeyKpQ84KY2ekWz62dTRLfGDRdeTgU_96Sv0TomOuAwL6F3F3IKIvszHUjKfb4N79iyXYVc0TbY6gHw_73VH9WUrOVnqFWFfDOpILlw0P9Gd3JwV1yJU90HlAfua5gvCsEXLaagCg6wr8-Q_Ndhb8m3WpRji0hWQMaxzDp5sP7v0fSkzTAqr5Xtfvd117ARpCriw"/><div class="flex flex-col min-w-0 leading-tight"><span class="font-body-bold text-body-bold text-ink-primary truncate">CosmicForge</span><span class="font-label-sm text-label-sm text-ink-secondary">Real Estate</span></div></div><span class="font-label-sm text-label-sm bg-surface-subtle-light text-ink-secondary px-space-xs py-0.5 rounded border border-border-default whitespace-nowrap">Owner</span></div><div class="p-space-sm border-b border-border-default"><label class="font-label-sm text-label-sm text-ink-secondary block mb-space-xs uppercase tracking-wider font-semibold">Portfolio Focus</label><div class="relative"><select class="w-full h-9 bg-canvas-light border border-border-default rounded-lg px-space-sm pr-7 font-label-md text-label-md text-ink-primary appearance-none focus:outline-none focus:border-brand-sapphire cursor-pointer"><option value="all">All Properties (6)</option><option value="ikoyi">Penthouse A - Ikoyi (Let)</option><option value="lekki-1">4-Bed Terrace - Lekki I (Vacant)</option><option value="victoria-island">Commercial Floor - VI (Active)</option><option value="banana-island">Villa 9 - Banana Island (Short-Let)</option><option value="maitama">Duplex B - Maitama (Renovation)</option><option value="maryland">Retail Plaza - Maryland (Let)</option></select><span class="material-symbols-outlined absolute right-2 top-2 text-ink-secondary pointer-events-none text-[18px]">unfold_more</span></div></div><nav class="p-space-sm space-y-1" data-active-classes="bg-brand-sapphire text-on-primary font-semibold shadow-[0_2px_8px_rgba(36,89,224,0.2)]"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="properties" href="#"><span class="material-symbols-outlined text-[20px]">apartment</span><span>Properties</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="listings" href="#"><span class="material-symbols-outlined text-[20px]">storefront</span><span>Listings</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="leads-viewings" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span>Leads &amp; Viewings</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="tenancies-rent" href="#"><span class="material-symbols-outlined text-[20px]">real_estate_agent</span><span>Tenancies &amp; Rent</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="short-lets" href="#"><span class="material-symbols-outlined text-[20px]">hotel</span><span>Short-Lets</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="maintenance" href="#"><span class="material-symbols-outlined text-[20px]">build_circle</span><span>Maintenance</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="finance-wallet" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span>Finance &amp; Wallet</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="reports" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Reports</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav></div><div class="p-space-sm border-t border-border-default"><div class="bg-canvas-light rounded-lg p-space-sm border border-border-default"><div class="flex items-center justify-between mb-1"><span class="font-label-sm text-label-sm text-ink-secondary">Ledger Sync</span><span class="h-2 w-2 rounded-full bg-status-positive"></span></div><p class="font-meta-numeric text-meta-numeric text-ink-primary font-semibold">14:28:02 UTC - Verified</p></div></div></aside><div class="pl-[248px]"><header class="fixed top-0 left-[248px] right-0 h-[72px] bg-card-light/95 backdrop-blur-md border-b border-border-default z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-[#E6F5F2] border border-[#BCE8DF] text-status-positive font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span><span class="font-medium">Gateway: Connected / v1.4</span></div><div class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-subtle-light border border-border-default text-ink-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-brand-sapphire">verified_user</span><span class="font-medium">MFA Verified</span></div></div><div class="flex items-center gap-space-md"><button aria-label="Notifications" class="relative p-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors border border-border-default" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute -top-1 -right-1 w-5 h-5 bg-status-danger text-on-error font-label-sm text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-card-light">3</span></button><div class="h-8 w-px bg-border-default"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-border-default flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTywOfGXRa2DBfBm6Lrk7qwJWnkG4x_hzsu-QmElS4nfLphK5FQHSPinq9sjSjmwJq6Rj59Sl3RcYcIsSHyPXeeRgZ2LoLCqMmxUFogl2slskQgfgP6bqHjEe7pzP84p83D6BXmbuXoK45EutiCxsQ7mDiWT5525AXPcWtDxEtLqnb0xEqX-gqja4TDTcZOjLFmo8haR2EPUR-GXbjOZuK6MhtA7QwiFKCPdATV5WDBXE_Cs6sz6b6gg"/><div class="flex flex-col text-left"><span class="font-body-bold text-body-bold text-ink-primary leading-tight">Adeyemi Cole</span><span class="font-label-sm text-label-sm text-ink-secondary">Individual Owner</span></div><button aria-label="Account actions" class="text-ink-secondary hover:text-ink-primary" type="button"><span class="material-symbols-outlined text-[18px]">expand_more</span></button></div></div></header><main class="w-full pt-[72px] bg-canvas-light min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Breadcrumb & Metadata Header Bar -->
+<div class="bg-card-light px-space-lg py-space-md shadow-sm">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-ink-secondary">
+<a class="hover:text-brand-sapphire transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">domain</span>
+<span>Properties</span>
+</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-ink-secondary">Ikoyi Prime Holdings</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-ink-primary font-semibold">The Sapphire Horizon</span>
+<span class="bg-surface-subtle-light text-brand-sapphire font-meta-numeric text-meta-numeric px-2 py-0.5 rounded ml-2">PR-IKY-004</span>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<div class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-secondary-container/30 text-status-positive font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-medium">Lands Bureau Registered (C of O: 48/48/1992)</span>
+</div>
+<div class="flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-subtle-light text-ink-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-brand-sapphire">shield_person</span>
+<span>Sole Sovereign Principal: Adeyemi Cole (100%)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto w-full px-space-lg py-space-lg space-y-space-lg">
+<!-- Property Title & Headline Block -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="bg-surface-subtle-light text-ink-secondary font-label-sm text-label-sm px-2.5 py-1 rounded-full uppercase tracking-wider">Multi-Unit Residential Luxury</span>
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-brand-sapphire">location_on</span>
+            Bourdillon Road, Ikoyi, Lagos, Nigeria (WAT GMT+1)
+          </span>
+<span class="w-1.5 h-1.5 rounded-full bg-border-default"></span>
+<span class="text-status-positive font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-status-positive"></span> Fully Tenanted (Gross Yield 8.2%)
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ink-primary">The Sapphire Horizon, Ikoyi</h1>
+</div>
+<!-- Quick Action Bar -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="h-10 px-space-sm rounded-lg bg-card-light hover:bg-surface-subtle-light text-ink-primary font-label-md text-label-md shadow-sm transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">add_home</span>
+<span>Add Unit</span>
+</button>
+<button class="h-10 px-space-sm rounded-lg bg-card-light hover:bg-surface-subtle-light text-ink-primary font-label-md text-label-md shadow-sm transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">share_windows</span>
+<span>Create Listing</span>
+</button>
+<button class="h-10 px-space-sm rounded-lg bg-card-light hover:bg-surface-subtle-light text-ink-primary font-label-md text-label-md shadow-sm transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">event_repeat</span>
+<span>Schedule Inspection</span>
+</button>
+<button class="h-10 px-space-sm rounded-lg bg-card-light hover:bg-surface-subtle-light text-ink-primary font-label-md text-label-md shadow-sm transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">manage_accounts</span>
+<span>Delegate Access</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-label-md text-label-md shadow-sm transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Share Proof of Title</span>
+</button>
+</div>
+</div>
+<!-- Gallery & Media Component -->
+<div class="bg-card-light rounded-xl overflow-hidden shadow-sm p-space-sm">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-space-sm h-[420px]">
+<!-- Primary Showcase Stage -->
+<div class="lg:col-span-3 relative h-full rounded-lg overflow-hidden group">
+<img alt="The Sapphire Horizon Exterior" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="High-angle daylight photograph of a stunning ultra-modern three-storey luxury residential villa on Bourdillon Road Ikoyi Lagos. Flawless white architectural render, expansive frameless glass curtains, teakwood panelling, manicured subtropical landscape with tall royal palms and sapphire blue pool reflection under clear Nigerian sky." id="mainGalleryViewer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4UhN2tDzU9roEnNiZinfahbCd9P7Lpp_kX1ZuOO0RtC5hDsoLaEwbTZiKq_x_0MwafC76lYma28_-gtwelg95qYHCls58U0OAYymbGTb7zYJG20FdkpKH0jDETJ6ETgZwOXS-Bus1e3pf3zx_AtJQ7m9qjr_MyAv1vvHymugktpO_HaqUUqY9GbK_j4sNtadSMgs5jkrTwv6_UgKb24uWMuOZ6iD6QIKT6MzSqiBeIo40TOP9TpE7uQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-dark/80 via-transparent to-black/20 flex flex-col justify-between p-space-md pointer-events-none">
+<div class="flex items-center justify-between">
+<span class="bg-card-dark/80 text-text-dark font-label-sm text-label-sm px-3 py-1 rounded backdrop-blur-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-status-positive-dark">photo_camera</span>
+                Cadastral Photographic Record #PH-2026-09
+              </span>
+<span class="bg-brand-sapphire text-on-primary font-label-sm text-label-sm px-2.5 py-0.5 rounded font-semibold tracking-wide">
+                4K HDR Drone Provenance
+              </span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<p class="text-text-dark font-headline-sm text-headline-sm">Waterfront Perimeter &amp; Modernist Façade</p>
+<p class="text-text-dark-secondary font-label-sm text-label-sm">Surveyed by Lagos State Surveyor General GIS Division</p>
+</div>
+<button class="pointer-events-auto bg-card-light/90 hover:bg-card-light text-ink-primary p-2 rounded-lg backdrop-blur-sm transition-colors flex items-center gap-1 font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+<span>Enlarge (12 Photos)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Thumbnails Column -->
+<div class="hidden lg:flex flex-col gap-space-sm h-full overflow-hidden">
+<div class="relative h-1/3 rounded-lg overflow-hidden cursor-pointer group shadow-sm ring-2 ring-brand-sapphire" onclick="switchMedia(this, 'placeholder', 'Luxury penthouse living room interior with double height ceiling in Ikoyi Lagos, rich walnut accents, designer Italian furniture in neutral tones, vast floor-to-ceiling panoramic windows overlooking Lagos lagoon, ambient sapphire recessed lighting.')">
+<img alt="Penthouse Great Room" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Luxury penthouse living room interior with double height ceiling in Ikoyi Lagos, rich walnut accents, designer Italian furniture in neutral tones, vast floor-to-ceiling panoramic windows overlooking Lagos lagoon, ambient sapphire recessed lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtte43DGNoDyKTGCYcU9kge_w404mN2G1rFNH1OU-4TSthRT7APLzuDvK1vkjqJuw_6ty7cxWRIZe5KlDzf0U3IkwO5Opm1BHwm_rVD-35k4TZwt1Ek2rLjt_NYfCw3js8QndNUE5UDVde6ZEjAZ3mGi1Cf354CVy8g99aqrTYw3EaccZeGioAI3dbBNx3AVLZgBsXI818_l_yoEYMOtyXCkdJAWDgB0ukhLBdwrHz0MRHq3m4zOmcpQ"/>
+<div class="absolute inset-0 bg-canvas-dark/30 group-hover:bg-transparent transition-colors flex items-center justify-center">
+<span class="bg-card-dark/80 text-text-dark font-label-sm text-[11px] px-2 py-0.5 rounded">Unit 4A: Great Room</span>
+</div>
+</div>
+<div class="relative h-1/3 rounded-lg overflow-hidden cursor-pointer group shadow-sm opacity-80 hover:opacity-100 transition-opacity" onclick="switchMedia(this, 'placeholder', 'Architectural photograph of a sleek designer open-concept German kitchen with marble waterfall island, built-in Miele appliances, matte charcoal cabinets, warm under-cabinet LED illumination in Ikoyi residence.')">
+<img alt="Executive Kitchen" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Architectural photograph of a sleek designer open-concept German kitchen with marble waterfall island, built-in Miele appliances, matte charcoal cabinets, warm under-cabinet LED illumination in Ikoyi residence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8qpBr66RirfEh4dYrRlT2v4VdqGUsw0hFT41g9OTvsX6hGphOzt6Kqm1rQzS3QgQwsFKltaFEjTIkv2eanjM4uV9Pob45BnKLvpJ2Zf4he0v1cH_93r0HctiBN5cagaoTU8WTxPhsix7aXXAJuuS1xsE767uz4TvYKq8R9p5q_41mGMC3FY1TZLeclqWVQYPZHKOvh4xZeGrRTeIasUxsgQ24qNhWwKy1f2XGYyRqLhJ55otZha3IVA"/>
+<div class="absolute inset-0 bg-canvas-dark/30 group-hover:bg-transparent transition-colors flex items-center justify-center">
+<span class="bg-card-dark/80 text-text-dark font-label-sm text-[11px] px-2 py-0.5 rounded">Unit 4B: Kitchenette</span>
+</div>
+</div>
+<div class="relative h-1/3 rounded-lg overflow-hidden cursor-pointer group shadow-sm opacity-80 hover:opacity-100 transition-opacity" onclick="switchMedia(this, 'placeholder', 'High-end engineering infrastructure shot showing clean dedicated 25kVA Victron smart solar inverter banks, lithium rack batteries, and neat cable management in an air-conditioned residential utility room in Ikoyi.')">
+<img alt="Power Infrastructure" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="High-end engineering infrastructure shot showing clean dedicated 25kVA Victron smart solar inverter banks, lithium rack batteries, and neat cable management in an air-conditioned residential utility room in Ikoyi." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLzCtUPfwImy8nPkSfrOyCVq5Wad1thnMLZ9xCXtJ6cWBD4d0S6G3RR33O7zNmqe34MIKBNVwg4nQfJSPjSl-qNzPC8byoxVYqNAw0r4AosCpkU3QTEZc7050cuwodl6AlZ3sTYpHwp75wUL5N9NQ7RT24p17xc_K0gpwOXmsnd_zw2QpWhjvv--F49vdcO9xoDKfe9QERsTvZjbM2SyZoThnBZS71unTpBXKg93B-iJ6mqOty49u9bA"/>
+<div class="absolute inset-0 bg-canvas-dark/40 group-hover:bg-transparent transition-colors flex items-center justify-center">
+<span class="bg-card-dark/80 text-text-dark font-label-sm text-[11px] px-2 py-0.5 rounded">Plant: 25kVA Solar &amp; Gen</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Architectural Deep Tabs -->
+<div class="bg-card-light rounded-xl shadow-sm p-1">
+<div class="flex items-center overflow-x-auto gap-1 text-ink-secondary scrollbar-none font-label-md text-label-md">
+<button class="px-space-md py-2.5 rounded-lg bg-brand-sapphire text-on-primary font-semibold flex items-center gap-2 whitespace-nowrap shadow-sm">
+<span class="material-symbols-outlined text-[18px]">space_dashboard</span>
+<span>Overview &amp; Specs</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">meeting_room</span>
+<span>Units &amp; Occupancy</span>
+<span class="bg-surface-subtle-light px-1.5 py-0.2 rounded-full font-meta-numeric text-[11px]">2</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Legal &amp; Title Deeds</span>
+<span class="w-2 h-2 rounded-full bg-status-positive"></span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+<span>Active Syndication</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">contract</span>
+<span>Tenancies &amp; Leases</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">build</span>
+<span>Maintenance &amp; Directives</span>
+<span class="bg-error-container text-status-danger px-1.5 py-0.2 rounded-full font-meta-numeric text-[11px]">1 Open</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+<span>Escrow &amp; Ledgers</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg hover:bg-surface-subtle-light text-ink-secondary hover:text-ink-primary flex items-center gap-2 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">history_toggle_off</span>
+<span>Audit Logs</span>
+</button>
+</div>
+</div>
+<!-- Primary Layout Grid: 2/3 Content vs 1/3 Side Rail -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left 2/3 Content Workspace -->
+<div class="lg:col-span-8 space-y-space-lg">
+<!-- Architectural Specifications Grid -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<h2 class="font-headline-sm text-headline-sm text-ink-primary">Engineering &amp; Architectural Specifications</h2>
+<p class="font-body-md text-body-md text-ink-secondary">Direct physical ledger parameters calibrated on last architectural site audit</p>
+</div>
+<span class="bg-surface-subtle-light text-ink-primary font-meta-numeric text-meta-numeric px-2.5 py-1 rounded">Audit Ref: ARC-2025-IKY</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-space-md pt-space-xs">
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">straighten</span>
+                Gross Internal Area
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">850 m²</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">Footprint: 340 m²</p>
+</div>
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">layers</span>
+                Structure Elevation
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">3 Levels + Roof</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">Reinforced Concrete Core</p>
+</div>
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">bed</span>
+                Accommodations
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">6 En-suite Beds</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">Plus 2 Attached BQs</p>
+</div>
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">solar_power</span>
+                Energy Autonomy
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">25kVA Hybrid</p>
+<p class="font-meta-numeric text-[11px] text-status-positive font-medium">40kWh LiFePO4 Online</p>
+</div>
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">electric_meter</span>
+                Grid Connection
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">Dedicated 100kVA</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">EKEDC Priority Feeder</p>
+</div>
+<div class="p-space-sm rounded-lg bg-canvas-light space-y-1">
+<span class="text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">directions_car</span>
+                Vehicular Staging
+              </span>
+<p class="font-headline-sm text-headline-sm text-ink-primary font-semibold">4 Covered Bays</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">Integrated Level 2 EVSE</p>
+</div>
+</div>
+</div>
+<!-- Sub-Units Partitioning Ledger -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary">Unit Partitions &amp; Occupancy Ledger</h2>
+<p class="font-body-md text-body-md text-ink-secondary">Segmented operational rights under master Title 48/48/1992</p>
+</div>
+<button class="text-brand-sapphire hover:text-brand-hover font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">tune</span> Configure Allocations
+            </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="bg-surface-subtle-light text-ink-secondary font-label-sm text-label-sm uppercase">
+<th class="py-3 px-space-md rounded-l-lg">Unit Ref &amp; Name</th>
+<th class="py-3 px-space-md">Classification</th>
+<th class="py-3 px-space-md">Floor Level</th>
+<th class="py-3 px-space-md">Occupant / Status</th>
+<th class="py-3 px-space-md text-right rounded-r-lg">Contracted Rate</th>
+</tr>
+</thead>
+<tbody class="space-y-1">
+<tr class="bg-card-light hover:bg-canvas-light transition-colors">
+<td class="py-4 px-space-md font-semibold text-ink-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[20px]">apartment</span>
+<div>
+<span>Unit 4A: Penthouse Triplex</span>
+<span class="block font-meta-numeric text-[11px] text-ink-secondary">UID-IKY-004-A (520 sqm)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-subtle-light text-ink-primary font-label-sm text-label-sm">3-Bed Penthouse</span>
+</td>
+<td class="py-4 px-space-md text-ink-secondary">Levels 2 &amp; 3</td>
+<td class="py-4 px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/30 text-status-positive font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span>Leased: Dr. Adeleke</span>
+</span>
+</td>
+<td class="py-4 px-space-md text-right font-meta-numeric text-body-bold text-ink-primary">
+                    ₦18,000,000 <span class="font-normal text-ink-secondary text-[12px]">/yr</span>
+</td>
+</tr>
+<tr class="bg-card-light hover:bg-canvas-light transition-colors">
+<td class="py-4 px-space-md font-semibold text-ink-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[20px]">villa</span>
+<div>
+<span>Unit 4B: Garden Executive Suite</span>
+<span class="block font-meta-numeric text-[11px] text-ink-secondary">UID-IKY-004-B (330 sqm)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-subtle-light text-ink-primary font-label-sm text-label-sm">2-Bed Suite</span>
+</td>
+<td class="py-4 px-space-md text-ink-secondary">Level 1 (Ground)</td>
+<td class="py-4 px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Ready for Syndication</span>
+</span>
+</td>
+<td class="py-4 px-space-md text-right font-meta-numeric text-body-bold text-ink-primary">
+                    ₦150,000 <span class="font-normal text-ink-secondary text-[12px]">/night</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Active Lease Deep Card -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<span class="text-brand-sapphire font-label-sm text-label-sm font-semibold tracking-wider uppercase">Active Binding Tenancy</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Primary Lease: Unit 4A (Penthouse)</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container/40 text-status-positive font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">shield</span> Verified KYC &amp; Sanctions Clear
+              </span>
+</div>
+</div>
+<div class="bg-canvas-light rounded-lg p-space-md grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-ink-secondary block">Tenant Identity</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-8 h-8 rounded-full bg-brand-sapphire text-on-primary flex items-center justify-center font-bold text-label-md">
+                  BA
+                </div>
+<div>
+<p class="font-body-bold text-body-bold text-ink-primary leading-tight">Dr. Babatunde Adeleke</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">NIN: Verified / Tier 3</p>
+</div>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-ink-secondary block">Lease Span &amp; Renewal</span>
+<p class="font-body-bold text-body-bold text-ink-primary mt-1">Nov 15, 2024 → Nov 14, 2027</p>
+<p class="font-label-sm text-label-sm text-status-positive">Next Advance Due: Nov 2026</p>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-ink-secondary block">Ring-Fenced Cautionary Deposit</span>
+<p class="font-meta-numeric text-headline-sm text-headline-sm text-finance-available mt-1 font-bold">₦4,500,000.00</p>
+<p class="font-meta-numeric text-[11px] text-ink-secondary">Standard Escrow ID: #ESC-9082</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between pt-space-xs text-ink-secondary font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">verified</span>
+              Tenancy Agreement stamped &amp; uploaded to Lagos State Registry
+            </span>
+<div class="flex items-center gap-3">
+<a class="text-brand-sapphire hover:underline font-medium" href="#">Download Stamped Deed</a>
+<span class="text-border-default">|</span>
+<a class="text-brand-sapphire hover:underline font-medium" href="#">View Rent Schedule</a>
+</div>
+</div>
+</div>
+<!-- Cadastral Survey & Interactive Floorplan Viewport -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary">Cadastral Survey &amp; Geo-Spatial Perimeter</h2>
+<p class="font-body-md text-body-md text-ink-secondary">Beacon plan co-ordinates authenticated by Lagos Land Registry</p>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary bg-surface-subtle-light px-2 py-1 rounded">Beacon: LK/BK/773</span>
+</div>
+</div>
+<div class="relative w-full h-72 rounded-lg overflow-hidden bg-surface-subtle-dark">
+<div class="w-full h-full bg-cover bg-center" data-location="Bourdillon Road, Ikoyi, Lagos, Nigeria" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8D2O1dRTvNp7stfTkCbCJIHdpL4PbJ_gEyvBcX9zOSHMESTG2oPAIlIrZlGB6UAduzMXeIeqmg3Tka-PrIbs-E5cPvOKuXXvh66hOwonUtPHqqTZRvlTd1xdqtiS88Iijb9HfmKgoDmSfY5_hm-HF1T15Z-mryWVCT7BB5PJh30t_RTFXCef6LdL-y8cs_cc6ZfhHgOtx3ZDuf0hhrXK7pGIrM8AHs-ZzfecN8ExjRrG8A3F1ltWaaw');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-dark via-transparent to-black/30 pointer-events-none p-space-md flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-card-dark/90 text-text-dark font-meta-numeric text-[11px] px-2.5 py-1 rounded">
+                  GPS: 6.4531° N, 3.4394° E
+                </span>
+<span class="bg-finance-available text-on-primary font-label-sm text-label-sm px-2 py-0.5 rounded font-medium">
+                  Boundary Fixed
+                </span>
+</div>
+<div class="bg-card-dark/85 backdrop-blur-md p-space-sm rounded-lg flex items-center justify-between pointer-events-auto">
+<div class="flex items-center gap-space-sm text-text-dark font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-brand-dark-action text-[20px]">architecture</span>
+<span>Registered Survey Plan No: LS/D/LA/92/083 (Lagos Geographic Information System)</span>
+</div>
+<button class="bg-surface-subtle-dark hover:bg-card-dark text-text-dark px-3 py-1 rounded font-label-sm text-label-sm transition-colors">
+                  Inspect Digital Beacons
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right 1/3 Action & Governance Rail -->
+<div class="lg:col-span-4 space-y-space-lg">
+<!-- Property Health & Governance Card -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-status-positive">security</span>
+              Sovereign Title Health
+            </span>
+<span class="bg-secondary-container/40 text-status-positive font-meta-numeric text-meta-numeric px-2 py-0.5 rounded font-bold">100% SECURE</span>
+</div>
+<div class="space-y-3 font-body-md text-body-md">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-status-positive text-[18px] shrink-0 mt-0.5">check_circle</span>
+<div>
+<p class="font-body-bold text-body-bold text-ink-primary">Certificate of Occupancy (C of O)</p>
+<p class="font-label-sm text-label-sm text-ink-secondary">Vol 48, Page 48, Lands Registry Lagos. Absolute unencumbered holding.</p>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-status-positive text-[18px] shrink-0 mt-0.5">check_circle</span>
+<div>
+<p class="font-body-bold text-body-bold text-ink-primary">No Active Caveats or Lis Pendens</p>
+<p class="font-label-sm text-label-sm text-ink-secondary">Judicial search completed via High Court of Lagos State (Jan 2026).</p>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-status-positive text-[18px] shrink-0 mt-0.5">check_circle</span>
+<div>
+<p class="font-body-bold text-body-bold text-ink-primary">Governor's Consent on File</p>
+<p class="font-label-sm text-label-sm text-ink-secondary">Fully perfected transfer instrument to Adeyemi Cole.</p>
+</div>
+</div>
+</div>
+<div class="pt-space-xs">
+<button class="w-full h-10 rounded-lg bg-surface-subtle-light hover:bg-canvas-light text-ink-primary font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">history_edu</span>
+<span>View Immutable Legal Vault</span>
+</button>
+</div>
+</div>
+<!-- Financial & Yield Snapshot -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-brand-sapphire">account_balance_wallet</span>
+              Asset Financial Ledger
+            </span>
+<span class="text-ink-secondary font-meta-numeric text-[11px]">FY 2025/2026</span>
+</div>
+<!-- Balance Bucket Summary -->
+<div class="space-y-space-sm">
+<div class="p-space-sm bg-canvas-light rounded-lg">
+<div class="flex items-center justify-between text-ink-secondary font-label-sm text-label-sm mb-1">
+<span>Total YTD Collections</span>
+<span class="text-status-positive font-medium">Disbursed</span>
+</div>
+<p class="font-headline-sm text-headline-sm font-bold text-ink-primary">₦36,000,000.00</p>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="p-space-sm bg-canvas-light rounded-lg">
+<span class="text-ink-secondary font-label-sm text-label-sm block mb-1">Escrow Cautionary</span>
+<p class="font-body-bold text-body-bold text-finance-available font-bold">₦4,500,000</p>
+<span class="font-meta-numeric text-[10px] text-ink-secondary">Ring-fenced</span>
+</div>
+<div class="p-space-sm bg-canvas-light rounded-lg">
+<span class="text-ink-secondary font-label-sm text-label-sm block mb-1">Maintenance Reserve</span>
+<p class="font-body-bold text-body-bold text-ink-primary font-bold">₦1,200,000</p>
+<span class="font-meta-numeric text-[10px] text-ink-secondary">Liquid</span>
+</div>
+</div>
+</div>
+<!-- Quick Ledger Activity -->
+<div class="space-y-2 pt-space-xs">
+<span class="text-ink-secondary font-label-sm text-label-sm uppercase font-semibold">Latest Asset Transactions</span>
+<div class="space-y-1.5 text-label-sm">
+<div class="flex items-center justify-between py-1">
+<div class="flex items-center gap-1.5 truncate">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span class="text-ink-primary truncate">Unit 4A Annual Advance</span>
+</div>
+<span class="font-meta-numeric text-ink-primary font-medium shrink-0">+₦18,000,000</span>
+</div>
+<div class="flex items-center justify-between py-1">
+<div class="flex items-center gap-1.5 truncate">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+<span class="text-ink-primary truncate">Chiller Inverter Service</span>
+</div>
+<span class="font-meta-numeric text-status-danger font-medium shrink-0">-₦145,000</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Scoped Delegation / Manager Control -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-ink-secondary">supervisor_account</span>
+              Designated Site Operator
+            </span>
+<span class="px-2 py-0.5 rounded bg-surface-subtle-light text-ink-secondary font-label-sm text-label-sm">Scoped</span>
+</div>
+<div class="flex items-center gap-3">
+<img alt="Concierge Manager" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="Professional studio headshot portrait of an African property concierge manager in business smart attire against a clean neutral studio backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvSUQrTTtdR3ITDNI20DJrmVvno12fIqLYwWsBPSrkQIxSogAwofEmtqm7X1pDFjlTF5sTftOVRduxY5BhrIPJcTRGKxgOb6fWQWi5I-_PcSRS3eC8n6VSqiAuQOGOzXvFx7CmlcN642FKSsEIlhqyvM7ofgdyq8jeXD60QXrrbJMH6mzc7wYtL5wB4JBEuVX4XsWzvUjD5iyR4R0bBQXFvj70rU6G4pQ4ss59RPDGwk8jWxWWZUR2eA"/>
+<div class="min-w-0">
+<p class="font-body-bold text-body-bold text-ink-primary truncate">Chidubem Okafor</p>
+<p class="font-label-sm text-label-sm text-ink-secondary truncate">Ikoyi Asset Operations Ltd</p>
+</div>
+</div>
+<div class="p-space-sm bg-surface-subtle-light rounded-lg space-y-1 font-label-sm text-label-sm">
+<div class="flex items-center justify-between text-ink-secondary">
+<span>Financial Authority:</span>
+<span class="text-status-danger font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">block</span> 0% Payout Rights
+              </span>
+</div>
+<div class="flex items-center justify-between text-ink-secondary">
+<span>Operational Scope:</span>
+<span class="text-ink-primary font-medium">Key Handling &amp; Contractor Escort</span>
+</div>
+</div>
+<button class="w-full h-9 rounded-lg bg-card-light hover:bg-canvas-light text-ink-secondary hover:text-ink-primary font-label-sm text-label-sm transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+<span>Modify Scoped Delegations</span>
+</button>
+</div>
+<!-- Statutory Compliance & Tax Status -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm space-y-space-md">
+<span class="font-body-bold text-body-bold text-ink-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-status-positive">task_alt</span>
+            Statutory Fiscal Clearances
+          </span>
+<div class="space-y-2 font-label-sm text-label-sm">
+<div class="flex items-center justify-between py-1 bg-canvas-light px-space-sm rounded">
+<span class="text-ink-primary">Lagos Land Use Charge (LUC) 2026</span>
+<span class="text-status-positive font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span> Paid
+              </span>
+</div>
+<div class="flex items-center justify-between py-1 bg-canvas-light px-space-sm rounded">
+<span class="text-ink-primary">Eti-Osa LGA Tenement Rate</span>
+<span class="text-status-positive font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span> Settled
+              </span>
+</div>
+<div class="flex items-center justify-between py-1 bg-canvas-light px-space-sm rounded">
+<span class="text-ink-primary">LASPA Parking Permit</span>
+<span class="text-status-positive font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span> Current
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchMedia(thumbnail, imgSrc, promptText) {
+    const mainImg = document.getElementById('mainGalleryViewer');
+    if (!mainImg) return;
+    
+    // Toggle active ring visuals
+    const allThumbs = thumbnail.parentElement.children;
+    for (let t of allThumbs) {
+      t.classList.remove('ring-2', 'ring-brand-sapphire', 'opacity-100');
+      t.classList.add('opacity-80');
+    }
+    thumbnail.classList.add('ring-2', 'ring-brand-sapphire', 'opacity-100');
+    thumbnail.classList.remove('opacity-80');
+
+    // Update main image attributes
+    mainImg.src = imgSrc;
+    mainImg.setAttribute('data-alt', promptText);
+  }
+</script></main></div></body></html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'surface-tint': '#1852d9', 'outline-variant': '#c3c5d7', 'status-danger-dark': '#FF8694', 'surface-container-high': '#dee8ff', 'primary-fixed': '#dce1ff', 'finance-available': '#087A66', 'surface-variant': '#d5e3ff', 'status-danger': '#C93647', 'on-background': '#0c1c31', 'on-primary': '#ffffff', 'secondary-fixed-dim': '#80d6c5', 'surface-bright': '#f9f9ff', 'on-primary-container': '#dce1ff', 'surface-container-low': '#f0f3ff', 'tertiary-fixed': '#dce1ff', 'text-dark-secondary': '#ADC0D9', 'surface-subtle-dark': '#1E3048', 'surface-container-lowest': '#ffffff', 'inverse-on-surface': '#ebf1ff', 'on-secondary-container': '#037163', 'tertiary-fixed-dim': '#b6c4ff', 'brand-hover': '#1743B8', 'surface': '#f9f9ff', 'surface-container': '#e7eeff', 'on-error': '#ffffff', 'on-primary-fixed': '#00164e', 'on-tertiary': '#ffffff', 'on-tertiary-fixed-variant': '#053ab0', 'canvas-dark': '#0C1525', 'status-warning-dark': '#F2BD69', 'primary': '#0041bc', 'error-container': '#ffdad6', 'inverse-surface': '#223147', 'secondary-fixed': '#9cf3e1', 'finance-held': '#7048E8', 'card-dark': '#17253A', 'surface-subtle-light': '#EDF2FA', 'finance-restricted': '#C93647', 'surface-container-highest': '#d5e3ff', 'on-surface': '#0c1c31', 'secondary-container': '#9cf3e1', 'on-secondary-fixed': '#00201b', 'brand-dark-action': '#6C96FF', 'status-positive-dark': '#58D4BC', 'ink-secondary': '#536479', 'on-secondary-fixed-variant': '#005046', 'border-default': '#DCE4F0', 'on-surface-variant': '#434654', 'on-tertiary-fixed': '#001550', 'error': '#ba1a1a', 'on-error-container': '#93000a', 'finance-pending': '#2459E0', 'border-dark': '#344966', 'inverse-primary': '#b5c4ff', 'brand-sapphire': '#2459E0', 'status-warning': '#9A6507', 'primary-fixed-dim': '#b5c4ff', 'canvas-light': '#F6F8FC', 'on-primary-fixed-variant': '#003baf', 'secondary': '#006b5d', 'background': '#f9f9ff', 'on-secondary': '#ffffff', 'text-dark': '#ECF3FF', 'status-positive': '#087A66', 'primary-container': '#2459e0', 'tertiary-container': '#375bcf', 'surface-dim': '#ccdbf8', 'outline': '#747686', 'card-light': '#FFFFFF', 'on-tertiary-container': '#dce1ff', 'tertiary': '#1441b6', 'ink-primary': '#17263C' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': { 'margin': '2rem', 'space-xl': '2rem', 'space-xs': '0.25rem', 'space-sm': '0.5rem', 'gutter-mobile': '1rem', 'space-lg': '1.5rem', 'space-md': '1rem', 'margin-mobile': '1rem', 'gutter': '1.5rem' }, 'fontFamily': { 'body-md': ['Inter'], 'label-md': ['Inter'], 'headline-sm': ['Inter'], 'label-sm': ['Inter'], 'headline-md': ['Inter'], 'body-bold': ['Inter'], 'display-hero': ['Inter'], 'headline-lg': ['Inter'], 'headline-lg-mobile': ['Inter'], 'display-hero-mobile': ['Inter'], 'meta-numeric': ['Inter'], 'body-lg': ['Inter'] }, 'fontSize': { 'body-md': ['14px', { 'lineHeight': '20px', 'fontWeight': '400' }], 'label-md': ['13px', { 'lineHeight': '18px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'headline-sm': ['18px', { 'lineHeight': '26px', 'fontWeight': '600' }], 'label-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.02em', 'fontWeight': '500' }], 'headline-md': ['22px', { 'lineHeight': '30px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'body-bold': ['14px', { 'lineHeight': '20px', 'fontWeight': '600' }], 'display-hero': ['44px', { 'lineHeight': '52px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'headline-lg': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '600' }], 'headline-lg-mobile': ['26px', { 'lineHeight': '34px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'display-hero-mobile': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '700' }], 'meta-numeric': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.03em', 'fontWeight': '600' }], 'body-lg': ['16px', { 'lineHeight': '24px', 'fontWeight': '400' }] } } } }</script></head><body class="bg-canvas-light text-on-surface font-body-md min-h-screen"><aside class="fixed left-0 top-0 h-screen w-[248px] bg-card-light border-r border-border-default z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-[72px] px-space-md border-b border-border-default flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-sm min-w-0"><img alt="CosmicForge Real Estate Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UzOze_DVp8fg8BQyy4Ch8YsarjeBEL4tGTYGh06366nhw_6pzXTdEWeyKpQ84KY2ekWz62dTRLfGDRdeTgU_96Sv0TomOuAwL6F3F3IKIvszHUjKfb4N79iyXYVc0TbY6gHw_73VH9WUrOVnqFWFfDOpILlw0P9Gd3JwV1yJU90HlAfua5gvCsEXLaagCg6wr8-Q_Ndhb8m3WpRji0hWQMaxzDp5sP7v0fSkzTAqr5Xtfvd117ARpCriw"/><div class="flex flex-col min-w-0 leading-tight"><span class="font-body-bold text-body-bold text-ink-primary truncate">CosmicForge</span><span class="font-label-sm text-label-sm text-ink-secondary">Real Estate</span></div></div><span class="font-label-sm text-label-sm bg-surface-subtle-light text-ink-secondary px-space-xs py-0.5 rounded border border-border-default whitespace-nowrap">Owner</span></div><div class="p-space-sm border-b border-border-default"><label class="font-label-sm text-label-sm text-ink-secondary block mb-space-xs uppercase tracking-wider font-semibold">Portfolio Focus</label><div class="relative"><select class="w-full h-9 bg-canvas-light border border-border-default rounded-lg px-space-sm pr-7 font-label-md text-label-md text-ink-primary appearance-none focus:outline-none focus:border-brand-sapphire cursor-pointer"><option value="all">All Assets (Commercial, Land, Res)</option><option value="ikoyi">Penthouse A - Ikoyi (Let)</option><option value="lekki-1">4-Bed Terrace - Lekki I (Vacant)</option><option value="victoria-island">Commercial Floor - VI (Lease Active)</option><option value="epe-land">2.4 Hectares Commercial Land - Epe (Title Verified)</option><option value="banana-island">Villa 9 - Banana Island (Short-Let)</option><option value="maitama">Duplex B - Maitama (Renovation)</option><option value="maryland">Retail Plaza - Maryland (Let)</option></select><span class="material-symbols-outlined absolute right-2 top-2 text-ink-secondary pointer-events-none text-[18px]">unfold_more</span></div></div><nav class="p-space-sm space-y-1" data-active-classes="bg-brand-sapphire text-on-primary font-semibold shadow-[0_2px_8px_rgba(36,89,224,0.2)]"><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="dashboard" href="#">Dashboard</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="properties" href="#">Properties</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="listings" href="#">Listings</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="leads-viewings" href="#">Leads &amp; Viewings</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="tenancies-rent" href="#">Tenancies &amp; Rent</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="commercial-land" href="#">Commercial &amp; Land</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="short-lets" href="#">Short-Lets</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="maintenance" href="#">Maintenance</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="finance-wallet" href="#">Finance &amp; Wallet</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="sales-closing" href="#">Sales &amp; Closing</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="reports" href="#">Reports</a><a class="flex items-center px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="settings" href="#">Settings</a></nav></div><div class="p-space-sm border-t border-border-default"><div class="bg-canvas-light rounded-lg p-space-sm border border-border-default"><div class="flex items-center justify-between mb-1"><span class="font-label-sm text-label-sm text-ink-secondary">Ledger Sync (WAT / Lagos)</span><span class="h-2 w-2 rounded-full bg-status-positive"></span></div><p class="font-meta-numeric text-meta-numeric text-ink-primary font-semibold">15:28:02 WAT - Verified</p></div></div></aside><div class="pl-[248px]"><header class="fixed top-0 left-[248px] right-0 h-[72px] bg-card-light/95 backdrop-blur-md border-b border-border-default z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-[#E6F5F2] border border-[#BCE8DF] text-status-positive font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span><span class="font-medium">Gateway v1.4 Active</span></div><div class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-subtle-light border border-border-default text-ink-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-brand-sapphire">verified_user</span><span class="font-medium">MFA Verified</span></div><div class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-subtle-light border border-border-default text-ink-secondary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-ink-secondary">schedule</span><span class="font-medium">Lagos (GMT+1)</span></div></div><div class="flex items-center gap-space-md"><button aria-label="Notifications" class="relative p-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors border border-border-default" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute -top-1 -right-1 w-5 h-5 bg-status-danger text-on-error font-label-sm text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-card-light">3</span></button><div class="h-8 w-px bg-border-default"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-border-default flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTywOfGXRa2DBfBm6Lrk7qwJWnkG4x_hzsu-QmElS4nfLphK5FQHSPinq9sjSjmwJq6Rj59Sl3RcYcIsSHyPXeeRgZ2LoLCqMmxUFogl2slskQgfgP6bqHjEe7pzP84p83D6BXmbuXoK45EutiCxsQ7mDiWT5525AXPcWtDxEtLqnb0xEqX-gqja4TDTcZOjLFmo8haR2EPUR-GXbjOZuK6MhtA7QwiFKCPdATV5WDBXE_Cs6sz6b6gg"/><div class="flex flex-col text-left"><span class="font-body-bold text-body-bold text-ink-primary leading-tight">Adeyemi Cole</span><span class="font-label-sm text-label-sm text-ink-secondary">Individual Sovereign Owner</span></div><button aria-label="Account actions" class="text-ink-secondary hover:text-ink-primary" type="button"><span class="material-symbols-outlined text-[18px]">expand_more</span></button></div></div></header><main class="w-full pt-[72px] bg-canvas-light min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Context Navigation & Sovereign Header -->
+<section class="px-space-xl pt-space-lg pb-space-md">
+<!-- Breadcrumb & Authority Ribbon -->
+<div class="flex items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-ink-secondary">Sales &amp; Closing</span>
+<span class="material-symbols-outlined text-ink-secondary text-[14px]">chevron_right</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Transactions</span>
+<span class="material-symbols-outlined text-ink-secondary text-[14px]">chevron_right</span>
+<span class="font-label-sm text-label-sm text-brand-sapphire font-semibold">Active Deal Room #SLS-IKY-2026-01</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F5F2] text-status-positive font-label-sm text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-status-positive animate-pulse"></span>
+          STAGE 4: CLOSING ESCROW RING-FENCED
+        </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-subtle-light text-ink-secondary font-meta-numeric text-meta-numeric">
+<span class="material-symbols-outlined text-[14px] text-brand-sapphire">enhanced_encryption</span>
+          SHA-256 Verified
+        </span>
+</div>
+</div>
+<!-- Deal Room Primary Identity & Global Actions -->
+<div class="flex flex-col xl:flex-row xl:items-end justify-between gap-space-md bg-card-light p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col min-w-0 max-w-3xl">
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Binding Asset Disposition Contract</span>
+<span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Deed Ref: LASG/ED/2026/8841</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ink-primary font-bold tracking-tight mb-space-xs">
+          The Sapphire Penthouse Triplex (Unit 4A) — Outright Acquisition Closing Room
+        </h1>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-ink-secondary font-body-md text-body-md">
+<span class="inline-flex items-center gap-1.5 text-ink-primary font-medium">
+<span class="material-symbols-outlined text-brand-sapphire text-[18px]">location_on</span>
+            18A Bourdillon Road, Ikoyi, Lagos
+          </span>
+<span class="text-outline-variant">|</span>
+<span class="inline-flex items-center gap-1.5 text-ink-primary font-medium">
+<span class="material-symbols-outlined text-status-positive text-[18px]">verified</span>
+            Sovereign Seller: Adeyemi Cole (100% Freehold C of O)
+          </span>
+<span class="text-outline-variant">|</span>
+<span class="inline-flex items-center gap-1.5 text-ink-secondary">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+            GTBank Sovereign Custody Node #IKY-902
+          </span>
+</div>
+</div>
+<!-- Action Group -->
+<div class="flex flex-wrap items-center gap-space-xs flex-shrink-0">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-subtle-light hover:bg-surface-container text-ink-primary font-label-md text-label-md transition-colors" id="btn-stamped-contract" type="button">
+<span class="material-symbols-outlined text-[18px] text-ink-secondary">description</span>
+          Download Stamped Contract
+        </button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-subtle-light hover:bg-surface-container text-ink-primary font-label-md text-label-md transition-colors" id="btn-ledger-audit" type="button">
+<span class="material-symbols-outlined text-[18px] text-ink-secondary">receipt_long</span>
+          Audit Closing Ledger
+        </button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-[#FDF2F3] hover:bg-[#FCE3E6] text-status-danger font-label-md text-label-md transition-colors" id="btn-emergency-stop" type="button">
+<span class="material-symbols-outlined text-[18px] text-status-danger">report_problem</span>
+          Emergency Legal Stop
+        </button>
+</div>
+</div>
+</section>
+<!-- Key Transaction Metrics Grid (4 items) -->
+<section class="px-space-xl pb-space-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Metric 1: Agreed Purchase Price -->
+<div class="bg-card-light p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider font-semibold">Agreed Purchase Price</span>
+<span class="p-1 rounded bg-surface-subtle-light text-brand-sapphire">
+<span class="material-symbols-outlined text-[18px]">real_estate_agent</span>
+</span>
+</div>
+<div class="mb-2">
+<div class="font-headline-md text-headline-md font-bold text-ink-primary tracking-tight">₦450,000,000</div>
+<p class="font-label-sm text-label-sm text-status-positive font-semibold mt-0.5">
+            Net Payable: ₦420,750,000
+          </p>
+</div>
+<div class="pt-2 bg-surface-subtle-light/60 -mx-space-md -mb-space-md px-space-md py-2 rounded-b-xl flex items-center justify-between">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Net to Sovereign Owner</span>
+<span class="font-label-sm text-label-sm text-ink-primary font-medium">Fixed Freehold</span>
+</div>
+</div>
+<!-- Metric 2: Escrow Custody -->
+<div class="bg-card-light p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider font-semibold">Escrow Custody (GTBank Trust)</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#E6F5F2] text-status-positive font-label-sm text-[11px] font-semibold">
+            100% Capitalized
+          </span>
+</div>
+<div class="mb-2">
+<div class="font-headline-md text-headline-md font-bold text-finance-available tracking-tight">₦450,000,000</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">
+            Clearing in Sovereign Escrow Node
+          </p>
+</div>
+<div class="pt-2 bg-surface-subtle-light/60 -mx-space-md -mb-space-md px-space-md py-2 rounded-b-xl flex items-center justify-between">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Triple-signature Vault</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive font-semibold">LOCKED</span>
+</div>
+</div>
+<!-- Metric 3: Statutory Fees & Taxes -->
+<div class="bg-card-light p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider font-semibold">Statutory Fees &amp; Taxes</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#FEF7EB] text-status-warning font-label-sm text-[11px] font-semibold">
+            Pre-segregated
+          </span>
+</div>
+<div class="mb-2">
+<div class="font-headline-md text-headline-md font-bold text-ink-primary tracking-tight">₦29,250,000</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5 truncate">
+            CGT 10%, Stamp Duty 1.5%, Deed Perfection
+          </p>
+</div>
+<div class="pt-2 bg-surface-subtle-light/60 -mx-space-md -mb-space-md px-space-md py-2 rounded-b-xl flex items-center justify-between">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Direct FIRS / LIRS Portals</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire font-medium">Automatic debit</span>
+</div>
+</div>
+<!-- Metric 4: Target Completion Date -->
+<div class="bg-card-light p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider font-semibold">Target Completion Date</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-subtle-light text-ink-primary font-label-sm text-[11px] font-semibold">
+            18 Days Remaining
+          </span>
+</div>
+<div class="mb-2">
+<div class="font-headline-md text-headline-md font-bold text-ink-primary tracking-tight">14 Nov 2026</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">
+            Governor's Consent Gazette Stage
+          </p>
+</div>
+<div class="pt-2 bg-surface-subtle-light/60 -mx-space-md -mb-space-md px-space-md py-2 rounded-b-xl flex items-center justify-between">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Lands Bureau Alausa</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive font-semibold">On Schedule</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Split Interactive Closing Room Layout -->
+<section class="px-space-xl pb-space-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Milestones & Document Terms Viewer (65% -> 8 of 12 cols desktop) -->
+<div class="lg:col-span-8 space-y-space-lg">
+<!-- Architectural Visual Progress Card & Overview -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-space-md">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Statutory Cadastral Workflow</span>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary font-bold">Transaction Milestones &amp; State Approvals</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-ink-secondary">Pipeline Progress:</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire font-bold text-sm">80% Overall</span>
+</div>
+</div>
+<!-- Overall Linear Bar Indicator -->
+<div class="w-full bg-surface-subtle-light rounded-full h-2 mb-space-lg overflow-hidden">
+<div class="bg-brand-sapphire h-2 rounded-full transition-all duration-500" style="width: 80%;"></div>
+</div>
+<!-- Detailed Milestones Stepper -->
+<div class="space-y-space-md">
+<!-- Step 1: Completed -->
+<div class="flex gap-space-md p-space-md rounded-xl bg-surface-subtle-light/40">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-[#E6F5F2] text-status-positive flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="w-0.5 h-full bg-status-positive/40 my-1"></div>
+</div>
+<div class="flex-1 pb-1">
+<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Step 1: Formal Letter of Intent (LOI) &amp; 10% Commitment Deposit</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#E6F5F2] text-status-positive font-label-sm text-[11px] font-semibold">COMPLETED</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary mb-2">
+                  Binding commercial memorandum executed. Initial ₦45,000,000.00 non-refundable earnest deposit successfully locked and verified in sovereign clearing ledger on 12 Oct 2026.
+                </p>
+<div class="flex items-center gap-3 font-meta-numeric text-meta-numeric text-ink-secondary">
+<span>Txn Ref: <code class="text-ink-primary">DEP-LOI-88219</code></span>
+<span>•</span>
+<span>Cleared: 12 Oct 2026 11:22 WAT</span>
+</div>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex gap-space-md p-space-md rounded-xl bg-surface-subtle-light/40">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-[#E6F5F2] text-status-positive flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="w-0.5 h-full bg-status-positive/40 my-1"></div>
+</div>
+<div class="flex-1 pb-1">
+<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Step 2: Comprehensive Legal &amp; Cadastral Due Diligence</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#E6F5F2] text-status-positive font-label-sm text-[11px] font-semibold">COMPLETED</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary mb-2">
+                  Lagos State High Court Lis Pendens registry searched — zero encumbrances or pending disputes. Registered Surveyor General beacon coordinate verification authenticated; buyer corporate resolution certified.
+                </p>
+<div class="flex flex-wrap items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-card-light rounded text-xs font-medium text-ink-secondary">
+<span class="material-symbols-outlined text-[14px] text-status-positive">task_alt</span> Survey Plan #LA/IKY/5592
+                  </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-card-light rounded text-xs font-medium text-ink-secondary">
+<span class="material-symbols-outlined text-[14px] text-status-positive">task_alt</span> Court Search Nil Return
+                  </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-card-light rounded text-xs font-medium text-ink-secondary">
+<span class="material-symbols-outlined text-[14px] text-status-positive">task_alt</span> CAC Search (RC 1029481)
+                  </span>
+</div>
+</div>
+</div>
+<!-- Step 3: Completed -->
+<div class="flex gap-space-md p-space-md rounded-xl bg-surface-subtle-light/40">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-[#E6F5F2] text-status-positive flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="w-0.5 h-full bg-brand-sapphire my-1"></div>
+</div>
+<div class="flex-1 pb-1">
+<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Step 3: Binding Contract of Sale &amp; 90% Balance Escrow Funding</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#E6F5F2] text-status-positive font-label-sm text-[11px] font-semibold">COMPLETED</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary mb-2">
+                  Full purchase consideration of ₦405,000,000.00 wired into GTBank Corporate Sovereign Trust Escrow. Dual legal counsel notarization completed; funds fully ring-fenced.
+                </p>
+<div class="flex items-center gap-3 font-meta-numeric text-meta-numeric text-ink-secondary">
+<span>Escrow Ref: <code class="text-ink-primary">ESC-GTB-44029-IKY</code></span>
+<span>•</span>
+<span>Full Capitalization Confirmed</span>
+</div>
+</div>
+</div>
+<!-- Step 4: Active Current Milestone -->
+<div class="flex gap-space-md p-space-md rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-brand-sapphire text-on-primary flex items-center justify-center font-bold text-sm shadow-sm">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+</div>
+<div class="w-0.5 h-full bg-outline-variant my-1"></div>
+</div>
+<div class="flex-1 pb-1">
+<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+<div class="flex items-center gap-2">
+<span class="font-body-bold text-body-bold text-brand-sapphire font-bold">Step 4: Governor's Consent Application &amp; Stamping</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF7EB] text-status-warning font-label-sm text-[11px] font-bold">
+                      ACTIVE MILESTONE (65%)
+                    </span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire font-semibold">Est. Completion: 03 Nov 2026</span>
+</div>
+<p class="font-body-md text-body-md text-ink-primary mb-3">
+                  Stamped with Lagos Internal Revenue Service (LIRS) Stamp Duties Directorate. File transmitted to the Directorate of Land Services, Lands Bureau Alausa Secretariat for Governor's final consent endorsement and Official Gazette entry.
+                </p>
+<!-- Sub-progress indicators for Step 4 -->
+<div class="bg-card-light p-space-sm rounded-lg space-y-2 mb-2">
+<div class="flex items-center justify-between text-xs font-medium">
+<span class="text-ink-secondary">File Reference: <span class="text-ink-primary font-mono font-semibold">LASG/ED/2026/8841</span></span>
+<span class="text-status-positive flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span> LIRS Stamping Complete</span>
+</div>
+<div class="w-full bg-surface-subtle-light rounded-full h-1.5 overflow-hidden">
+<div class="bg-brand-sapphire h-1.5 rounded-full" style="width: 65%;"></div>
+</div>
+<div class="flex justify-between text-[11px] font-meta-numeric text-ink-secondary">
+<span>1. Assessment Issued</span>
+<span>2. Capital Duty Paid</span>
+<span class="text-brand-sapphire font-bold">3. Directorate Review</span>
+<span class="opacity-40">4. Governor Gazette Signature</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-label-sm text-ink-secondary">Lands Officer Assigned: <strong class="text-ink-primary">Mrs. F. Oladipo (Principal Registrar)</strong></span>
+</div>
+</div>
+</div>
+<!-- Step 5: Pending Step-Up Authorization -->
+<div class="flex gap-space-md p-space-md rounded-xl bg-surface-subtle-light/20">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-subtle-light text-ink-secondary flex items-center justify-center font-bold text-sm">
+                  5
+                </div>
+</div>
+<div class="flex-1 pb-1">
+<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+<span class="font-body-bold text-body-bold text-ink-secondary">Step 5: Deed of Assignment Execution &amp; Sovereign Escrow Release</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-subtle-light text-ink-secondary font-label-sm text-[11px] font-medium">LOCKED</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary mb-2">
+                  Final disbursement of ₦420,750,000.00 to Sovereign Owner wallet upon simultaneous presentation of gazetted Governor's Consent and physical keys turnover protocol.
+                </p>
+<div class="inline-flex items-center gap-1 text-xs text-brand-sapphire font-medium">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                  Requires Dual-Signature Biometric / TOTP Authentication
+                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Contract of Sale & Legal Terms Viewer -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-md mb-space-md border-b border-border-default gap-2">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Instrument &amp; Covenants</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary font-bold">Contract of Sale &amp; Deed of Assignment Terms</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 bg-surface-subtle-light rounded text-ink-secondary">
+<span class="material-symbols-outlined text-[14px] text-brand-sapphire">gavel</span>
+                Jurisdiction: Lagos State High Court
+              </span>
+</div>
+</div>
+<!-- Tab Navigation for Document Terms -->
+<div class="flex border-b border-border-default gap-space-md mb-space-md text-sm font-label-md">
+<button class="pb-2 font-semibold text-brand-sapphire border-b-2 border-brand-sapphire transition-colors" type="button">1. Parties &amp; Consideration</button>
+<button class="pb-2 text-ink-secondary hover:text-ink-primary transition-colors" type="button">2. Parcel Description</button>
+<button class="pb-2 text-ink-secondary hover:text-ink-primary transition-colors" type="button">3. Vendor Covenants</button>
+<button class="pb-2 text-ink-secondary hover:text-ink-primary transition-colors" type="button">4. Purchaser Compliance &amp; KYC</button>
+</div>
+<!-- Document Terms Card Preview -->
+<div class="space-y-space-md">
+<!-- Contracting Parties Sub-card -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="p-space-md bg-canvas-light rounded-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase font-semibold">The Assignor (Vendor / Sovereign Owner)</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#E6F5F2] text-status-positive">Sovereign Principal</span>
+</div>
+<div class="font-body-bold text-body-bold text-ink-primary mb-1">Adeyemi Cole</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">
+                  Holder of statutory right of occupancy registered as No. 44 at Page 44 in Volume 2109 of the Lands Registry, Lagos. 100% Freehold capacity.
+                </p>
+<div class="mt-2 text-xs text-ink-secondary font-mono">NIN: 4982****019 • Tax ID: LIRS-IND-884102</div>
+</div>
+<div class="p-space-md bg-canvas-light rounded-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase font-semibold">The Assignee (Purchaser)</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#E6F5F2] text-status-positive">CAC Verified</span>
+</div>
+<div class="font-body-bold text-body-bold text-ink-primary mb-1">Pinnacle Capital Holdings Ltd</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">
+                  Incorporated entity under the Companies &amp; Allied Matters Act (RC 1029481). Represented by Chief Legal Counsel &amp; Managing Director.
+                </p>
+<div class="mt-2 text-xs text-ink-secondary font-mono">TIN: 22894102-0001 • SCUML AML Reg: Active</div>
+</div>
+</div>
+<!-- Demised Real Estate Schedule -->
+<div class="p-space-md bg-canvas-light rounded-lg">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase font-semibold block mb-1">Demised Property &amp; Cadastral Schedule</span>
+<p class="font-body-md text-body-md text-ink-primary mb-2">
+                All that parcel of residential land and improvements known as <strong>Unit 4A, The Sapphire Penthouse Triplex</strong>, situated at 18A Bourdillon Road, Ikoyi, Lagos State. Comprising approximately <strong>520 square metres</strong> of gross internal area across three interconnected floor plates, together with 3 designated covered car parks and an undivided share in the common property and swimming pavilion.
+              </p>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+<div class="bg-card-light p-2 rounded">
+<span class="text-ink-secondary block">Survey Plan Ref:</span>
+<span class="font-mono font-semibold text-ink-primary">OG/LA/182/2021</span>
+</div>
+<div class="bg-card-light p-2 rounded">
+<span class="text-ink-secondary block">Title Instrument:</span>
+<span class="font-semibold text-ink-primary">Gov. C of O No. 12/12/1998</span>
+</div>
+<div class="bg-card-light p-2 rounded">
+<span class="text-ink-secondary block">Unexpired Term:</span>
+<span class="font-semibold text-ink-primary">71 Years Remaining</span>
+</div>
+<div class="bg-card-light p-2 rounded">
+<span class="text-ink-secondary block">Annual Ground Rent:</span>
+<span class="font-semibold text-ink-primary">Settled Through 2026</span>
+</div>
+</div>
+</div>
+<!-- Essential Covenants & Indemnities -->
+<div class="p-space-md bg-surface-subtle-light/50 rounded-lg space-y-2">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase font-semibold block">Primary Binding Covenants</span>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[18px] flex-shrink-0 mt-0.5">shield</span>
+<p class="font-body-md text-body-md text-ink-primary">
+<strong>Vacant Possession:</strong> The Vendor covenants that vacant, undisturbed physical possession shall be delivered to the Purchaser on the immediate date of escrow disbursement.
+                </p>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[18px] flex-shrink-0 mt-0.5">verified_user</span>
+<p class="font-body-md text-body-md text-ink-primary">
+<strong>Indemnity against Historic Liabilities:</strong> The Vendor indemnifies the Purchaser against all prior Land Use Charge, municipal tenement rates, and service charge arrears accruing before 14 November 2026.
+                </p>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[18px] flex-shrink-0 mt-0.5">assignment_turned_in</span>
+<p class="font-body-md text-body-md text-ink-primary">
+<strong>Title Perfection Cooperation:</strong> The Vendor irrevocably authorizes his legal counsel to furnish all supplemental affidavits and original physical deeds required by Alausa Lands Bureau without additional fees.
+                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Property & Closing Context Media Preview -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="bg-card-light rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="relative h-48 w-full bg-cover bg-center" data-alt="High-end penthouse interior with floor-to-ceiling panoramic glass windows looking out over Ikoyi and Lagos Lagoon, contemporary marble floors, architectural lighting, luxurious clean lines in deep sapphire and warm neutral tones, highly polished professional architectural photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_egcdvr1DGcbweK507LWUugOkJUnyQzDAuIfCh6uQfqgqUHGWVROcoOEOE7oy50AtY3Q56-f-G6Lap5TYGZOwLVlpGc0Z6pV1xZsY0_ZXVYVubXEOn_9LoYp7bxIx1wsW-XMVSZqkJnNXgC8kZ2xy5R5fzy6J9isvIjPhnCRdHQwi0F5G5TMUUhHl6lDcNiMhoW8b-AOJkZjZGUtrlypFWNG30sWiGhkSKsg7AJmpJN10OleHoQybTQ')">
+<div class="absolute top-3 left-3 px-2 py-1 bg-card-dark/80 text-text-dark text-xs font-semibold rounded backdrop-blur-sm">
+                Penthouse Triplex Unit 4A
+              </div>
+<div class="absolute bottom-3 right-3 px-2.5 py-1 bg-brand-sapphire text-on-primary text-xs font-bold rounded">
+                Vacant Physical Inspection Certified
+              </div>
+</div>
+<div class="p-space-md flex-1 flex flex-col justify-between">
+<div>
+<span class="font-body-bold text-body-bold text-ink-primary block">Cadastral Location Verification</span>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-1">
+                  Surveyor General beacon inspection concluded on site on 15 Oct 2026. All boundary pins intact; zero structural boundary overlap.
+                </p>
+</div>
+<div class="mt-3 pt-2 border-t border-border-default flex items-center justify-between text-xs">
+<span class="text-ink-secondary font-mono">Beacon: SC/2026/04A</span>
+<span class="text-status-positive font-semibold">100% Boundary Conformity</span>
+</div>
+</div>
+</div>
+<div class="bg-card-light rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Lands Bureau Tracking File</span>
+<span class="px-2 py-0.5 rounded bg-[#FEF7EB] text-status-warning text-xs font-semibold">In Transit</span>
+</div>
+<h4 class="font-body-bold text-body-bold text-ink-primary mb-1">Lands Bureau Alausa Consent Status</h4>
+<p class="font-body-md text-body-md text-ink-secondary mb-3">
+                File is currently undergoing final gazette scheduling. The chart below reflects the processing milestones through the Lagos State Land Registry System (LSLRS).
+              </p>
+<!-- Inline SVG Progress Meter -->
+<div class="p-3 bg-canvas-light rounded-lg flex items-center justify-around">
+<div class="text-center">
+<svg class="w-12 h-12 mx-auto text-brand-sapphire" viewbox="0 0 36 36">
+<path class="text-surface-subtle-light stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3.5"></path>
+<path class="text-brand-sapphire stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="65, 100" stroke-linecap="round" stroke-width="3.5"></path>
+<text class="text-[9px] font-bold fill-current" text-anchor="middle" x="18" y="20.5">65%</text>
+</svg>
+<span class="font-label-sm text-[11px] text-ink-secondary block mt-1">Consent Stage</span>
+</div>
+<div class="text-left space-y-1">
+<div class="text-xs text-ink-primary font-medium flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-positive"></span> Stamp Duty Assessment Paid
+                  </div>
+<div class="text-xs text-ink-primary font-medium flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-positive"></span> Cadastral Plan Endorsed
+                  </div>
+<div class="text-xs text-ink-primary font-medium flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-warning"></span> Gazette Notice Composition
+                  </div>
+</div>
+</div>
+</div>
+<div class="mt-3 pt-2 border-t border-border-default flex items-center justify-between text-xs font-meta-numeric text-ink-secondary">
+<span>Gov. Liaison: Babatunde Adeleke (SAN)</span>
+<a class="text-brand-sapphire hover:underline font-semibold" href="#">View Live Portal</a>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Financial Custody & Closing Approval Center (35% -> 4 of 12 cols desktop) -->
+<div class="lg:col-span-4 space-y-space-lg">
+<!-- Authoritative Financial Settlement Breakdown Card -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-md border-b border-border-default">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Financial Settlement</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary font-bold">Escrow Disbursement Ledger</h3>
+</div>
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">account_balance_wallet</span>
+</div>
+<div class="space-y-3 font-body-md text-body-md">
+<!-- Gross Escrow -->
+<div class="flex items-center justify-between">
+<span class="text-ink-secondary">Gross Escrow Capital Held:</span>
+<span class="font-body-bold text-body-bold text-ink-primary font-mono">₦450,000,000.00</span>
+</div>
+<!-- Deductions -->
+<div class="pt-2 border-t border-border-default/60 space-y-2">
+<div class="flex items-start justify-between text-sm">
+<div>
+<span class="text-ink-primary font-medium block">Capital Gains Tax (CGT 10%)</span>
+<span class="text-xs text-ink-secondary">Statutory Federal (FIRS Account)</span>
+</div>
+<span class="text-status-danger font-mono font-semibold">-₦22,500,000.00</span>
+</div>
+<div class="flex items-start justify-between text-sm">
+<div>
+<span class="text-ink-primary font-medium block">Lagos State Stamp Duty (1.5%)</span>
+<span class="text-xs text-ink-secondary">LIRS Electronic Stamping Node</span>
+</div>
+<span class="text-status-danger font-mono font-semibold">-₦6,750,000.00</span>
+</div>
+<div class="flex items-start justify-between text-sm">
+<div>
+<span class="text-ink-primary font-medium block">Deed Perfection &amp; Filing</span>
+<span class="text-xs text-ink-secondary">Surveyor Gen. &amp; Gazette Fees</span>
+</div>
+<span class="text-ink-secondary font-mono font-medium">₦0.00 (Purchaser Paid)</span>
+</div>
+</div>
+<!-- Net Sovereign Settlement Banner -->
+<div class="p-space-md rounded-lg bg-surface-subtle-light mt-4">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold block mb-1">
+                Net Sovereign Proceeds Payable
+              </span>
+<div class="font-headline-md text-headline-md font-bold text-finance-available font-mono">
+                ₦420,750,000.00
+              </div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-1">
+                Scheduled for instant RTGS wire to Sovereign Owner GTBank Private Banking Account #0029188401 upon Governor's Consent endorsement.
+              </p>
+</div>
+</div>
+</div>
+<!-- Closing Requirements & Digital Approval Center -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-md border-b border-border-default">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Conditions Precedent</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary font-bold">Closing Checklist</h3>
+</div>
+<span class="material-symbols-outlined text-ink-secondary text-[20px]">checklist_rtl</span>
+</div>
+<!-- Strict Architectural Checklist -->
+<ul class="space-y-3 mb-space-lg">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-positive text-[20px] flex-shrink-0 mt-0.5">check_circle</span>
+<div class="flex-1 text-sm">
+<span class="font-medium text-ink-primary block">High Court Lis Pendens Clearance</span>
+<span class="text-xs text-ink-secondary">Certified nil registry search obtained</span>
+</div>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-positive text-[20px] flex-shrink-0 mt-0.5">check_circle</span>
+<div class="flex-1 text-sm">
+<span class="font-medium text-ink-primary block">Surveyor General Beacon Inspection</span>
+<span class="text-xs text-ink-secondary">Boundary coordinates authenticated</span>
+</div>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-positive text-[20px] flex-shrink-0 mt-0.5">check_circle</span>
+<div class="flex-1 text-sm">
+<span class="font-medium text-ink-primary block">100% Escrow Custody Cleared</span>
+<span class="text-xs text-ink-secondary">GTBank Corporate Trust account funded</span>
+</div>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-warning text-[20px] flex-shrink-0 mt-0.5">radio_button_unchecked</span>
+<div class="flex-1 text-sm">
+<span class="font-medium text-ink-primary block">Alausa Lands Bureau Final Gazette Stamping</span>
+<span class="text-xs text-status-warning font-semibold">Pending: Expected in 5 business days</span>
+</div>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-outline-variant text-[20px] flex-shrink-0 mt-0.5">radio_button_unchecked</span>
+<div class="flex-1 text-sm">
+<span class="font-medium text-ink-secondary block">Physical Key &amp; Access Card Handover Protocol</span>
+<span class="text-xs text-ink-secondary">Scheduled immediately post-settlement</span>
+</div>
+</li>
+</ul>
+<!-- Step-Up Sovereign Authorization Interactive Card -->
+<div class="p-space-md rounded-xl bg-canvas-dark text-text-dark shadow-md">
+<div class="flex items-center gap-2 mb-2">
+<span class="p-1 rounded bg-brand-sapphire text-on-primary">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+</span>
+<span class="font-body-bold text-body-bold text-text-dark font-bold">
+                Pre-Authorize Deed of Assignment
+              </span>
+</div>
+<p class="font-label-sm text-label-sm text-text-dark-secondary mb-space-md leading-relaxed">
+              Apply cryptographic countersignature to authorize automated fund release immediately when Lands Bureau gazettes the Governor's Consent. Irrevocable once submitted.
+            </p>
+<button class="w-full py-3 px-space-md rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-body-bold text-body-bold transition-all flex items-center justify-center gap-2 shadow-sm" id="btn-preauthorize" type="button">
+<span class="material-symbols-outlined text-[18px]">key</span>
+              Pre-Authorize Closing (TOTP Step-Up MFA)
+            </button>
+<div class="mt-2 text-center">
+<span class="text-[11px] font-meta-numeric text-text-dark-secondary opacity-80">
+                Sovereign Owner Certificate Fingerprint: 0x88f4...91c0
+              </span>
+</div>
+</div>
+</div>
+<!-- Audit Trail & Cryptographic Provenance -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-semibold">Immutable Provenance</span>
+<span class="material-symbols-outlined text-ink-secondary text-[16px]">fingerprint</span>
+</div>
+<div class="space-y-2 text-xs font-mono">
+<div class="flex justify-between py-1 border-b border-border-default">
+<span class="text-ink-secondary">Ledger Root Hash:</span>
+<span class="text-ink-primary font-semibold">0x88f4c219...91c0e81a</span>
+</div>
+<div class="flex justify-between py-1 border-b border-border-default">
+<span class="text-ink-secondary">Clearing Escrow Node:</span>
+<span class="text-ink-primary">Interswitch / GTB #IKY-SLS-902</span>
+</div>
+<div class="flex justify-between py-1 border-b border-border-default">
+<span class="text-ink-secondary">Witness Solicitor:</span>
+<span class="text-ink-primary">Olumide Akpata &amp; Co.</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="text-ink-secondary">Last Node Sync:</span>
+<span class="text-status-positive font-semibold">15:28:02 WAT (Block #198201)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Step-Up MFA Verification Modal (Hidden by Default) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-canvas-dark/65 backdrop-blur-sm hidden" id="mfa-modal">
+<div class="bg-card-light w-full max-w-lg mx-4 rounded-xl shadow-xl overflow-hidden">
+<!-- Modal Header -->
+<div class="p-space-lg border-b border-border-default flex items-center justify-between bg-canvas-light">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-brand-sapphire text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-ink-primary font-bold">Step-Up Sovereign Authorization</h4>
+<span class="font-label-sm text-label-sm text-ink-secondary">High-Stakes Transaction Release</span>
+</div>
+</div>
+<button class="text-ink-secondary hover:text-ink-primary p-1 rounded-lg" id="btn-close-modal" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-space-lg space-y-space-md">
+<div class="p-space-sm bg-[#FEF7EB] rounded-lg border border-[#F2BD69]/40 flex items-start gap-2">
+<span class="material-symbols-outlined text-status-warning text-[20px] flex-shrink-0 mt-0.5">warning</span>
+<p class="font-body-md text-body-md text-ink-primary text-xs leading-normal">
+<strong>Irrevocable Escrow Countersignature:</strong> Entering your sovereign 6-digit TOTP key will bind your digital signature to the Deed of Assignment and instruct GTBank Escrow to wire ₦420,750,000.00 upon Governor's Consent receipt.
+          </p>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider font-semibold mb-2">
+            Enter 6-Digit Authenticator Token (TOTP)
+          </label>
+<div class="flex items-center justify-between gap-2">
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" type="text" value="8"/>
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" type="text" value="4"/>
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" type="text" value="9"/>
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="-" type="text" value=""/>
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="-" type="text" value=""/>
+<input class="totp-digit w-12 h-12 text-center text-xl font-bold font-mono bg-canvas-light border border-border-default rounded-lg focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="-" type="text" value=""/>
+</div>
+</div>
+<div class="text-xs font-mono text-ink-secondary bg-surface-subtle-light p-space-sm rounded">
+          Reference Key: SIGN-AUTH-IKY-2026-99021-ADE
+        </div>
+</div>
+<!-- Modal Footer -->
+<div class="p-space-lg border-t border-border-default flex items-center justify-end gap-space-sm bg-canvas-light">
+<button class="px-4 py-2 rounded-lg border border-border-default text-ink-primary font-label-md text-label-md hover:bg-surface-subtle-light transition-colors" id="btn-cancel-modal" type="button">
+          Cancel
+        </button>
+<button class="px-5 py-2 rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-body-bold text-body-bold transition-all shadow-sm" id="btn-confirm-sign" type="button">
+          Execute Sovereign Countersignature
+        </button>
+</div>
+</div>
+</div>
+<!-- Interactive Logic -->
+<script>
+    (function initClosingRoom() {
+      const modal = document.getElementById('mfa-modal');
+      const openBtn = document.getElementById('btn-preauthorize');
+      const closeBtn = document.getElementById('btn-close-modal');
+      const cancelBtn = document.getElementById('btn-cancel-modal');
+      const confirmSignBtn = document.getElementById('btn-confirm-sign');
+      const emergencyBtn = document.getElementById('btn-emergency-stop');
+
+      if (openBtn && modal) {
+        openBtn.addEventListener('click', () => {
+          modal.classList.remove('hidden');
+        });
+      }
+
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      if (confirmSignBtn) {
+        confirmSignBtn.addEventListener('click', () => {
+          confirmSignBtn.textContent = 'Cryptographically Authorized...';
+          confirmSignBtn.classList.remove('bg-brand-sapphire');
+          confirmSignBtn.classList.add('bg-status-positive');
+          setTimeout(() => {
+            alert('Sovereign Pre-Authorization Verified & Anchored to Ledger #IKY-SLS-902.');
+            closeModal();
+            if (openBtn) {
+              openBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">verified</span> Pre-Authorized &amp; Sealed';
+              openBtn.classList.remove('bg-brand-sapphire');
+              openBtn.classList.add('bg-status-positive');
+              openBtn.disabled = true;
+            }
+          }, 600);
+        });
+      }
+
+      if (emergencyBtn) {
+        emergencyBtn.addEventListener('click', () => {
+          const conf = confirm('CRITICAL WARNING: This will immediately freeze the GTBank Sovereign Escrow release and notify both Lagos High Court and Lands Bureau Alausa. Proceed?');
+          if (conf) {
+            alert('EMERGENCY LEGAL STOP ACTIVATED. Escrow custody frozen under lis pendens hold.');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

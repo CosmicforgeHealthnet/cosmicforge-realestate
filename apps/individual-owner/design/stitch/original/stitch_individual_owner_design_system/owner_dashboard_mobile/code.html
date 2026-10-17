@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>Dashboard - CosmicForge</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-container": "#dce1ff", "outline-variant": "#c3c5d7", "surface-variant": "#d5e3ff", "status-danger": "#C93647", "background": "#f9f9ff", "primary-fixed-dim": "#b5c4ff", "on-primary": "#ffffff", "on-error": "#ffffff", "on-background": "#0c1c31", "surface-subtle-dark": "#1E3048", "brand-sapphire": "#2459E0", "secondary-container": "#9cf3e1", "canvas-dark": "#0C1525", "status-positive": "#087A66", "brand-hover": "#1743B8", "tertiary-fixed": "#dce1ff", "on-primary-fixed-variant": "#003baf", "finance-available": "#087A66", "on-surface-variant": "#434654", "finance-pending": "#2459E0", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "surface-container-low": "#f0f3ff", "on-secondary": "#ffffff", "card-dark": "#17253A", "border-dark": "#344966", "on-secondary-container": "#037163", "surface-subtle-light": "#EDF2FA", "surface-dim": "#ccdbf8", "inverse-primary": "#b5c4ff", "primary": "#0041bc", "on-primary-fixed": "#00164e", "on-tertiary-fixed": "#001550", "canvas-light": "#F6F8FC", "primary-fixed": "#dce1ff", "card-light": "#FFFFFF", "status-danger-dark": "#FF8694", "outline": "#747686", "finance-held": "#7048E8", "border-default": "#DCE4F0", "on-tertiary-container": "#dce1ff", "surface-container-high": "#dee8ff", "error-container": "#ffdad6", "surface": "#f9f9ff", "on-secondary-fixed-variant": "#005046", "ink-secondary": "#536479", "surface-container": "#e7eeff", "status-warning": "#9A6507", "status-positive-dark": "#58D4BC", "tertiary-container": "#375bcf", "surface-container-lowest": "#ffffff", "text-dark": "#ECF3FF", "on-tertiary-fixed-variant": "#053ab0", "secondary": "#006b5d", "brand-dark-action": "#6C96FF", "secondary-fixed-dim": "#80d6c5", "surface-container-highest": "#d5e3ff", "surface-bright": "#f9f9ff", "primary-container": "#2459e0", "secondary-fixed": "#9cf3e1", "inverse-surface": "#223147", "surface-tint": "#1852d9", "finance-restricted": "#C93647", "on-secondary-fixed": "#00201b", "error": "#ba1a1a", "text-dark-secondary": "#ADC0D9", "status-warning-dark": "#F2BD69", "on-surface": "#0c1c31", "tertiary": "#1441b6", "inverse-on-surface": "#ebf1ff", "ink-primary": "#17263C", "tertiary-fixed-dim": "#b6c4ff" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.5rem", "margin": "2rem", "gutter-mobile": "1rem" }, fontFamily: { "meta-numeric": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-lg": ["Inter"], "display-hero-mobile": ["Inter"], "label-sm": ["Inter"], "body-bold": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "display-hero": ["Inter"], "label-md": ["Inter"] }, fontSize: { "meta-numeric": ["12px", { lineHeight: "16px", letterSpacing: "0.03em", fontWeight: "600" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "600" }], "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }], "body-bold": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "display-hero": ["44px", { lineHeight: "52px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }] } } } };</script><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; } body { overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-full flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">apartment</span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm text-ink-secondary tracking-tight">CosmicForge</span><h1 class="font-headline-sm text-headline-sm text-ink-primary leading-tight line-clamp-1">Dashboard</h1></div></div><div class="flex items-center gap-space-xs"><div class="hidden xs:flex items-center gap-1 bg-surface-subtle-light px-2.5 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-status-positive animate-pulse"></span><span class="font-label-sm text-label-sm text-status-positive">MFA ACTIVE</span></div><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-ink-primary hover:bg-surface-subtle-light transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-status-danger text-on-error font-meta-numeric text-[10px] rounded-full flex items-center justify-center leading-none ring-2 ring-surface">3</span></button><a aria-label="Owner Profile Adeyemi Cole" class="flex items-center justify-center w-11 h-11" data-path="menu-more" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></a></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-background px-margin-mobile"><div class="flex flex-col w-full pb-8 space-y-space-md">
+<!-- Top Greeting & Security Status Card -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 bg-surface-subtle-light px-2 py-0.5 rounded-full text-ink-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px] text-ink-secondary">schedule</span>
+            Lagos, WAT (GMT+1)
+          </span>
+<span class="inline-flex items-center gap-1 bg-secondary-container/40 px-2 py-0.5 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-status-positive" style="font-variation-settings: 'FILL' 1;">verified</span>
+            Tier 3 Provenance
+          </span>
+</div>
+<h2 class="font-headline-md text-headline-md text-ink-primary font-bold tracking-tight">Good morning, Adeyemi</h2>
+<p class="font-label-md text-label-md text-ink-secondary mt-0.5">6 Verified Properties · 14 Units · 94.2% Occupancy</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+</div>
+<!-- Gateway & Ledger Sync Status Pill Strip -->
+<div class="flex flex-wrap items-center justify-between gap-2 pt-space-xs bg-surface-container-low px-3 py-2 rounded-lg">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-positive animate-pulse"></span>
+<span class="font-meta-numeric text-meta-numeric text-ink-primary">Gateway v1.4 Active</span>
+</div>
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span class="font-label-sm text-label-sm font-semibold">MFA Confirmed Session</span>
+</div>
+</div>
+</section>
+<!-- Quick Action Horizontal Scroller -->
+<section class="overflow-x-auto no-scrollbar -mx-margin-mobile px-margin-mobile">
+<div class="flex items-center gap-2 py-1 min-w-max">
+<button class="h-11 px-4 rounded-xl bg-brand-sapphire text-on-primary font-body-bold text-body-bold flex items-center gap-2 shadow-sm active:scale-95 transition-transform" onclick="triggerToast('Listing modal launched')">
+<span class="material-symbols-outlined text-[18px]">add</span>
+        + New Listing
+      </button>
+<button class="h-11 px-4 rounded-xl bg-surface-container-lowest text-ink-primary font-body-bold text-body-bold flex items-center gap-2 shadow-sm active:bg-surface-subtle-light transition-colors" onclick="triggerToast('Evidence portal initiated')">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">upload_file</span>
+        Add Evidence
+      </button>
+<button class="h-11 px-4 rounded-xl bg-surface-container-lowest text-ink-primary font-body-bold text-body-bold flex items-center gap-2 shadow-sm active:bg-surface-subtle-light transition-colors" onclick="triggerToast('Exporting encrypted statement (PDF/CSV)')">
+<span class="material-symbols-outlined text-[18px] text-ink-secondary">receipt_long</span>
+        Export Statement
+      </button>
+<button class="h-11 px-4 rounded-xl bg-surface-container-lowest text-ink-primary font-body-bold text-body-bold flex items-center gap-2 shadow-sm active:bg-surface-subtle-light transition-colors" onclick="triggerToast('Loading append-only cryptographic audit logs')">
+<span class="material-symbols-outlined text-[18px] text-finance-held">history_edu</span>
+        Audit Trail
+      </button>
+</div>
+</section>
+<!-- Authoritative Core Treasury & Escrow Ledger Card -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Treasury &amp; Escrow Ledger</h3>
+<p class="font-label-sm text-label-sm text-ink-secondary">Immutable Multi-Bank Clearing Hub</p>
+</div>
+</div>
+<span class="font-meta-numeric text-[11px] text-ink-secondary bg-surface-container px-2 py-1 rounded">Synced 2m ago</span>
+</div>
+<!-- Balance Buckets Container -->
+<div class="space-y-3">
+<!-- 1. Available for Payout (Cleared) -->
+<div class="bg-surface-container-low rounded-xl p-space-md relative overflow-hidden">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-ink-secondary font-medium uppercase tracking-wider">Available for Payout</span>
+<span class="inline-flex items-center gap-1 bg-secondary-container/50 px-2 py-0.5 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+            Cleared Ledger
+          </span>
+</div>
+<div class="flex items-baseline gap-1 my-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-ink-primary font-meta-numeric">₦14,280,000</span>
+<span class="font-meta-numeric text-label-sm text-ink-secondary">.00</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mb-3">Direct withdrawal ready · Titan Trust &amp; Providus Virtual Escrow</p>
+<button class="w-full h-11 bg-brand-sapphire text-on-primary font-body-bold text-body-bold rounded-lg flex items-center justify-center gap-2 shadow-sm active:bg-brand-hover transition-colors" onclick="openStepUpModal()">
+<span class="material-symbols-outlined text-[18px]">security</span>
+          Payout (Step-Up Required)
+        </button>
+</div>
+<!-- 2. Held & Protected (In Escrow) -->
+<div class="bg-surface-subtle-light rounded-xl p-3 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-finance-held">lock_clock</span>
+<span class="font-label-md text-label-md font-semibold text-ink-primary">Held &amp; Protected (Escrow)</span>
+</div>
+<span class="bg-surface-container px-2 py-0.5 rounded text-finance-held font-label-sm text-label-sm font-semibold">Legal Custody</span>
+</div>
+<div class="flex items-baseline justify-between mt-2">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-primary font-meta-numeric">₦4,500,000.00</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Cautionary Deposits</span>
+</div>
+</div>
+<!-- 3. Pending Settlement -->
+<div class="bg-surface-subtle-light rounded-xl p-3 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-finance-pending">autorenew</span>
+<span class="font-label-md text-label-md font-semibold text-ink-primary">Pending Settlement</span>
+</div>
+<span class="bg-surface-variant/40 px-2 py-0.5 rounded text-finance-pending font-label-sm text-label-sm font-semibold">Clearing 24h</span>
+</div>
+<div class="flex items-baseline justify-between mt-2">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-primary font-meta-numeric">₦2,150,000.00</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Interswitch Direct Collections</span>
+</div>
+</div>
+<!-- 4. Restricted / Review -->
+<div class="bg-surface-subtle-light rounded-xl p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-ink-secondary">gavel</span>
+<div>
+<span class="font-label-md text-label-md font-semibold text-ink-primary block">Restricted / Review</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Clean portfolio record, 0 active liens</span>
+</div>
+</div>
+<span class="font-meta-numeric text-body-bold text-ink-secondary">₦0.00</span>
+</div>
+</div>
+<!-- Quick link to Audit Trail -->
+<a class="inline-flex items-center justify-between w-full pt-1 text-brand-sapphire font-label-md text-label-md font-semibold hover:underline" href="#" onclick="triggerToast('Viewing Cryptographic Settlement Ledger')">
+<span>Inspect verifiable SHA-256 escrow receipts</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</section>
+<!-- 4 KPI Summary Cards (2x2 Grid) -->
+<section class="grid grid-cols-2 gap-space-sm">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">apartment</span>
+</span>
+<span class="bg-secondary-container/40 text-on-secondary-container font-label-sm text-[11px] px-2 py-0.5 rounded-full font-semibold">100% C of O</span>
+</div>
+<div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-ink-primary font-meta-numeric">6 Units</div>
+<div class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Portfolio Registry</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-finance-pending">
+<span class="material-symbols-outlined text-[20px]">real_estate_agent</span>
+</span>
+<span class="bg-surface-subtle-light text-ink-secondary font-label-sm text-[11px] px-2 py-0.5 rounded-full font-semibold">5 Long · 3 Short</span>
+</div>
+<div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-ink-primary font-meta-numeric">8 Active</div>
+<div class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Active Listings</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="w-8 h-8 rounded-lg bg-error-container/50 flex items-center justify-center text-status-danger">
+<span class="material-symbols-outlined text-[20px]">receipt</span>
+</span>
+<span class="bg-error-container/60 text-status-danger font-label-sm text-[11px] px-2 py-0.5 rounded-full font-bold">2 Overdue</span>
+</div>
+<div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-ink-primary font-meta-numeric">₦1.85M</div>
+<div class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Receivables Queue</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<span class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-status-warning">
+<span class="material-symbols-outlined text-[20px]">notification_important</span>
+</span>
+<span class="bg-surface-variant text-status-warning font-label-sm text-[11px] px-2 py-0.5 rounded-full font-bold">2 Urgent</span>
+</div>
+<div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-ink-primary font-meta-numeric">5 Items</div>
+<div class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Required Action</div>
+</div>
+</div>
+</section>
+<!-- Portfolio Assets Section -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Portfolio Assets</h3>
+<span class="bg-surface-container text-ink-secondary font-label-sm text-label-sm px-2 py-0.5 rounded-full">3 Primaries Shown</span>
+</div>
+<a class="font-label-md text-label-md text-brand-sapphire font-semibold hover:underline" href="#">View All (6)</a>
+</div>
+<!-- Asset Card 1: The Sapphire Horizon -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex gap-3">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Modern luxury penthouse terrace overlooking the Atlantic ocean and Ikoyi Lagos skyline with sleek architectural glass railings, deep warm sunset illumination, high end real estate imagery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjkRiHfSpaMz_FzwZQMpriu1lv5nxGFUtoAan9KuVyaCgQhxXrzVozWDK7lUOMheacYCXRUX3gh0DwztCqfTXqb5nBke0dBYmejoQI-MUtThsbYq5QXurSwMSt4Aa2ZsHIs0qDIDWCMliLEJhMw0aILnzP2M_AwqcM3nNATnF9iE72fq9Ve0mwM_Aeqtbvw2AixTIK_zWjBXekKigmXwj_Nn82iu-tr1eGfn8p5ZhDQ-cRfSGPKSC7WA"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="inline-flex items-center gap-1 bg-secondary-container/40 text-on-secondary-container font-label-sm text-[11px] px-2 py-0.5 rounded-full font-semibold">
+<span class="material-symbols-outlined text-[12px] text-status-positive" style="font-variation-settings: 'FILL' 1;">verified</span>
+              C of O Verified
+            </span>
+<span class="bg-surface-container text-status-positive font-meta-numeric text-[11px] px-2 py-0.5 rounded font-bold">Leased</span>
+</div>
+<h4 class="font-body-bold text-body-bold text-ink-primary truncate mt-1">The Sapphire Horizon, Ikoyi</h4>
+<p class="font-label-sm text-label-sm text-ink-secondary truncate">Luxury 3-Bed Penthouse + Executive Suite</p>
+<div class="font-headline-sm text-headline-sm font-bold text-ink-primary font-meta-numeric mt-1">₦18,000,000<span class="text-label-sm font-normal text-ink-secondary">/yr</span></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-11 rounded-lg bg-surface-subtle-light text-ink-primary font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-surface-container transition-colors" onclick="triggerToast('Opening Asset Manager: Sapphire Horizon')">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+          Manage
+        </button>
+<button class="h-11 rounded-lg bg-brand-sapphire text-on-primary font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-brand-hover transition-colors" onclick="triggerToast('Viewing Digital Tenancy Ledger: Okonjo Group Ltd')">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+          Tenancy
+        </button>
+</div>
+</div>
+<!-- Asset Card 2: Victoria Palms -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex gap-3">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Chic boutique serviced apartment living room in Victoria Island Lagos with minimalist Nordic African furniture, teak wood details, and ambient architectural downlighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA71iCAgK4eNpAEwDLujd4sDaWM3JbhTdV2ydeclLxJLk3UooCSMnTOevCRBjzTauiaH6yCY9KfpYrs4fsNyd8E1yh2ReeL9T5fpVEomLEFfQNQgAB7CcTGgfxenW71j2nBEji30_XCV-yYLmTJEWYnB2RQBw_Dpv-wd_JQTnxE25Wu-Zub9RfR3EjWNqzLj5GoWIbtjrWJsZIqwJLOwV35-bT6nSzWoONHlg9UVfAIGcKBYt6y75Ocsg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="inline-flex items-center gap-1 bg-surface-variant text-ink-primary font-label-sm text-[11px] px-2 py-0.5 rounded-full font-semibold">
+<span class="material-symbols-outlined text-[12px] text-finance-pending">hotel</span>
+              Short-Let Hub
+            </span>
+<span class="bg-secondary-container/40 text-on-secondary-container font-meta-numeric text-[11px] px-2 py-0.5 rounded font-bold">88% Occupancy</span>
+</div>
+<h4 class="font-body-bold text-body-bold text-ink-primary truncate mt-1">Victoria Palms Executive Suites</h4>
+<p class="font-label-sm text-label-sm text-ink-secondary truncate">4 Units Serviced Apartments · VI</p>
+<div class="font-headline-sm text-headline-sm font-bold text-ink-primary font-meta-numeric mt-1">₦95,000<span class="text-label-sm font-normal text-ink-secondary">/night avg</span></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-11 rounded-lg bg-surface-subtle-light text-ink-primary font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-surface-container transition-colors" onclick="triggerToast('Short-let calendar synced')">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          Calendar
+        </button>
+<button class="h-11 rounded-lg bg-surface-container-high text-primary font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-surface-variant transition-colors" onclick="triggerToast('Viewing 6 active reservations for Victoria Palms')">
+<span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+          Bookings (6)
+        </button>
+</div>
+</div>
+<!-- Asset Card 3: Lekki Phase 1 Prime Duplex -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex gap-3">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Contemporary detached modern duplex exterior in Lekki Phase 1 with stamped concrete driveway, automated security gate, lush tropical perimeter landscaping in crisp daytime sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8gGy-q_2mMPdJVOcwZkjBxtK4LOYE-X87Eq0yB7cUWfAAq0cWzC9u5HZQ5ux1Udxt85VVWIdPzKO12f92peBiyWoJcb8JQ7kePAxswf4Qgg2AHSB-avZVPeQX4SRo3xAKjQ1e7RVwGv-rH-RYi3YaKSQqFhqadlWdNcdpHMII8Ohls_XPkOcnoBz7hctOg6YdKp3ryNK0aiy8YOPUAu2uXWB7AdIDWXdeQgMh08MQiddMpFoIjFCxg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="inline-flex items-center gap-1 bg-surface-subtle-light text-ink-secondary font-label-sm text-[11px] px-2 py-0.5 rounded-full font-semibold">
+<span class="material-symbols-outlined text-[12px]">key</span>
+              Listed for Rent
+            </span>
+<span class="bg-surface-variant text-status-warning font-meta-numeric text-[11px] px-2 py-0.5 rounded font-bold">1 Offer Pending</span>
+</div>
+<h4 class="font-body-bold text-body-bold text-ink-primary truncate mt-1">Lekki Phase 1 Prime Duplex</h4>
+<p class="font-label-sm text-label-sm text-ink-secondary truncate">5-Bed Detached with Boys Quarters</p>
+<div class="font-headline-sm text-headline-sm font-bold text-ink-primary font-meta-numeric mt-1">₦12,500,000<span class="text-label-sm font-normal text-ink-secondary">/yr asking</span></div>
+</div>
+</div>
+<div class="pt-1">
+<button class="w-full h-11 rounded-lg bg-surface-container text-ink-primary font-body-bold text-body-bold flex items-center justify-center gap-2 active:bg-surface-container-high transition-colors" onclick="triggerToast('Opening Offer #LK-902 from Barrister Sanusi')">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">rate_review</span>
+          Review Offer (₦11,800,000/yr)
+        </button>
+</div>
+</div>
+</section>
+<!-- Operational Feed & Pending Tasks -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Operational Feed &amp; Action Items</h3>
+<span class="w-2 h-2 rounded-full bg-status-danger animate-ping"></span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary font-medium">3 Priority</span>
+</div>
+<!-- Task 1: Viewing Request -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">person_pin_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-body-bold text-body-bold text-ink-primary">Viewing Request</h4>
+<span class="bg-surface-subtle-light text-ink-secondary text-[10px] px-1.5 py-0.5 rounded font-meta-numeric">ID Verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Dr. F. Alabi · Lekki Phase 1 Duplex</p>
+</div>
+</div>
+<span class="font-meta-numeric text-[11px] text-brand-sapphire bg-surface-subtle-light px-2 py-0.5 rounded font-semibold">Sat 24 Oct, 11:00 AM</span>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="h-11 rounded-lg bg-secondary-container/40 text-on-secondary-container font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-secondary-container transition-colors" onclick="completeTask(this, 'Viewing Confirmed for Sat 11:00 AM')">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Approve
+        </button>
+<button class="h-11 rounded-lg bg-surface-subtle-light text-ink-secondary font-body-bold text-body-bold flex items-center justify-center gap-1 active:bg-surface-container transition-colors" onclick="triggerToast('Proposing alternate slots to Dr. Alabi')">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          Reschedule
+        </button>
+</div>
+</div>
+<!-- Task 2: Short-Let Check-In -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">key</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-body-bold text-body-bold text-ink-primary">Automated Check-In</h4>
+<span class="bg-secondary-container/60 text-on-secondary-container text-[10px] px-1.5 py-0.5 rounded font-bold">PIN Generated</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Chidinma O. · Victoria Palms Suite 4</p>
+</div>
+</div>
+<span class="font-meta-numeric text-[11px] text-ink-secondary">Tomorrow 2:00 PM</span>
+</div>
+<div class="bg-surface-subtle-light p-2.5 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-ink-secondary">lock</span>
+<span class="font-meta-numeric text-label-sm text-ink-primary">Smart Lock Code: <strong class="tracking-widest">7492#</strong></span>
+</div>
+<span class="font-label-sm text-[11px] text-status-positive font-semibold">Active at 13:45</span>
+</div>
+</div>
+<!-- Task 3: Urgent Maintenance -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-error-container/40 flex items-center justify-center text-status-danger flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">plumbing</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-body-bold text-body-bold text-ink-primary">Water Pump Replacement</h4>
+<span class="bg-error-container/60 text-status-danger text-[10px] px-1.5 py-0.5 rounded font-bold">Urgent</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Lekki Duplex · Quoted ₦140,000</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-status-danger font-semibold">Tenant Waiting</span>
+</div>
+<button class="w-full h-11 rounded-lg bg-surface-container-high text-primary font-body-bold text-body-bold flex items-center justify-center gap-2 active:bg-surface-variant transition-colors" onclick="triggerToast('Vendor invoice #VP-202: ₦140,000 under review')">
+<span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
+        Review Quotation &amp; Disburse
+      </button>
+</div>
+</section>
+<!-- Step-Up Verification Modal (Dynamic Native Drawer) -->
+<div class="fixed inset-0 z-50 hidden flex-col justify-end bg-canvas-dark/65 backdrop-blur-[2px]" id="stepUpModal">
+<div class="w-full bg-surface-container-lowest rounded-t-2xl p-space-md shadow-2xl space-y-4 max-w-lg mx-auto">
+<div class="w-12 h-1.5 bg-surface-container rounded-full mx-auto"></div>
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Step-Up Authorization</h3>
+<p class="font-label-sm text-label-sm text-ink-secondary">Transfer Verification Required</p>
+</div>
+</div>
+<button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-ink-secondary" onclick="closeStepUpModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="bg-surface-subtle-light rounded-xl p-space-sm space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm text-ink-secondary">
+<span>Target Settlement Account:</span>
+<span class="font-meta-numeric text-ink-primary font-semibold">Providus •••• 4019</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-ink-secondary">
+<span>Max Cleared Amount:</span>
+<span class="font-meta-numeric text-status-positive font-bold">₦14,280,000.00</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-ink-primary font-medium block">Enter 6-Digit Authenticator (TOTP) Code</label>
+<div class="grid grid-cols-6 gap-2">
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-subtle-light text-ink-primary rounded-lg focus:outline-none focus:bg-surface-container-lowest" maxlength="1" readonly="" type="text" value="5"/>
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-subtle-light text-ink-primary rounded-lg focus:outline-none focus:bg-surface-container-lowest" maxlength="1" readonly="" type="text" value="8"/>
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-subtle-light text-ink-primary rounded-lg focus:outline-none focus:bg-surface-container-lowest" maxlength="1" readonly="" type="text" value="2"/>
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-container-high text-ink-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" placeholder="•" type="text"/>
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-container-high text-ink-primary rounded-lg focus:outline-none" maxlength="1" placeholder="•" type="text"/>
+<input class="h-12 text-center font-headline-sm font-bold bg-surface-container-high text-ink-primary rounded-lg focus:outline-none" maxlength="1" placeholder="•" type="text"/>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Immutable trace: SHA256-COLL-993-PROV-LG</p>
+</div>
+<div class="flex items-center gap-2 pt-2">
+<button class="w-1/2 h-11 rounded-lg bg-surface-subtle-light text-ink-secondary font-body-bold text-body-bold" onclick="closeStepUpModal()">
+          Cancel
+        </button>
+<button class="w-1/2 h-11 rounded-lg bg-brand-sapphire text-on-primary font-body-bold text-body-bold flex items-center justify-center gap-1 shadow-md" onclick="confirmPayout()">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+          Authorize Payout
+        </button>
+</div>
+</div>
+</div>
+<!-- Toast Element -->
+<div class="fixed bottom-20 left-4 right-4 z-50 hidden transition-all duration-300" id="toastNotification">
+<div class="bg-canvas-dark text-text-dark px-4 py-3 rounded-xl shadow-xl flex items-center justify-between gap-3 max-w-md mx-auto">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-[20px] text-status-positive" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md text-label-md truncate" id="toastMessage">Operation completed successfully</span>
+</div>
+<span class="font-meta-numeric text-[11px] text-text-dark-secondary">Secured</span>
+</div>
+</div>
+</div>
+<script>
+  function openStepUpModal() {
+    const modal = document.getElementById('stepUpModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeStepUpModal() {
+    const modal = document.getElementById('stepUpModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function confirmPayout() {
+    closeStepUpModal();
+    triggerToast('Payout Initiated: ₦14,280,000 dispatching to Providus');
+  }
+
+  function triggerToast(msg) {
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMessage');
+    toastMsg.innerText = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3200);
+  }
+
+  function completeTask(btn, successMsg) {
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done_all</span> Approved';
+    btn.classList.remove('bg-secondary-container/40', 'text-on-secondary-container');
+    btn.classList.add('bg-status-positive', 'text-on-primary');
+    triggerToast(successMsg);
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.04)]" data-active-classes="text-primary-container font-semibold"><div class="h-16 px-space-xs grid grid-cols-5 items-center justify-items-center max-w-lg mx-auto"><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors text-primary-container font-semibold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span><span class="font-label-sm text-[11px] leading-tight">Home</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-full h-full text-on-surface-variant transition-colors hover:text-primary-container" data-path="properties" href="#"><span class="material-symbols-outlined text-[24px]">domain</span><span class="font-label-sm text-[11px] leading-tight">Properties</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-full h-full text-on-surface-variant transition-colors hover:text-primary-container" data-path="listings" href="#"><span class="material-symbols-outlined text-[24px]">real_estate_agent</span><span class="font-label-sm text-[11px] leading-tight">Listings</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-full h-full text-on-surface-variant transition-colors hover:text-primary-container" data-path="wallet" href="#"><span class="material-symbols-outlined text-[24px]">account_balance_wallet</span><span class="font-label-sm text-[11px] leading-tight">Wallet</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-full h-full text-on-surface-variant transition-colors hover:text-primary-container" data-path="menu-more" href="#"><span class="material-symbols-outlined text-[24px]">more_horiz</span><span class="font-label-sm text-[11px] leading-tight">More</span></a></div></nav></body></html>

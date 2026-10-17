@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'on-error': '#ffffff', 'on-primary-fixed': '#00164e', 'secondary-container': '#9cf3e1', 'tertiary-fixed': '#dce1ff', 'surface-container': '#e7eeff', 'brand-sapphire': '#2459E0', 'status-danger': '#C93647', 'finance-held': '#7048E8', 'on-tertiary-container': '#dce1ff', 'on-primary': '#ffffff', 'on-surface-variant': '#434654', 'on-secondary': '#ffffff', 'surface-container-low': '#f0f3ff', 'border-default': '#DCE4F0', 'surface-variant': '#d5e3ff', 'surface-container-highest': '#d5e3ff', 'text-dark': '#ECF3FF', 'status-positive-dark': '#58D4BC', 'surface-tint': '#1852d9', 'surface-bright': '#f9f9ff', 'status-warning': '#9A6507', 'on-tertiary-fixed-variant': '#053ab0', 'on-secondary-fixed-variant': '#005046', 'ink-secondary': '#536479', 'canvas-dark': '#0C1525', 'surface': '#f9f9ff', 'primary-fixed': '#dce1ff', 'card-light': '#FFFFFF', 'on-background': '#0c1c31', 'brand-hover': '#1743B8', 'secondary': '#006b5d', 'tertiary-fixed-dim': '#b6c4ff', 'on-tertiary-fixed': '#001550', 'error': '#ba1a1a', 'finance-available': '#087A66', 'secondary-fixed': '#9cf3e1', 'on-tertiary': '#ffffff', 'primary-container': '#2459e0', 'surface-dim': '#ccdbf8', 'ink-primary': '#17263C', 'outline': '#747686', 'text-dark-secondary': '#ADC0D9', 'on-secondary-fixed': '#00201b', 'on-error-container': '#93000a', 'surface-container-high': '#dee8ff', 'background': '#f9f9ff', 'inverse-primary': '#b5c4ff', 'on-secondary-container': '#037163', 'outline-variant': '#c3c5d7', 'brand-dark-action': '#6C96FF', 'tertiary': '#1441b6', 'card-dark': '#17253A', 'secondary-fixed-dim': '#80d6c5', 'on-primary-fixed-variant': '#003baf', 'surface-container-lowest': '#ffffff', 'border-dark': '#344966', 'canvas-light': '#F6F8FC', 'status-warning-dark': '#F2BD69', 'status-positive': '#087A66', 'finance-pending': '#2459E0', 'on-primary-container': '#dce1ff', 'status-danger-dark': '#FF8694', 'finance-restricted': '#C93647', 'inverse-surface': '#223147', 'inverse-on-surface': '#ebf1ff', 'surface-subtle-light': '#EDF2FA', 'primary': '#0041bc', 'primary-fixed-dim': '#b5c4ff', 'error-container': '#ffdad6', 'on-surface': '#0c1c31', 'surface-subtle-dark': '#1E3048', 'tertiary-container': '#375bcf' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': { 'gutter': '1.5rem', 'gutter-mobile': '1rem', 'space-xl': '2rem', 'space-sm': '0.5rem', 'space-xs': '0.25rem', 'space-lg': '1.5rem', 'margin': '2rem', 'space-md': '1rem', 'margin-mobile': '1rem' }, 'fontFamily': { 'headline-sm': ['Inter'], 'label-md': ['Inter'], 'display-hero-mobile': ['Inter'], 'headline-lg-mobile': ['Inter'], 'headline-md': ['Inter'], 'headline-lg': ['Inter'], 'body-md': ['Inter'], 'body-bold': ['Inter'], 'meta-numeric': ['Inter'], 'display-hero': ['Inter'], 'body-lg': ['Inter'], 'label-sm': ['Inter'] }, 'fontSize': { 'headline-sm': ['18px', { 'lineHeight': '26px', 'fontWeight': '600' }], 'label-md': ['13px', { 'lineHeight': '18px', 'letterSpacing': '0.01em', 'fontWeight': '500' }], 'display-hero-mobile': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '700' }], 'headline-lg-mobile': ['26px', { 'lineHeight': '34px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'headline-md': ['22px', { 'lineHeight': '30px', 'letterSpacing': '-0.01em', 'fontWeight': '600' }], 'headline-lg': ['32px', { 'lineHeight': '40px', 'letterSpacing': '-0.015em', 'fontWeight': '600' }], 'body-md': ['14px', { 'lineHeight': '20px', 'fontWeight': '400' }], 'body-bold': ['14px', { 'lineHeight': '20px', 'fontWeight': '600' }], 'meta-numeric': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.03em', 'fontWeight': '600' }], 'display-hero': ['44px', { 'lineHeight': '52px', 'letterSpacing': '-0.02em', 'fontWeight': '700' }], 'body-lg': ['16px', { 'lineHeight': '24px', 'fontWeight': '400' }], 'label-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.02em', 'fontWeight': '500' }] } } } }</script></head><body class="bg-canvas-light text-on-surface font-body-md min-h-screen"><aside class="fixed left-0 top-0 h-screen w-[248px] bg-card-light border-r border-border-default z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-[72px] px-space-md border-b border-border-default flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-sm min-w-0"><img alt="CosmicForge Real Estate Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UzOze_DVp8fg8BQyy4Ch8YsarjeBEL4tGTYGh06366nhw_6pzXTdEWeyKpQ84KY2ekWz62dTRLfGDRdeTgU_96Sv0TomOuAwL6F3F3IKIvszHUjKfb4N79iyXYVc0TbY6gHw_73VH9WUrOVnqFWFfDOpILlw0P9Gd3JwV1yJU90HlAfua5gvCsEXLaagCg6wr8-Q_Ndhb8m3WpRji0hWQMaxzDp5sP7v0fSkzTAqr5Xtfvd117ARpCriw"/><div class="flex flex-col min-w-0 leading-tight"><span class="font-body-bold text-body-bold text-ink-primary truncate">CosmicForge</span><span class="font-label-sm text-label-sm text-ink-secondary">Real Estate</span></div></div><span class="font-label-sm text-label-sm bg-surface-subtle-light text-ink-secondary px-space-xs py-0.5 rounded border border-border-default whitespace-nowrap">Owner</span></div><div class="p-space-sm border-b border-border-default"><label class="font-label-sm text-label-sm text-ink-secondary block mb-space-xs uppercase tracking-wider font-semibold">Portfolio Focus</label><div class="relative"><select class="w-full h-9 bg-canvas-light border border-border-default rounded-lg px-space-sm pr-7 font-label-md text-label-md text-ink-primary appearance-none focus:outline-none focus:border-brand-sapphire cursor-pointer"><option value="all">All Properties (6)</option><option value="ikoyi">Penthouse A - Ikoyi (Let)</option><option value="lekki-1">4-Bed Terrace - Lekki I (Vacant)</option><option value="victoria-island">Commercial Floor - VI (Active)</option><option value="banana-island">Villa 9 - Banana Island (Short-Let)</option><option value="maitama">Duplex B - Maitama (Renovation)</option><option value="maryland">Retail Plaza - Maryland (Let)</option></select><span class="material-symbols-outlined absolute right-2 top-2 text-ink-secondary pointer-events-none text-[18px]">unfold_more</span></div></div><nav class="p-space-sm space-y-1" data-active-classes="bg-brand-sapphire text-on-primary font-semibold shadow-[0_2px_8px_rgba(36,89,224,0.2)]"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="properties" href="#"><span class="material-symbols-outlined text-[20px]">apartment</span><span>Properties</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="listings" href="#"><span class="material-symbols-outlined text-[20px]">storefront</span><span>Listings</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="leads-viewings" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span>Leads &amp; Viewings</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="tenancies-rent" href="#"><span class="material-symbols-outlined text-[20px]">real_estate_agent</span><span>Tenancies &amp; Rent</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="short-lets" href="#"><span class="material-symbols-outlined text-[20px]">hotel</span><span>Short-Lets</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="maintenance" href="#"><span class="material-symbols-outlined text-[20px]">build_circle</span><span>Maintenance</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="finance-wallet" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span>Finance &amp; Wallet</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="reports" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Reports</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors font-label-md text-label-md" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav></div><div class="p-space-sm border-t border-border-default"><div class="bg-canvas-light rounded-lg p-space-sm border border-border-default"><div class="flex items-center justify-between mb-1"><span class="font-label-sm text-label-sm text-ink-secondary">Ledger Sync</span><span class="h-2 w-2 rounded-full bg-status-positive"></span></div><p class="font-meta-numeric text-meta-numeric text-ink-primary font-semibold">14:28:02 UTC - Verified</p></div></div></aside><div class="pl-[248px]"><header class="fixed top-0 left-[248px] right-0 h-[72px] bg-card-light/95 backdrop-blur-md border-b border-border-default z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-[#E6F5F2] border border-[#BCE8DF] text-status-positive font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span><span class="font-medium">Gateway: Connected / v1.4</span></div><div class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-subtle-light border border-border-default text-ink-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-brand-sapphire">verified_user</span><span class="font-medium">MFA Verified</span></div></div><div class="flex items-center gap-space-md"><button aria-label="Notifications" class="relative p-2 rounded-lg text-ink-secondary hover:bg-surface-subtle-light hover:text-ink-primary transition-colors border border-border-default" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute -top-1 -right-1 w-5 h-5 bg-status-danger text-on-error font-label-sm text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-card-light">3</span></button><div class="h-8 w-px bg-border-default"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-border-default flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTywOfGXRa2DBfBm6Lrk7qwJWnkG4x_hzsu-QmElS4nfLphK5FQHSPinq9sjSjmwJq6Rj59Sl3RcYcIsSHyPXeeRgZ2LoLCqMmxUFogl2slskQgfgP6bqHjEe7pzP84p83D6BXmbuXoK45EutiCxsQ7mDiWT5525AXPcWtDxEtLqnb0xEqX-gqja4TDTcZOjLFmo8haR2EPUR-GXbjOZuK6MhtA7QwiFKCPdATV5WDBXE_Cs6sz6b6gg"/><div class="flex flex-col text-left"><span class="font-body-bold text-body-bold text-ink-primary leading-tight">Adeyemi Cole</span><span class="font-label-sm text-label-sm text-ink-secondary">Individual Owner</span></div><button aria-label="Account actions" class="text-ink-secondary hover:text-ink-primary" type="button"><span class="material-symbols-outlined text-[18px]">expand_more</span></button></div></div></header><main class="w-full pt-[72px] bg-canvas-light min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Header Bar with Global Context & Operational Triggers -->
+<div class="px-space-xl py-space-md bg-card-light flex flex-col md:flex-row md:items-center justify-between gap-space-md shadow-sm">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-meta-numeric text-meta-numeric px-space-xs py-0.5 rounded bg-surface-container text-brand-sapphire uppercase tracking-wider font-semibold">Module 20 · Serviced Suites</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-status-positive font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive animate-pulse"></span>
+          Channels Live Sync (Airbnb · Booking.com · Direct)
+        </span>
+</div>
+<h1 class="font-headline-md text-headline-md text-ink-primary tracking-tight">Short-Let Operations &amp; Calendar</h1>
+<p class="font-body-md text-body-md text-ink-secondary">Dynamic multi-channel bookings, automated smart PIN provisioning, guest KYC screening &amp; turnaround housekeeping across serviced units.</p>
+</div>
+<!-- Action Group -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="h-10 px-space-md rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-ink-secondary">event_busy</span>
+<span>Block Dates</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">sync</span>
+<span>Sync iCal / Channels</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Configure Unit Tariff</span>
+</button>
+</div>
+</div>
+<div class="p-space-xl space-y-space-xl max-w-[1440px] mx-auto w-full">
+<!-- KPI Section: 4 Authoritative Ledger Balance & Status Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Inflow Balance -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-start justify-between mb-space-xs">
+<span class="font-label-md text-label-md text-ink-secondary uppercase tracking-wider font-semibold">Monthly Inflow (Gross)</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-brand-sapphire px-2 py-0.5 rounded-full font-medium">+14% MoM</span>
+</div>
+<div class="space-y-1 mb-space-sm">
+<div class="font-display-hero text-headline-lg text-ink-primary tabular-nums tracking-tight leading-none">₦4,850,000</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-status-positive text-[16px]">show_chart</span>
+<span>88.4% blended occupancy (4 suites)</span>
+</div>
+</div>
+<div class="pt-space-xs bg-surface-subtle-light -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between text-ink-secondary">
+<span class="font-meta-numeric text-meta-numeric">RevPAR: ₦98,400</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive font-semibold">Settled: Paystack direct</span>
+</div>
+</div>
+<!-- Cautionary Deposits (Escrow) -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-start justify-between mb-space-xs">
+<span class="font-label-md text-label-md text-ink-secondary uppercase tracking-wider font-semibold">Cautionary Escrow</span>
+<span class="font-label-sm text-label-sm bg-[#E6F5F2] text-status-positive px-2 py-0.5 rounded-full font-medium">100% Ring-fenced</span>
+</div>
+<div class="space-y-1 mb-space-sm">
+<div class="font-display-hero text-headline-lg text-ink-primary tabular-nums tracking-tight leading-none">₦650,000</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-status-positive text-[16px]">verified</span>
+<span>GTBank Custody · 0 active claims</span>
+</div>
+</div>
+<div class="pt-space-xs bg-surface-subtle-light -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between text-ink-secondary">
+<span class="font-meta-numeric text-meta-numeric">Auto-refund on 48h check-out</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire font-semibold">Ledger Sync</span>
+</div>
+</div>
+<!-- Turnaround & Cleaning Tasks -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-start justify-between mb-space-xs">
+<span class="font-label-md text-label-md text-ink-secondary uppercase tracking-wider font-semibold">Daily Turnarounds</span>
+<span class="font-label-sm text-label-sm bg-[#FEF7EB] text-status-warning px-2 py-0.5 rounded-full font-medium">1 Before 15:00</span>
+</div>
+<div class="space-y-1 mb-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-display-hero text-headline-lg text-ink-primary tabular-nums tracking-tight leading-none">3</span>
+<span class="font-label-md text-label-md text-ink-secondary">Scheduled Today</span>
+</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-status-positive text-[16px]">check_circle</span>
+<span>2 Completed · EcoClean Lagos</span>
+</div>
+</div>
+<div class="pt-space-xs bg-surface-subtle-light -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between text-ink-secondary">
+<span class="font-meta-numeric text-meta-numeric">Unit 4B — Cleaning In-progress</span>
+<span class="font-meta-numeric text-meta-numeric text-status-warning font-semibold">78% Done</span>
+</div>
+</div>
+<!-- Sovereign Review Booking Requests -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-start justify-between mb-space-xs">
+<span class="font-label-md text-label-md text-ink-secondary uppercase tracking-wider font-semibold">Pending Requests</span>
+<span class="font-label-sm text-label-sm bg-surface-container text-tertiary px-2 py-0.5 rounded-full font-medium">Sovereign Step-up</span>
+</div>
+<div class="space-y-1 mb-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-display-hero text-headline-lg text-ink-primary tabular-nums tracking-tight leading-none">2</span>
+<span class="font-label-md text-label-md text-ink-secondary">High-Value Stays</span>
+</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-brand-sapphire text-[16px]">gavel</span>
+<span>Total Value: ₦1,420,000</span>
+</div>
+</div>
+<div class="pt-space-xs bg-surface-subtle-light -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between text-ink-secondary">
+<span class="font-meta-numeric text-meta-numeric">Requires Owner Consent</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire font-semibold underline cursor-pointer">Review KYC</span>
+</div>
+</div>
+</div>
+<!-- Multi-Unit Interactive Booking Matrix Calendar -->
+<div class="bg-card-light rounded-xl shadow-sm overflow-hidden">
+<!-- Calendar Controls Bar -->
+<div class="p-space-md bg-card-light flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary transition-colors" title="Previous Month">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<div class="flex items-center gap-2 px-space-sm">
+<span class="material-symbols-outlined text-[20px] text-brand-sapphire">calendar_today</span>
+<span class="font-headline-sm text-headline-sm text-ink-primary">October 2026</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-brand-sapphire font-semibold">West Africa Time (UTC+1)</span>
+</div>
+<button class="p-2 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary transition-colors" title="Next Month">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<div class="hidden sm:flex items-center bg-surface-subtle-light p-1 rounded-lg">
+<button class="px-3 py-1 font-label-md text-label-md rounded text-ink-secondary hover:text-ink-primary">Day</button>
+<button class="px-3 py-1 font-label-md text-label-md rounded text-ink-secondary hover:text-ink-primary">Week</button>
+<button class="px-3 py-1 font-label-md text-label-md rounded bg-card-light text-brand-sapphire font-semibold shadow-sm">Matrix View</button>
+<button class="px-3 py-1 font-label-md text-label-md rounded text-ink-secondary hover:text-ink-primary">Month</button>
+</div>
+</div>
+<!-- Legend / Channels -->
+<div class="flex flex-wrap items-center gap-space-md text-ink-secondary font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded bg-brand-sapphire"></span>
+<span>Direct Paystack</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded bg-status-positive"></span>
+<span>Corporate / Diplomatic</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded bg-tertiary"></span>
+<span>Airbnb API</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded bg-status-danger"></span>
+<span>Maintenance Block</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded bg-surface-subtle-light"></span>
+<span>Instant Available</span>
+</div>
+</div>
+</div>
+<!-- Calendar Matrix Table -->
+<div class="overflow-x-auto">
+<div class="min-w-[1080px]">
+<!-- Days Header Row -->
+<div class="grid grid-cols-12 bg-surface-subtle-light text-ink-secondary font-label-sm text-label-sm">
+<div class="col-span-3 p-space-md font-body-bold text-ink-primary">Serviced Units · Lagos Portfolio</div>
+<div class="col-span-9 grid grid-cols-7 text-center">
+<div class="p-space-sm">
+<span class="block text-ink-secondary font-meta-numeric">MON</span>
+<span class="font-body-bold text-ink-primary text-base">12</span>
+</div>
+<div class="p-space-sm">
+<span class="block text-ink-secondary font-meta-numeric">TUE</span>
+<span class="font-body-bold text-ink-primary text-base">13</span>
+</div>
+<div class="p-space-sm bg-surface-container font-semibold">
+<span class="block text-brand-sapphire font-meta-numeric">TODAY · WED</span>
+<span class="font-body-bold text-brand-sapphire text-base">14</span>
+</div>
+<div class="p-space-sm">
+<span class="block text-ink-secondary font-meta-numeric">THU</span>
+<span class="font-body-bold text-ink-primary text-base">15</span>
+</div>
+<div class="p-space-sm">
+<span class="block text-ink-secondary font-meta-numeric">FRI</span>
+<span class="font-body-bold text-ink-primary text-base">16</span>
+</div>
+<div class="p-space-sm bg-surface-container-low">
+<span class="block text-ink-secondary font-meta-numeric">SAT</span>
+<span class="font-body-bold text-ink-primary text-base">17</span>
+</div>
+<div class="p-space-sm bg-surface-container-low">
+<span class="block text-ink-secondary font-meta-numeric">SUN</span>
+<span class="font-body-bold text-ink-primary text-base">18</span>
+</div>
+</div>
+</div>
+<!-- Unit 1: Ikoyi Garden Suite -->
+<div class="grid grid-cols-12 items-stretch bg-card-light hover:bg-surface-subtle-light/40 transition-colors">
+<div class="col-span-3 p-space-md flex flex-col justify-center">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Unit 4B — Garden Suite</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive bg-[#E6F5F2] px-1.5 py-0.5 rounded">Active</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">The Sapphire Horizon, Ikoyi</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-meta-numeric text-meta-numeric font-semibold text-ink-primary">₦150,000 / night</span>
+<span class="text-ink-secondary">·</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">key</span> Igloohome PIN
+                </span>
+</div>
+</div>
+<div class="col-span-9 grid grid-cols-7 relative p-2 gap-1 items-center">
+<!-- Dr. Femi Oladipo Booking Block across Mon-Fri -->
+<div class="col-span-4 h-14 bg-brand-sapphire rounded-lg p-2 text-on-primary flex flex-col justify-between shadow-sm relative group cursor-pointer hover:bg-brand-hover transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[15px] text-white">verified</span>
+<span class="font-label-md text-label-md font-semibold truncate text-white">Dr. Femi Oladipo</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric bg-white/20 text-white px-1.5 py-0.2 rounded font-medium">Paystack Direct</span>
+</div>
+<div class="flex items-center justify-between text-white/90 font-label-sm text-[11px]">
+<span>Check-in: 14:00 WAT Today · Smart PIN: #4829</span>
+<span class="font-semibold text-white">₦600,000 (4 nts)</span>
+</div>
+</div>
+<!-- Available Weekend Block -->
+<div class="col-span-3 h-14 bg-surface-subtle-light rounded-lg p-2 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-surface-variant transition-colors">
+<span class="font-label-sm text-label-sm font-semibold text-ink-primary">Instant Booking Active</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">₦150,000 / night (Min 2 nights)</span>
+</div>
+</div>
+</div>
+<!-- Unit 2: Victoria Palms Penthouse -->
+<div class="grid grid-cols-12 items-stretch bg-card-light hover:bg-surface-subtle-light/40 transition-colors">
+<div class="col-span-3 p-space-md flex flex-col justify-center">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Suite 2 — Exec Penthouse</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive bg-[#E6F5F2] px-1.5 py-0.5 rounded">Active</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">Victoria Palms, VI</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-meta-numeric text-meta-numeric font-semibold text-ink-primary">₦95,000 / night</span>
+<span class="text-ink-secondary">·</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">lock</span> Yale Linus
+                </span>
+</div>
+</div>
+<div class="col-span-9 grid grid-cols-7 relative p-2 gap-1 items-center">
+<!-- Ambassador Jenkins Long-stay -->
+<div class="col-span-5 h-14 bg-status-positive rounded-lg p-2 text-on-primary flex flex-col justify-between shadow-sm relative group cursor-pointer hover:opacity-95 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="material-symbols-outlined text-[15px] text-white">shield</span>
+<span class="font-label-md text-label-md font-semibold truncate text-white">Amb. Sarah Jenkins (Diplomatic UK)</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric bg-white/20 text-white px-1.5 py-0.2 rounded font-medium">Corporate Escrow</span>
+</div>
+<div class="flex items-center justify-between text-white/90 font-label-sm text-[11px]">
+<span>Stay duration: 5 of 7 Nights · Cautionary: ₦150,000 Safe</span>
+<span class="font-semibold text-white">₦475,000 Total</span>
+</div>
+</div>
+<!-- Instant bookable weekend -->
+<div class="col-span-2 h-14 bg-surface-subtle-light rounded-lg p-2 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-surface-variant transition-colors">
+<span class="font-label-sm text-label-sm font-semibold text-ink-primary">Available</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Weekend Surge Active</span>
+</div>
+</div>
+</div>
+<!-- Unit 3: Studio 104 Marina View -->
+<div class="grid grid-cols-12 items-stretch bg-card-light hover:bg-surface-subtle-light/40 transition-colors">
+<div class="col-span-3 p-space-md flex flex-col justify-center">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Studio 104 — Marina View</span>
+<span class="font-meta-numeric text-meta-numeric text-status-warning bg-[#FEF7EB] px-1.5 py-0.5 rounded">Turnover</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">Victoria Palms, VI</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-meta-numeric text-meta-numeric font-semibold text-ink-primary">₦65,000 / night</span>
+<span class="text-ink-secondary">·</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">pin</span> TTlock Online
+                </span>
+</div>
+</div>
+<div class="col-span-9 grid grid-cols-7 relative p-2 gap-1 items-center">
+<!-- Monday past booking -->
+<div class="col-span-2 h-14 bg-surface-subtle-light rounded-lg p-2 flex flex-col justify-between">
+<span class="font-label-sm text-label-sm font-semibold text-ink-secondary">Past: Tunde Balogun</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive">Checkout Approved · ₦130k</span>
+</div>
+<!-- Maintenance Block -->
+<div class="col-span-2 h-14 bg-status-danger/10 text-status-danger rounded-lg p-2 flex flex-col justify-between">
+<div class="flex items-center justify-between font-label-md text-label-md font-semibold">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">build</span>
+<span>Blocked: Daikin AC Servicing</span>
+</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-status-danger">Scheduled Tech: CoolTech Ltd</span>
+</div>
+<!-- Weekend Booking Airbnb -->
+<div class="col-span-3 h-14 bg-tertiary rounded-lg p-2 text-on-primary flex flex-col justify-between shadow-sm cursor-pointer hover:bg-tertiary-container transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold truncate text-white">Chinedu Eze &amp; Spouse</span>
+<span class="font-meta-numeric text-meta-numeric bg-white/20 text-white px-1.5 py-0.2 rounded font-medium">Airbnb API</span>
+</div>
+<div class="flex items-center justify-between text-white/90 font-label-sm text-[11px]">
+<span>Arrives Fri 17:00 · Keypad PIN #1092</span>
+<span class="font-semibold text-white">₦195,000 (3 nts)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Unit 4: Villa BQ Lekki 1 -->
+<div class="grid grid-cols-12 items-stretch bg-card-light hover:bg-surface-subtle-light/40 transition-colors">
+<div class="col-span-3 p-space-md flex flex-col justify-center">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Villa BQ — Lekki Phase 1</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive bg-[#E6F5F2] px-1.5 py-0.5 rounded">Active</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">Admiralty Way District</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-meta-numeric text-meta-numeric font-semibold text-ink-primary">₦85,000 / night</span>
+<span class="text-ink-secondary">·</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">wifi</span> Online Gateway
+                </span>
+</div>
+</div>
+<div class="col-span-9 grid grid-cols-7 relative p-2 gap-1 items-center">
+<!-- Full 7 Days Continuous Corporate Booking -->
+<div class="col-span-7 h-14 bg-brand-sapphire rounded-lg p-2 text-on-primary flex flex-col justify-between shadow-sm cursor-pointer hover:bg-brand-hover transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-white">business_center</span>
+<span class="font-label-md text-label-md font-semibold text-white">Chevron Sub-Contractor Engineering Team (Rotational)</span>
+</div>
+<span class="font-label-sm text-label-sm bg-white/20 text-white px-2 py-0.5 rounded font-medium">Extended Direct Stay (Day 4/14)</span>
+</div>
+<div class="flex items-center justify-between text-white/90 font-label-sm text-[11px]">
+<span>Authorized Lead: Engr. Kolawole Davies · Bio-pass + Smart Lock PIN configured</span>
+<span class="font-semibold text-white">₦1,190,000 Settled (GTBank)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Calendar Bottom Synchronizer Strip -->
+<div class="px-space-md py-space-xs bg-surface-subtle-light flex flex-col sm:flex-row items-center justify-between gap-space-xs text-ink-secondary font-meta-numeric text-meta-numeric">
+<div class="flex items-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-status-positive"></span>
+<span>iCalendar synchronization feed: Active (Last checked 4 minutes ago via webhooks)</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-brand-sapphire hover:underline font-semibold" href="#">Download Operational Schedule (.ICS)</a>
+<span>·</span>
+<span>Export Housekeeper Manifest (PDF)</span>
+</div>
+</div>
+</div>
+<!-- Detailed Booking Management & Operations Split View -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column (7 cols): Upcoming Arrivals & Active Stays -->
+<div class="lg:col-span-7 space-y-space-md">
+<div class="bg-card-light rounded-xl shadow-sm p-space-md flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">luggage</span>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary">Upcoming Arrivals &amp; Live Stays</h2>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container text-brand-sapphire px-2 py-1 rounded font-semibold">3 Units Occupied</span>
+</div>
+<!-- Guest Card 1: Today's Arrival -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm space-y-space-sm hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Professional portrait headshot of Dr Femi Oladipo smiling in a dark suit against neutral corporate architectural background, cinematic lighting, sharp clarity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz7qKJbPLNicNtJH5xYrt2E9tT2Jv5o9nQ68ZQXAEILTRm3eqI35AdhBsHPgmd2lPU0-HvChG-e0iyeIg9dc8KJZNAJW2Y_OOUJeoNyBJWHEyM1Kp83pNjg52yW-l0Qg3q7pacG1fpArvyKOE6v5dt0wJV7e2JL0xJOvlcRTxua_W7o2Lv5WlknsvqjgjcXEaO8GCZSnJ1KafkHdSSpaS5ebDAJCfQCQTlmDO56uIKlgIDy0nWh26A3w"/>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-body-bold text-body-bold text-ink-primary">Dr. Femi Oladipo</h3>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full font-label-sm text-label-sm bg-[#E6F5F2] text-status-positive font-semibold">
+<span class="material-symbols-outlined text-[13px]">verified_user</span> NIN &amp; BVN Verified
+                  </span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Unit 4B — Garden Suite (Sapphire Horizon, Ikoyi)</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-meta-numeric text-meta-numeric bg-[#FEF7EB] text-status-warning px-2 py-1 rounded font-bold uppercase tracking-wider">Arrival Today 14:00</span>
+<p class="font-meta-numeric text-meta-numeric text-ink-secondary mt-1">Paystack Tx: #PST-882901-NG</p>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 py-space-xs bg-surface-subtle-light rounded-lg px-space-sm text-center">
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Duration</span>
+<span class="font-body-bold text-body-bold text-ink-primary">4 Nights</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Net Payout</span>
+<span class="font-body-bold text-body-bold text-status-positive">₦540,000</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Cautionary Deposit</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦150,000 Held</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Lock Passcode</span>
+<span class="font-meta-numeric text-meta-numeric font-bold text-brand-sapphire bg-card-light px-2 py-0.5 rounded">4829# (Pending)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-[16px] text-status-positive">check_circle</span>
+<span>Housekeeping turnaround signed off by Grace D. at 13:15 WAT</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">sms</span>
+<span>Send WhatsApp Guide</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">lock_open</span>
+<span>Activate Smart PIN</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Guest Card 2: Active Diplomatic Stay -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm space-y-space-sm hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait photo of Ambassador Sarah Jenkins, a middle aged European woman with glasses and formal diplomatic attire, soft office lighting, confident and authoritative" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfsIJuoeqfZgrVRMpazMt2_hxT_7os3a0lUWBIoK2tup8696m-nuJeTLFKt4uc5xxZew2ug7SChEkXTm7G-EIeZ1EK_ybez2ZBvy23kt-DprezzxiyQFswXw-NGr2LpjeGBHQnSum5pp-Z1rXQxmDqgSWWEjXtfFhzS4uq5CVBPmF2z-mKHfaTGLskr9ripY5RS-PJG8ZGRaKQ1tBrKoizGp_6KiFvXmJWpWTCdU919Bp_b2P8k0S_xA"/>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-body-bold text-body-bold text-ink-primary">Amb. Sarah Jenkins</h3>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full font-label-sm text-label-sm bg-[#E6F5F2] text-status-positive font-semibold">
+<span class="material-symbols-outlined text-[13px]">policy</span> Diplomatic Passport
+                  </span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary">Suite 2 — Exec Penthouse (Victoria Palms, VI)</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-meta-numeric text-meta-numeric bg-[#E6F5F2] text-status-positive px-2 py-1 rounded font-bold uppercase tracking-wider">In-Stay · Day 3 of 7</span>
+<p class="font-meta-numeric text-meta-numeric text-ink-secondary mt-1">Ref: #DIP-UK-LOS-2026</p>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 py-space-xs bg-surface-subtle-light rounded-lg px-space-sm text-center">
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Check-out Date</span>
+<span class="font-body-bold text-body-bold text-ink-primary">Sun, 18 Oct</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Total Folio</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦665,000</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Escrow Ring-fence</span>
+<span class="font-body-bold text-body-bold text-status-positive">₦150,000 Clean</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary block">Lock Access</span>
+<span class="font-meta-numeric text-meta-numeric font-bold text-status-positive bg-card-light px-2 py-0.5 rounded">Active (Yale BLE)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-ink-secondary">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">room_service</span>
+<span>Mid-stay linen refresh scheduled for Tomorrow 10:00 WAT</span>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">badge</span>
+<span>Inspect Guest Ledger</span>
+</button>
+</div>
+</div>
+<!-- Pending Booking Alert Card -->
+<div class="bg-card-light rounded-xl p-space-md shadow-sm space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-warning text-[20px]">notification_important</span>
+<h4 class="font-body-bold text-body-bold text-ink-primary">Pending Booking Awaiting Owner Sovereign Approval</h4>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-status-warning font-semibold">12h Expiration Window</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary">
+            Request from <strong class="text-ink-primary">Akinwale Odusanya (Nestoil Exec)</strong> for Unit 4B (19 Oct – 26 Oct, 7 Nights, ₦1,050,000). Automated KYC identity check clear. Cautionary deposit pre-authorized.
+          </p>
+<div class="flex items-center justify-end gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-status-danger font-label-md text-label-md">
+              Decline Request
+            </button>
+<button class="px-4 py-1.5 rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-label-md text-label-md shadow-sm">
+              Approve &amp; Issue Escrow Contract
+            </button>
+</div>
+</div>
+</div>
+<!-- Right Column (5 cols): Turnover Housekeeping Protocol & Smart Device Rail -->
+<div class="lg:col-span-5 space-y-space-md">
+<!-- Housekeeping & Turnover Widget -->
+<div class="bg-card-light rounded-xl shadow-sm p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-positive text-[22px]">cleaning_services</span>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary">Turnover Protocol</h2>
+</div>
+<span class="font-label-sm text-label-sm bg-[#E6F5F2] text-status-positive px-2 py-0.5 rounded font-semibold">Contractor Active</span>
+</div>
+<!-- Contractor Info -->
+<div class="p-space-sm bg-surface-subtle-light rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait photo of Grace Danjuma, head housekeeper in professional navy polo uniform holding digital tablet in modern upscale apartment hallway" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNBSCOBNX-QrTvnHy-LRwjpXd0jGmsV_PBLhe1bjx6snyEHMrEkgX7F4-HvBJ8UljysPprUft33AF97U491AXGx_DI7lacqTYibRYUfEjCgONuMhqrORkNpNjQ_y-vMtaSdINTAtKKba0wBGdaBvPXjKaqSWaa3irDNFmdA9qDC6Q9wbAvlB2X3gaeQTljpMtRmzMN6dj4G3roDSO3KrUB0tG9KlywDvTxQm89JiVY2kxpPjOi_6JTPg"/>
+<div>
+<span class="font-body-bold text-body-bold text-ink-primary block leading-tight">Grace Danjuma</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">EcoClean Lagos · 4.98 Service Rating</span>
+</div>
+</div>
+<button class="p-2 rounded-lg bg-card-light hover:bg-surface-variant text-brand-sapphire" title="Call Housekeeper">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+<!-- Turnover Progress Checklist -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-ink-secondary font-semibold">Unit 4B Turnover Checklist</span>
+<span class="font-meta-numeric text-meta-numeric font-bold text-status-positive">4 / 5 Items Signed-off</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-subtle-light h-2 rounded-full overflow-hidden">
+<div class="bg-status-positive h-full rounded-full transition-all duration-500" style="width: 80%;"></div>
+</div>
+<div class="space-y-2 pt-1 font-label-sm text-label-sm">
+<div class="flex items-center justify-between p-2 rounded bg-surface-subtle-light/60">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-status-positive text-[18px]">check_box</span>
+<span>Egyptian Cotton Linen &amp; Towel Set Replaced</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">12:30 WAT</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-subtle-light/60">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-status-positive text-[18px]">check_box</span>
+<span>Kitchenette &amp; Nespresso Pod Refill (10 pods)</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">12:45 WAT</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-subtle-light/60">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-status-positive text-[18px]">check_box</span>
+<span>Digital Minibar Audit &amp; Water Restock (Eva &amp; San Pellegrino)</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">13:00 WAT</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-subtle-light/60">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-status-positive text-[18px]">check_box</span>
+<span>Fiber Internet &amp; Smart TV Sign-out Wipe</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">13:12 WAT</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-[#FEF7EB]">
+<div class="flex items-center gap-2 text-status-warning font-semibold">
+<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+<span>Final Ozone Air Sanitization &amp; Keypad Disinfect</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-status-warning font-bold">In-Progress</span>
+</div>
+</div>
+</div>
+<!-- Digital Smart Lock Automation Widget -->
+<div class="pt-space-sm space-y-space-xs">
+<h3 class="font-label-md text-label-md text-ink-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-brand-sapphire">lock</span>
+<span>Smart Lock Hardware Gateway · Status</span>
+</h3>
+<div class="grid grid-cols-2 gap-space-xs font-label-sm text-label-sm">
+<div class="p-2.5 rounded-lg bg-surface-subtle-light">
+<span class="text-ink-secondary block font-meta-numeric text-[11px]">4B Front Door</span>
+<span class="font-body-bold text-ink-primary">Igloohome Bridge</span>
+<div class="flex items-center gap-1 mt-1 text-status-positive font-meta-numeric text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span> Battery 92% · Mesh OK
+                </div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-subtle-light">
+<span class="text-ink-secondary block font-meta-numeric text-[11px]">Suite 2 VI</span>
+<span class="font-body-bold text-ink-primary">Yale Linus BLE</span>
+<div class="flex items-center gap-1 mt-1 text-status-positive font-meta-numeric text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span> Battery 86% · Mesh OK
+                </div>
+</div>
+</div>
+<div class="pt-2">
+<button class="w-full h-9 rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px] text-brand-sapphire">replay</span>
+<span>Force Re-generate All Smart Lock PINs</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Occupancy Heatmap Visual Insight -->
+<div class="bg-card-light rounded-xl shadow-sm p-space-md space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">October Demand Yield Projection</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive font-bold">+18.2% vs Lekki Benchmark</span>
+</div>
+<!-- Inline SVG Mini Area Yield Trendline Chart -->
+<div class="w-full h-24 bg-surface-subtle-light rounded-lg p-2 flex items-end">
+<svg class="w-full h-full text-brand-sapphire overflow-visible" preserveaspectratio="none" viewbox="0 0 300 70">
+<defs>
+<lineargradient id="yieldGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2459E0" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#2459E0" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<path d="M 0,55 Q 30,50 60,42 T 120,30 T 180,38 T 240,15 T 300,8 L 300,70 L 0,70 Z" fill="url(#yieldGradient)"></path>
+<path d="M 0,55 Q 30,50 60,42 T 120,30 T 180,38 T 240,15 T 300,8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<circle cx="120" cy="30" fill="#2459E0" r="4" stroke="#FFFFFF" stroke-width="2"></circle>
+<circle cx="300" cy="8" fill="#087A66" r="4" stroke="#FFFFFF" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="flex items-center justify-between font-meta-numeric text-meta-numeric text-ink-secondary">
+<span>Oct 1 (₦3.2M)</span>
+<span class="text-brand-sapphire font-semibold">Today: ₦4.85M Inflow</span>
+<span class="text-status-positive font-semibold">Oct 31 Est: ₦6.1M</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Guest Verification & Damage Protection Escrow Shield Banner -->
+<div class="bg-card-light rounded-xl p-space-lg shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-xl bg-[#E6F5F2] text-status-positive flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[28px]">gavel</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<h4 class="font-headline-sm text-headline-sm text-ink-primary">CosmicForge Escrow &amp; Asset Protection Shield</h4>
+<span class="font-meta-numeric text-meta-numeric bg-[#E6F5F2] text-status-positive px-2 py-0.5 rounded font-bold">Active SLA Guarantee</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary max-w-3xl">
+            Guest cautionary security deposits (₦50,000 – ₦150,000 per booking) are locked in segregated GTBank Escrow Custody. Funds are released strictly after digital checkout inspection is confirmed by the owner or authorized manager within 48 hours. Zero unverified check-ins permitted.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm flex-shrink-0">
+<button class="h-10 px-space-md rounded-lg bg-surface-subtle-light hover:bg-surface-variant text-ink-primary font-label-md text-label-md transition-colors">
+          View Escrow Vault Ledger
+        </button>
+<button class="h-10 px-space-md rounded-lg bg-brand-sapphire hover:bg-brand-hover text-on-primary font-label-md text-label-md transition-colors shadow-sm">
+          Damage Dispute Protocol
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for date navigation and filter states
+  document.addEventListener('DOMContentLoaded', () => {
+    const matrixBlocks = document.querySelectorAll('.group.cursor-pointer');
+    matrixBlocks.forEach(block => {
+      block.addEventListener('click', () => {
+        // Subtle haptic response indicator for interaction fidelity
+        console.log('Short-Let Matrix stay inspected.');
+      });
+    });
+  });
+</script></main></div></body></html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-container": "#dce1ff", "surface-subtle-dark": "#1E3048", "on-error": "#ffffff", "tertiary-container": "#375bcf", "surface": "#f9f9ff", "surface-container": "#e7eeff", "secondary-fixed": "#9cf3e1", "card-light": "#FFFFFF", "on-secondary-fixed": "#00201b", "secondary": "#006b5d", "on-tertiary-fixed": "#001550", "ink-secondary": "#536479", "inverse-on-surface": "#ebf1ff", "card-dark": "#17253A", "inverse-surface": "#223147", "brand-dark-action": "#6C96FF", "surface-subtle-light": "#EDF2FA", "tertiary-fixed": "#dce1ff", "on-surface-variant": "#434654", "brand-hover": "#1743B8", "status-positive": "#087A66", "status-warning-dark": "#F2BD69", "on-secondary-fixed-variant": "#005046", "canvas-dark": "#0C1525", "on-secondary": "#ffffff", "primary-fixed": "#dce1ff", "error-container": "#ffdad6", "on-secondary-container": "#037163", "status-danger": "#C93647", "ink-primary": "#17263C", "status-positive-dark": "#58D4BC", "on-tertiary-fixed-variant": "#053ab0", "border-default": "#DCE4F0", "background": "#f9f9ff", "on-background": "#0c1c31", "on-primary-fixed": "#00164e", "surface-dim": "#ccdbf8", "border-dark": "#344966", "outline": "#747686", "primary": "#0041bc", "surface-container-highest": "#d5e3ff", "tertiary": "#1441b6", "finance-restricted": "#C93647", "text-dark-secondary": "#ADC0D9", "status-warning": "#9A6507", "surface-container-low": "#f0f3ff", "on-primary-fixed-variant": "#003baf", "secondary-container": "#9cf3e1", "status-danger-dark": "#FF8694", "finance-held": "#7048E8", "on-surface": "#0c1c31", "on-primary-container": "#dce1ff", "surface-container-lowest": "#ffffff", "surface-container-high": "#dee8ff", "surface-bright": "#f9f9ff", "primary-fixed-dim": "#b5c4ff", "text-dark": "#ECF3FF", "primary-container": "#2459e0", "surface-tint": "#1852d9", "tertiary-fixed-dim": "#b6c4ff", "finance-pending": "#2459E0", "surface-variant": "#d5e3ff", "brand-sapphire": "#2459E0", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#80d6c5", "on-primary": "#ffffff", "inverse-primary": "#b5c4ff", "finance-available": "#087A66", "on-error-container": "#93000a", "outline-variant": "#c3c5d7", "canvas-light": "#F6F8FC", "error": "#ba1a1a" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "gutter-mobile": "1rem", "margin": "2rem", "space-xs": "0.25rem", "space-xl": "2rem", "space-md": "1rem", "gutter": "1.5rem", "margin-mobile": "1rem", "space-sm": "0.5rem" }, fontFamily: { "headline-md": ["Inter"], "meta-numeric": ["Inter"], "body-bold": ["Inter"], "headline-lg": ["Inter"], "display-hero": ["Inter"], "body-lg": ["Inter"], "display-hero-mobile": ["Inter"], "headline-lg-mobile": ["Inter"], "label-sm": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"] }, fontSize: { "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "meta-numeric": ["12px", { lineHeight: "16px", letterSpacing: "0.03em", fontWeight: "600" }], "body-bold": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "600" }], "display-hero": ["44px", { lineHeight: "52px", letterSpacing: "-0.02em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }], "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs"><button aria-label="Go Back" class="w-11 h-11 flex items-center justify-center rounded-xl text-on-surface hover:bg-surface-subtle-light transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Property Detail</h1></div><div class="flex items-center gap-space-xs shrink-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen px-gutter-mobile"><div class="flex flex-col w-full pb-32">
+<!-- Status Tracker Banner -->
+<div class="flex items-center justify-between bg-surface-container px-space-md py-space-sm rounded-xl mb-space-md shadow-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-status-warning animate-pulse shrink-0"></span>
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold truncate">Tenant Signed • Awaiting Sovereign Countersignature</span>
+</div>
+<span class="bg-surface-subtle-light text-ink-secondary font-meta-numeric text-meta-numeric px-2 py-0.5 rounded-full shrink-0">LA-IKY-9042-4B</span>
+</div>
+<!-- Quick Summary Header Card with Property Thumbnail -->
+<div class="bg-card-light rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.07)] flex flex-col gap-space-md mb-space-md">
+<div class="flex items-start gap-space-md">
+<img class="w-20 h-20 rounded-lg object-cover shrink-0 shadow-sm" data-alt="Modern architectural luxury exterior of The Sapphire Horizon in Ikoyi Lagos, manicured palm gardens, floor-to-ceiling tinted glass facade, bright sunlit afternoon sky, rich architectural photography in cool sapphire and warm slate tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2uKZK9j_-CSQzAvVDtN4NYICedwp3Pfo9N-2jZrC5Pe7MHD6bluGV7mM2-94DR0aEcbWJjux9M6HS4PaVrxHboXkQKXk483lUJZc6QdpA2S6eQ51mRuEF8qfEvhTY5irw2iMid2WpdWvr-zqz0B3GlHU3p2sU11HQOh1fTeqkE4BSCwyaTW5xkiqcHy4_yeAOzE2XnIyoDr3Ku41UdRNW-T5PNHDQ2PF6Tp0UzRsISNBzJocAUmsGNg"/>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-label-sm text-label-sm text-brand-sapphire uppercase tracking-wider font-semibold">Unit 4B • Garden Executive Suite</span>
+<h2 class="font-headline-sm text-headline-sm text-ink-primary truncate mt-0.5">The Sapphire Horizon</h2>
+<p class="font-body-md text-body-md text-ink-secondary truncate">Bourdon Road, Ikoyi, Lagos</p>
+</div>
+</div>
+<!-- Tenant Profile Preview -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center font-body-bold text-body-bold text-primary shrink-0">
+          KA
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-bold text-body-bold text-ink-primary truncate">Barrister Kemi Adebayo</span>
+<span class="material-symbols-outlined text-[16px] text-status-positive" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary truncate">Senior Partner, Adebayo & Co.</span>
+</div>
+</div>
+<span class="bg-status-positive/10 text-status-positive px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold shrink-0">
+        Vetted
+      </span>
+</div>
+<!-- Lease Term & Financials Grid -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="bg-surface-subtle-light p-space-sm rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-ink-secondary">Lease Duration</span>
+<span class="font-body-bold text-body-bold text-ink-primary mt-0.5">2 Years (24 Months)</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-0.5">01 Nov 2026 → 31 Oct 2028</span>
+</div>
+<div class="bg-surface-subtle-light p-space-sm rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-ink-secondary">Annual Rent Payable</span>
+<span class="font-body-bold text-body-bold text-ink-primary mt-0.5">₦14,000,000.00</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-0.5">Cautionary: ₦1,400,000</span>
+</div>
+</div>
+<!-- Escrow Ledger Settlement Status -->
+<div class="flex items-center justify-between p-space-sm bg-secondary-fixed/30 rounded-lg">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-status-positive flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary text-[16px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-secondary-fixed font-semibold">₦18,500,000.00 in Ring-Fenced Escrow</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Custody: GTBank Escrow Clearing Trust • 100% Funded</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-status-positive text-[20px]">check_circle</span>
+</div>
+</div>
+<!-- Tenant Screening Scorecard (Collapsible Accordion) -->
+<div class="bg-card-light rounded-xl shadow-[0_8px_28px_rgba(18,38,70,0.07)] overflow-hidden mb-space-md">
+<button class="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-subtle-light transition-colors" onclick="const c = document.getElementById('screening-content'); const i = document.getElementById('screening-icon'); c.classList.toggle('hidden'); i.classList.toggle('rotate-180');" type="button">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink-primary">Tenant Screening Scorecard</span>
+<span class="font-label-sm text-label-sm text-status-positive font-medium">Identity, Credit & Compliance Cleared (4/4)</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-secondary transition-transform duration-200" id="screening-icon">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md flex flex-col gap-space-sm" id="screening-content">
+<!-- Metric 1: Identity & Legal -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-positive text-[20px]">badge</span>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-ink-primary">Tier 3 Identity Verified</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">NIN, BVN, High Court Register Clean</span>
+</div>
+</div>
+<span class="bg-surface-subtle-light text-ink-primary font-meta-numeric text-meta-numeric px-2 py-1 rounded">MATCH 100%</span>
+</div>
+<!-- Metric 2: Monthly Inflow & Rent Burden -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-positive text-[20px]">account_balance_wallet</span>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-ink-primary">Monthly Inflow: ₦3.8M Avg.</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Rent-to-income: 30.7% (Healthy <35%)</span>
+</div>
+</div>
+<span class="bg-status-positive/10 text-status-positive font-meta-numeric text-meta-numeric px-2 py-1 rounded">LOW RISK</span>
+</div>
+<!-- Metric 3: Landlord Reference -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-positive text-[20px]">star</span>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-ink-primary">Prior Landlord Rating</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Prompt 24-mo history, zero damage claims</span>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-surface-subtle-light px-2 py-1 rounded">
+<span class="font-body-bold text-body-bold text-ink-primary">5.0</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">/ 5.0</span>
+</div>
+</div>
+<!-- Metric 4: PEP & Sanctions -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-positive text-[20px]">shield_person</span>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-ink-primary">Sanctions & PEP Audit</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Interswitch Gateway Global Watchlist</span>
+</div>
+</div>
+<span class="bg-status-positive/10 text-status-positive font-meta-numeric text-meta-numeric px-2 py-1 rounded">CLEAR</span>
+</div>
+</div>
+</div>
+<!-- Statutory Tenancy Agreement Excerpt -->
+<div class="bg-card-light rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.07)] flex flex-col gap-space-md mb-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">description</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Statutory Agreement Excerpt</h3>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">Lagos Law 2011 §08</span>
+</div>
+<!-- Legal Terms Accordion Box -->
+<div class="bg-surface-subtle-light p-space-md rounded-lg flex flex-col gap-space-sm font-body-md text-body-md text-on-surface">
+<div class="flex items-start justify-between pb-space-xs border-b border-default">
+<span class="text-ink-secondary">1. Annual Rent Advance</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦14,000,000.00 / yr</span>
+</div>
+<div class="flex items-start justify-between pb-space-xs border-b border-default">
+<span class="text-ink-secondary">2. Refundable Cautionary Deposit</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦1,400,000.00 (Custody)</span>
+</div>
+<div class="flex items-start justify-between pb-space-xs border-b border-default">
+<span class="text-ink-secondary">3. Service Charge (Generators & Pool)</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦2,400,000.00 / yr</span>
+</div>
+<div class="flex items-start justify-between pb-space-xs border-b border-default">
+<span class="text-ink-secondary">4. Legal & Stamp Duties (Capped 5%)</span>
+<span class="font-body-bold text-body-bold text-ink-primary">₦700,000.00</span>
+</div>
+<div class="pt-space-xs flex flex-col gap-1 text-ink-secondary font-label-sm text-label-sm">
+<span class="font-body-bold text-body-bold text-ink-primary">5. Permitted Occupancy Covenant</span>
+<p class="leading-relaxed">Maximum 4 adult occupants. Strictly residential private dwelling. Sub-letting, short-let hosting (Airbnb/VRBO), or unauthorized partition is an irreversible breach authorizing immediate sovereign repossession under expedited arbitral tribunal rules.</p>
+</div>
+</div>
+<!-- Tenant Digital Execution Evidence -->
+<div class="p-space-sm bg-surface-container rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">draw</span> Tenant Signature Execution
+        </span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive">PKI Cryptographic Lock</span>
+</div>
+<div class="flex items-center gap-space-sm pt-1">
+<div class="px-3 py-1.5 bg-card-light rounded border border-default font-serif italic text-headline-sm text-ink-primary tracking-wide">
+          Kemi Adebayo
+        </div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-meta-numeric text-meta-numeric text-ink-primary truncate font-semibold">SIG-TEN-98234-KB</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary truncate">18 Oct 2026, 14:22:04 WAT</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pre-Flight Move-In Handover Checklist -->
+<div class="bg-card-light rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.07)] flex flex-col gap-space-md mb-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">checklist</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Pre-Flight Handover Protocol</h3>
+</div>
+<span class="bg-secondary-fixed/50 text-on-secondary-fixed font-meta-numeric text-meta-numeric px-2 py-0.5 rounded-full font-semibold">2 of 3 Ready</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Checked Item 1 -->
+<div class="flex items-center gap-space-sm p-space-sm bg-surface-subtle-light rounded-lg">
+<span class="material-symbols-outlined text-status-positive text-[22px]">check_box</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Escrow Funds Cleared (GTBank Hub)</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">₦18,500,000 available for sovereign disbursement</span>
+</div>
+</div>
+<!-- Checked Item 2 -->
+<div class="flex items-center gap-space-sm p-space-sm bg-surface-subtle-light rounded-lg">
+<span class="material-symbols-outlined text-status-positive text-[22px]">check_box</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Identity & Legal Screening Approved</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Clean background verification certificate issued</span>
+</div>
+</div>
+<!-- Pending Item 3 -->
+<div class="flex items-center gap-space-sm p-space-sm bg-primary/5 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">indeterminate_check_box</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-bold text-body-bold text-brand-sapphire">Sovereign Owner Digital Signature</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Action required below to release access keys</span>
+</div>
+</div>
+</div>
+<!-- Smart Lock & Site Walkthrough Info -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-secondary">
+<span class="material-symbols-outlined text-[16px]">key</span>
+<span class="font-label-sm text-label-sm">Smart Lock Code</span>
+</div>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-headline-sm text-headline-sm font-mono text-ink-primary tracking-widest">8391#</span>
+<span class="material-symbols-outlined text-[16px] text-ink-secondary">lock_clock</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-1">Activates upon countersignature</span>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col justify-between">
+<div class="flex items-center gap-1 text-ink-secondary">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span class="font-label-sm text-label-sm">Physical Handover</span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-body-bold text-body-bold text-ink-primary">01 Nov, 10:00 AM</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Chidubem Okafor (Lead PM)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Step-Up Signing Confirmation Bottom Sheet / Modal (Initially Hidden) -->
+<div class="fixed inset-0 z-50 hidden flex-col justify-end bg-canvas-dark/65 backdrop-blur-sm transition-opacity" id="signing-modal">
+<div class="bg-card-light rounded-t-2xl p-space-lg flex flex-col gap-space-md shadow-2xl max-w-lg mx-auto w-full">
+<div class="flex items-center justify-between pb-space-xs border-b border-default">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Step-Up Authorization</h3>
+</div>
+<button class="w-8 h-8 flex items-center justify-center text-ink-secondary" onclick="document.getElementById('signing-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary leading-relaxed">
+        You are executing a legally binding Tenancy Agreement for <strong>Unit 4B, The Sapphire Horizon</strong> with Barrister Kemi Adebayo. This will instruct GTBank to release funds to your primary disbursement account.
+      </p>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-ink-secondary">Audit Trail Hash</span>
+<span class="font-meta-numeric text-meta-numeric font-mono text-ink-primary break-all">CF-SIG-2026-9042-4B-7A9F0E1D4B2C8A</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-ink-primary font-semibold">Enter 6-Digit Owner Biometric MFA PIN</label>
+<div class="flex justify-between gap-2">
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" type="password" value="8"/>
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" type="password" value="2"/>
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" type="password" value="9"/>
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="•" type="password"/>
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="•" type="password"/>
+<input class="w-12 h-12 text-center text-headline-md font-bold rounded-lg border border-default bg-surface text-ink-primary focus:border-brand-sapphire focus:outline-none" maxlength="1" placeholder="•" type="password"/>
+</div>
+</div>
+<button class="w-full h-12 bg-brand-sapphire hover:bg-brand-hover text-on-primary font-body-bold text-body-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-space-xs" onclick="this.innerText='Executing Smart Contract...'; setTimeout(() => { alert('Tenancy agreement successfully countersigned. Digital keys dispatched to tenant.'); document.getElementById('signing-modal').classList.add('hidden'); }, 1200);" type="button">
+<span class="material-symbols-outlined text-[20px]">fingerprint</span>
+        Confirm & Disburse Escrow (₦18.5M)
+      </button>
+</div>
+</div>
+<!-- Rejection Modal / Dialog (Initially Hidden) -->
+<div class="fixed inset-0 z-50 hidden flex-col justify-end bg-canvas-dark/65 backdrop-blur-sm" id="revision-modal">
+<div class="bg-card-light rounded-t-2xl p-space-lg flex flex-col gap-space-md shadow-2xl max-w-lg mx-auto w-full">
+<div class="flex items-center justify-between pb-space-xs border-b border-default">
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Request Revision / Reject</h3>
+<button class="w-8 h-8 flex items-center justify-center text-ink-secondary" onclick="document.getElementById('revision-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary">
+        Specify clauses or terms requiring amendment before sovereign execution.
+      </p>
+<textarea class="w-full p-3 rounded-lg border border-default text-body-md text-ink-primary focus:border-brand-sapphire focus:outline-none" placeholder="e.g. Cautionary deposit adjustment, occupancy clause revision..." rows="3"></textarea>
+<div class="flex gap-space-sm">
+<button class="flex-1 h-11 rounded-lg border border-default font-body-bold text-body-bold text-ink-primary" onclick="document.getElementById('revision-modal').classList.add('hidden')" type="button">Cancel</button>
+<button class="flex-1 h-11 rounded-lg bg-status-danger text-on-primary font-body-bold text-body-bold" onclick="alert('Revision requested and dispatched to tenant legal counsel.'); document.getElementById('revision-modal').classList.add('hidden');" type="button">Send to Counsel</button>
+</div>
+</div>
+</div>
+<!-- Fixed Bottom Floating Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-default px-gutter-mobile py-space-sm pb-safe flex items-center gap-space-sm">
+<button class="h-12 px-space-md rounded-lg border border-default bg-card-light text-ink-primary font-body-bold text-body-bold hover:bg-surface-subtle-light transition-colors shrink-0" onclick="document.getElementById('revision-modal').classList.remove('hidden')" type="button">
+      Revision
+    </button>
+<button class="flex-1 h-12 bg-brand-sapphire hover:bg-brand-hover text-on-primary font-body-bold text-body-bold rounded-lg shadow-[0_4px_16px_rgba(36,89,224,0.3)] transition-all flex items-center justify-center gap-space-xs" onclick="document.getElementById('signing-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+      Countersign & Handover
+    </button>
+</div>
+</div></main></body></html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><title>Closing Room - CosmicForge</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-container": "#dce1ff", "outline-variant": "#c3c5d7", "surface-variant": "#d5e3ff", "status-danger": "#C93647", "background": "#f9f9ff", "primary-fixed-dim": "#b5c4ff", "on-primary": "#ffffff", "on-error": "#ffffff", "on-background": "#0c1c31", "surface-subtle-dark": "#1E3048", "brand-sapphire": "#2459E0", "secondary-container": "#9cf3e1", "canvas-dark": "#0C1525", "status-positive": "#087A66", "brand-hover": "#1743B8", "tertiary-fixed": "#dce1ff", "on-primary-fixed-variant": "#003baf", "finance-available": "#087A66", "on-surface-variant": "#434654", "finance-pending": "#2459E0", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "surface-container-low": "#f0f3ff", "on-secondary": "#ffffff", "card-dark": "#17253A", "border-dark": "#344966", "on-secondary-container": "#037163", "surface-subtle-light": "#EDF2FA", "surface-dim": "#ccdbf8", "inverse-primary": "#b5c4ff", "primary": "#0041bc", "on-primary-fixed": "#00164e", "on-tertiary-fixed": "#001550", "canvas-light": "#F6F8FC", "primary-fixed": "#dce1ff", "card-light": "#FFFFFF", "status-danger-dark": "#FF8694", "outline": "#747686", "finance-held": "#7048E8", "border-default": "#DCE4F0", "on-tertiary-container": "#dce1ff", "surface-container-high": "#dee8ff", "error-container": "#ffdad6", "surface": "#f9f9ff", "on-secondary-fixed-variant": "#005046", "ink-secondary": "#536479", "surface-container": "#e7eeff", "status-warning": "#9A6507", "status-positive-dark": "#58D4BC", "tertiary-container": "#375bcf", "surface-container-lowest": "#ffffff", "text-dark": "#ECF3FF", "on-tertiary-fixed-variant": "#053ab0", "secondary": "#006b5d", "brand-dark-action": "#6C96FF", "secondary-fixed-dim": "#80d6c5", "surface-container-highest": "#d5e3ff", "surface-bright": "#f9f9ff", "primary-container": "#2459e0", "secondary-fixed": "#9cf3e1", "inverse-surface": "#223147", "surface-tint": "#1852d9", "finance-restricted": "#C93647", "on-secondary-fixed": "#00201b", "error": "#ba1a1a", "text-dark-secondary": "#ADC0D9", "status-warning-dark": "#F2BD69", "on-surface": "#0c1c31", "tertiary": "#1441b6", "inverse-on-surface": "#ebf1ff", "ink-primary": "#17263C", "tertiary-fixed-dim": "#b6c4ff" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.5rem", "margin": "2rem", "gutter-mobile": "1rem" }, fontFamily: { "meta-numeric": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-lg": ["Inter"], "display-hero-mobile": ["Inter"], "label-sm": ["Inter"], "body-bold": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "display-hero": ["Inter"], "label-md": ["Inter"] }, fontSize: { "meta-numeric": ["12px", { lineHeight: "16px", letterSpacing: "0.03em", fontWeight: "600" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "600" }], "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }], "body-bold": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "display-hero": ["44px", { lineHeight: "52px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }] } } } };</script><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; } body { overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>body { min-height: max(884px, 100dvh); }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-full flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm"><a aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-lg text-ink-primary hover:bg-surface-subtle-light transition-colors -ml-2" href="javascript:history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></a><div class="flex flex-col"><span class="font-label-sm text-label-sm text-ink-secondary tracking-tight">CosmicForge Deal Desk</span><h1 class="font-headline-sm text-headline-sm text-ink-primary leading-tight line-clamp-1">Closing Room</h1></div></div><div class="flex items-center gap-space-xs"><div class="hidden xs:flex items-center gap-1 bg-surface-subtle-light px-2.5 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-status-positive animate-pulse"></span><span class="font-label-sm text-label-sm text-status-positive">ESCROW SECURED</span></div><button aria-label="Audit &amp; Options" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-ink-primary transition-colors"><span class="material-symbols-outlined text-[22px]">verified_user</span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-background px-margin-mobile"><div class="flex flex-col w-full pb-28 space-y-4">
+<!-- Deal ID & Emergency Status Banner -->
+<div class="flex items-center justify-between pt-1">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-brand-sapphire" style="font-variation-settings: 'FILL' 1;">tag</span>
+<span class="font-meta-numeric text-meta-numeric tracking-wider">DEAL #SLS-IKY-2026-01</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-subtle-light text-status-positive font-label-sm text-label-sm shadow-sm">
+<span class="w-2 h-2 rounded-full bg-status-positive animate-ping"></span>
+<span class="font-meta-numeric text-meta-numeric uppercase">STAGE 4: ESCROW RING-FENCED (80%)</span>
+</div>
+</div>
+<!-- Deal Summary Hero Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.06)] space-y-space-md">
+<div class="relative w-full h-44 rounded-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Architectural modern ultra-luxury triplex penthouse terrace with reflective glass balustrades and panoramic sunset view over Bourdillon Road Ikoyi Lagos Nigeria" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcqoUAM5WO1Uf4yFf9zJ_wq1NnNOrp3KMywdNSmq2YAkEDzEGbohcQNb-ntXQ3aWfdlaDK7NU-_B-pYHTeYZ6dHIP8kHDu18g6Z5bokK8qtnAGQCsbAWtBBVtLl3u-5awKKFUNU2NxhsIdQciS54bv-v2i1JpPkvSYiw8hw6DwkJ7wpy58-d3IOFP66HrNQ52cYeSZ9e1Da0XqLeWR5LfApg2AgY3vVdhclaue2ui8ELWedIuXJJXoww"/>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-dark/80 via-canvas-dark/20 to-transparent flex flex-col justify-end p-3">
+<span class="text-secondary-fixed font-meta-numeric text-meta-numeric uppercase tracking-wider mb-0.5">Verified Sovereign Asset</span>
+<h2 class="text-white font-headline-sm text-headline-sm leading-snug">The Sapphire Penthouse Triplex (Unit 4A)</h2>
+<p class="text-text-dark-secondary font-label-sm text-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-surface-variant">location_on</span>
+          18A Bourdillon Road, Ikoyi, Lagos
+        </p>
+</div>
+<div class="absolute top-2.5 right-2.5 bg-canvas-dark/80 backdrop-blur-md px-2 py-1 rounded-md text-white font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary-fixed text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span>Freehold C of O</span>
+</div>
+</div>
+<!-- Sovereign Ownership Row -->
+<div class="flex items-center justify-between bg-surface-container-low px-3 py-2 rounded-lg">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-primary font-headline-sm text-headline-sm">
+          AC
+        </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-ink-secondary">Sovereign Principal Seller</span>
+<span class="font-body-bold text-body-bold text-ink-primary">Adeyemi Cole</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-container font-label-sm text-label-sm">100% Unencumbered</span>
+</div>
+<!-- Financial Core Metric Grid -->
+<div class="grid grid-cols-2 gap-2.5 pt-1">
+<div class="bg-surface-container-low p-3 rounded-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-ink-secondary">Agreed Gross Price</span>
+<span class="font-meta-numeric text-headline-sm text-ink-primary mt-1">₦450,000,000</span>
+<div class="flex items-center gap-1 text-ink-secondary text-[11px] font-label-sm mt-1">
+<span class="material-symbols-outlined text-[13px]">contract</span>
+<span>Executed SPA</span>
+</div>
+</div>
+<div class="bg-secondary-container/30 p-3 rounded-lg flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-status-positive">Net Owner Proceeds</span>
+<span class="font-meta-numeric text-headline-sm text-status-positive mt-1">₦420,750,000</span>
+<div class="flex items-center gap-1 text-on-secondary-container text-[11px] font-label-sm mt-1">
+<span class="material-symbols-outlined text-[13px]">account_balance_wallet</span>
+<span>Post-Statutory</span>
+</div>
+</div>
+</div>
+<!-- Escrow Custody Trust Line -->
+<div class="bg-surface-subtle-light rounded-lg p-3 flex items-start gap-2.5">
+<div class="p-1.5 rounded-md bg-brand-sapphire/10 text-brand-sapphire mt-0.5">
+<span class="material-symbols-outlined text-[18px]">assured_workload</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-ink-primary font-medium">Escrow Custody Status</span>
+<span class="font-label-sm text-label-sm text-brand-sapphire font-meta-numeric">100% CAPITALIZED</span>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary mt-0.5 truncate">₦450,000,000.00 Held in GTBank Trust</p>
+<span class="text-[11px] font-label-sm text-outline flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+          Synced: Oct 24, 2026 • 14:32:04 WAT (Immutable Ledger)
+        </span>
+</div>
+</div>
+</div>
+<!-- Milestones Tracker Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.06)] space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">timeline</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Closing Milestones</h3>
+</div>
+<span class="font-meta-numeric text-label-sm text-brand-sapphire px-2 py-0.5 rounded-full bg-primary-fixed">4 of 5 Complete</span>
+</div>
+<!-- Vertical Timeline -->
+<div class="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-3 before:w-0.5 before:bg-surface-variant">
+<!-- Step 1 -->
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-status-positive flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col bg-surface-container-low p-2.5 rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">1. 10% Commitment Deposit</span>
+<span class="font-meta-numeric text-label-sm text-status-positive">₦45,000,000</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Cleared &amp; Confirmed • GTBank Escrow (Oct 12)</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-status-positive flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col bg-surface-container-low p-2.5 rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">2. Cadastral &amp; Legal Due Diligence</span>
+<span class="font-label-sm text-label-sm text-status-positive uppercase font-medium">CLEARED</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Lis Pendens Clean • Boundary Beacon Verified</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-status-positive flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col bg-surface-container-low p-2.5 rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">3. 90% Balance Escrow Funding</span>
+<span class="font-meta-numeric text-label-sm text-status-positive">₦405,000,000</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Ring-Fenced in Protected GTBank Trust Vault</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-status-warning flex items-center justify-center text-white animate-pulse">
+<span class="material-symbols-outlined text-[14px]">sync</span>
+</div>
+<div class="flex flex-col bg-amber-50/60 p-2.5 rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">4. Governor's Consent &amp; Stamping</span>
+<span class="font-label-sm text-label-sm text-status-warning font-semibold">ACTIVE 65%</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Lands Bureau Alausa: <span class="font-mono text-ink-primary font-medium">LASG/ED/2026/8841</span></p>
+<div class="w-full bg-surface-variant h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-status-warning h-full rounded-full w-[65%]"></div>
+</div>
+<span class="text-[11px] font-label-sm text-status-warning mt-1.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">done</span>
+            LIRS Stamp Duty Electronic Assessment Paid
+          </span>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-surface-variant flex items-center justify-center text-ink-secondary">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+</div>
+<div class="flex flex-col bg-surface-container-low p-2.5 rounded-lg opacity-85">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">5. Deed Execution &amp; Release</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">AWAITING</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-0.5">Pending Sovereign Digital Execution Authorization</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Statutory Escrow Settlement Ledger -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.06)] space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">receipt_long</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Settlement Ledger</h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-ink-secondary font-label-sm text-label-sm">Audited</span>
+</div>
+<div class="divide-y divide-transparent space-y-2">
+<!-- Item 1 -->
+<div class="flex items-center justify-between py-1">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-ink-primary">Gross Agreed Sale Price</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Buyer GTBank deposit</span>
+</div>
+<span class="font-meta-numeric text-body-bold text-ink-primary">₦450,000,000.00</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2 rounded">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-status-danger flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+            FIRS Capital Gains Tax (10%)
+          </span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Direct FIRS statutory remittance</span>
+</div>
+<span class="font-meta-numeric text-body-bold text-status-danger">-₦22,500,000.00</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2 rounded">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-status-danger flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+            Lagos State Stamp Duty (1.5%)
+          </span>
+<span class="font-label-sm text-label-sm text-ink-secondary">LIRS automated e-stamping</span>
+</div>
+<span class="font-meta-numeric text-body-bold text-status-danger">-₦6,750,000.00</span>
+</div>
+<!-- Item Total -->
+<div class="flex items-center justify-between pt-2.5 pb-1">
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-status-positive">Net Sovereign Wire Out</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Direct credit upon Governor's Consent</span>
+</div>
+<div class="text-right">
+<span class="font-meta-numeric text-headline-sm text-status-positive">₦420,750,000.00</span>
+<div class="font-label-sm text-label-sm text-status-positive flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span>
+<span>Ledger Certified</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Buyer Credentials & Institutional Due Diligence Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-[0_8px_28px_rgba(18,38,70,0.06)] space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[22px]">corporate_fare</span>
+<h3 class="font-headline-sm text-headline-sm text-ink-primary">Buyer Due Diligence</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-container font-label-sm text-label-sm">Tier 3 Pass</span>
+</div>
+<!-- Company Badge -->
+<div class="bg-surface-subtle-light rounded-lg p-3">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Pinnacle Capital Holdings Ltd</span>
+<span class="font-mono text-label-sm text-ink-secondary">RC 1029481</span>
+</div>
+<p class="font-label-sm text-label-sm text-ink-secondary mt-1">CAC Enterprise Registry Verified • Special Purpose Acquisition Vehicle (Clean Anti-Money Laundering Cleared)</p>
+</div>
+<!-- Conditions Precedent Checklist -->
+<div class="space-y-2 pt-1">
+<span class="font-label-sm text-label-sm text-ink-secondary uppercase tracking-wider">Conditions Precedent Compliance</span>
+<div class="flex items-start gap-2 text-ink-primary text-body-md font-body-md bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-status-positive text-[18px] mt-0.5">check_circle</span>
+<span class="flex-1">High Court Lis Pendens Certificate (Ref: HC/IKY/772-26)</span>
+</div>
+<div class="flex items-start gap-2 text-ink-primary text-body-md font-body-md bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-status-positive text-[18px] mt-0.5">check_circle</span>
+<span class="flex-1">Surveyor General Boundary Beacons Confirmed Coordinates</span>
+</div>
+<div class="flex items-start gap-2 text-ink-primary text-body-md font-body-md bg-surface-container-low p-2 rounded">
+<span class="material-symbols-outlined text-status-positive text-[18px] mt-0.5">check_circle</span>
+<span class="flex-1">GTBank Closing Escrow 100% Capitalized (₦450M Verified)</span>
+</div>
+<div class="flex items-start gap-2 text-ink-primary text-body-md font-body-md bg-amber-50/50 p-2 rounded">
+<span class="material-symbols-outlined text-status-warning text-[18px] mt-0.5">hourglass_top</span>
+<span class="flex-1 text-ink-primary">Alausa Lands Bureau Gazette Stamp (Expected in 5 business days)</span>
+</div>
+</div>
+</div>
+<!-- Sovereign Action Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md space-y-2.5">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-brand-sapphire text-[20px]">token</span>
+<h4 class="font-body-bold text-body-bold">Pre-Authorize Deed Execution &amp; Payout</h4>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary">
+      Pre-signing prepares cryptographic token release upon official Alausa gazette publishing. Funds will disburse instantaneously to your designated bank account without manual holding delays.
+    </p>
+<div class="flex items-center gap-1.5 text-ink-secondary text-label-sm font-label-sm pt-1">
+<span class="material-symbols-outlined text-[15px] text-brand-sapphire">shield</span>
+<span>256-bit Hardware-Enclave Signature Vault active</span>
+</div>
+</div>
+<!-- Sticky Mobile Action Trigger Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-margin-mobile bg-surface/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-40">
+<div class="max-w-md mx-auto flex flex-col gap-2">
+<button class="w-full h-11 bg-brand-sapphire hover:bg-brand-hover text-on-primary rounded-lg font-body-bold text-body-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md" id="auth-btn">
+<span class="material-symbols-outlined text-[20px]">lock_person</span>
+<span>Pre-Authorize Closing (TOTP Step-Up MFA)</span>
+</button>
+<div class="flex items-center justify-center gap-2 text-center text-label-sm font-label-sm text-ink-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span>Irrevocable Sovereign Directive • Audit Trail: GTB-SEC-99214</span>
+</div>
+</div>
+</div>
+<!-- Interactive Step-Up Authorization Modal -->
+<div class="fixed inset-0 z-50 bg-canvas-dark/65 hidden backdrop-blur-xs flex items-center justify-center p-4" id="auth-modal">
+<div class="bg-surface-container-lowest w-full max-w-sm rounded-xl p-space-lg shadow-2xl flex flex-col space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-brand-sapphire text-[24px]">enhanced_encryption</span>
+<h3 class="font-headline-sm text-headline-sm">Sovereign Authorization</h3>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-ink-secondary hover:bg-surface-container-low" id="close-modal-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-ink-secondary">
+        Enter your 6-digit Authenticator Token to cryptographically sign the Deed of Assignment pre-execution buffer for <strong class="text-ink-primary">₦420,750,000.00</strong> payout.
+      </p>
+<div class="space-y-1.5">
+<label class="font-label-sm text-label-sm text-ink-primary block">Time-based One-Time Password (TOTP)</label>
+<div class="flex justify-between gap-1.5">
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" type="text" value="5"/>
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" type="text" value="8"/>
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" type="text" value="2"/>
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" placeholder="-" type="text" value=""/>
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" placeholder="-" type="text" value=""/>
+<input class="totp-input w-11 h-12 text-center text-headline-sm font-mono bg-surface-container-low rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-sapphire" maxlength="1" placeholder="-" type="text" value=""/>
+</div>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded-lg flex items-center gap-2 text-ink-secondary text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-status-positive text-[16px]">fingerprint</span>
+<span>Biometric key fallback ready on device</span>
+</div>
+<div class="flex flex-col gap-2 pt-1">
+<button class="w-full h-11 bg-brand-sapphire text-on-primary rounded-lg font-body-bold text-body-bold hover:bg-brand-hover active:scale-[0.98] transition-all" id="confirm-auth-btn">
+          Authorize &amp; Sign Buffer
+        </button>
+<button class="w-full h-10 text-ink-secondary hover:text-ink-primary font-body-md text-body-md" id="cancel-auth-btn">
+          Cancel Operation
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const authBtn = document.getElementById('auth-btn');
+    const modal = document.getElementById('auth-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    const cancelBtn = document.getElementById('cancel-auth-btn');
+    const confirmBtn = document.getElementById('confirm-auth-btn');
+
+    if (authBtn && modal) {
+      authBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+      });
+    }
+
+    const closeModal = () => {
+      if (modal) modal.classList.add('hidden');
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        confirmBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Signing Enclave...';
+        setTimeout(() => {
+          confirmBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done_all</span> Cryptographically Signed';
+          confirmBtn.classList.remove('bg-brand-sapphire');
+          confirmBtn.classList.add('bg-status-positive');
+          setTimeout(() => {
+            closeModal();
+            if (authBtn) {
+              authBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">verified</span> Pre-Authorization Locked & Armed';
+              authBtn.classList.remove('bg-brand-sapphire', 'hover:bg-brand-hover');
+              authBtn.classList.add('bg-status-positive');
+            }
+          }, 900);
+        }, 1200);
+      });
+    }
+  })();
+</script></main></body></html>

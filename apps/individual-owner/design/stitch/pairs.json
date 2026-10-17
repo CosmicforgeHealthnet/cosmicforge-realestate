@@ -1,0 +1,17 @@
+[
+  {"pairId":"pair-01","title":"Owner Dashboard","modules":["01"]},
+  {"pairId":"pair-02","title":"Property Detail","modules":["05","06"]},
+  {"pairId":"pair-03","title":"Create Listing Wizard","modules":["07","08","09"]},
+  {"pairId":"pair-04","title":"Treasury, Finance and Wallet","modules":["03","14"]},
+  {"pairId":"pair-05","title":"Tenancies and Leases","modules":["13","14","15","16"]},
+  {"pairId":"pair-06","title":"Lease Agreement and Handover","modules":["13"]},
+  {"pairId":"pair-07","title":"Short-Let Management","modules":["20"]},
+  {"pairId":"pair-08","title":"Maintenance and Professional Services","modules":["22","23"]},
+  {"pairId":"pair-09","title":"Commercial and Land Portfolio","modules":["17","18"]},
+  {"pairId":"pair-10","title":"Property Sales and Closing","modules":["19"]},
+  {"pairId":"pair-11","title":"Ownership and Delegation","modules":["04","21"]},
+  {"pairId":"pair-12","title":"Reports and Analytics","modules":["25"]},
+  {"pairId":"pair-13","title":"Security and Settings","modules":["02","26","27"]},
+  {"pairId":"pair-14","title":"Identity Verification and Onboarding","modules":["02"]},
+  {"pairId":"pair-15","title":"Rental Applications and Screening","modules":["12"]}
+]

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><title>Create Listing - CosmicForge</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-container": "#dce1ff", "outline-variant": "#c3c5d7", "surface-variant": "#d5e3ff", "status-danger": "#C93647", "background": "#f9f9ff", "primary-fixed-dim": "#b5c4ff", "on-primary": "#ffffff", "on-error": "#ffffff", "on-background": "#0c1c31", "surface-subtle-dark": "#1E3048", "brand-sapphire": "#2459E0", "secondary-container": "#9cf3e1", "canvas-dark": "#0C1525", "status-positive": "#087A66", "brand-hover": "#1743B8", "tertiary-fixed": "#dce1ff", "on-primary-fixed-variant": "#003baf", "finance-available": "#087A66", "on-surface-variant": "#434654", "finance-pending": "#2459E0", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "surface-container-low": "#f0f3ff", "on-secondary": "#ffffff", "card-dark": "#17253A", "border-dark": "#344966", "on-secondary-container": "#037163", "surface-subtle-light": "#EDF2FA", "surface-dim": "#ccdbf8", "inverse-primary": "#b5c4ff", "primary": "#0041bc", "on-primary-fixed": "#00164e", "on-tertiary-fixed": "#001550", "canvas-light": "#F6F8FC", "primary-fixed": "#dce1ff", "card-light": "#FFFFFF", "status-danger-dark": "#FF8694", "outline": "#747686", "finance-held": "#7048E8", "border-default": "#DCE4F0", "on-tertiary-container": "#dce1ff", "surface-container-high": "#dee8ff", "error-container": "#ffdad6", "surface": "#f9f9ff", "on-secondary-fixed-variant": "#005046", "ink-secondary": "#536479", "surface-container": "#e7eeff", "status-warning": "#9A6507", "status-positive-dark": "#58D4BC", "tertiary-container": "#375bcf", "surface-container-lowest": "#ffffff", "text-dark": "#ECF3FF", "on-tertiary-fixed-variant": "#053ab0", "secondary": "#006b5d", "brand-dark-action": "#6C96FF", "secondary-fixed-dim": "#80d6c5", "surface-container-highest": "#d5e3ff", "surface-bright": "#f9f9ff", "primary-container": "#2459e0", "secondary-fixed": "#9cf3e1", "inverse-surface": "#223147", "surface-tint": "#1852d9", "finance-restricted": "#C93647", "on-secondary-fixed": "#00201b", "error": "#ba1a1a", "text-dark-secondary": "#ADC0D9", "status-warning-dark": "#F2BD69", "on-surface": "#0c1c31", "tertiary": "#1441b6", "inverse-on-surface": "#ebf1ff", "ink-primary": "#17263C", "tertiary-fixed-dim": "#b6c4ff" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { "space-sm": "0.5rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.5rem", "margin": "2rem", "gutter-mobile": "1rem" }, fontFamily: { "meta-numeric": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-lg": ["Inter"], "display-hero-mobile": ["Inter"], "label-sm": ["Inter"], "body-bold": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "display-hero": ["Inter"], "label-md": ["Inter"] }, fontSize: { "meta-numeric": ["12px", { lineHeight: "16px", letterSpacing: "0.03em", fontWeight: "600" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "600" }], "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }], "body-bold": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "display-hero": ["44px", { lineHeight: "52px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }] } } } };</script><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; } body { overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-full flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-xs flex items-center justify-between"><div class="flex items-center gap-1"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center text-ink-primary hover:bg-surface-subtle-light rounded-lg transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-ink-primary truncate max-w-[210px]">Create Listing</h1></div><div class="flex items-center gap-space-xs pr-margin-mobile"><div class="hidden xs:flex items-center gap-1 bg-surface-subtle-light px-2 py-0.5 rounded-full"><span class="material-symbols-outlined text-status-positive text-[14px]">verified_user</span><span class="font-label-sm text-[10px] text-status-positive font-semibold">SECURE</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-background px-margin-mobile"><div class="flex flex-col w-full pb-32">
+<!-- Status & Step Progress Module -->
+<section class="flex flex-col gap-space-xs mt-space-sm mb-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2.5 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-status-positive animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Draft saved 2m ago</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-meta-numeric text-meta-numeric text-primary">STEP 2 OF 8</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">(25%)</span>
+</div>
+</div>
+<!-- Active Step Title -->
+<div class="flex flex-col gap-0.5">
+<h2 class="font-headline-md text-headline-md text-ink-primary">Tenancy Terms &amp; Pricing</h2>
+<p class="font-body-md text-body-md text-ink-secondary">Define sovereign lease economics, occupancy bounds, and escrow parameters.</p>
+</div>
+<!-- Progress Track Bar -->
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mt-1">
+<div class="h-full bg-brand-sapphire rounded-full transition-all duration-300" style="width: 25%;"></div>
+</div>
+<!-- Selected Verified Asset Context Card -->
+<div class="mt-space-xs bg-surface-container-low rounded-xl p-space-md flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">apartment</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-bold text-body-bold text-ink-primary truncate">The Sapphire Horizon, Ikoyi</p>
+<p class="font-label-sm text-label-sm text-ink-secondary truncate">Unit 4B Executive 2-Bed Serviced Suite</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 bg-surface-container-highest px-2 py-0.5 rounded-full text-status-positive font-meta-numeric text-[11px]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+          DEED VERIFIED
+        </span>
+</div>
+<div class="flex items-center justify-between pt-1 bg-surface-container-low text-ink-secondary">
+<span class="font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">shield_person</span>
+          Sovereign Owner: Adeyemi Cole
+        </span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">REF: LA/IKY/4092-B</span>
+</div>
+</div>
+</section>
+<!-- Step 2.1: Transaction Categorization -->
+<section class="flex flex-col gap-space-sm mb-space-lg">
+<div class="flex items-baseline justify-between">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-primary-container text-on-primary-container font-meta-numeric text-[11px] flex items-center justify-center font-bold">2.1</span>
+<h3 class="font-body-bold text-body-bold text-ink-primary">Transaction Archetype</h3>
+</div>
+<span class="font-label-sm text-label-sm text-status-positive font-semibold">Lagos Tenancy Law Compliant</span>
+</div>
+<div class="flex flex-col gap-2.5" id="tx-type-selector">
+<!-- Option 1: Selected Active -->
+<label class="tx-card relative flex items-start gap-3 p-3.5 rounded-xl cursor-pointer transition-all bg-surface-container-lowest shadow-sm" data-selected="true">
+<input checked="" class="sr-only" name="transaction_type" type="radio" value="long_rent"/>
+<div class="tx-indicator w-5 h-5 rounded-full bg-brand-sapphire text-on-primary flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Residential Long-Term Rent</span>
+<span class="font-meta-numeric text-[11px] px-1.5 py-0.5 rounded bg-surface-container text-primary font-semibold">STANDARD</span>
+</div>
+<p class="font-label-md text-label-md text-ink-secondary leading-snug">Standard 1-year tenancy under Lagos State Tenancy Law; protected by Sovereign Escrow Deposit Guard.</p>
+</div>
+</label>
+<!-- Option 2 -->
+<label class="tx-card relative flex items-start gap-3 p-3.5 rounded-xl cursor-pointer transition-all bg-surface-container-low shadow-none opacity-85" data-selected="false">
+<input class="sr-only" name="transaction_type" type="radio" value="short_let"/>
+<div class="tx-indicator w-5 h-5 rounded-full bg-surface-container text-transparent flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Short-Let / Serviced Booking</span>
+<span class="font-meta-numeric text-[11px] px-1.5 py-0.5 rounded bg-surface-container-highest text-ink-secondary font-semibold">HIGH YIELD</span>
+</div>
+<p class="font-label-md text-label-md text-ink-secondary leading-snug">Daily or weekly booking cadence with dynamic seasonal occupancy pricing algorithms.</p>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="tx-card relative flex items-start gap-3 p-3.5 rounded-xl cursor-pointer transition-all bg-surface-container-low shadow-none opacity-85" data-selected="false">
+<input class="sr-only" name="transaction_type" type="radio" value="commercial"/>
+<div class="tx-indicator w-5 h-5 rounded-full bg-surface-container text-transparent flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Commercial Corporate Lease</span>
+<span class="font-meta-numeric text-[11px] px-1.5 py-0.5 rounded bg-surface-container-highest text-ink-secondary font-semibold">MULTI-YEAR</span>
+</div>
+<p class="font-label-md text-label-md text-ink-secondary leading-snug">Multi-year enterprise lease agreements including negotiated fit-out &amp; restorative moratoriums.</p>
+</div>
+</label>
+<!-- Option 4 -->
+<label class="tx-card relative flex items-start gap-3 p-3.5 rounded-xl cursor-pointer transition-all bg-surface-container-low shadow-none opacity-85" data-selected="false">
+<input class="sr-only" name="transaction_type" type="radio" value="outright_sale"/>
+<div class="tx-indicator w-5 h-5 rounded-full bg-surface-container text-transparent flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-body-bold text-body-bold text-ink-primary">Outright Title Sale</span>
+<span class="font-meta-numeric text-[11px] px-1.5 py-0.5 rounded bg-surface-container-highest text-ink-secondary font-semibold">DEED TRANSFER</span>
+</div>
+<p class="font-label-md text-label-md text-ink-secondary leading-snug">Total alienation of statutory interest, Deed of Assignment, and Governor's Consent filing.</p>
+</div>
+</label>
+</div>
+</section>
+<!-- Step 2.2: Tenancy Structure & Cashflow Schedule -->
+<section class="flex flex-col gap-space-sm mb-space-lg">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-primary-container text-on-primary-container font-meta-numeric text-[11px] flex items-center justify-center font-bold">2.2</span>
+<h3 class="font-body-bold text-body-bold text-ink-primary">Cashflow Schedule &amp; Occupancy Bounds</h3>
+</div>
+<!-- Payout Frequency Segmented Pills -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-ink-secondary">Rent Remittance Cadence</label>
+<div class="grid grid-cols-3 gap-1.5 p-1 bg-surface-container-low rounded-xl">
+<button class="frequency-btn py-2 px-1 text-center font-label-sm text-label-sm rounded-lg bg-surface-container-lowest text-brand-sapphire shadow-sm font-semibold transition-all" type="button">
+          Annual Advance
+        </button>
+<button class="frequency-btn py-2 px-1 text-center font-label-sm text-label-sm rounded-lg text-ink-secondary hover:text-ink-primary transition-all" type="button">
+          Biannual (6M)
+        </button>
+<button class="frequency-btn py-2 px-1 text-center font-label-sm text-label-sm rounded-lg text-ink-secondary hover:text-ink-primary transition-all" type="button">
+          Quarterly
+        </button>
+</div>
+</div>
+<!-- Occupancy Rules Grid -->
+<div class="flex flex-col gap-3 mt-1">
+<!-- Max Permitted Occupants Dropdown -->
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-ink-secondary" for="max-occupants">Maximum Permitted Occupants</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 bg-surface-container-lowest text-ink-primary font-body-md text-body-md rounded-xl appearance-none focus:outline-none focus:bg-surface-container-low transition-colors pr-10 shadow-sm" id="max-occupants">
+<option selected="" value="4">4 Persons (Family / Executive Suite Cap)</option>
+<option value="2">2 Persons (Double Occupancy Only)</option>
+<option value="1">1 Person (Single Occupancy Executive)</option>
+<option value="6">6 Persons (Extended Family Maximum)</option>
+</select>
+<span class="material-symbols-outlined text-[20px] text-ink-secondary absolute right-3 top-2.5 pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Corporate Tenant Preference Dropdown -->
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-ink-secondary" for="tenant-pref">Tenant Governance Preference</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 bg-surface-container-lowest text-ink-primary font-body-md text-body-md rounded-xl appearance-none focus:outline-none focus:bg-surface-container-low transition-colors pr-10 shadow-sm" id="tenant-pref">
+<option selected="" value="corporate">Corporate Headlease Preferred (Multinational/Tier-1)</option>
+<option value="individual">Vetted Private Principal (High Net Worth Individual)</option>
+<option value="diplomatic">Diplomatic Mission / Consular Accreditations</option>
+<option value="agnostic">Neutral (Any Authorised &amp; KYC-Verified Entity)</option>
+</select>
+<span class="material-symbols-outlined text-[20px] text-ink-secondary absolute right-3 top-2.5 pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Special Clauses Checkboxes -->
+<div class="flex flex-col gap-2 mt-1">
+<!-- Pet Policy -->
+<label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl cursor-pointer select-none shadow-sm">
+<div class="relative flex items-center justify-center w-5 h-5">
+<input checked="" class="peer sr-only" id="pet-policy-chk" type="checkbox"/>
+<div class="w-5 h-5 rounded-md bg-surface-container-high peer-checked:bg-primary transition-all flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[15px] opacity-0 peer-checked:opacity-100 font-bold">check</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Pet Policy Authorised</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Permitted subject to strict ₦250,000 restorative pet escrow deposit</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-primary">pets</span>
+</label>
+<!-- Non-Smoking Policy -->
+<label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl cursor-pointer select-none shadow-sm">
+<div class="relative flex items-center justify-center w-5 h-5">
+<input checked="" class="peer sr-only" id="smoking-policy-chk" type="checkbox"/>
+<div class="w-5 h-5 rounded-md bg-surface-container-high peer-checked:bg-primary transition-all flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[15px] opacity-0 peer-checked:opacity-100 font-bold">check</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<span class="font-body-bold text-body-bold text-ink-primary">Zero-Tolerance Indoor Smoking Clause</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">Immediate liquidated damage deduction for indoor nicotine/vape smoke remediation</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-status-danger">smoke_free</span>
+</label>
+</div>
+</div>
+</section>
+<!-- Step 2.3: Statutory Fee Breakdown Transparency (§08 Compliance) -->
+<section class="flex flex-col gap-space-sm mb-space-lg">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-primary-container text-on-primary-container font-meta-numeric text-[11px] flex items-center justify-center font-bold">2.3</span>
+<h3 class="font-body-bold text-body-bold text-ink-primary">Statutory Transparency Audit (§08)</h3>
+</div>
+<!-- Anti-Gouging Statutory Callout Banner -->
+<div class="p-3 bg-surface-container-low rounded-xl flex items-start gap-2.5">
+<span class="material-symbols-outlined text-finance-available text-[20px] shrink-0 mt-0.5">policy</span>
+<div class="flex flex-col gap-0.5">
+<span class="font-body-bold text-body-bold text-finance-available">Anti-Price Gouging &amp; Statutory Protection Active</span>
+<p class="font-label-sm text-label-sm text-ink-secondary leading-snug">
+          CosmicForge automatically nullifies unverified middleman commissions, illegal inspection charges, and off-ledger kickbacks under Lagos Tenancy Code Section 8.
+        </p>
+</div>
+</div>
+<!-- Clear Line-Item Invoice Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between pb-2">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary uppercase tracking-wider">Line Itemization</span>
+<span class="font-meta-numeric text-meta-numeric text-brand-sapphire">ANNUAL BASIS (NGN)</span>
+</div>
+<!-- Item 1: Base Asking Rent -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-ink-primary">Base Asking Rent</span>
+<span class="font-label-sm text-label-sm text-status-positive font-medium">Disbursed on verified physical handover</span>
+</div>
+<div class="text-right">
+<span class="font-body-bold text-body-bold text-ink-primary tabular-nums">₦12,500,000.00</span>
+<span class="block font-label-sm text-[11px] text-ink-secondary">/ yr</span>
+</div>
+</div>
+<div class="h-px bg-surface-container"></div>
+<!-- Item 2: Legal & Stamp Duty (5%) -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md text-ink-primary">Legal &amp; Stamp Duty Fee</span>
+<span class="font-meta-numeric text-[10px] bg-surface-container px-1 rounded text-ink-secondary">5% STATUTORY</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">Capped statutory agreement drafting &amp; registration</span>
+</div>
+<span class="font-body-md text-body-md text-ink-primary tabular-nums font-medium">₦625,000.00</span>
+</div>
+<div class="h-px bg-surface-container"></div>
+<!-- Item 3: Cautionary Security Deposit (10%) -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md text-ink-primary">Cautionary Security Deposit</span>
+<span class="font-meta-numeric text-[10px] bg-secondary-container px-1 rounded text-on-secondary-container font-semibold">REFUNDABLE</span>
+</div>
+<span class="font-label-sm text-label-sm text-ink-secondary">10% Ring-Fenced GTBank Sovereign Escrow</span>
+</div>
+<span class="font-body-md text-body-md text-ink-primary tabular-nums font-medium">₦1,250,000.00</span>
+</div>
+<div class="h-px bg-surface-container"></div>
+<!-- Item 4: Service Charge -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-ink-primary">Annual Service Charge</span>
+<span class="font-label-sm text-label-sm text-ink-secondary">24/7 dedicated dual-grid power, treated water, armed security</span>
+</div>
+<span class="font-body-md text-body-md text-ink-primary tabular-nums font-medium">₦2,400,000.00</span>
+</div>
+<div class="h-0.5 bg-surface-container-high my-0.5"></div>
+<!-- Total Move-in Package -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-ink-secondary font-bold">Total Invoiced Move-In Package</span>
+<span class="font-label-sm text-[11px] text-ink-secondary">Statutory total gross payable by prospective lessee</span>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-brand-sapphire font-bold tabular-nums">₦16,775,000.00</span>
+<span class="block font-meta-numeric text-[10px] text-status-positive">ESCROW SAFEGUARDED</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Pre-Flight Policy Check Badge Pills -->
+<section class="flex flex-col gap-2 mb-space-md">
+<div class="flex items-center justify-between">
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary tracking-wider uppercase">Statutory Pre-Flight Gates</span>
+<span class="font-label-sm text-label-sm text-status-positive font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">done_all</span> 3/3 Cleared
+      </span>
+</div>
+<div class="grid grid-cols-1 gap-1.5">
+<div class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-positive text-[18px]">verified</span>
+<span class="font-label-md text-label-md text-ink-primary font-medium">Deed Proof &amp; Sovereign Authority</span>
+</div>
+<span class="font-meta-numeric text-[11px] bg-surface-container-lowest px-2 py-0.5 rounded text-status-positive font-bold shadow-sm">PASS</span>
+</div>
+<div class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-positive text-[18px]">gavel</span>
+<span class="font-label-md text-label-md text-ink-primary font-medium">Statutory 5% Legal Fee Ceiling (§08)</span>
+</div>
+<span class="font-meta-numeric text-[11px] bg-surface-container-lowest px-2 py-0.5 rounded text-status-positive font-bold shadow-sm">PASS</span>
+</div>
+<div class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-sapphire text-[18px]">account_balance</span>
+<span class="font-label-md text-label-md text-ink-primary font-medium">Escrow Ring-Fence GTB Endpoint</span>
+</div>
+<span class="font-meta-numeric text-[11px] bg-primary-fixed text-on-primary-fixed-variant px-2 py-0.5 rounded font-bold shadow-sm">READY</span>
+</div>
+</div>
+</section>
+<!-- Sticky Mobile Action Footer -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(12,28,49,0.06)] px-margin-mobile py-space-sm pb-safe">
+<div class="w-full flex items-center gap-2.5">
+<!-- Save Draft Button -->
+<button class="h-11 px-4 rounded-xl bg-surface-container text-ink-primary font-body-bold text-body-bold flex items-center justify-center shrink-0 active:scale-95 transition-transform" onclick="handleDraftSave(this)" type="button">
+<span class="material-symbols-outlined text-[18px] mr-1">bookmark_border</span>
+        Save Draft
+      </button>
+<!-- Continue Primary CTA -->
+<button class="h-11 flex-1 rounded-xl bg-brand-sapphire text-on-primary font-body-bold text-body-bold flex items-center justify-center gap-1.5 shadow-md active:bg-brand-hover active:scale-[0.98] transition-all" onclick="handleContinue()" type="button">
+<span>Continue to Specifications</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Transaction Card Interactive Selection
+  document.querySelectorAll('.tx-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.tx-card').forEach(c => {
+        c.classList.remove('bg-surface-container-lowest', 'shadow-sm', 'opacity-100');
+        c.classList.add('bg-surface-container-low', 'opacity-85');
+        const indicator = c.querySelector('.tx-indicator');
+        indicator.classList.remove('bg-brand-sapphire', 'text-on-primary', 'shadow-sm');
+        indicator.classList.add('bg-surface-container', 'text-transparent');
+        c.setAttribute('data-selected', 'false');
+      });
+
+      this.classList.remove('bg-surface-container-low', 'opacity-85');
+      this.classList.add('bg-surface-container-lowest', 'shadow-sm', 'opacity-100');
+      const activeIndicator = this.querySelector('.tx-indicator');
+      activeIndicator.classList.remove('bg-surface-container', 'text-transparent');
+      activeIndicator.classList.add('bg-brand-sapphire', 'text-on-primary', 'shadow-sm');
+      this.setAttribute('data-selected', 'true');
+      this.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  // Remittance Cadence Pill Switching
+  document.querySelectorAll('.frequency-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.frequency-btn').forEach(b => {
+        b.classList.remove('bg-surface-container-lowest', 'text-brand-sapphire', 'shadow-sm', 'font-semibold');
+        b.classList.add('text-ink-secondary');
+      });
+      this.classList.add('bg-surface-container-lowest', 'text-brand-sapphire', 'shadow-sm', 'font-semibold');
+      this.classList.remove('text-ink-secondary');
+    });
+  });
+
+  // Micro-interaction handlers
+  function handleDraftSave(button) {
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<span class="material-symbols-outlined text-[18px] mr-1 text-status-positive animate-spin">sync</span> Saving...';
+    button.disabled = true;
+    setTimeout(() => {
+      button.innerHTML = '<span class="material-symbols-outlined text-[18px] mr-1 text-status-positive">check_circle</span> Saved';
+      setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+      }, 1500);
+    }, 600);
+  }
+
+  function handleContinue() {
+    const primaryBtn = document.querySelector('button[onclick="handleContinue()"]');
+    if (!primaryBtn) return;
+    primaryBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin mr-1">progress_activity</span> Validating §08 Escrow...';
+    setTimeout(() => {
+      primaryBtn.innerHTML = '<span>Proceeding to Step 3</span><span class="material-symbols-outlined text-[18px]">done</span>';
+    }, 700);
+  }
+</script></main></body></html>

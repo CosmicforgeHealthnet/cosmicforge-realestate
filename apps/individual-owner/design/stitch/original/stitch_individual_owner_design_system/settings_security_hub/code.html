@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-bright": "#f9f9ff",
+          "on-error-container": "#93000a",
+          "brand-hover": "#1743B8",
+          "on-surface-variant": "#434654",
+          "finance-held": "#7048E8",
+          "on-tertiary-fixed-variant": "#053ab0",
+          "on-surface": "#0c1c31",
+          "primary-container": "#2459e0",
+          "inverse-surface": "#223147",
+          "secondary-fixed": "#9cf3e1",
+          "on-background": "#0c1c31",
+          "error-container": "#ffdad6",
+          "on-secondary-fixed-variant": "#005046",
+          "status-danger": "#C93647",
+          "primary-fixed": "#dce1ff",
+          "outline": "#747686",
+          "surface-container-highest": "#d5e3ff",
+          "tertiary-fixed": "#dce1ff",
+          "primary-fixed-dim": "#b5c4ff",
+          "card-dark": "#17253A",
+          "surface-container-high": "#dee8ff",
+          "canvas-dark": "#0C1525",
+          "on-tertiary": "#ffffff",
+          "on-primary-fixed-variant": "#003baf",
+          "tertiary-container": "#375bcf",
+          "tertiary": "#1441b6",
+          "on-secondary-container": "#037163",
+          "surface-variant": "#d5e3ff",
+          "on-tertiary-container": "#dce1ff",
+          "on-primary": "#ffffff",
+          "surface-tint": "#1852d9",
+          "on-tertiary-fixed": "#001550",
+          "outline-variant": "#c3c5d7",
+          "status-danger-dark": "#FF8694",
+          "surface": "#f9f9ff",
+          "surface-container-lowest": "#ffffff",
+          "brand-dark-action": "#6C96FF",
+          "status-positive-dark": "#58D4BC",
+          "error": "#ba1a1a",
+          "text-dark": "#ECF3FF",
+          "primary": "#0041bc",
+          "status-positive": "#087A66",
+          "border-dark": "#344966",
+          "surface-subtle-light": "#EDF2FA",
+          "on-primary-fixed": "#00164e",
+          "card-light": "#FFFFFF",
+          "border-default": "#DCE4F0",
+          "surface-subtle-dark": "#1E3048",
+          "on-secondary": "#ffffff",
+          "inverse-on-surface": "#ebf1ff",
+          "secondary-fixed-dim": "#80d6c5",
+          "surface-container-low": "#f0f3ff",
+          "canvas-light": "#F6F8FC",
+          "tertiary-fixed-dim": "#b6c4ff",
+          "status-warning": "#9A6507",
+          "brand-sapphire": "#2459E0",
+          "ink-secondary": "#536479",
+          "background": "#f9f9ff",
+          "surface-container": "#e7eeff",
+          "surface-dim": "#ccdbf8",
+          "ink-primary": "#17263C",
+          "secondary-container": "#9cf3e1",
+          "inverse-primary": "#b5c4ff",
+          "on-error": "#ffffff",
+          "text-dark-secondary": "#ADC0D9",
+          "finance-restricted": "#C93647",
+          "status-warning-dark": "#F2BD69",
+          "secondary": "#006b5d",
+          "on-primary-container": "#dce1ff",
+          "finance-pending": "#2459E0",
+          "on-secondary-fixed": "#00201b",
+          "finance-available": "#087A66"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-md": "1rem",
+          "margin": "2rem",
+          "gutter-mobile": "1rem",
+          "space-lg": "1.5rem",
+          "gutter": "1.5rem",
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "space-xl": "2rem",
+          "margin-mobile": "1rem"
+        },
+        "fontFamily": {
+          "headline-lg-mobile": ["Inter"],
+          "headline-lg": ["Inter"],
+          "body-lg": ["Inter"],
+          "display-hero": ["Inter"],
+          "body-md": ["Inter"],
+          "headline-md": ["Inter"],
+          "body-bold": ["Inter"],
+          "label-md": ["Inter"],
+          "meta-numeric": ["Inter"],
+          "display-hero-mobile": ["Inter"],
+          "headline-sm": ["Inter"],
+          "label-sm": ["Inter"]
+        },
+        "fontSize": {
+          "headline-lg-mobile": ["26px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "display-hero": ["44px", {"lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "headline-md": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-bold": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+          "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+          "meta-numeric": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600"}],
+          "display-hero-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+          "headline-sm": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+          "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low flex flex-col z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between bg-surface-container-low"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-body-bold text-body-bold">CF</div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">CosmicForge</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Owner Portfolio</span></div></div><span class="material-symbols-outlined text-outline cursor-pointer">unfold_more</span></div><div class="px-space-md py-space-sm"><button class="w-full flex items-center justify-between px-space-sm py-space-xs rounded-lg bg-surface-container text-left hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><div class="flex flex-col truncate"><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Active Entity</span><span class="font-body-bold text-body-bold text-on-surface truncate">Adeyemi Cole (Direct)</span></div><span class="material-symbols-outlined text-on-surface-variant text-[20px]">swap_horiz</span></button></div><nav class="flex-1 overflow-y-auto px-space-sm py-space-xs space-y-0.5" data-active-classes="bg-primary-container text-on-primary-container font-body-bold"><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dashboard" href="#">Dashboard</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="properties" href="#">Properties</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="listings" href="#">Listings</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="leads-viewings" href="#">Leads &amp; Viewings</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tenancies-rent" href="#">Tenancies &amp; Rent</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="commercial-land" href="#">Commercial &amp; Land</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="short-lets" href="#">Short-Lets</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="maintenance" href="#">Maintenance</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="finance-wallet" href="#">Finance &amp; Wallet</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ownership-authority-co-owner-governance-delegated-management" href="#">Ownership &amp; Delegation</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="reports" href="#">Reports</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="settings-security" href="#">Settings &amp; Security</a></nav><div class="p-space-md bg-surface-container-low"><div class="p-space-sm rounded-lg bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-status-positive"></div><span class="font-label-sm text-label-sm text-on-surface-variant">Ledger Synced</span></div><span class="font-meta-numeric text-meta-numeric text-outline truncate">Block: #2488102-NG</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 px-space-lg flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-status-positive"></span><span>Gateway v1.4</span></div><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">lock</span><span>MFA Verified</span></div><div class="hidden md:flex items-center gap-1 text-on-surface-variant font-meta-numeric text-meta-numeric"><span class="material-symbols-outlined text-[16px]">schedule</span><span>WAT Lagos: 14:32</span></div></div><div class="flex items-center gap-space-md"><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-status-danger"></span></button><div class="flex items-center gap-space-sm pl-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden sm:flex flex-col text-left"><span class="font-body-bold text-body-bold text-on-surface leading-tight">Adeyemi Cole</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Principal Sovereign</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive & State Styles (No Layout Violations) -->
+<style>
+    .tab-btn.active {
+      background-color: #2459e0;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .tab-btn:not(.active) {
+      color: #434654;
+      background-color: transparent;
+    }
+    .tab-btn:not(.active):hover {
+      background-color: #e7eeff;
+      color: #0c1c31;
+    }
+  </style>
+<!-- Ambient Top Visual Glow Overlay -->
+<div class="relative w-full overflow-hidden bg-surface pb-space-xl">
+<div class="absolute -top-32 right-12 w-96 h-96 rounded-full bg-brand-sapphire/5 blur-3xl pointer-events-none"></div>
+<div class="absolute top-20 left-1/3 w-80 h-80 rounded-full bg-secondary/5 blur-3xl pointer-events-none"></div>
+<!-- Master Content Container (Bounded Grid) -->
+<div class="max-w-[1360px] mx-auto px-space-md sm:px-space-lg w-full flex flex-col gap-space-lg relative z-10 pt-space-md">
+<!-- Breadcrumbs & Sovereign Metadata Top Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="hover:text-primary cursor-pointer transition-colors">Settings</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="text-on-surface font-body-bold">Security Hub, Verification &amp; Safety</span>
+</div>
+<!-- System Provenance & Key State Badges -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-status-positive text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-body-bold">Adeyemi Cole</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high font-label-sm text-label-sm text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Tier 3 Sovereign Principal</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">shield_lock</span>
+<span>Hardware Enclave Active</span>
+</div>
+</div>
+</div>
+<!-- Page Headline & Operational Lead -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pb-space-xs">
+<div class="space-y-1.5 max-w-3xl">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Account Security, Governance &amp; Platform Settings</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+            Manage verified identity credentials, hardware MFA, dispute shield, active devices, data privacy, and partner integrations with direct cryptographically guaranteed authority.
+          </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md flex items-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>Audit Trail (.csv)</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-primary hover:bg-brand-hover text-on-primary font-label-md text-label-md flex items-center gap-2 shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+<span>Freeze Credential Enclave</span>
+</button>
+</div>
+</div>
+<!-- Horizontal Navigation Tabs (Modules 02, 24, 26, 27, 28, 29, 30) -->
+<div class="p-1 rounded-xl bg-surface-container-low flex items-center gap-1 overflow-x-auto shadow-sm">
+<button class="tab-btn active px-4 py-2 rounded-lg font-label-md text-label-md whitespace-nowrap transition-all flex items-center gap-2" id="tab-sec-auth" onclick="switchTab('sec-auth')" type="button">
+<span class="material-symbols-outlined text-[18px]">security</span>
+<span>Security &amp; Authentication</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg font-label-md text-label-md whitespace-nowrap transition-all flex items-center gap-2" id="tab-dispute-shield" onclick="switchTab('dispute-shield')" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Dispute Shield &amp; Fraud</span>
+<span class="w-5 h-5 rounded-full bg-status-danger text-on-error text-center flex items-center justify-center font-meta-numeric text-meta-numeric">1</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg font-label-md text-label-md whitespace-nowrap transition-all flex items-center gap-2" id="tab-privacy-data" onclick="switchTab('privacy-data')" type="button">
+<span class="material-symbols-outlined text-[18px]">policy</span>
+<span>Privacy &amp; Data Access</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg font-label-md text-label-md whitespace-nowrap transition-all flex items-center gap-2" id="tab-partner-integrations" onclick="switchTab('partner-integrations')" type="button">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+<span>Gated Partner Integrations</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg font-label-md text-label-md whitespace-nowrap transition-all flex items-center gap-2" id="tab-preferences" onclick="switchTab('preferences')" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Preferences &amp; Regional</span>
+</button>
+</div>
+<!-- MAIN TAB VIEW 1: SECURITY & AUTHENTICATION -->
+<div class="space-y-space-lg" id="view-sec-auth">
+<!-- Section 1: Multi-Factor Authentication & Step-Up Security (Module 02) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- MFA Status Lead Card (8 Cols) -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div>
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">phonelink_lock</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Time-Based OTP (TOTP) Authenticator</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Primary cryptographic authorization layer for portfolio actions</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-positive"></span>
+<span>Enabled &amp; Protected</span>
+</span>
+</div>
+<!-- Enrolled Application & Policy Overview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md p-space-md bg-surface-container-low rounded-lg mt-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Active Authenticator</span>
+<div class="flex items-center gap-1.5 font-body-bold text-body-bold text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+<span>Google Authenticator</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-0.5 block">Synced Oct 12, 2026 • SHA-256</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Emergency Keys Remaining</span>
+<div class="flex items-center gap-1.5 font-body-bold text-body-bold text-on-surface">
+<span class="material-symbols-outlined text-status-positive text-[18px]">key</span>
+<span>8 of 10 Codes</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-0.5 block">Physical Paper Archive Verified</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Enclave Status</span>
+<div class="flex items-center gap-1.5 font-body-bold text-body-bold text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">encrypted</span>
+<span>Immutable Vault</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-0.5 block">Zero-Knowledge Escrow Key</span>
+</div>
+</div>
+<!-- Step-Up Policy Enforcement Warning Callout -->
+<div class="mt-space-md p-space-md rounded-lg bg-surface-container flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-brand-sapphire text-[20px] shrink-0 mt-0.5">verified</span>
+<div class="space-y-1">
+<span class="font-body-bold text-body-bold text-on-surface block">Mandatory Step-Up Transaction Enforcement</span>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Step-up MFA verification is enforced for <strong>Payout Disbursements</strong>, <strong>Deed Countersigning</strong>, <strong>Manager Delegation Revocation</strong>, and <strong>Co-Owner Equity Share Alterations</strong>.
+                  </p>
+</div>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+<span>Reconfigure Authenticator</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>View Emergency Recovery Codes (8 Remaining)</span>
+</button>
+</div>
+</div>
+<!-- Biometric & WebAuthn / FIDO2 Passkey (4 Cols) -->
+<div class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[24px]">fingerprint</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">FIDO2 L2</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">WebAuthn Biometric Passkeys</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">Cryptographic device-bound keys using hardware secure enclaves.</p>
+<div class="space-y-space-sm">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[20px]">laptop_mac</span>
+<div>
+<span class="font-body-bold text-body-bold text-on-surface block">MacBook Pro TouchID</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Apple T2 Secure Enclave • Synced</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-status-positive text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[20px]">smartphone</span>
+<div>
+<span class="font-body-bold text-body-bold text-on-surface block">iPhone 16 Pro FaceID</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">Secure Processor A18 • Synced</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-status-positive text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+<button class="w-full px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">add_moderator</span>
+<span>Register New Hardware Security Key</span>
+</button>
+</div>
+</div>
+<!-- Section 2: Active Sessions & Trusted Device Management (Module 02 & 27) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Active Sovereign Sessions &amp; Trusted Hardware</h2>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-meta-numeric text-meta-numeric">3 Authenticated</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Continuous TLS fingerprinting and GeoIP monitoring protect this portfolio.</p>
+</div>
+<button class="px-4 py-2 rounded-lg bg-error-container hover:bg-status-danger/20 text-status-danger font-label-md text-label-md flex items-center gap-2 transition-colors self-start sm:self-auto" type="button">
+<span class="material-symbols-outlined text-[18px]">power_settings_new</span>
+<span>Terminate All Other Sessions</span>
+</button>
+</div>
+<!-- Sessions Data Table -->
+<div class="overflow-x-auto rounded-xl bg-surface-container-low">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-on-surface-variant font-label-md text-label-md">
+<th class="py-3 px-space-md">Authorized Hardware &amp; Client</th>
+<th class="py-3 px-space-md">Location &amp; Network IP</th>
+<th class="py-3 px-space-md">Last Activity</th>
+<th class="py-3 px-space-md">Integrity Status</th>
+<th class="py-3 px-space-md text-right">Session Action</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-body-md font-body-md text-on-surface">
+<!-- Session 1 (Current) -->
+<tr class="bg-surface-container-lowest transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">desktop_mac</span>
+</div>
+<div>
+<div class="font-body-bold text-body-bold text-on-surface flex items-center gap-2">
+<span>Chrome on macOS 15.0</span>
+<span class="px-2 py-0.2 rounded-full bg-secondary-container text-on-secondary-container font-meta-numeric text-meta-numeric">This Machine</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant">TLS 1.3 • WebAuthn Enrolled</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-outline text-[16px]">location_on</span>
+<span class="font-body-md text-body-md">Lagos, Nigeria</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant block">102.89.44.12 (Direct Fiber)</span>
+</td>
+<td class="py-3.5 px-space-md font-meta-numeric text-meta-numeric text-status-positive">
+                    Just now (Active)
+                  </td>
+<td class="py-3.5 px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm inline-flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span>Current Session</span>
+</span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<span class="font-meta-numeric text-meta-numeric text-outline uppercase tracking-wider">Unrevocable Here</span>
+</td>
+</tr>
+<!-- Session 2 -->
+<tr class="bg-surface-container-low transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-ink-secondary">
+<span class="material-symbols-outlined text-[20px]">phone_iphone</span>
+</div>
+<div>
+<div class="font-body-bold text-body-bold text-on-surface">CosmicForge Mobile App (iOS 18)</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant">iPhone 16 Pro • Biometric Bound</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-outline text-[16px]">location_on</span>
+<span class="font-body-md text-body-md">Lagos, Nigeria</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant block">105.112.98.24 (Cellular MTN NG)</span>
+</td>
+<td class="py-3.5 px-space-md font-meta-numeric text-meta-numeric text-on-surface-variant">
+                    42m ago
+                  </td>
+<td class="py-3.5 px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Trusted Device</span>
+</span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<button class="px-3 py-1 rounded-md bg-surface-container hover:bg-error-container hover:text-status-danger text-on-surface-variant font-label-sm text-label-sm transition-colors" type="button">
+                      Revoke
+                    </button>
+</td>
+</tr>
+<!-- Session 3 -->
+<tr class="bg-surface-container-lowest transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-ink-secondary">
+<span class="material-symbols-outlined text-[20px]">tablet_mac</span>
+</div>
+<div>
+<div class="font-body-bold text-body-bold text-on-surface">Safari on iPad Pro</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant">iPadOS 18.1 • TouchID Profile</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-outline text-[16px]">location_on</span>
+<span class="font-body-md text-body-md">London, United Kingdom</span>
+</div>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant block">82.165.197.8 (BT Broadband)</span>
+</td>
+<td class="py-3.5 px-space-md font-meta-numeric text-meta-numeric text-on-surface-variant">
+                    3 days ago
+                  </td>
+<td class="py-3.5 px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Trusted Device</span>
+</span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<button class="px-3 py-1 rounded-md bg-surface-container hover:bg-error-container hover:text-status-danger text-on-surface-variant font-label-sm text-label-sm transition-colors" type="button">
+                      Revoke
+                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- MAIN TAB VIEW 2: DISPUTE SHIELD & CHARGEBACKS (Module 26) -->
+<div class="space-y-space-lg hidden" id="view-dispute-shield">
+<!-- Dispute Overview Stats Bar -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Active Shield Disputes</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-hero text-headline-lg text-status-danger font-headline-lg">1</span>
+<span class="font-meta-numeric text-meta-numeric text-status-danger">Urgent Resolution Window</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Total Claims Resolved</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-hero text-headline-lg text-on-surface font-headline-lg">3</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive">100% Retained in Favor</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Escrow Protected Capital</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-hero text-headline-lg text-on-surface font-headline-lg">₦150,000</span>
+<span class="font-meta-numeric text-meta-numeric text-primary">GTBank Vault</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Arbitration Authority</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-body-bold text-body-bold text-on-surface">LMDC Fast-Track</span>
+<span class="font-meta-numeric text-meta-numeric text-secondary">72h SLA Active</span>
+</div>
+</div>
+</div>
+<!-- Section 3: Tenancy & Chargeback Dispute Shield (Module 26) Details -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 rounded-full bg-error-container text-status-danger font-meta-numeric text-meta-numeric">In Arbitration</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Case #DSP-2026-04 — Short-Let Cautionary Deposit Dispute</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Asset Location: Suite 2, Victoria Palms, Victoria Island, Lagos</p>
+</div>
+<div class="flex items-center gap-2 font-meta-numeric text-meta-numeric px-3 py-1.5 rounded-lg bg-surface-container text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-status-warning">timer</span>
+<span>Arbitrator SLA Deadline: 28h 14m remaining</span>
+</div>
+</div>
+<!-- Dispute Dossier Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Left Pane: The Claim & Property Evidence (7 Cols) -->
+<div class="lg:col-span-7 space-y-space-md bg-surface-container-low p-space-md rounded-xl">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Disputing Guest &amp; Claim</span>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-body-bold text-on-surface shrink-0">MT</div>
+<div>
+<span class="font-body-bold text-body-bold text-on-surface block">Michael Thorne (Verified Guest)</span>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+                      Contesting full forfeiture of <strong>₦150,000 security cautionary deposit</strong>. Claims living room marble table damage pre-existed check-in.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Owner Ground & Photographic Proof -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Owner Legal Ground &amp; In-Inspection Proof</span>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest space-y-space-sm">
+<p class="font-body-md text-body-md text-on-surface">
+                    Post-checkout inventory inspection logged cracked Carrera Italian marble coffee table slab with high-precision timestamp matching the exit timecode. EcoClean Restoration verified unrepairable fissure.
+                  </p>
+<!-- Evidence Visual Cards -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="relative rounded-lg overflow-hidden h-32 group">
+<img class="w-full h-full object-cover" data-alt="Close up photograph of a damaged fractured white Italian marble coffee table inside an upscale luxury apartment suite in Victoria Island Lagos, showing deep structural cracks and dust with evidentiary metadata timestamp overlay." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3hmgXMW_GUEIpxsJa6cnZnjb2WhRWToTfNNkYbhxgEbZSOJ16SQUGaJt-TbK_u3gK86o7Zlckd1YiOzhGOGN52ISxRXbuGA0zmlhEJZfCWtaQjPD_14ulUXNHKjYAZfenrfeFyJaNdwSoVnu-gKNMeU_rNqZtnq0TQLEbldiQ9Osw9Qfai9YdHf12LQ35_cxzp3PxcHrXQLFBbfuENMautyKAY2VaBL3L6dUfB41KJHueWR8F1MBA7A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-dark/80 via-transparent to-transparent flex items-end p-2">
+<span class="font-meta-numeric text-meta-numeric text-text-dark">Damaged Slab • 14:10 WAT</span>
+</div>
+</div>
+<div class="relative rounded-lg overflow-hidden h-32 group">
+<img class="w-full h-full object-cover" data-alt="High resolution scan of official invoice document from EcoClean Restoration Contractors Lagos detailing marble table replacement fee of 180,000 Nigerian Naira with stamp and tax identification." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhyuRytuESr_-iNjYIasK7AA1ebbmK9ViQgUSu0-Fg3H37X7WPgL9tgQ62U1tDgFOV5FjuULP-lNSlvX0H0f7Y7KUlOI6QKlxFxglfK_M6-2YqOgYSsBlwR4VnI6bdItBJlmviPrU6oeZ8HX0tRpR1BP6rGvszhaslKNS2kXpCF1Ll1o6DAGXvCUysO_xIlAPaE0zq6T8bRYEkD1fNidRUwb7jE67kptFwVf9qyyq9_dZd42QXOOAd0w"/>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-dark/80 via-transparent to-transparent flex items-end p-2">
+<span class="font-meta-numeric text-meta-numeric text-text-dark">Invoice: ₦180,000 Repair</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Pane: Arbitration Chamber & Escrow Safe Custody (5 Cols) -->
+<div class="lg:col-span-5 space-y-space-md bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div class="space-y-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Judicial Status &amp; Escrow Holding</span>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Escrow Custodian</span>
+<span class="font-body-bold text-body-bold text-on-surface">Guaranty Trust Bank (GTB)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Funds Restricted</span>
+<span class="font-headline-sm text-headline-sm text-status-danger">₦150,000.00</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Arbitration Forum</span>
+<span class="font-label-md text-label-md text-primary">Lagos Multi-Door Courthouse (LMDC)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Arbitrator Reference</span>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary">#ARB-LMDC-2026-9921</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container text-on-surface space-y-1">
+<div class="flex items-center gap-1.5 font-label-md text-label-md font-body-bold">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span>Direct Retainer Assigned</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Counsel Adebayo &amp; Co. is prepared to file formal affidavit if guest declines ₦120,000 negotiated compromise.
+                  </p>
+</div>
+</div>
+<!-- Action Triggers -->
+<div class="space-y-2 pt-2">
+<button class="w-full px-4 py-2.5 rounded-lg bg-primary hover:bg-brand-hover text-on-primary font-label-md text-label-md transition-all flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Upload Supplemental Photo Evidence</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">handshake</span>
+<span>Accept ₦120k Compromise</span>
+</button>
+<button class="px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">call</span>
+<span>Call Legal Counsel</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MAIN TAB VIEW 3: PRIVACY, AUDIT & SUCCESSION (Module 27) -->
+<div class="space-y-space-lg hidden" id="view-privacy-data">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Data Rights & NDPR/GDPR Vault (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Data Sovereignty &amp; Privacy Vault</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Full compliance under the Nigeria Data Protection Act (NDPA) and Global GDPR standards.</p>
+</div>
+<div class="space-y-space-sm">
+<div class="p-space-md rounded-lg bg-surface-container-low flex items-center justify-between gap-space-sm">
+<div>
+<h3 class="font-body-bold text-body-bold text-on-surface">Download Sovereign Ledger Archive</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Export immutable deed records, financial audit logs, tenant tenancy schedules in standardized JSON/ZIP format.</p>
+</div>
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md shrink-0 flex items-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Export Archive</span>
+</button>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex items-center justify-between gap-space-sm">
+<div>
+<h3 class="font-body-bold text-body-bold text-on-surface">Third-Party Data Access Permissions</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Inspect which regulatory tax authorities, estate surveyors, and banking gateways have programmatic read scopes.</p>
+</div>
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md shrink-0 flex items-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Audit Scopes</span>
+</button>
+</div>
+</div>
+<!-- Destructive Action Protocol -->
+<div class="p-space-md rounded-lg bg-error-container/30 space-y-2 mt-space-md">
+<span class="font-body-bold text-body-bold text-status-danger flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+<span>Irrevocable Portfolio Master Surrender</span>
+</span>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Surrendering credentials initiates automated title reconveyance holding protocols. Requires formal physically notarized deed reconveyance and biometrics re-verification.
+              </p>
+<button class="px-4 py-2 rounded-lg bg-status-danger hover:bg-brand-hover text-on-error font-label-md text-label-md transition-all" type="button">
+                Close Account &amp; Surrender Master Credentials
+              </button>
+</div>
+</div>
+<!-- Succession Directive & Nominated Representative (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md flex flex-col justify-between">
+<div class="space-y-space-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-secondary text-[22px]">family_restroom</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Succession Holding Directive</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Pre-authorized protocols ensuring uninterrupted continuity of property operations in crisis.</p>
+<div class="p-space-md rounded-lg bg-surface-container-low space-y-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Designated Succession Trustee</span>
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-body-bold text-on-secondary-container">OC</div>
+<div>
+<span class="font-body-bold text-body-bold text-on-surface block">Dr. Olumide Cole</span>
+<span class="font-meta-numeric text-meta-numeric text-on-surface-variant">Co-Owner &amp; Succession Trustee • 25% Equity Share</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs border-t-0 space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Power of Attorney Ref</span>
+<span class="font-meta-numeric text-meta-numeric text-on-surface">LAG/NOT/2025/1102</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Emergency Lockout Trigger</span>
+<span class="text-status-positive font-body-bold text-body-bold">MFA Inactivity (60 Days)</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_document</span>
+<span>Update Succession Directive &amp; Trustee</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MAIN TAB VIEW 4: GATED PARTNER INTEGRATIONS (Modules 28, 29, 30) -->
+<div class="space-y-space-lg hidden" id="view-partner-integrations">
+<!-- Mandatory Architectural Transparency Disclosure Header -->
+<div class="p-space-md rounded-xl bg-surface-container flex items-start gap-space-sm shadow-sm">
+<span class="material-symbols-outlined text-primary text-[24px] shrink-0 mt-0.5">verified_user</span>
+<div class="space-y-1">
+<span class="font-body-bold text-body-bold text-on-surface block">Regulated Partner Integration Governance</span>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Third-party partner capabilities require independent regulatory and hardware certification. Unverified services are transparently gated to prevent financial contagion or physical building security compromise.
+            </p>
+</div>
+</div>
+<!-- 3 Master Integration Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Card 1: Property Mortgage & Mezzanine Financing (Module 28) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md relative overflow-hidden">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">account_balance</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-subtle-light text-ink-secondary font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span>Gated (In-Dev)</span>
+</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-outline uppercase tracking-wider block">Module 28</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-0.5">Mortgage &amp; Mezzanine Financing</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Institutional mortgage refinancing through tier-1 mortgage banks is pending CBN sandboxing. Loan applications cannot be initiated offline.
+              </p>
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Regulatory Barrier</span>
+<span class="font-meta-numeric text-meta-numeric text-on-surface block">CBN Digital Credit Sandbox v2.1 Compliance</span>
+</div>
+</div>
+<!-- Disabled Button with Tooltip Attribute -->
+<div>
+<button class="w-full px-4 py-2.5 rounded-lg bg-surface-container text-outline font-label-md text-label-md cursor-not-allowed flex items-center justify-center gap-2" disabled="" title="Institutional Pilot is currently closed pending sandbox completion." type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Join Institutional Pilot Waitlist</span>
+</button>
+</div>
+</div>
+<!-- Card 2: Property Insurance & All-Risk Asset Protection (Module 29) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[22px]">health_and_safety</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span>Active Policy</span>
+</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-outline uppercase tracking-wider block">Module 29</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-0.5">Property &amp; All-Risk Insurance</h3>
+</div>
+<div class="space-y-1">
+<span class="font-body-bold text-body-bold text-on-surface block">Leadway Assurance Comprehensive</span>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                  Fire, flood &amp; special perils policy <code>#LAD/POL/2026/891</code> protecting The Sapphire Horizon, Ikoyi.
+                </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Sum Insured:</span>
+<span class="font-body-bold text-body-bold text-on-surface">₦850,000,000</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Expiration:</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive">14 Dec 2026</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-1/2 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Schedule</span>
+</button>
+<button class="w-1/2 px-3 py-2 rounded-lg bg-primary hover:bg-brand-hover text-on-primary font-label-md text-label-md transition-all flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">report_problem</span>
+<span>File Claim</span>
+</button>
+</div>
+</div>
+<!-- Card 3: Smart Access & IoT Gateway Hardware (Module 30) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">door_sensor</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+<span>Bridge Online</span>
+</span>
+</div>
+<div>
+<span class="font-meta-numeric text-meta-numeric text-outline uppercase tracking-wider block">Module 30</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-0.5">Smart Access &amp; IoT Gateways</h3>
+</div>
+<div class="space-y-1">
+<span class="font-body-bold text-body-bold text-on-surface block">Igloohome &amp; Yale Linus API Bridge</span>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                  3 Smart Deadbolts active. Remote passcodes dynamically provisioned for vetted guest check-ins. Direct cellular opening is physically restricted.
+                </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Gateways:</span>
+<span class="font-meta-numeric text-meta-numeric text-on-surface">3 Locks Synced (100% Bat)</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Security Policy:</span>
+<span class="font-meta-numeric text-meta-numeric text-status-positive">Cellular Gated</span>
+</div>
+</div>
+</div>
+<button class="w-full px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">dialpad</span>
+<span>Manage Keypad Passcodes</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MAIN TAB VIEW 5: PREFERENCES & REGIONAL (Module 24 & Standard Platform Controls) -->
+<div class="space-y-space-lg hidden" id="view-preferences">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Regionalization &amp; Financial Ledger Display</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Configure sovereign reporting currency, tax jurisdiction, and notification triggers.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- Left Config Group -->
+<div class="space-y-space-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Base Ledger Reporting Currency</label>
+<select class="w-full h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border-0 focus:outline-none focus:ring-2 focus:ring-primary">
+<option selected="">NGN — Nigerian Naira (₦)</option>
+<option>USD — United States Dollar ($)</option>
+<option>GBP — British Pound Sterling (£)</option>
+</select>
+<span class="font-meta-numeric text-meta-numeric text-ink-secondary mt-1 block">Live CBN / FX interbank conversions apply on cross-border payments.</span>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Tax Residency Jurisdiction</label>
+<select class="w-full h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border-0 focus:outline-none focus:ring-2 focus:ring-primary">
+<option selected="">Federal Republic of Nigeria (LIRS / FIRS Withholding)</option>
+<option>United Kingdom (HMRC Non-Resident Landlord)</option>
+<option>Dual Jurisdiction Reporting</option>
+</select>
+</div>
+</div>
+<!-- Right Config Group -->
+<div class="space-y-space-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Timezone &amp; Ledger Synchronization Clock</label>
+<select class="w-full h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border-0 focus:outline-none focus:ring-2 focus:ring-primary">
+<option selected="">Africa/Lagos (WAT, UTC +1)</option>
+<option>Europe/London (GMT / BST, UTC +0/+1)</option>
+<option>America/New_York (EST, UTC -5)</option>
+</select>
+</div>
+<div class="space-y-2 pt-2">
+<span class="block font-label-md text-label-md text-on-surface">Urgent Safety Notifications</span>
+<label class="flex items-center gap-2 cursor-pointer font-body-md text-body-md text-on-surface">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<span>Send SMS step-up triggers for disbursements exceeding ₦500,000</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer font-body-md text-body-md text-on-surface">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<span>Instant push alerts for new dispute registrations or LMDC summons</span>
+</label>
+</div>
+</div>
+</div>
+<div class="pt-space-sm flex justify-end">
+<button class="px-5 py-2.5 rounded-lg bg-primary hover:bg-brand-hover text-on-primary font-label-md text-label-md shadow-sm transition-all" type="button">
+              Save Regional Preferences
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inline Tab Switcher Logic -->
+<script>
+    function switchTab(tabKey) {
+      // Hide all tab views
+      const views = ['sec-auth', 'dispute-shield', 'privacy-data', 'partner-integrations', 'preferences'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        const btn = document.getElementById('tab-' + v);
+        if (el) el.classList.add('hidden');
+        if (btn) btn.classList.remove('active');
+      });
+
+      // Show target view
+      const targetView = document.getElementById('view-' + tabKey);
+      const targetBtn = document.getElementById('tab-' + tabKey);
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+  </script>
+</div></main></div></body></html>

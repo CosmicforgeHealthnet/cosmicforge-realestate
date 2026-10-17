@@ -1,0 +1,521 @@
+{
+  "schemaVersion": 1,
+  "archive": {
+    "bytes": 11323929,
+    "sha256": "ba0ee9fa12f3d276d2b2f29327dc7c39c985dd8a439ff77fdb1dcac660891337",
+    "file": "stitch_individual_owner_design_system.zip"
+  },
+  "counts": {
+    "png": 30,
+    "desktop": 15,
+    "html": 30,
+    "markdown": 2,
+    "mobile": 15
+  },
+  "screens": [
+    {
+      "id": "pair-01-desktop",
+      "originalFolder": "owner_dashboard",
+      "title": "Owner Dashboard",
+      "platform": "DESKTOP",
+      "pairId": "pair-01",
+      "html": "original/stitch_individual_owner_design_system/owner_dashboard/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/owner_dashboard/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "01"
+      ]
+    },
+    {
+      "id": "pair-01-mobile",
+      "originalFolder": "owner_dashboard_mobile",
+      "title": "Owner Dashboard",
+      "platform": "MOBILE",
+      "pairId": "pair-01",
+      "html": "original/stitch_individual_owner_design_system/owner_dashboard_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/owner_dashboard_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "01"
+      ]
+    },
+    {
+      "id": "pair-02-desktop",
+      "originalFolder": "the_sapphire_horizon_property_detail",
+      "title": "Property Detail",
+      "platform": "DESKTOP",
+      "pairId": "pair-02",
+      "html": "original/stitch_individual_owner_design_system/the_sapphire_horizon_property_detail/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/the_sapphire_horizon_property_detail/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "05",
+        "06"
+      ]
+    },
+    {
+      "id": "pair-02-mobile",
+      "originalFolder": "the_sapphire_horizon_mobile_property_detail",
+      "title": "Property Detail",
+      "platform": "MOBILE",
+      "pairId": "pair-02",
+      "html": "original/stitch_individual_owner_design_system/the_sapphire_horizon_mobile_property_detail/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/the_sapphire_horizon_mobile_property_detail/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "05",
+        "06"
+      ]
+    },
+    {
+      "id": "pair-03-desktop",
+      "originalFolder": "create_listing_wizard",
+      "title": "Create Listing Wizard",
+      "platform": "DESKTOP",
+      "pairId": "pair-03",
+      "html": "original/stitch_individual_owner_design_system/create_listing_wizard/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/create_listing_wizard/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "07",
+        "08",
+        "09"
+      ]
+    },
+    {
+      "id": "pair-03-mobile",
+      "originalFolder": "create_listing_wizard_mobile",
+      "title": "Create Listing Wizard",
+      "platform": "MOBILE",
+      "pairId": "pair-03",
+      "html": "original/stitch_individual_owner_design_system/create_listing_wizard_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/create_listing_wizard_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "07",
+        "08",
+        "09"
+      ]
+    },
+    {
+      "id": "pair-04-desktop",
+      "originalFolder": "treasury_finance_wallet",
+      "title": "Treasury, Finance and Wallet",
+      "platform": "DESKTOP",
+      "pairId": "pair-04",
+      "html": "original/stitch_individual_owner_design_system/treasury_finance_wallet/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/treasury_finance_wallet/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "03",
+        "14"
+      ]
+    },
+    {
+      "id": "pair-04-mobile",
+      "originalFolder": "finance_wallet_mobile",
+      "title": "Treasury, Finance and Wallet",
+      "platform": "MOBILE",
+      "pairId": "pair-04",
+      "html": "original/stitch_individual_owner_design_system/finance_wallet_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/finance_wallet_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "03",
+        "14"
+      ]
+    },
+    {
+      "id": "pair-05-desktop",
+      "originalFolder": "tenancies_leases_authoritative_ledger",
+      "title": "Tenancies and Leases",
+      "platform": "DESKTOP",
+      "pairId": "pair-05",
+      "html": "original/stitch_individual_owner_design_system/tenancies_leases_authoritative_ledger/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/tenancies_leases_authoritative_ledger/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "13",
+        "14",
+        "15",
+        "16"
+      ]
+    },
+    {
+      "id": "pair-05-mobile",
+      "originalFolder": "tenancies_rent_mobile",
+      "title": "Tenancies and Leases",
+      "platform": "MOBILE",
+      "pairId": "pair-05",
+      "html": "original/stitch_individual_owner_design_system/tenancies_rent_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/tenancies_rent_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "13",
+        "14",
+        "15",
+        "16"
+      ]
+    },
+    {
+      "id": "pair-06-desktop",
+      "originalFolder": "lease_agreement_review_countersigning",
+      "title": "Lease Agreement and Handover",
+      "platform": "DESKTOP",
+      "pairId": "pair-06",
+      "html": "original/stitch_individual_owner_design_system/lease_agreement_review_countersigning/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/lease_agreement_review_countersigning/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "13"
+      ]
+    },
+    {
+      "id": "pair-06-mobile",
+      "originalFolder": "lease_countersign_handover_mobile",
+      "title": "Lease Agreement and Handover",
+      "platform": "MOBILE",
+      "pairId": "pair-06",
+      "html": "original/stitch_individual_owner_design_system/lease_countersign_handover_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/lease_countersign_handover_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "13"
+      ]
+    },
+    {
+      "id": "pair-07-desktop",
+      "originalFolder": "short_let_management_booking_calendar",
+      "title": "Short-Let Management",
+      "platform": "DESKTOP",
+      "pairId": "pair-07",
+      "html": "original/stitch_individual_owner_design_system/short_let_management_booking_calendar/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/short_let_management_booking_calendar/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "20"
+      ]
+    },
+    {
+      "id": "pair-07-mobile",
+      "originalFolder": "short_let_management_mobile",
+      "title": "Short-Let Management",
+      "platform": "MOBILE",
+      "pairId": "pair-07",
+      "html": "original/stitch_individual_owner_design_system/short_let_management_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/short_let_management_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "20"
+      ]
+    },
+    {
+      "id": "pair-08-desktop",
+      "originalFolder": "maintenance_preventive_care_professional_services",
+      "title": "Maintenance and Professional Services",
+      "platform": "DESKTOP",
+      "pairId": "pair-08",
+      "html": "original/stitch_individual_owner_design_system/maintenance_preventive_care_professional_services/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/maintenance_preventive_care_professional_services/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "pair-08-mobile",
+      "originalFolder": "maintenance_repairs_mobile",
+      "title": "Maintenance and Professional Services",
+      "platform": "MOBILE",
+      "pairId": "pair-08",
+      "html": "original/stitch_individual_owner_design_system/maintenance_repairs_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/maintenance_repairs_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "pair-09-desktop",
+      "originalFolder": "commercial_leases_registered_land_parcels",
+      "title": "Commercial and Land Portfolio",
+      "platform": "DESKTOP",
+      "pairId": "pair-09",
+      "html": "original/stitch_individual_owner_design_system/commercial_leases_registered_land_parcels/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/commercial_leases_registered_land_parcels/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "17",
+        "18"
+      ]
+    },
+    {
+      "id": "pair-09-mobile",
+      "originalFolder": "commercial_land_portfolio_mobile",
+      "title": "Commercial and Land Portfolio",
+      "platform": "MOBILE",
+      "pairId": "pair-09",
+      "html": "original/stitch_individual_owner_design_system/commercial_land_portfolio_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/commercial_land_portfolio_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "17",
+        "18"
+      ]
+    },
+    {
+      "id": "pair-10-desktop",
+      "originalFolder": "property_sales_closing_escrow_room",
+      "title": "Property Sales and Closing",
+      "platform": "DESKTOP",
+      "pairId": "pair-10",
+      "html": "original/stitch_individual_owner_design_system/property_sales_closing_escrow_room/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/property_sales_closing_escrow_room/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "19"
+      ]
+    },
+    {
+      "id": "pair-10-mobile",
+      "originalFolder": "property_sales_closing_room_mobile",
+      "title": "Property Sales and Closing",
+      "platform": "MOBILE",
+      "pairId": "pair-10",
+      "html": "original/stitch_individual_owner_design_system/property_sales_closing_room_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/property_sales_closing_room_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "19"
+      ]
+    },
+    {
+      "id": "pair-11-desktop",
+      "originalFolder": "ownership_authority_co_owner_governance_delegated_management",
+      "title": "Ownership and Delegation",
+      "platform": "DESKTOP",
+      "pairId": "pair-11",
+      "html": "original/stitch_individual_owner_design_system/ownership_authority_co_owner_governance_delegated_management/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/ownership_authority_co_owner_governance_delegated_management/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "04",
+        "21"
+      ]
+    },
+    {
+      "id": "pair-11-mobile",
+      "originalFolder": "ownership_delegation_mobile",
+      "title": "Ownership and Delegation",
+      "platform": "MOBILE",
+      "pairId": "pair-11",
+      "html": "original/stitch_individual_owner_design_system/ownership_delegation_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/ownership_delegation_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "04",
+        "21"
+      ]
+    },
+    {
+      "id": "pair-12-desktop",
+      "originalFolder": "reports_portfolio_intelligence",
+      "title": "Reports and Analytics",
+      "platform": "DESKTOP",
+      "pairId": "pair-12",
+      "html": "original/stitch_individual_owner_design_system/reports_portfolio_intelligence/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/reports_portfolio_intelligence/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "25"
+      ]
+    },
+    {
+      "id": "pair-12-mobile",
+      "originalFolder": "reports_analytics_mobile",
+      "title": "Reports and Analytics",
+      "platform": "MOBILE",
+      "pairId": "pair-12",
+      "html": "original/stitch_individual_owner_design_system/reports_analytics_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/reports_analytics_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "25"
+      ]
+    },
+    {
+      "id": "pair-13-desktop",
+      "originalFolder": "settings_security_hub",
+      "title": "Security and Settings",
+      "platform": "DESKTOP",
+      "pairId": "pair-13",
+      "html": "original/stitch_individual_owner_design_system/settings_security_hub/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/settings_security_hub/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "02",
+        "26",
+        "27"
+      ]
+    },
+    {
+      "id": "pair-13-mobile",
+      "originalFolder": "account_settings_security_hub_mobile",
+      "title": "Security and Settings",
+      "platform": "MOBILE",
+      "pairId": "pair-13",
+      "html": "original/stitch_individual_owner_design_system/account_settings_security_hub_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/account_settings_security_hub_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "02",
+        "26",
+        "27"
+      ]
+    },
+    {
+      "id": "pair-14-desktop",
+      "originalFolder": "owner_identity_verification_onboarding",
+      "title": "Identity Verification and Onboarding",
+      "platform": "DESKTOP",
+      "pairId": "pair-14",
+      "html": "original/stitch_individual_owner_design_system/owner_identity_verification_onboarding/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/owner_identity_verification_onboarding/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "02"
+      ]
+    },
+    {
+      "id": "pair-14-mobile",
+      "originalFolder": "owner_identity_verification_onboarding_mobile",
+      "title": "Identity Verification and Onboarding",
+      "platform": "MOBILE",
+      "pairId": "pair-14",
+      "html": "original/stitch_individual_owner_design_system/owner_identity_verification_onboarding_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/owner_identity_verification_onboarding_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "02"
+      ]
+    },
+    {
+      "id": "pair-15-desktop",
+      "originalFolder": "rental_applications_tenant_screening_dossier",
+      "title": "Rental Applications and Screening",
+      "platform": "DESKTOP",
+      "pairId": "pair-15",
+      "html": "original/stitch_individual_owner_design_system/rental_applications_tenant_screening_dossier/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/rental_applications_tenant_screening_dossier/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "12"
+      ]
+    },
+    {
+      "id": "pair-15-mobile",
+      "originalFolder": "rental_applications_tenant_screening_dossier_mobile",
+      "title": "Rental Applications and Screening",
+      "platform": "MOBILE",
+      "pairId": "pair-15",
+      "html": "original/stitch_individual_owner_design_system/rental_applications_tenant_screening_dossier_mobile/code.html",
+      "screenshot": "original/stitch_individual_owner_design_system/rental_applications_tenant_screening_dossier_mobile/screen.png",
+      "sourcePresence": {
+        "html": true,
+        "screenshot": true
+      },
+      "modules": [
+        "12"
+      ]
+    }
+  ]
+}
