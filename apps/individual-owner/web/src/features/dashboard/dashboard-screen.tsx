@@ -14,13 +14,13 @@ export function DashboardScreen() {
   const [scenario,setScenario] = useState<Scenario>('populated');
   const [kind,setKind] = useState('All');
   const {data:rawData,isPending,error,task,refetch} = useDashboard(scenario);
-  const {propertyId}=usePropertyScope(),workspace=useWorkspace();
+  const {propertyId,setPropertyId,drafts}=usePropertyScope(),workspace=useWorkspace();
   const denied=['permission_denied','expired_session'].includes(workspace.data?.scenario??'');
   const data=rawData?{...rawData,properties:denied?[]:rawData.properties.filter(p=>propertyId==='all'||p.id===propertyId),tasks:denied?[]:rawData.tasks.filter(t=>propertyId==='all'||t.propertyId===propertyId)}:undefined;
   const properties = data?.properties.filter(p=>kind==='All'||p.kind===kind) ?? [];
   const openTasks = data?.tasks.filter(t=>!t.done).length ?? 0;
   return <>
-    <div className="page-heading"><div><p className="eyebrow">YOUR PORTFOLIO, AT A GLANCE</p><h1>Welcome back, Alex<span className="title-dot">.</span></h1><p>A clear view of your properties and what needs attention.</p></div><details className="dashboard-qa"><summary>Developer QA scenarios</summary><label className="scenario-control">Demo scenario<select value={scenario} onChange={e=>{setScenario(e.target.value as Scenario);workspace.scenario.mutate(e.target.value==='empty'?'empty':e.target.value==='error'?'failed_operation':'normal')}}><option value="populated">Sample portfolio</option><option value="empty">Empty portfolio</option><option value="error">Repository error</option></select></label></details></div>
+    <div className="page-heading"><div><p className="eyebrow">YOUR PORTFOLIO, AT A GLANCE</p><h1>Welcome back, Alex<span className="title-dot">.</span></h1><p>A clear view of your properties and what needs attention.</p></div><details className="dashboard-qa"><summary>Developer QA scenarios</summary><label className="scenario-control">Demo scenario<select value={scenario} onChange={e=>{setPropertyId('all');drafts.clear();setScenario(e.target.value as Scenario);workspace.scenario.mutate(e.target.value==='empty'?'empty':e.target.value==='error'?'failed_operation':'normal')}}><option value="populated">Sample portfolio</option><option value="empty">Empty portfolio</option><option value="error">Repository error</option></select></label></details></div>
     <div className="notice"><ShieldCheck size={24} aria-hidden="true"/><div><strong>A workspace built around owner control</strong><p>Mock mode · All records are fictional. Verification is pending and financial services are unavailable.</p></div><span className="badge">Foundation preview</span></div>
     {isPending ? <LoadingState/> : error ? <ErrorState message={error.message} retry={()=>void refetch()}/> : data ? <>
     <section className="metrics" aria-label="Portfolio summary">

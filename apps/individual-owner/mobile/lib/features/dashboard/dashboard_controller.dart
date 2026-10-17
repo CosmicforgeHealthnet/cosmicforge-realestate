@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/mock/mock_owner_repository.dart';
 import '../../core/models/dashboard.dart';
 import '../../core/repositories/owner_repository.dart';
+import '../workspace/workspace_controller.dart' show workspaceProvider;
 
 final ownerRepositoryProvider = Provider<OwnerRepository>(
   (ref) => MockOwnerRepository(),
@@ -28,11 +29,13 @@ class DashboardController extends AsyncNotifier<Dashboard> {
     final repository = ref.read(ownerRepositoryProvider);
     await repository.setTaskDone(id, done);
     state = AsyncData(await repository.getDashboard(_scenario));
+    ref.invalidate(workspaceProvider);
   }
 
   Future<void> rename(String name) async {
     final repository = ref.read(ownerRepositoryProvider);
     await repository.renameWorkspace(name);
     state = AsyncData(await repository.getDashboard(_scenario));
+    ref.invalidate(workspaceProvider);
   }
 }

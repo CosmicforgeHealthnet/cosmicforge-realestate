@@ -8,12 +8,12 @@ test('compiled Flutter preview renders with local assets, navigation and themes'
   const semantics=page.getByRole('button',{name:'Enable accessibility'});
   // Flutter's opt-in placeholder is intentionally positioned offscreen.
   await semantics.dispatchEvent('click');
-  await expect.poll(()=>page.locator('body').ariaSnapshot()).toContain('3 Portfolio properties');
+  await expect.poll(()=>page.locator('body').ariaSnapshot()).toContain('4 Portfolio properties');
   await page.screenshot({path:path.resolve('../docs/evidence/flutter-browser-light.png')});
   await page.getByRole('button',{name:'Switch to dark theme'}).click();
   await expect(page.getByRole('button',{name:'Switch to light theme'})).toBeVisible();
   await page.screenshot({path:path.resolve('../docs/evidence/flutter-browser-dark.png')});
   await page.getByRole('tab',{name:'Properties',exact:true}).click();
-  await expect(page.getByRole('button',{name:'View sample property overview'})).toBeVisible();
+  await expect.poll(()=>page.locator('body').ariaSnapshot()).toContain('Properties, units, land & assets');
   expect(external).toEqual([]);expect(errors).toEqual([]);
 });

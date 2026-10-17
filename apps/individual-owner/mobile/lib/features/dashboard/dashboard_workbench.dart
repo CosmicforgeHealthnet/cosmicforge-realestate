@@ -48,14 +48,26 @@ class DashboardWorkbench extends ConsumerWidget {
             .toList(),
         upcoming = records
             .where(
-              (r) => [
-                'viewing',
-                'booking',
-                'maintenance',
-                'appointment',
-                'preventive',
-                'loi',
-              ].contains(r.type),
+              (r) =>
+                  [
+                    'viewing',
+                    'booking',
+                    'maintenance',
+                    'appointment',
+                    'preventive',
+                    'loi',
+                  ].contains(r.type) &&
+                  ![
+                    'COMPLETED',
+                    'CANCELLED',
+                    'CLOSED',
+                    'CHECKED_OUT',
+                    'DECLINED',
+                    'ACCEPTED',
+                    'RESOLVED',
+                    'REVOKED',
+                    'NO_SHOW',
+                  ].contains(r.status),
             )
             .toList();
     return Column(
@@ -120,11 +132,7 @@ class DashboardWorkbench extends ConsumerWidget {
                   );
                   if (date != null && context.mounted) {
                     final matching = upcoming
-                        .where(
-                          (r) =>
-                              (r.data['date'] ?? r.data['start']) ==
-                              date.toIso8601String().substring(0, 10),
-                        )
+                        .where((r) => isDemoCalendarDate(r, date))
                         .toList();
                     showModalBottomSheet(
                       context: context,
@@ -142,7 +150,9 @@ class DashboardWorkbench extends ConsumerWidget {
                           ...matching.map(
                             (r) => ListTile(
                               title: Text(r.data['title']),
-                              subtitle: Text(r.status),
+                              subtitle: Text(
+                                '${r.status}${r.data["unitId"] == null ? "" : " · ${r.data["unitId"]}"}',
+                              ),
                               onTap: () {
                                 Navigator.pop(context);
                                 context.push(

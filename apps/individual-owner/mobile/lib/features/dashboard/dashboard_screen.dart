@@ -75,6 +75,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
               onChanged: (value) {
                 if (value == null) return;
+                ref.read(propertyScopeProvider.notifier).select('all');
                 setState(() => _scenario = value);
                 ref
                     .read(workspaceProvider.notifier)
@@ -131,13 +132,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _content(BuildContext context, Dashboard data) {
+    final scenario = ref.watch(workspaceProvider).asData?.value.scenario;
+    if (['permission_denied', 'expired_session'].contains(scenario)) {
+      return DemoPanel(
+        child: WorkspaceHeading(
+          scenario == 'permission_denied'
+              ? 'Permission denied'
+              : 'Demo session expired',
+          subtitle: 'No protected property or task details are displayed.',
+        ),
+      );
+    }
     final scope = ref.watch(propertyScopeProvider);
     data = Dashboard(
       workspaceName: data.workspaceName,
       properties: data.properties
           .where((p) => scope == 'all' || p.id == scope)
           .toList(),
-      tasks: data.tasks,
+      tasks: data.tasks
+          .where((t) => scope == 'all' || t.propertyId == scope)
+          .toList(),
       balances: data.balances,
     );
     final properties = data.properties

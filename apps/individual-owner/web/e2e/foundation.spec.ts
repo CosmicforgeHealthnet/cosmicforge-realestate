@@ -9,20 +9,20 @@ test('desktop: navigation, task mutation, forms, themes, scenarios; local reques
   page.on('request',r=>{if(!new URL(r.url()).hostname.match(/^(127\.0\.0\.1|localhost)$/))external.push(r.url())});
   page.on('pageerror',e=>errors.push(e.message));
   await page.setViewportSize({width:1440,height:1100});
-  await page.goto('/');await expect(page.getByText('Sapphire Court · Demo')).toBeVisible();
+  await page.goto('/');await expect(page.getByRole('main').getByText('Sapphire Court · Demo')).toBeVisible();
   await page.screenshot({path:path.join(evidence,'web-desktop-light.png'),fullPage:true});
   await page.getByRole('button',{name:'Complete demo task'}).first().click();
   await expect(page.getByRole('button',{name:'Reopen demo task'})).toHaveCount(2);
   await page.getByRole('link',{name:'Sapphire Court · Demo',exact:false}).click();
-  await expect(page.getByRole('heading',{name:'Sample property overview'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Sapphire Court · Demo'})).toBeVisible();
   await page.goBack();
   await page.getByRole('button',{name:'Switch to dark theme'}).click();
   await expect(page.locator('.theme-root')).toHaveAttribute('data-theme','dark');
   await page.screenshot({path:path.join(evidence,'web-desktop-dark.png'),fullPage:true});
   await page.reload();await expect(page.locator('.theme-root')).toHaveAttribute('data-theme','dark');
-  await page.getByLabel('Demo scenario').selectOption('empty');await expect(page.getByText('No sample properties here')).toBeVisible();
+  await page.getByText('Developer QA scenarios',{exact:true}).click();await page.getByLabel('Demo scenario').selectOption('empty');await expect(page.getByText('No sample properties here')).toBeVisible();
   await page.getByLabel('Demo scenario').selectOption('error');await expect(page.getByRole('main').getByRole('alert')).toContainText('Simulated');
-  await page.getByLabel('Demo scenario').selectOption('populated');await expect(page.getByText('Sapphire Court · Demo')).toBeVisible();
+  await page.getByLabel('Demo scenario').selectOption('populated');await expect(page.getByRole('main').getByText('Sapphire Court · Demo')).toBeVisible();
   await page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Settings',exact:true}).click();
   await page.getByRole('button',{name:'Save demo preference'}).click();await expect(page.getByRole('main').getByRole('alert')).toContainText('at least 2');
   await page.getByLabel('Workspace label').fill('My fictional workspace');await page.getByRole('button',{name:'Save demo preference'}).click();
@@ -31,14 +31,14 @@ test('desktop: navigation, task mutation, forms, themes, scenarios; local reques
   expect(external).toEqual([]);expect(errors).toEqual([]);
 });
 test('phone: bottom navigation, directory search and no horizontal overflow',async({page})=>{
-  await page.setViewportSize({width:390,height:844});await page.goto('/');await expect(page.getByText('Sapphire Court · Demo')).toBeVisible();
+  await page.setViewportSize({width:390,height:844});await page.goto('/');await expect(page.getByRole('main').getByText('Sapphire Court · Demo')).toBeVisible();
   await expect(page.getByRole('navigation',{name:'Mobile navigation'})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:path.join(evidence,'web-phone-light.png'),fullPage:true});
   await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:path.join(evidence,'web-phone-dark.png'),fullPage:true});
   await page.getByRole('navigation',{name:'Mobile navigation'}).getByRole('link',{name:'More',exact:true}).click();
   await page.getByLabel('Find a product area').fill('Insurance');await expect(page.getByRole('heading',{name:'Insurance & protection'})).toBeVisible();
-  await page.getByRole('link',{name:'AREA 29',exact:false}).click();await expect(page.getByRole('heading',{name:'External capability unavailable'})).toBeVisible();
+  await page.getByRole('link',{name:'AREA 29',exact:false}).click();await expect(page.getByText('No insurer is connected. No policy issuance, coverage guarantee or underwriting is available.',{exact:true})).toBeVisible();
 });
 test('gallery: offline image loading, search, filters, pair links and originals',async({page})=>{
   await page.goto(pathToFileURL(path.resolve('../design/stitch/index.html')).href);

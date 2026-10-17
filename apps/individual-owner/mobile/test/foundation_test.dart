@@ -11,6 +11,7 @@ import 'package:cosmicforge_owner/core/theme/owner_theme.dart';
 import 'package:cosmicforge_owner/features/dashboard/dashboard_controller.dart';
 import 'package:cosmicforge_owner/core/mock/mock_owner_repository.dart';
 import 'package:cosmicforge_owner/features/workspace/module_screen.dart';
+import 'package:cosmicforge_owner/features/workspace/workspace_controller.dart';
 
 final fixture = File('assets/dashboard.json').readAsStringSync();
 final moduleFixture =
@@ -120,6 +121,12 @@ void main() {
             .requireValue
             .tasks
             .where((t) => !t.done)
+            .length,
+        1,
+      );
+      expect(
+        (container.read(workspaceProvider).requireValue.raw['tasks'] as List)
+            .where((t) => t['done'] == false)
             .length,
         1,
       );

@@ -27,18 +27,25 @@ class DemoTask {
     required this.id,
     required this.title,
     required this.category,
+    this.propertyId = '',
     required this.done,
   });
   factory DemoTask.fromJson(Map<String, dynamic> json) => DemoTask(
     id: json['id'],
     title: json['title'],
     category: json['category'],
+    propertyId: json['propertyId'] ?? '',
     done: json['done'],
   );
-  final String id, title, category;
+  final String id, title, category, propertyId;
   final bool done;
-  DemoTask withDone(bool value) =>
-      DemoTask(id: id, title: title, category: category, done: value);
+  DemoTask withDone(bool value) => DemoTask(
+    id: id,
+    title: title,
+    category: category,
+    propertyId: propertyId,
+    done: value,
+  );
 }
 
 class DemoBalance {

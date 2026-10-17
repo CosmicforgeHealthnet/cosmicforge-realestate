@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/workspace/workspace_controller.dart';
+import '../models/workspace.dart';
 
 final draftGuardProvider = NotifierProvider<DraftGuard, bool>(DraftGuard.new);
 
@@ -15,8 +17,35 @@ final propertyScopeProvider = NotifierProvider<PropertyScope, String>(
 
 class PropertyScope extends Notifier<String> {
   @override
-  String build() => 'all';
-  void select(String value) => state = value;
+  String build() {
+    ref.listen(workspaceProvider, (_, next) {
+      final records = next.asData?.value.records;
+      if (records != null &&
+          state != 'all' &&
+          !records.any(
+            (r) =>
+                r.type == 'property' && r.id == state && r.status != 'ARCHIVED',
+          )) {
+        state = 'all';
+      }
+    });
+    return 'all';
+  }
+
+  void select(String value) {
+    final records = ref.read(workspaceProvider).asData?.value.records;
+    state =
+        value == 'all' ||
+            records?.any(
+                  (r) =>
+                      r.type == 'property' &&
+                      r.id == value &&
+                      r.status != 'ARCHIVED',
+                ) ==
+                true
+        ? value
+        : 'all';
+  }
 }
 
 Future<bool> confirmDemoAction(
@@ -71,4 +100,15 @@ class WorkspaceHeading extends StatelessWidget {
       ],
     ),
   );
+}
+
+bool isDemoCalendarDate(WorkspaceRecord record, DateTime date) {
+  final day = date.toIso8601String().substring(0, 10),
+      start = (record.data['date'] ?? record.data['start'] ?? '').toString(),
+      end = (record.data['end'] ?? '').toString();
+  return start.isNotEmpty &&
+      (start == day ||
+          (end.isNotEmpty &&
+              start.compareTo(day) <= 0 &&
+              day.compareTo(end) < 0));
 }

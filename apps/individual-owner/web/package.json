@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "tokens": "node ../scripts/generate-tokens.mjs",
-    "references": "node ../scripts/verify-references.mjs"
+    "references": "node ../scripts/verify-references.mjs",
+    "test:workflows": "playwright test --config playwright.workflows.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.2",

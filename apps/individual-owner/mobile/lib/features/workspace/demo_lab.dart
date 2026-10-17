@@ -66,6 +66,9 @@ class _DemoLabState extends ConsumerState<DemoLab> {
                             onChanged: (value) {
                               if (value != null) {
                                 ref
+                                    .read(propertyScopeProvider.notifier)
+                                    .select('all');
+                                ref
                                     .read(workspaceProvider.notifier)
                                     .scenario(value);
                               }
@@ -109,6 +112,9 @@ class _DemoLabState extends ConsumerState<DemoLab> {
                                 message:
                                     'Discard local changes and restore fictional seed records?',
                               )) {
+                                ref
+                                    .read(propertyScopeProvider.notifier)
+                                    .select('all');
                                 ref.read(workspaceProvider.notifier).reset();
                               }
                             },

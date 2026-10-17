@@ -32,6 +32,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   String search = '', filter = 'ALL', sort = 'title';
   int page = 0;
   bool calendar = false;
+  final calendarStorage = PageStorageBucket();
   DateTime selectedDate = DateTime(2026, 10, 17);
   String from = '2026-10-01', to = '2026-10-31';
   @override
@@ -44,6 +45,11 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       search = '';
       filter = 'ALL';
       page = 0;
+      calendar = false;
+      sort = 'title';
+      from = '2026-10-01';
+      to = '2026-10-31';
+      selectedDate = DateTime(2026, 10, 17);
     }
   }
 
@@ -111,19 +117,24 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         ],
       );
     }
-    final rows = snapshot.records
+    final rows = snapshot.records.where((r) {
+      final property = projection.propertyOf({
+        'id': r.id,
+        'type': r.type,
+        'data': r.data,
+      });
+      return r.type == type &&
+          (scope == 'all' || property.isEmpty || property == scope);
+    }).toList();
+    final filteredRows = rows
         .where(
           (r) =>
-              r.type == type &&
-              (scope == 'all' ||
-                  projection.propertyOf({
-                        'id': r.id,
-                        'type': r.type,
-                        'data': r.data,
-                      }) ==
-                      scope),
+              (filter == 'ALL' || r.status == filter) &&
+              jsonSearch(r).contains(search.toLowerCase()),
         )
         .toList();
+    final maxPage = (filteredRows.length / 12).ceil() - 1;
+    final currentPage = page > maxPage ? (maxPage < 0 ? 0 : maxPage) : page;
     final matches = snapshot.records.where(
           (r) => r.id == widget.id && r.type == type,
         ),
@@ -327,14 +338,19 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
               DropdownButton<String>(
                 isExpanded: true,
                 value: filter,
-                items: ['ALL', ...rows.map((r) => r.status).toSet()]
-                    .map(
-                      (v) => DropdownMenuItem(
-                        value: v,
-                        child: Text(v == 'ALL' ? 'All statuses' : v),
-                      ),
-                    )
-                    .toList(),
+                items:
+                    {
+                          'ALL',
+                          ...rows.map((r) => r.status),
+                          if (filter != 'ALL') filter,
+                        }
+                        .map(
+                          (v) => DropdownMenuItem(
+                            value: v,
+                            child: Text(v == 'ALL' ? 'All statuses' : v),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (v) => setState(() {
                   filter = v ?? 'ALL';
                   page = 0;
@@ -353,39 +369,35 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 ],
                 onChanged: (v) => setState(() => sort = v ?? 'title'),
               ),
-              if (spec['calendar'] == true ||
-                  [
-                    'viewings',
-                    'shortlets',
-                    'availability',
-                  ].contains(widget.slug))
+              if (spec['calendar'] == true)
                 TextButton(
                   onPressed: () => setState(() => calendar = !calendar),
                   child: Text(calendar ? 'List view' : 'Calendar view'),
                 ),
             ],
           ),
-          if (calendar)
+          if (calendar && spec['calendar'] == true)
             DemoPanel(
               child: Column(
                 children: [
-                  CalendarDatePicker(
-                    initialDate: selectedDate,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2040),
-                    onDateChanged: (date) =>
-                        setState(() => selectedDate = date),
+                  PageStorage(
+                    bucket: calendarStorage,
+                    child: CalendarDatePicker(
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2040),
+                      onDateChanged: (date) =>
+                          setState(() => selectedDate = date),
+                    ),
                   ),
-                  ...rows
-                      .where(
-                        (r) =>
-                            (r.data['date'] ?? r.data['start']) ==
-                            selectedDate.toIso8601String().substring(0, 10),
-                      )
+                  ...filteredRows
+                      .where((r) => isDemoCalendarDate(r, selectedDate))
                       .map(
                         (r) => ListTile(
                           title: Text(r.data['title']),
-                          subtitle: Text(r.status),
+                          subtitle: Text(
+                            '${r.status}${r.data["unitId"] == null ? "" : " · ${r.data["unitId"]}"}',
+                          ),
                           onTap: () => context.push(
                             recordPath(definition, r.type, r.id),
                           ),
@@ -394,26 +406,35 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                 ],
               ),
             ),
-          ...listRows(rows, definition),
+          ...listRows(filteredRows, definition, currentPage: currentPage),
           if (rows.isEmpty)
             EmptyView(
               title: 'No ${spec["label"].toString().toLowerCase()} yet',
               message:
                   'Create fictional records to begin. Related records must exist before selection.',
             ),
-          if (rows.length > 12)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          if (rows.isNotEmpty && filteredRows.isEmpty)
+            const Text(
+              'No matching records. Change the search or status filter.',
+            ),
+          if (filteredRows.length > 12)
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 TextButton(
-                  onPressed: page == 0 ? null : () => setState(() => page--),
+                  onPressed: currentPage == 0
+                      ? null
+                      : () => setState(() => page = currentPage - 1),
                   child: const Text('Previous page'),
                 ),
-                Text('Page ${page + 1}'),
+                Text('Page ${currentPage + 1}'),
                 TextButton(
-                  onPressed: (page + 1) * 12 >= rows.length
+                  onPressed: (currentPage + 1) * 12 >= filteredRows.length
                       ? null
-                      : () => setState(() => page++),
+                      : () => setState(() => page = currentPage + 1),
                   child: const Text('Next page'),
                 ),
               ],
@@ -481,7 +502,11 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     );
   }
 
-  List<Widget> listRows(List<WorkspaceRecord> rows, Json definition) {
+  List<Widget> listRows(
+    List<WorkspaceRecord> rows,
+    Json definition, {
+    required int currentPage,
+  }) {
     final filtered =
         rows
             .where(
@@ -500,7 +525,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                   ),
           );
     return filtered
-        .skip(page * 12)
+        .skip(currentPage * 12)
         .take(12)
         .map(
           (r) => Padding(

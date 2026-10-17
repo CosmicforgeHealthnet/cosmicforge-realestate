@@ -4,14 +4,17 @@ import { render,screen,fireEvent,waitFor } from '@testing-library/react';
 import { it,expect } from 'vitest';
 import { Providers } from '@/app/providers';
 import { DashboardScreen } from '@/features/dashboard/dashboard-screen';
+import {useWorkspace} from '@/features/workspace/use-workspace';
 import { WorkspacePreferences } from '@/features/settings/workspace-preferences';
 import { ThemeProvider,useTheme } from '@/design/theme-provider';
+function WorkspaceProbe(){const {data}=useWorkspace();return <span data-testid="workspace-open-tasks">{data?.tasks.filter(t=>!t.done).length}</span>}
 it('renders deterministic metrics, updates a task, and recovers from empty/error scenarios',async()=>{
-  render(<Providers><DashboardScreen/></Providers>);
+  render(<Providers><DashboardScreen/><WorkspaceProbe/></Providers>);
   expect(await screen.findByText('Sapphire Court · Demo')).toBeInTheDocument();
   const buttons=screen.getAllByRole('button',{name:'Complete demo task'});
   fireEvent.click(buttons[0]);
   await waitFor(()=>expect(screen.getAllByRole('button',{name:'Reopen demo task'})).toHaveLength(2));
+  await waitFor(()=>expect(screen.getByTestId('workspace-open-tasks')).toHaveTextContent('1'));
   fireEvent.change(screen.getByLabelText('Demo scenario'),{target:{value:'empty'}});
   expect(await screen.findByText('No sample properties here')).toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('Demo scenario'),{target:{value:'error'}});
