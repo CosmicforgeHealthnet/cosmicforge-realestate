@@ -14,6 +14,22 @@ function formSchema(spec:ModelSpec){return z.object(Object.fromEntries(spec.fiel
  if(f.required&&f.kind!=='boolean'&&f.kind!=='number')value=z.string().trim().min(1,`${f.label} is required.`).max(f.max??1000);
  return [f.key,value];
 })));}
+const wizardCopy:Record<string,[string,string,string]>={
+  property:['Property profile','Units & attributes','Review property'],
+  listing:['Choose a property','Presentation & terms','Preview draft'],
+  verification:['Select evidence','Review documents','Submit for demo review'],
+  application:['Applicant details','Supporting evidence','Review decision'],
+  agreement:['Agreement parties','Terms & dates','Review draft'],
+  tenancy:['Tenant & unit','Lease terms','Review move-in'],
+  booking:['Guest & unit','Stay dates','Review reservation'],
+  maintenance:['Describe issue','Schedule & evidence','Review request'],
+  manager:['Select manager','Assign permissions','Review authority'],
+  pricing:['Choose listing','Example fees','Review breakdown'],
+  sale:['Offer details','Due diligence','Review milestones'],
+};
+function flowSteps(spec:ModelSpec):[string,string,string]{
+ return wizardCopy[spec.id]??['General information','Details & relationships','Review demo record'];
+}
 export function RecordForm({spec,record,state,propertyId,onDone}:{spec:ModelSpec;record?:DomainRecord;state:WorkspaceState;propertyId:string;onDone?:()=>void}){
  const router=useRouter(),{command}=useWorkspace(),[version,setVersion]=useState(record?.version),{drafts}=usePropertyScope(),draftKey=`${spec.id}:${record?.id??'new'}`;
  const [savedDraft]=useState(()=>drafts.get(draftKey)),[restored,setRestored]=useState(()=>Boolean(drafts.get(draftKey)));
@@ -25,9 +41,9 @@ export function RecordForm({spec,record,state,propertyId,onDone}:{spec:ModelSpec
  useEffect(()=>subscribe({formState:{values:true},callback:({values})=>drafts.set(draftKey,{data:values,step})}),[subscribe,drafts,draftKey,step]);
  const groups=spec.wizard?3:1,chunk=Math.ceil(spec.fields.length/groups),fields=spec.fields.slice(step*chunk,(step+1)*chunk);
  async function submit(data:Values){try{const saved=await command.mutateAsync({op:record?'update':'create',type:spec.id,id:record?.id,version:version,data,challenge});reset(saved.data);discard();onDone?.();router.push(recordPath(spec.id,saved.id))}catch{}}
- return <section className="card record-form"><div className="section-heading"><div><p className="eyebrow">{record?'EDIT VERSION '+version:'NEW FICTIONAL RECORD'}</p><h2>{spec.label}</h2></div><span className="badge">{step+1} / {groups}</span></div><p>Use fictional information only. Changes stay in this local demo. Evidence selection stores filename metadata, never file contents.</p>
+ return <section className="card record-form"><div className="section-heading"><div><p className="eyebrow">{record?'EDIT VERSION '+version:'NEW FICTIONAL RECORD'}</p><h2>{spec.label}</h2></div><span className="badge">{step+1} / {groups}</span></div><div className="record-form-intro"><div><strong>${record?'Update your existing demo record':'Create a new demo record'}</strong><p>Use fictional information only. Changes stay in this local demo. Evidence selection stores filename metadata, never file contents.</p></div><span>STEP ${step+1} OF ${groups}</span></div>
  {spec.id==='preference'?<p>Language preference is recorded for review; the demonstration interface remains English. Large text and reduced motion apply in this session.</p>:null}
- {spec.wizard?<ol className="wizard-progress">{['Property & purpose','Details & terms','Review & save'].map((label,i)=><li key={label} aria-current={step===i?'step':undefined}>{i+1}. {label}</li>)}</ol>:null}
+ {spec.wizard?<ol className="wizard-progress">{flowSteps(spec).map((label,i)=><li key={label} aria-current={step===i?'step':undefined}>{i+1}. {label}</li>)}</ol>:null}
  <form onSubmit={handleSubmit(submit)} noValidate><div className="form-grid">{fields.map(f=><div key={f.key} className={f.kind==='textarea'?'field full-width':'field'}>
  {f.kind==='boolean'?<label className="checkbox-field"><input type="checkbox" {...register(f.key)}/>{f.label}</label>:<><label htmlFor={`field-${f.key}`}>{f.label}{f.required?' *':''}</label>
  {f.kind==='select'||f.kind==='relation'?<select id={`field-${f.key}`} {...register(f.key)} aria-invalid={Boolean(errors[f.key])}><option value="">Choose {f.label.toLowerCase()}</option>{f.kind==='select'?f.options?.map(v=><option key={v} value={v}>{v}</option>):state.records.filter(r=>r.type===f.target&&!['ARCHIVED','REVOKED'].includes(r.status)).map(r=><option key={r.id} value={r.id}>{String(r.data.title)} · {r.id}</option>)}</select>:f.kind==='textarea'?<textarea id={`field-${f.key}`} {...register(f.key)} rows={4}/>:<input id={`field-${f.key}`} type={f.kind==='number'?'number':f.kind==='date'?'date':f.kind==='time'?'time':'text'} {...register(f.key,f.kind==='number'?{valueAsNumber:true}:{})} min={f.min} max={f.max} aria-invalid={Boolean(errors[f.key])}/>}
