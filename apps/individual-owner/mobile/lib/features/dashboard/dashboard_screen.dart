@@ -269,27 +269,58 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(fontSize: 10),
               ),
               const SizedBox(height: 16),
-              ...data.balances.map(
-                (balance) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(balance.label),
-                      Text(
-                        demoMoney(balance.amountMinor),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final twoColumns = constraints.maxWidth >= 270;
+                  final width = twoColumns
+                      ? (constraints.maxWidth - 9) / 2
+                      : constraints.maxWidth;
+                  return Wrap(
+                    spacing: 9,
+                    runSpacing: 9,
+                    children: data.balances.map((balance) => SizedBox(
+                      width: width,
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 112),
+                        padding: const EdgeInsets.all(13),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: .055),
+                          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              balance.label,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                            const SizedBox(height: 9),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 25,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  demoMoney(balance.amountMinor),
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                            Text(
+                              balance.description,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        balance.description,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
+                    )).toList(),
+                  );
+                },
               ),
+              const SizedBox(height: 15),
               const Text(
                 'Fixed sample · 17 Oct 2026, 09:00 UTC',
                 style: TextStyle(fontSize: 11),
