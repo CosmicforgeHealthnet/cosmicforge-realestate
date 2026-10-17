@@ -78,35 +78,35 @@ ThemeData ownerTheme(Brightness brightness) {
         color: text,
         fontFamily: 'Inter',
         fontSize: 19,
-        fontWeight: FontWeight.w750,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.6,
       ),
     ),
     textTheme: TextTheme(
       headlineLarge: TextStyle(
-        color: text, fontSize: 36, fontWeight: FontWeight.w750, letterSpacing: -1.3,
+        color: text, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1.3,
       ),
       headlineMedium: TextStyle(
-        color: text, fontSize: 29, fontWeight: FontWeight.w750, letterSpacing: -1,
+        color: text, fontSize: 29, fontWeight: FontWeight.w800, letterSpacing: -1,
       ),
       headlineSmall: TextStyle(
-        color: text, fontSize: 24, fontWeight: FontWeight.w720, letterSpacing: -0.8,
+        color: text, fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.8,
       ),
       titleLarge: TextStyle(
-        color: text, fontSize: 20, fontWeight: FontWeight.w720, letterSpacing: -0.5,
+        color: text, fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.5,
       ),
       titleMedium: TextStyle(
         color: text, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.3,
       ),
       titleSmall: TextStyle(
-        color: text, fontSize: 14, fontWeight: FontWeight.w680,
+        color: text, fontSize: 14, fontWeight: FontWeight.w700,
       ),
       bodyLarge: TextStyle(color: text, fontSize: 16, height: 1.55),
       bodyMedium: TextStyle(color: text, fontSize: 14, height: 1.5),
       bodySmall: TextStyle(color: muted, fontSize: 12, height: 1.45),
       labelLarge: TextStyle(color: text, fontSize: 14, fontWeight: FontWeight.w700),
-      labelMedium: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w660),
-      labelSmall: TextStyle(color: muted, fontSize: 11, fontWeight: FontWeight.w680),
+      labelMedium: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w600),
+      labelSmall: TextStyle(color: muted, fontSize: 11, fontWeight: FontWeight.w700),
     ),
     cardTheme: CardThemeData(
       color: card,
@@ -142,7 +142,7 @@ ThemeData ownerTheme(Brightness brightness) {
       labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
         fontFamily: 'Inter',
         fontSize: 11,
-        fontWeight: states.contains(WidgetState.selected) ? FontWeight.w750 : FontWeight.w600,
+        fontWeight: states.contains(WidgetState.selected) ? FontWeight.w800 : FontWeight.w600,
         color: states.contains(WidgetState.selected) ? action : muted,
       )),
     ),
@@ -152,7 +152,7 @@ ThemeData ownerTheme(Brightness brightness) {
         padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 13),
         shape: buttonShape,
         textStyle: const TextStyle(
-          fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w740,
+          fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w700,
         ),
         elevation: 0,
       ),
@@ -163,14 +163,14 @@ ThemeData ownerTheme(Brightness brightness) {
         padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 13),
         shape: buttonShape,
         side: BorderSide(color: border),
-        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w690),
+        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         minimumSize: const Size(44, 44),
         shape: buttonShape,
-        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w690),
+        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700),
       ),
     ),
     chipTheme: ChipThemeData(
