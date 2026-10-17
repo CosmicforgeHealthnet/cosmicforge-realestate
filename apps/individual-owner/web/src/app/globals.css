@@ -387,3 +387,22 @@
 @media (prefers-reduced-motion:reduce) {
   .theme-root button,.theme-root .button-link,.theme-root .module-card,.theme-root .metric,.theme-root .entity-row {transition:none!important;transform:none!important}
 }
+
+
+/* Owner dashboard: task-forward editorial hero, not a decorative brochure. */
+.theme-root .hero-shortcuts {display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:22px}
+.theme-root .hero-shortcuts .button-link{gap:8px;font-size:12px;padding:11px 15px}
+.theme-root .dashboard-qa {align-self:start;position:relative;z-index:1}
+.theme-root .dashboard-qa summary{cursor:pointer;list-style:none;padding:11px 13px;border:1px solid var(--border);border-radius:12px;background:var(--premium-glass);color:var(--muted);font-weight:680;font-size:11px}
+.theme-root .dashboard-qa summary::-webkit-details-marker{display:none}
+.theme-root .dashboard-qa summary:hover{border-color:var(--action);color:var(--action)}
+.theme-root .dashboard-qa[open]{background:var(--card);border-radius:12px;box-shadow:var(--premium-shadow)}
+.theme-root .dashboard-qa .scenario-control{padding:10px}
+.theme-root .portfolio .property-list{display:grid;gap:3px}
+.theme-root .portfolio .property-row h3{font-size:14px;letter-spacing:-.025em}
+.theme-root .tasks .task-row{padding:16px 7px}
+.theme-root .tasks .task-row:hover{background:var(--subtle);border-radius:11px}
+.theme-root .tasks .task-row .eyebrow{color:var(--action)}
+.theme-root .safeguards{background:linear-gradient(135deg,var(--card),var(--subtle))}
+.theme-root .safeguards>svg{width:35px;height:35px;padding:6px;background:var(--premium-glow);border-radius:10px}
+@media(max-width:767px){.theme-root .hero-shortcuts{width:100%}.theme-root .hero-shortcuts .button-link{flex:1 1 auto}.theme-root .dashboard-qa{align-self:stretch}.theme-root .dashboard-qa summary{width:fit-content}}
