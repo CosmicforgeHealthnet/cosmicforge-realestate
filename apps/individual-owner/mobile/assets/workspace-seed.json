@@ -861,7 +861,7 @@
       "createdAt": "2026-10-17",
       "data": {
         "title": "Notification & account preferences · Demo",
-        "inApp": false,
+        "inApp": true,
         "email": false,
         "language": "English",
         "largeText": false,

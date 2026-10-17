@@ -16,6 +16,7 @@ for(const spec of schema.types){if(records.some(r=>r.type===spec.id))continue;co
  if(spec.id==='listing')Object.assign(data,{previewed:true,propertyId:'demo-property-01',unitId:'demo-unit-01'});
  if(spec.id==='agreement')Object.assign(data,{reviewed:true,signers:true,keys:true,inspection:true});
  if(spec.id==='application')Object.assign(data,{evidenceAccess:true,assessment:'Human reviewer sample notes; no external background check.'});
+ if(spec.id==='preference')data.inApp=true;
  if(spec.id==='viewing')data.consent=true;
  if(spec.id==='sale'||spec.id==='transfer')data.consent=false;
  if(spec.id==='notification')Object.assign(data,{recordType:'maintenance',recordId:'demo-maintenance-01',message:'A fictional quote is ready for review. No notification was sent.'});

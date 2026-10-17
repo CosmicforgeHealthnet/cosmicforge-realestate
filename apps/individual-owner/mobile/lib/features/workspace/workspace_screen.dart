@@ -94,7 +94,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         scope = ref.watch(propertyScopeProvider),
         projection = deriveWorkspace(definition, snapshot);
     if (['permission_denied', 'expired_session'].contains(snapshot.scenario) &&
-        widget.slug != 'identity') {
+        spec['id'] != 'account') {
       return ListView(
         padding: const EdgeInsets.all(24),
         children: [

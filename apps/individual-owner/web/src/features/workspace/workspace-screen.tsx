@@ -20,7 +20,7 @@ export function WorkspaceScreen({slug,segments=[]}:{slug:string;segments?:string
  const spec=workspaceSchema.types.find(t=>t.id===type);
  if(isPending)return <LoadingState/>;if(error)return <ErrorState message={error.message} retry={()=>void refetch()}/>;
  if(!area||!spec||!area.types.includes(spec.id)||!state)return <EmptyState title="Workspace not found">Choose a product area from the directory.</EmptyState>;
- if(['permission_denied','expired_session'].includes(state.scenario)&&slug!=='identity')return <section className="card state"><h1>{state.scenario==='permission_denied'?'Permission denied':'Demo session expired'}</h1><p>No protected record details are displayed. Reset the scenario in the developer QA lab.</p><Link href="/demo-lab">Open developer QA</Link></section>;
+ if(['permission_denied','expired_session'].includes(state.scenario)&&spec.id!=='account')return <section className="card state"><h1>{state.scenario==='permission_denied'?'Permission denied':'Demo session expired'}</h1><p>No protected record details are displayed. Reset the scenario in the developer QA lab.</p><Link href="/demo-lab">Open developer QA</Link></section>;
  const engine=deriveWorkspace(state),summary=engine.summary(propertyId,start,end);
  const rows=state.records.filter(r=>r.type===spec.id&&(propertyId==='all'||engine.propertyOf(r)===propertyId));
  const filteredRows=rows.filter(r=>(filter==='ALL'||r.status===filter)&&JSON.stringify(r.data).toLowerCase().includes(search.toLowerCase()));

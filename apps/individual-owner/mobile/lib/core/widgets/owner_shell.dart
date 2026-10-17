@@ -14,6 +14,10 @@ class OwnerShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
+    final blocked = [
+      'permission_denied',
+      'expired_session',
+    ].contains(ref.watch(workspaceProvider).asData?.value.scenario);
     const paths = [
       '/',
       '/workspace/properties',
@@ -87,12 +91,15 @@ class OwnerShell extends ConsumerWidget {
             },
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'all', child: Text('All properties')),
-              ...?ref
-                  .watch(dashboardProvider)
-                  .asData
-                  ?.value
-                  .properties
-                  .map((p) => PopupMenuItem(value: p.id, child: Text(p.name))),
+              if (!blocked)
+                ...?ref
+                    .watch(dashboardProvider)
+                    .asData
+                    ?.value
+                    .properties
+                    .map(
+                      (p) => PopupMenuItem(value: p.id, child: Text(p.name)),
+                    ),
               const PopupMenuDivider(),
               const PopupMenuItem(
                 value: '/workspace/notifications',

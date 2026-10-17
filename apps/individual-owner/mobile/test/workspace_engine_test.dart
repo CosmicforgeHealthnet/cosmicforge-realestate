@@ -149,4 +149,47 @@ void main() {
       throwsA(isA<MockFault>().having((e) => e.code, 'code', 'UNAVAILABLE')),
     );
   });
+  test('in-app alert preference changes subsequent notification effects', () {
+    final e = WorkspaceEngine(schema, seed);
+    int count() => e.records.where((r) => r['type'] == 'notification').length;
+    final before = count();
+    e.execute(
+      const WorkspaceCommand(
+        op: 'update',
+        type: 'preference',
+        id: 'demo-preference-01',
+        version: 1,
+        data: {'inApp': false},
+      ),
+    );
+    e.execute(
+      const WorkspaceCommand(
+        op: 'update',
+        type: 'property',
+        id: 'demo-property-01',
+        version: 1,
+        data: {'notes': 'Muted'},
+      ),
+    );
+    expect(count(), before);
+    e.execute(
+      const WorkspaceCommand(
+        op: 'update',
+        type: 'preference',
+        id: 'demo-preference-01',
+        version: 2,
+        data: {'inApp': true},
+      ),
+    );
+    e.execute(
+      const WorkspaceCommand(
+        op: 'update',
+        type: 'property',
+        id: 'demo-property-01',
+        version: 2,
+        data: {'notes': 'Enabled'},
+      ),
+    );
+    expect(count(), before + 1);
+  });
 }

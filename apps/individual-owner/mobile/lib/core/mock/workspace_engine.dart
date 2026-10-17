@@ -734,7 +734,9 @@ class WorkspaceEngine {
       'message': message,
       'revision': _state['revision'],
     });
-    if (result['type'] != 'notification') {
+    final preferences = records.where((r) => r['type'] == 'preference');
+    if (!['notification', 'preference'].contains(result['type']) &&
+        (preferences.isEmpty || preferences.last['data']['inApp'] != false)) {
       createEffect('notification', 'UNREAD', {
         'title': '${definition["label"]} updated',
         'recordType': result['type'],

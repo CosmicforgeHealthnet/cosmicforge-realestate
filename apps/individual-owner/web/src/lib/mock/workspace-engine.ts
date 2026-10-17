@@ -151,7 +151,7 @@ export class WorkspaceEngine {
     this.state.revision++;
     const message=`${command.op==='transition'?spec.actions.find(a=>a.id===command.action)?.label:command.op==='create'?'Created':'Updated'} · ${result.data.title}. Recorded in demo — no real transaction occurred.`;
     this.state.activity.unshift({id:`demo-event-${this.state.revision}`,type:result.type,recordId:result.id,propertyId:this.propertyOf(result),date:this.state.date,message,revision:this.state.revision});
-    if(result.type!=='notification')this.createEffect('notification','UNREAD',{title:`${spec.label} updated`,recordType:result.type,recordId:result.id,channel:'In-app only',message});
+    if(!['notification','preference'].includes(result.type)&&this.state.records.filter(r=>r.type==='preference').at(-1)?.data.inApp!==false)this.createEffect('notification','UNREAD',{title:`${spec.label} updated`,recordType:result.type,recordId:result.id,channel:'In-app only',message});
     return structuredClone(result);
   }
   summary(propertyId='all',start='0000-00-00',end='9999-99-99'){

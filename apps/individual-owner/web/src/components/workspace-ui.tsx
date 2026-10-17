@@ -1,5 +1,5 @@
 'use client';
-import { useEffect,useRef,useState } from 'react';
+import {createContext,useContext,useEffect,useLayoutEffect,useRef,useState} from 'react';
 export function StatusBadge({value}:{value:string}) { return <span className={`status state-${value.toLowerCase()}`}>{value.replaceAll('_',' ')}</span>; }
 export function Dialog({title,children,onClose}:{title:string;children:React.ReactNode;onClose:()=>void}) {
   const dialog=useRef<HTMLDialogElement>(null);
@@ -12,12 +12,33 @@ export function Calendar({events,onSelect}:{events:{id:string;title:string;date:
   const [month,setMonth]=useState('2026-10');const [year,number]=month.split('-').map(Number),days=new Date(year,number,0).getDate();
   return <section className="calendar-panel" aria-label="Owner calendar"><label>Calendar month<input type="month" value={month} onChange={e=>setMonth(e.target.value||'2026-10')}/></label><div className="calendar-grid">{Array.from({length:days},(_,i)=>{const date=`${month}-${String(i+1).padStart(2,'0')}`;const items=events.filter(e=>e.date===date);return <div className="calendar-day" key={date}><time dateTime={date}>{i+1}</time>{items.map(e=><button key={e.id} onClick={()=>onSelect(e.id)}>{e.title}<small>{e.status}</small></button>)}</div>})}</div><p>Demonstration calendar · UTC</p></section>;
 }
-export function useUnsavedGuard(dirty:boolean,onDiscard?:()=>void) {
-  useEffect(()=>{
-    const unload=(event:BeforeUnloadEvent)=>{if(dirty){event.preventDefault();event.returnValue=''}};
-    const click=(event:MouseEvent)=>{const link=(event.target as Element).closest('a[href]');if(dirty&&link){if(!window.confirm('Discard unsaved demo changes?')){event.preventDefault();event.stopPropagation()}else onDiscard?.()}};
-    const pop=()=>{if(dirty){if(!window.confirm('Discard unsaved demo changes?'))history.forward();else onDiscard?.()}};
-    window.addEventListener('beforeunload',unload);document.addEventListener('click',click,true);window.addEventListener('popstate',pop);
-    return()=>{window.removeEventListener('beforeunload',unload);document.removeEventListener('click',click,true);window.removeEventListener('popstate',pop)};
-  },[dirty,onDiscard]);
+type DraftGuard={dirty:boolean;onDiscard?:()=>void};
+const DraftNavigationContext=createContext<{current:DraftGuard|null}|null>(null);
+export function DraftNavigationProvider({children}:{children:React.ReactNode}){
+ const activeRef=useRef<DraftGuard|null>(null);
+ useLayoutEffect(()=>{
+  // Register once at startup, before Next's passive popstate handler. A late
+  // form listener can be removed when the router unmounts the form first.
+  let restoring=false;
+  const pop=(event:PopStateEvent)=>{
+   if(restoring){restoring=false;return}
+   const guard=activeRef.current;
+   if(!guard?.dirty)return;
+   if(window.confirm('Discard unsaved demo changes?'))guard.onDiscard?.();
+   else{event.stopImmediatePropagation();restoring=true;history.forward()}
+  };
+  window.addEventListener('popstate',pop);
+  return()=>window.removeEventListener('popstate',pop);
+ },[]);
+ return <DraftNavigationContext value={activeRef}>{children}</DraftNavigationContext>;
+}
+export function useUnsavedGuard(dirty:boolean,onDiscard?:()=>void){
+ const activeRef=useContext(DraftNavigationContext);
+ useEffect(()=>{
+  const guard={dirty,onDiscard};if(activeRef)activeRef.current=guard;
+  const unload=(event:BeforeUnloadEvent)=>{if(dirty){event.preventDefault();event.returnValue=''}};
+  const click=(event:MouseEvent)=>{const link=(event.target as Element).closest('a[href]');if(dirty&&link){if(!window.confirm('Discard unsaved demo changes?')){event.preventDefault();event.stopPropagation()}else onDiscard?.()}};
+  window.addEventListener('beforeunload',unload);document.addEventListener('click',click,true);
+  return()=>{if(activeRef?.current===guard)activeRef.current=null;window.removeEventListener('beforeunload',unload);document.removeEventListener('click',click,true)};
+ },[dirty,onDiscard,activeRef]);
 }
