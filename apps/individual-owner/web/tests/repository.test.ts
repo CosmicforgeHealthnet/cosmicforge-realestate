@@ -5,7 +5,7 @@ describe('mock owner repository',()=>{
     const request=vi.spyOn(globalThis,'fetch');
     const a=new MockOwnerRepository(),b=new MockOwnerRepository();
     const snapshot=await a.getDashboard('populated');snapshot.properties.length=0;
-    expect((await a.getDashboard('populated')).properties).toHaveLength(3);
+    expect((await a.getDashboard('populated')).properties).toHaveLength(4);
     await a.setTaskDone('demo-task-01',true);
     expect((await a.getDashboard('populated')).tasks[0].done).toBe(true);
     expect((await b.getDashboard('populated')).tasks[0].done).toBe(false);

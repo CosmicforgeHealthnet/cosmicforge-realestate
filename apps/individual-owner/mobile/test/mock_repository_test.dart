@@ -5,6 +5,10 @@ import 'package:cosmicforge_owner/core/models/dashboard.dart';
 
 void main() {
   MockOwnerRepository repository() => MockOwnerRepository(
+    loadDefinition: () async =>
+        File('assets/workflows.json').readAsStringSync(),
+    loadUniverse: () async =>
+        File('assets/workspace-seed.json').readAsStringSync(),
     load: () => File('assets/dashboard.json').readAsString(),
   );
   test(
@@ -12,7 +16,7 @@ void main() {
     () async {
       final a = repository(), b = repository();
       final snapshot = await a.getDashboard(DemoScenario.populated);
-      expect(snapshot.properties.length, 3);
+      expect(snapshot.properties.length, 4);
       expect(() => snapshot.properties.clear(), throwsUnsupportedError);
       await a.setTaskDone('demo-task-01', true);
       expect(

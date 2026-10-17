@@ -1,0 +1,1326 @@
+[
+  {
+    "id": "01",
+    "title": "Owner onboarding",
+    "steps": [
+      {
+        "op": "scenario",
+        "value": "empty"
+      },
+      {
+        "op": "create",
+        "alias": "owner",
+        "type": "account",
+        "data": {
+          "title": "New owner · Demo",
+          "displayName": "Taylor Demo",
+          "email": "taylor@example.invalid",
+          "language": "English",
+          "mfa": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "owner",
+        "action": "login"
+      },
+      {
+        "op": "transition",
+        "target": "owner",
+        "action": "mfa"
+      },
+      {
+        "op": "assert",
+        "target": "owner",
+        "key": "status",
+        "value": "ACTIVE"
+      },
+      {
+        "op": "create",
+        "alias": "identity",
+        "type": "identity",
+        "data": {
+          "title": "Onboarding evidence",
+          "accountId": "$owner",
+          "documentType": "Fictional identity document",
+          "evidence": "identity.txt",
+          "notes": "No real document"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "identity",
+        "action": "submit"
+      },
+      {
+        "op": "transition",
+        "target": "identity",
+        "action": "correction"
+      },
+      {
+        "op": "update",
+        "target": "identity",
+        "data": {
+          "evidence": "corrected.txt"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "identity",
+        "action": "submit"
+      },
+      {
+        "op": "assert",
+        "target": "identity",
+        "key": "status",
+        "value": "PENDING"
+      },
+      {
+        "op": "summary",
+        "key": "properties",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "02",
+    "title": "Property to listing",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "property",
+        "type": "property",
+        "data": {
+          "title": "Journey home · Demo",
+          "kind": "Residential",
+          "location": "Fictional sample address",
+          "annualRentMinor": 120000000,
+          "notes": "Mock only"
+        }
+      },
+      {
+        "op": "create",
+        "alias": "unit",
+        "type": "unit",
+        "data": {
+          "title": "Journey unit · Demo",
+          "propertyId": "$property",
+          "kind": "Apartment",
+          "capacity": 2,
+          "occupied": false
+        }
+      },
+      {
+        "op": "create",
+        "alias": "claim",
+        "type": "ownership",
+        "data": {
+          "title": "Journey ownership claim",
+          "propertyId": "$property",
+          "claimant": "Alex Demo",
+          "evidence": "claim.txt",
+          "notes": "Fictional"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "claim",
+        "action": "claim"
+      },
+      {
+        "op": "transition",
+        "target": "claim",
+        "action": "review"
+      },
+      {
+        "op": "create",
+        "alias": "verification",
+        "type": "verification",
+        "data": {
+          "title": "Journey property review",
+          "propertyId": "$property",
+          "claimId": "$claim",
+          "evidence": "review.txt",
+          "notes": "Fictional"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "verification",
+        "action": "submit"
+      },
+      {
+        "op": "transition",
+        "target": "verification",
+        "action": "review"
+      },
+      {
+        "op": "create",
+        "alias": "listing",
+        "type": "listing",
+        "data": {
+          "title": "Journey rental listing",
+          "propertyId": "$property",
+          "unitId": "$unit",
+          "transaction": "Rent",
+          "description": "Fictional rental description",
+          "previewed": true
+        }
+      },
+      {
+        "op": "create",
+        "alias": "price",
+        "type": "pricing",
+        "data": {
+          "title": "Journey price model",
+          "listingId": "$listing",
+          "amountMinor": 120000000,
+          "feeMinor": 500000,
+          "frequency": "Annually",
+          "policy": "Sample configurable fee only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "price",
+        "action": "apply"
+      },
+      {
+        "op": "create",
+        "alias": "availability",
+        "type": "availability",
+        "data": {
+          "title": "Journey availability",
+          "propertyId": "$property",
+          "unitId": "$unit",
+          "start": "2026-10-18",
+          "end": "2027-10-17",
+          "reason": "Available window"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "availability",
+        "action": "confirm"
+      },
+      {
+        "op": "transition",
+        "target": "listing",
+        "action": "preview"
+      },
+      {
+        "op": "transition",
+        "target": "listing",
+        "action": "publish"
+      },
+      {
+        "op": "assert",
+        "target": "listing",
+        "key": "status",
+        "value": "DEMO_PUBLISHED"
+      },
+      {
+        "op": "summary",
+        "key": "properties",
+        "value": 5
+      },
+      {
+        "op": "assert",
+        "target": "unit",
+        "key": "data.propertyId",
+        "value": "$property"
+      }
+    ]
+  },
+  {
+    "id": "03",
+    "title": "Prospect to tenancy",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "property",
+        "type": "property",
+        "data": {
+          "title": "Journey home · Demo",
+          "kind": "Residential",
+          "location": "Fictional sample address",
+          "annualRentMinor": 120000000,
+          "notes": "Mock only"
+        }
+      },
+      {
+        "op": "create",
+        "alias": "unit",
+        "type": "unit",
+        "data": {
+          "title": "Journey unit · Demo",
+          "propertyId": "$property",
+          "kind": "Apartment",
+          "capacity": 2,
+          "occupied": false
+        }
+      },
+      {
+        "op": "create",
+        "alias": "claim",
+        "type": "ownership",
+        "data": {
+          "title": "Journey ownership claim",
+          "propertyId": "$property",
+          "claimant": "Alex Demo",
+          "evidence": "claim.txt",
+          "notes": "Fictional"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "claim",
+        "action": "claim"
+      },
+      {
+        "op": "transition",
+        "target": "claim",
+        "action": "review"
+      },
+      {
+        "op": "create",
+        "alias": "verification",
+        "type": "verification",
+        "data": {
+          "title": "Journey property review",
+          "propertyId": "$property",
+          "claimId": "$claim",
+          "evidence": "review.txt",
+          "notes": "Fictional"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "verification",
+        "action": "submit"
+      },
+      {
+        "op": "transition",
+        "target": "verification",
+        "action": "review"
+      },
+      {
+        "op": "create",
+        "alias": "listing",
+        "type": "listing",
+        "data": {
+          "title": "Journey rental listing",
+          "propertyId": "$property",
+          "unitId": "$unit",
+          "transaction": "Rent",
+          "description": "Fictional rental description",
+          "previewed": true
+        }
+      },
+      {
+        "op": "create",
+        "alias": "price",
+        "type": "pricing",
+        "data": {
+          "title": "Journey price model",
+          "listingId": "$listing",
+          "amountMinor": 120000000,
+          "feeMinor": 500000,
+          "frequency": "Annually",
+          "policy": "Sample configurable fee only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "price",
+        "action": "apply"
+      },
+      {
+        "op": "create",
+        "alias": "availability",
+        "type": "availability",
+        "data": {
+          "title": "Journey availability",
+          "propertyId": "$property",
+          "unitId": "$unit",
+          "start": "2026-10-18",
+          "end": "2027-10-17",
+          "reason": "Available window"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "availability",
+        "action": "confirm"
+      },
+      {
+        "op": "transition",
+        "target": "listing",
+        "action": "preview"
+      },
+      {
+        "op": "transition",
+        "target": "listing",
+        "action": "publish"
+      },
+      {
+        "op": "create",
+        "alias": "inquiry",
+        "type": "inquiry",
+        "data": {
+          "title": "Journey inquiry",
+          "listingId": "$listing",
+          "prospect": "Renter Demo",
+          "priority": "Normal",
+          "reminder": "2026-10-24",
+          "campaign": "Sample",
+          "notes": "Human lead notes"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "inquiry",
+        "action": "acknowledge"
+      },
+      {
+        "op": "transition",
+        "target": "inquiry",
+        "action": "qualify"
+      },
+      {
+        "op": "transition",
+        "target": "inquiry",
+        "action": "viewing"
+      },
+      {
+        "op": "bind",
+        "alias": "viewing",
+        "type": "viewing",
+        "key": "listingId",
+        "value": "$listing"
+      },
+      {
+        "op": "update",
+        "target": "viewing",
+        "data": {
+          "consent": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "viewing",
+        "action": "approve"
+      },
+      {
+        "op": "transition",
+        "target": "viewing",
+        "action": "checkin"
+      },
+      {
+        "op": "transition",
+        "target": "viewing",
+        "action": "complete"
+      },
+      {
+        "op": "create",
+        "alias": "application",
+        "type": "application",
+        "data": {
+          "title": "Journey application",
+          "listingId": "$listing",
+          "applicant": "Renter Demo",
+          "evidence": "application.txt",
+          "assessment": "",
+          "evidenceAccess": false
+        }
+      },
+      {
+        "op": "transition",
+        "target": "application",
+        "action": "request_evidence"
+      },
+      {
+        "op": "transition",
+        "target": "application",
+        "action": "grant"
+      },
+      {
+        "op": "update",
+        "target": "application",
+        "data": {
+          "assessment": "Human sample assessment; no external screening.",
+          "evidenceAccess": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "application",
+        "action": "approve"
+      },
+      {
+        "op": "bind",
+        "alias": "offer",
+        "type": "offer",
+        "key": "applicationId",
+        "value": "$application"
+      },
+      {
+        "op": "transition",
+        "target": "offer",
+        "action": "accept"
+      },
+      {
+        "op": "bind",
+        "alias": "agreement",
+        "type": "agreement",
+        "key": "offerId",
+        "value": "$offer"
+      },
+      {
+        "op": "update",
+        "target": "agreement",
+        "data": {
+          "terms": "Sample terms; no legal execution.",
+          "reviewed": true,
+          "signers": true,
+          "keys": true,
+          "inspection": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "agreement",
+        "action": "review"
+      },
+      {
+        "op": "transition",
+        "target": "agreement",
+        "action": "invite"
+      },
+      {
+        "op": "transition",
+        "target": "agreement",
+        "action": "signature"
+      },
+      {
+        "op": "transition",
+        "target": "agreement",
+        "action": "activate"
+      },
+      {
+        "op": "transition",
+        "target": "agreement",
+        "action": "movein"
+      },
+      {
+        "op": "bind",
+        "alias": "tenancy",
+        "type": "tenancy",
+        "key": "agreementId",
+        "value": "$agreement"
+      },
+      {
+        "op": "assert",
+        "target": "tenancy",
+        "key": "status",
+        "value": "ACTIVE"
+      },
+      {
+        "op": "assert",
+        "target": "unit",
+        "key": "data.occupied",
+        "value": true
+      }
+    ]
+  },
+  {
+    "id": "04",
+    "title": "Rent and deposit",
+    "steps": [
+      {
+        "op": "alias",
+        "alias": "tenancy",
+        "id": "demo-tenancy-01"
+      },
+      {
+        "op": "create",
+        "alias": "rent",
+        "type": "rent",
+        "data": {
+          "title": "Journey rent obligation",
+          "tenancyId": "$tenancy",
+          "amountMinor": 250000,
+          "due": "2026-10-20",
+          "notes": "No actual collection"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "rent",
+        "action": "observe"
+      },
+      {
+        "op": "transition",
+        "target": "rent",
+        "action": "hold"
+      },
+      {
+        "op": "transition",
+        "target": "rent",
+        "action": "available"
+      },
+      {
+        "op": "transition",
+        "target": "rent",
+        "action": "restrict"
+      },
+      {
+        "op": "transition",
+        "target": "rent",
+        "action": "reconcile"
+      },
+      {
+        "op": "assert",
+        "target": "rent",
+        "key": "status",
+        "value": "HELD"
+      },
+      {
+        "op": "summary",
+        "key": "buckets.HELD",
+        "value": 250000
+      },
+      {
+        "op": "create",
+        "alias": "deposit",
+        "type": "deposit",
+        "data": {
+          "title": "Journey deposit case",
+          "tenancyId": "$tenancy",
+          "amountMinor": 100000,
+          "reason": "Example deduction proposal",
+          "evidence": "deposit.txt"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "deposit",
+        "action": "dispute"
+      },
+      {
+        "op": "transition",
+        "target": "deposit",
+        "action": "resolve"
+      },
+      {
+        "op": "assert",
+        "target": "deposit",
+        "key": "status",
+        "value": "RESOLVED"
+      }
+    ]
+  },
+  {
+    "id": "05",
+    "title": "Tenancy lifecycle",
+    "steps": [
+      {
+        "op": "alias",
+        "alias": "tenancy",
+        "id": "demo-tenancy-01"
+      },
+      {
+        "op": "create",
+        "alias": "renewal",
+        "type": "renewal",
+        "data": {
+          "title": "Journey renewal",
+          "tenancyId": "$tenancy",
+          "newEnd": "2028-09-30",
+          "amountMinor": 120000000,
+          "notes": "Fictional proposal"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "renewal",
+        "action": "accept"
+      },
+      {
+        "op": "assert",
+        "target": "tenancy",
+        "key": "data.end",
+        "value": "2028-09-30"
+      },
+      {
+        "op": "create",
+        "alias": "notice",
+        "type": "notice",
+        "data": {
+          "title": "Journey notice",
+          "tenancyId": "$tenancy",
+          "category": "Example end of term",
+          "date": "2026-10-20",
+          "reason": "Example only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "notice",
+        "action": "issue"
+      },
+      {
+        "op": "transition",
+        "target": "notice",
+        "action": "delivery"
+      },
+      {
+        "op": "create",
+        "alias": "inspection",
+        "type": "inspection",
+        "data": {
+          "title": "Journey move-out inspection",
+          "tenancyId": "$tenancy",
+          "date": "2026-10-24",
+          "keys": true,
+          "findings": "Sample inspection; no real keys",
+          "evidence": "inspection.txt"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "inspection",
+        "action": "complete"
+      },
+      {
+        "op": "bind",
+        "alias": "deposit",
+        "type": "deposit",
+        "key": "tenancyId",
+        "value": "$tenancy"
+      },
+      {
+        "op": "transition",
+        "target": "deposit",
+        "action": "resolve"
+      },
+      {
+        "op": "alias",
+        "alias": "existingDeposit",
+        "id": "demo-deposit-01"
+      },
+      {
+        "op": "transition",
+        "target": "existingDeposit",
+        "action": "resolve"
+      },
+      {
+        "op": "transition",
+        "target": "tenancy",
+        "action": "close"
+      },
+      {
+        "op": "assert",
+        "target": "tenancy",
+        "key": "status",
+        "value": "CLOSED"
+      },
+      {
+        "op": "summary",
+        "key": "occupied",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "06",
+    "title": "Short-let",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "booking",
+        "type": "booking",
+        "data": {
+          "title": "Journey stay",
+          "propertyId": "demo-property-02",
+          "unitId": "demo-unit-03",
+          "guest": "Guest Demo",
+          "start": "2026-10-18",
+          "end": "2026-10-20",
+          "amountMinor": 10000000,
+          "prepared": false
+        }
+      },
+      {
+        "op": "transition",
+        "target": "booking",
+        "action": "approve"
+      },
+      {
+        "op": "update",
+        "target": "booking",
+        "data": {
+          "end": "2026-10-26"
+        },
+        "error": "CONFLICT"
+      },
+      {
+        "op": "update",
+        "target": "booking",
+        "data": {
+          "end": "2026-10-21"
+        }
+      },
+      {
+        "op": "create",
+        "alias": "prep",
+        "type": "turnover",
+        "data": {
+          "title": "Journey arrival preparation",
+          "bookingId": "$booking",
+          "unitId": "demo-unit-03",
+          "date": "2026-10-17",
+          "notes": "Sample cleaning checklist"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "prep",
+        "action": "start"
+      },
+      {
+        "op": "transition",
+        "target": "prep",
+        "action": "complete"
+      },
+      {
+        "op": "transition",
+        "target": "booking",
+        "action": "checkin"
+      },
+      {
+        "op": "transition",
+        "target": "booking",
+        "action": "checkout"
+      },
+      {
+        "op": "create",
+        "alias": "damage",
+        "type": "damage",
+        "data": {
+          "title": "Journey sample damage",
+          "bookingId": "$booking",
+          "amountMinor": 200000,
+          "evidence": "damage.txt",
+          "reason": "Fictional observation"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "damage",
+        "action": "dispute"
+      },
+      {
+        "op": "transition",
+        "target": "damage",
+        "action": "resolve"
+      },
+      {
+        "op": "create",
+        "alias": "nextBooking",
+        "type": "booking",
+        "data": {
+          "title": "Journey released dates",
+          "propertyId": "demo-property-02",
+          "unitId": "demo-unit-03",
+          "guest": "Next Guest Demo",
+          "start": "2026-10-18",
+          "end": "2026-10-20",
+          "amountMinor": 10000000,
+          "prepared": false
+        }
+      },
+      {
+        "op": "assert",
+        "target": "booking",
+        "key": "status",
+        "value": "CHECKED_OUT"
+      },
+      {
+        "op": "assert",
+        "target": "nextBooking",
+        "key": "status",
+        "value": "REQUESTED"
+      }
+    ]
+  },
+  {
+    "id": "07",
+    "title": "Maintenance",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "request",
+        "type": "maintenance",
+        "data": {
+          "title": "Journey repair",
+          "propertyId": "demo-property-01",
+          "issue": "Fictional leaking tap",
+          "priority": "Normal",
+          "date": "2026-10-24",
+          "warranty": "Sample warranty notes"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "request",
+        "action": "triage"
+      },
+      {
+        "op": "transition",
+        "target": "request",
+        "action": "quotes"
+      },
+      {
+        "op": "bind",
+        "alias": "quote",
+        "type": "quote",
+        "key": "requestId",
+        "value": "$request"
+      },
+      {
+        "op": "transition",
+        "target": "quote",
+        "action": "approve"
+      },
+      {
+        "op": "assert",
+        "target": "request",
+        "key": "status",
+        "value": "SCHEDULED"
+      },
+      {
+        "op": "transition",
+        "target": "request",
+        "action": "start"
+      },
+      {
+        "op": "transition",
+        "target": "request",
+        "action": "complete"
+      },
+      {
+        "op": "transition",
+        "target": "request",
+        "action": "accept"
+      },
+      {
+        "op": "summary",
+        "key": "maintenanceCompleted",
+        "value": 1
+      },
+      {
+        "op": "create",
+        "alias": "preventive",
+        "type": "preventive",
+        "data": {
+          "title": "Journey preventive care",
+          "propertyId": "demo-property-01",
+          "category": "Sample inspection",
+          "date": "2026-11-24",
+          "intervalDays": 30,
+          "notes": "Demo schedule"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "preventive",
+        "action": "record"
+      }
+    ]
+  },
+  {
+    "id": "08",
+    "title": "Ownership and delegation",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "party",
+        "type": "party",
+        "data": {
+          "title": "Journey co-owner",
+          "propertyId": "demo-property-03",
+          "name": "Morgan Demo",
+          "share": 20,
+          "role": "Co-owner",
+          "notes": "Fictional share"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "party",
+        "action": "accept"
+      },
+      {
+        "op": "create",
+        "alias": "consent",
+        "type": "consent",
+        "data": {
+          "title": "Journey delegation consent",
+          "propertyId": "demo-property-03",
+          "partyId": "$party",
+          "purpose": "Delegation",
+          "expires": "2026-12-31",
+          "notes": "Sample"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "consent",
+        "action": "approve"
+      },
+      {
+        "op": "create",
+        "alias": "proposal",
+        "type": "managerproposal",
+        "data": {
+          "title": "Journey manager proposal",
+          "propertyId": "demo-property-03",
+          "manager": "Manager Demo",
+          "scope": "Maintenance only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "proposal",
+        "action": "consent"
+      },
+      {
+        "op": "transition",
+        "target": "proposal",
+        "action": "assign"
+      },
+      {
+        "op": "bind",
+        "alias": "assignment",
+        "type": "assignment",
+        "key": "propertyId",
+        "value": "demo-property-03"
+      },
+      {
+        "op": "update",
+        "target": "assignment",
+        "data": {
+          "viewings": false,
+          "listings": false
+        }
+      },
+      {
+        "op": "actor",
+        "value": "manager"
+      },
+      {
+        "op": "create",
+        "alias": "job",
+        "type": "maintenance",
+        "data": {
+          "title": "Delegated sample repair",
+          "propertyId": "demo-property-03",
+          "issue": "Demo office tap",
+          "priority": "Normal",
+          "date": "2026-10-24",
+          "warranty": "Sample"
+        }
+      },
+      {
+        "op": "create",
+        "alias": "transfer",
+        "type": "transfer",
+        "data": {
+          "title": "Denied title request",
+          "propertyId": "demo-property-03",
+          "recipient": "No authority",
+          "consent": true
+        },
+        "error": "DENIED"
+      },
+      {
+        "op": "actor",
+        "value": "owner"
+      },
+      {
+        "op": "transition",
+        "target": "assignment",
+        "action": "revoke"
+      },
+      {
+        "op": "actor",
+        "value": "manager"
+      },
+      {
+        "op": "create",
+        "alias": "deniedJob",
+        "type": "maintenance",
+        "data": {
+          "title": "Revoked repair",
+          "propertyId": "demo-property-03",
+          "issue": "Denied",
+          "priority": "Normal",
+          "date": "2026-10-24",
+          "warranty": "Sample"
+        },
+        "error": "DENIED"
+      },
+      {
+        "op": "actor",
+        "value": "owner"
+      },
+      {
+        "op": "transition",
+        "target": "assignment",
+        "action": "access",
+        "error": "DENIED"
+      },
+      {
+        "op": "assert",
+        "target": "assignment",
+        "key": "status",
+        "value": "REVOKED"
+      }
+    ]
+  },
+  {
+    "id": "09",
+    "title": "Commercial, land and sale",
+    "steps": [
+      {
+        "op": "create",
+        "alias": "loi",
+        "type": "loi",
+        "data": {
+          "title": "Journey commercial LOI",
+          "propertyId": "demo-property-03",
+          "amountMinor": 900000000,
+          "start": "2026-11-01",
+          "end": "2027-10-31",
+          "terms": "Example only, no tax assumption",
+          "counterMinor": 950000000
+        }
+      },
+      {
+        "op": "transition",
+        "target": "loi",
+        "action": "counter"
+      },
+      {
+        "op": "transition",
+        "target": "loi",
+        "action": "accept"
+      },
+      {
+        "op": "transition",
+        "target": "loi",
+        "action": "sale"
+      },
+      {
+        "op": "bind",
+        "alias": "sale",
+        "type": "sale",
+        "key": "propertyId",
+        "value": "demo-property-03"
+      },
+      {
+        "op": "transition",
+        "target": "sale",
+        "action": "counter"
+      },
+      {
+        "op": "transition",
+        "target": "sale",
+        "action": "accept"
+      },
+      {
+        "op": "create",
+        "alias": "grant",
+        "type": "documentgrant",
+        "data": {
+          "title": "Journey document grant",
+          "saleId": "$sale",
+          "evidence": "diligence.txt",
+          "recipient": "Reviewer Demo",
+          "expires": "2026-12-31"
+        }
+      },
+      {
+        "op": "update",
+        "target": "sale",
+        "data": {
+          "diligence": true,
+          "documents": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "sale",
+        "action": "closing"
+      },
+      {
+        "op": "transition",
+        "target": "sale",
+        "action": "transfer",
+        "error": "CONSENT"
+      },
+      {
+        "op": "update",
+        "target": "sale",
+        "data": {
+          "consent": true
+        }
+      },
+      {
+        "op": "transition",
+        "target": "sale",
+        "action": "transfer"
+      },
+      {
+        "op": "assert",
+        "target": "sale",
+        "key": "status",
+        "value": "TRANSFER_REQUESTED"
+      },
+      {
+        "op": "create",
+        "alias": "land",
+        "type": "landterms",
+        "data": {
+          "title": "Journey land lease",
+          "propertyId": "demo-property-04",
+          "parcelId": "demo-parcel-01",
+          "transaction": "Lease",
+          "amountMinor": 100000000,
+          "inspectionDate": "2026-10-24",
+          "terms": "Fictional land terms"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "land",
+        "action": "offer"
+      },
+      {
+        "op": "transition",
+        "target": "land",
+        "action": "accept"
+      },
+      {
+        "op": "transition",
+        "target": "land",
+        "action": "lease"
+      },
+      {
+        "op": "summary",
+        "key": "buckets.AVAILABLE",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "title": "Insights and privacy",
+    "steps": [
+      {
+        "op": "alias",
+        "alias": "notification",
+        "id": "demo-notification-01"
+      },
+      {
+        "op": "transition",
+        "target": "notification",
+        "action": "read"
+      },
+      {
+        "op": "create",
+        "alias": "report",
+        "type": "report",
+        "data": {
+          "title": "Journey portfolio report",
+          "propertyId": "demo-property-01",
+          "start": "2026-10-01",
+          "end": "2026-10-31",
+          "category": "Portfolio",
+          "notes": "Demo export"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "report",
+        "action": "generate"
+      },
+      {
+        "op": "assert",
+        "target": "report",
+        "key": "status",
+        "value": "GENERATED"
+      },
+      {
+        "op": "create",
+        "alias": "privacy",
+        "type": "privacy",
+        "data": {
+          "title": "Journey privacy request",
+          "category": "Access export",
+          "reason": "Fictional local metadata only"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "privacy",
+        "action": "review"
+      },
+      {
+        "op": "transition",
+        "target": "privacy",
+        "action": "complete"
+      },
+      {
+        "op": "create",
+        "alias": "dispute",
+        "type": "dispute",
+        "data": {
+          "title": "Journey review case",
+          "propertyId": "demo-property-01",
+          "category": "Other",
+          "recordId": "demo-maintenance-01",
+          "evidence": "case.txt",
+          "reason": "Fictional case explanation"
+        }
+      },
+      {
+        "op": "transition",
+        "target": "dispute",
+        "action": "review"
+      },
+      {
+        "op": "transition",
+        "target": "dispute",
+        "action": "resolve"
+      },
+      {
+        "op": "alias",
+        "alias": "session",
+        "id": "demo-session-01"
+      },
+      {
+        "op": "transition",
+        "target": "session",
+        "action": "revoke"
+      },
+      {
+        "op": "assert",
+        "target": "session",
+        "key": "status",
+        "value": "REVOKED"
+      }
+    ]
+  }
+]

@@ -1,0 +1,4985 @@
+{
+  "version": 1,
+  "date": "2026-10-17",
+  "scenarios": [
+    "normal",
+    "empty",
+    "pending_verification",
+    "correction_required",
+    "restricted",
+    "permission_denied",
+    "expired_session",
+    "offline",
+    "provider_unavailable",
+    "conflict",
+    "invalid_input",
+    "unknown_financial_outcome",
+    "insufficient_delegation",
+    "stale_availability",
+    "expired_consent",
+    "failed_operation"
+  ],
+  "modules": [
+    {
+      "id": "01",
+      "title": "Dashboard & portfolio",
+      "slug": "dashboard",
+      "gate": "A",
+      "pairIds": [
+        "pair-01"
+      ],
+      "types": []
+    },
+    {
+      "id": "02",
+      "title": "Sign-up, login, MFA & verification",
+      "slug": "identity",
+      "gate": "A",
+      "pairIds": [
+        "pair-13",
+        "pair-14"
+      ],
+      "types": [
+        "account",
+        "session",
+        "identity"
+      ]
+    },
+    {
+      "id": "03",
+      "title": "Payout account & tax profile",
+      "slug": "financial",
+      "gate": "A",
+      "pairIds": [
+        "pair-04"
+      ],
+      "types": [
+        "bank",
+        "tax",
+        "rent",
+        "deposit",
+        "report"
+      ]
+    },
+    {
+      "id": "04",
+      "title": "Ownership & legal authority",
+      "slug": "ownership",
+      "gate": "A",
+      "pairIds": [
+        "pair-11"
+      ],
+      "types": [
+        "ownership",
+        "party",
+        "consent",
+        "transfer"
+      ]
+    },
+    {
+      "id": "05",
+      "title": "Properties, units, land & assets",
+      "slug": "properties",
+      "gate": "A",
+      "pairIds": [
+        "pair-02"
+      ],
+      "types": [
+        "property",
+        "unit",
+        "asset",
+        "media",
+        "parcel"
+      ]
+    },
+    {
+      "id": "06",
+      "title": "Property verification",
+      "slug": "verification",
+      "gate": "A",
+      "pairIds": [
+        "pair-02"
+      ],
+      "types": [
+        "verification"
+      ]
+    },
+    {
+      "id": "07",
+      "title": "Listings across property types",
+      "slug": "listings",
+      "gate": "A",
+      "pairIds": [
+        "pair-03"
+      ],
+      "types": [
+        "listing"
+      ]
+    },
+    {
+      "id": "08",
+      "title": "Pricing and fee disclosure",
+      "slug": "pricing",
+      "gate": "A",
+      "pairIds": [
+        "pair-03"
+      ],
+      "types": [
+        "pricing"
+      ]
+    },
+    {
+      "id": "09",
+      "title": "Availability & listing freshness",
+      "slug": "availability",
+      "gate": "A",
+      "pairIds": [
+        "pair-03"
+      ],
+      "types": [
+        "availability"
+      ]
+    },
+    {
+      "id": "10",
+      "title": "Inquiries, leads & campaigns",
+      "slug": "inquiries",
+      "gate": "B",
+      "pairIds": [],
+      "types": [
+        "inquiry"
+      ]
+    },
+    {
+      "id": "11",
+      "title": "Viewings & property access",
+      "slug": "viewings",
+      "gate": "A",
+      "pairIds": [],
+      "types": [
+        "viewing"
+      ]
+    },
+    {
+      "id": "12",
+      "title": "Rental applications & screening",
+      "slug": "applications",
+      "gate": "A",
+      "pairIds": [
+        "pair-15"
+      ],
+      "types": [
+        "application",
+        "offer"
+      ]
+    },
+    {
+      "id": "13",
+      "title": "Tenancy agreements & move-in",
+      "slug": "tenancies",
+      "gate": "B",
+      "pairIds": [
+        "pair-05",
+        "pair-06"
+      ],
+      "types": [
+        "agreement",
+        "tenancy"
+      ]
+    },
+    {
+      "id": "14",
+      "title": "Rent, deposits & financial lifecycle",
+      "slug": "rent",
+      "gate": "B",
+      "pairIds": [
+        "pair-04",
+        "pair-05"
+      ],
+      "types": [
+        "rent",
+        "deposit"
+      ]
+    },
+    {
+      "id": "15",
+      "title": "Renewals, notices & move-out",
+      "slug": "renewals",
+      "gate": "B",
+      "pairIds": [
+        "pair-05"
+      ],
+      "types": [
+        "renewal",
+        "notice",
+        "inspection"
+      ]
+    },
+    {
+      "id": "16",
+      "title": "Utilities & service charges",
+      "slug": "utilities",
+      "gate": "B",
+      "pairIds": [
+        "pair-05"
+      ],
+      "types": [
+        "utility",
+        "meter",
+        "bill",
+        "budget",
+        "charge"
+      ]
+    },
+    {
+      "id": "17",
+      "title": "Commercial leasing & sales",
+      "slug": "commercial",
+      "gate": "B",
+      "pairIds": [
+        "pair-09"
+      ],
+      "types": [
+        "loi"
+      ]
+    },
+    {
+      "id": "18",
+      "title": "Land rent, lease & sale",
+      "slug": "land",
+      "gate": "B",
+      "pairIds": [
+        "pair-09"
+      ],
+      "types": [
+        "parcel",
+        "landterms"
+      ]
+    },
+    {
+      "id": "19",
+      "title": "Property sale, offers & closing",
+      "slug": "sales",
+      "gate": "B",
+      "pairIds": [
+        "pair-10"
+      ],
+      "types": [
+        "sale",
+        "documentgrant"
+      ]
+    },
+    {
+      "id": "20",
+      "title": "Owner-operated short-lets",
+      "slug": "shortlets",
+      "gate": "B",
+      "pairIds": [
+        "pair-07"
+      ],
+      "types": [
+        "booking",
+        "rate",
+        "turnover",
+        "damage",
+        "availability"
+      ]
+    },
+    {
+      "id": "21",
+      "title": "Manager delegation & controls",
+      "slug": "managers",
+      "gate": "B",
+      "pairIds": [
+        "pair-11"
+      ],
+      "types": [
+        "managerproposal",
+        "assignment"
+      ]
+    },
+    {
+      "id": "22",
+      "title": "Maintenance & preventive care",
+      "slug": "maintenance",
+      "gate": "B",
+      "pairIds": [
+        "pair-08"
+      ],
+      "types": [
+        "maintenance",
+        "quote",
+        "preventive"
+      ]
+    },
+    {
+      "id": "23",
+      "title": "Professional services & due diligence",
+      "slug": "professionals",
+      "gate": "B",
+      "pairIds": [
+        "pair-08"
+      ],
+      "types": [
+        "appointment"
+      ]
+    },
+    {
+      "id": "24",
+      "title": "Notifications & communication",
+      "slug": "notifications",
+      "gate": "B",
+      "pairIds": [],
+      "types": [
+        "notification",
+        "preference"
+      ]
+    },
+    {
+      "id": "25",
+      "title": "Statements, reports & insights",
+      "slug": "reports",
+      "gate": "A",
+      "pairIds": [
+        "pair-12"
+      ],
+      "types": [
+        "report"
+      ]
+    },
+    {
+      "id": "26",
+      "title": "Fraud, disputes & privacy",
+      "slug": "safety",
+      "gate": "A",
+      "pairIds": [
+        "pair-13"
+      ],
+      "types": [
+        "dispute",
+        "privacy"
+      ]
+    },
+    {
+      "id": "27",
+      "title": "Accessibility, assisted use & closure",
+      "slug": "settings",
+      "gate": "A",
+      "pairIds": [
+        "pair-13"
+      ],
+      "types": [
+        "preference",
+        "assistance",
+        "closure",
+        "privacy"
+      ]
+    },
+    {
+      "id": "28",
+      "title": "Financing & payment plans",
+      "slug": "financing",
+      "gate": "C",
+      "pairIds": [],
+      "types": [
+        "financing"
+      ]
+    },
+    {
+      "id": "29",
+      "title": "Insurance & protection",
+      "slug": "insurance",
+      "gate": "C",
+      "pairIds": [],
+      "types": [
+        "insurance"
+      ]
+    },
+    {
+      "id": "30",
+      "title": "Smart access & remote controls",
+      "slug": "access",
+      "gate": "C",
+      "pairIds": [],
+      "types": [
+        "device",
+        "accessgrant"
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "account",
+      "label": "Owner accounts",
+      "module": "identity",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "displayName",
+          "label": "Fictional owner name",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Demo email",
+          "kind": "text",
+          "required": true,
+          "pattern": "email"
+        },
+        {
+          "key": "language",
+          "label": "Language",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "English",
+            "Italian"
+          ]
+        },
+        {
+          "key": "mfa",
+          "label": "Use simulated MFA",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "REGISTERED",
+      "actions": [
+        {
+          "id": "login",
+          "label": "Demo login",
+          "from": [
+            "REGISTERED",
+            "RECOVERED",
+            "ACTIVE"
+          ],
+          "to": "MFA_PENDING",
+          "stepUp": true
+        },
+        {
+          "id": "mfa",
+          "label": "Confirm simulated OTP / MFA",
+          "from": [
+            "MFA_PENDING"
+          ],
+          "to": "ACTIVE",
+          "stepUp": true,
+          "effects": [
+            {
+              "type": "session",
+              "status": "ACTIVE",
+              "data": {
+                "title": "Demo browser session",
+                "accountId": "$id",
+                "device": "Local demo device"
+              }
+            }
+          ]
+        },
+        {
+          "id": "recover",
+          "label": "Request demo recovery",
+          "from": [
+            "REGISTERED",
+            "ACTIVE"
+          ],
+          "to": "RECOVERY_PENDING"
+        },
+        {
+          "id": "reset",
+          "label": "Confirm demo password reset",
+          "from": [
+            "RECOVERY_PENDING"
+          ],
+          "to": "RECOVERED",
+          "stepUp": true
+        },
+        {
+          "id": "logout",
+          "label": "Sign out of demo",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "REGISTERED"
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "label": "Sessions & devices",
+      "module": "identity",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "accountId",
+          "label": "Owner account",
+          "kind": "relation",
+          "required": true,
+          "target": "account"
+        },
+        {
+          "key": "device",
+          "label": "Fictional device",
+          "kind": "text",
+          "required": true
+        }
+      ],
+      "initial": "ACTIVE",
+      "actions": [
+        {
+          "id": "revoke",
+          "label": "Revoke demo session",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "REVOKED",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "label": "Identity evidence cases",
+      "module": "identity",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "accountId",
+          "label": "Owner account",
+          "kind": "relation",
+          "required": true,
+          "target": "account"
+        },
+        {
+          "key": "documentType",
+          "label": "Evidence category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Fictional identity document",
+            "Fictional address evidence"
+          ]
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "submit",
+          "label": "Submit demo evidence",
+          "from": [
+            "DRAFT",
+            "CORRECTION",
+            "REJECTED"
+          ],
+          "to": "PENDING",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "evidence",
+              "message": "Complete evidence before continuing."
+            }
+          ]
+        },
+        {
+          "id": "correction",
+          "label": "Request demo correction",
+          "from": [
+            "PENDING"
+          ],
+          "to": "CORRECTION"
+        },
+        {
+          "id": "reject",
+          "label": "Record simulated rejection",
+          "from": [
+            "PENDING"
+          ],
+          "to": "REJECTED"
+        },
+        {
+          "id": "review",
+          "label": "Record simulated review outcome",
+          "from": [
+            "PENDING"
+          ],
+          "to": "DEMO_REVIEWED"
+        }
+      ]
+    },
+    {
+      "id": "bank",
+      "label": "Masked payout preferences",
+      "module": "financial",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "holder",
+          "label": "Fictional holder",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "lastFour",
+          "label": "Account last four only",
+          "kind": "text",
+          "required": true,
+          "pattern": "lastFour"
+        },
+        {
+          "key": "label",
+          "label": "Fictional account label",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "isDefault",
+          "label": "Request as default",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "PENDING",
+      "actions": [
+        {
+          "id": "review",
+          "label": "Record demo review",
+          "from": [
+            "PENDING"
+          ],
+          "to": "DEMO_REVIEWED",
+          "stepUp": true
+        },
+        {
+          "id": "default",
+          "label": "Request default preference",
+          "from": [
+            "DEMO_REVIEWED"
+          ],
+          "to": "DEFAULT_REQUESTED",
+          "stepUp": true
+        },
+        {
+          "id": "restrict",
+          "label": "Restrict demo preference",
+          "from": [
+            "PENDING",
+            "DEMO_REVIEWED",
+            "DEFAULT_REQUESTED"
+          ],
+          "to": "RESTRICTED"
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "tax",
+      "label": "Tax profile",
+      "module": "financial",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "jurisdiction",
+          "label": "Example jurisdiction",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "reference",
+          "label": "Fictional reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "category",
+          "label": "Owner category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Individual demonstration",
+            "Not provided"
+          ]
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "save",
+          "label": "Record demo tax profile",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "RECORDED"
+        }
+      ]
+    },
+    {
+      "id": "property",
+      "label": "Properties",
+      "module": "properties",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "kind",
+          "label": "Property type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Residential",
+            "Commercial",
+            "Short-let",
+            "Land"
+          ]
+        },
+        {
+          "key": "location",
+          "label": "Fictional location",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "annualRentMinor",
+          "label": "Example annual rent (minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 0
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "activate",
+          "label": "Add to active portfolio",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "ACTIVE"
+        },
+        {
+          "id": "archive",
+          "label": "Archive property",
+          "from": [
+            "DRAFT",
+            "ACTIVE"
+          ],
+          "to": "ARCHIVED",
+          "confirm": true,
+          "guard": "property_archive"
+        }
+      ],
+      "wizard": true
+    },
+    {
+      "id": "unit",
+      "label": "Units",
+      "module": "properties",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "kind",
+          "label": "Unit type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Apartment",
+            "Studio",
+            "Office",
+            "Short-let"
+          ]
+        },
+        {
+          "key": "capacity",
+          "label": "Occupant capacity",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "occupied",
+          "label": "Sample occupied unit",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "AVAILABLE",
+      "actions": [
+        {
+          "id": "restrict",
+          "label": "Restrict unit",
+          "from": [
+            "AVAILABLE"
+          ],
+          "to": "RESTRICTED"
+        },
+        {
+          "id": "restore",
+          "label": "Restore unit",
+          "from": [
+            "RESTRICTED"
+          ],
+          "to": "AVAILABLE"
+        }
+      ]
+    },
+    {
+      "id": "parcel",
+      "label": "Land parcels",
+      "module": "land",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "area",
+          "label": "Area in square metres",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "reference",
+          "label": "Fictional survey reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "RECORDED",
+      "actions": [
+        {
+          "id": "inspect",
+          "label": "Record site inspection",
+          "from": [
+            "RECORDED"
+          ],
+          "to": "INSPECTED"
+        },
+        {
+          "id": "offer",
+          "label": "Request land sale review",
+          "from": [
+            "INSPECTED"
+          ],
+          "to": "OFFER_REVIEW",
+          "effects": [
+            {
+              "type": "sale",
+              "status": "OFFER_RECEIVED",
+              "data": {
+                "title": "Land sale review",
+                "propertyId": "$propertyId",
+                "parcelId": "$id",
+                "amountMinor": 10000000,
+                "diligence": false,
+                "documents": false,
+                "consent": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "asset",
+      "label": "Property assets",
+      "module": "properties",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "category",
+          "label": "Asset category",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "condition",
+          "label": "Condition",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "RECORDED",
+      "actions": [
+        {
+          "id": "retire",
+          "label": "Retire asset",
+          "from": [
+            "RECORDED"
+          ],
+          "to": "RETIRED",
+          "confirm": true
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "label": "Property media & documents",
+      "module": "properties",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "category",
+          "label": "Media category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Illustration",
+            "Ownership evidence",
+            "Inspection document"
+          ]
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "attach",
+          "label": "Attach sample metadata",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "ATTACHED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "evidence",
+              "message": "Complete evidence before continuing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ownership",
+      "label": "Ownership claims",
+      "module": "ownership",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "claimant",
+          "label": "Fictional claimant",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "claim",
+          "label": "Submit demo claim",
+          "from": [
+            "DRAFT",
+            "CORRECTION"
+          ],
+          "to": "PENDING",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "evidence",
+              "message": "Complete evidence before continuing."
+            }
+          ],
+          "stepUp": true
+        },
+        {
+          "id": "correction",
+          "label": "Request claim correction",
+          "from": [
+            "PENDING"
+          ],
+          "to": "CORRECTION"
+        },
+        {
+          "id": "review",
+          "label": "Record simulated ownership review",
+          "from": [
+            "PENDING"
+          ],
+          "to": "DEMO_REVIEWED",
+          "stepUp": true
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "party",
+      "label": "Co-owners & invitations",
+      "module": "ownership",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "name",
+          "label": "Fictional co-owner",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "share",
+          "label": "Proposed share (%)",
+          "kind": "number",
+          "required": true,
+          "min": 1,
+          "max": 100
+        },
+        {
+          "key": "role",
+          "label": "Role",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Co-owner",
+            "Representative"
+          ]
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "INVITED",
+      "actions": [
+        {
+          "id": "accept",
+          "label": "Simulate invitation acceptance",
+          "from": [
+            "INVITED"
+          ],
+          "to": "ACCEPTED"
+        },
+        {
+          "id": "decline",
+          "label": "Simulate invitation decline",
+          "from": [
+            "INVITED"
+          ],
+          "to": "DECLINED"
+        }
+      ],
+      "guard": "shares",
+      "sensitive": true
+    },
+    {
+      "id": "consent",
+      "label": "Owner consents",
+      "module": "ownership",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "partyId",
+          "label": "Co-owner",
+          "kind": "relation",
+          "required": true,
+          "target": "party"
+        },
+        {
+          "key": "purpose",
+          "label": "Consent purpose",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Listing",
+            "Delegation",
+            "Ownership transfer"
+          ]
+        },
+        {
+          "key": "expires",
+          "label": "Consent expiry",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve demo consent",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "APPROVED",
+          "stepUp": true
+        },
+        {
+          "id": "reject",
+          "label": "Reject demo consent",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "REJECTED"
+        },
+        {
+          "id": "expire",
+          "label": "Expire demo consent",
+          "from": [
+            "APPROVED"
+          ],
+          "to": "EXPIRED"
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "transfer",
+      "label": "Ownership transfer requests",
+      "module": "ownership",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "recipient",
+          "label": "Fictional proposed recipient",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "consent",
+          "label": "All parties have demo consent",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "request",
+          "label": "Request transfer review",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "PENDING_REVIEW",
+          "guard": "consent",
+          "stepUp": true
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel request",
+          "from": [
+            "PENDING_REVIEW"
+          ],
+          "to": "CANCELLED",
+          "confirm": true
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "verification",
+      "label": "Property verification cases",
+      "module": "verification",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "claimId",
+          "label": "Ownership claim",
+          "kind": "relation",
+          "required": true,
+          "target": "ownership"
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "submit",
+          "label": "Submit verification demo",
+          "from": [
+            "DRAFT",
+            "CORRECTION",
+            "REJECTED"
+          ],
+          "to": "PENDING",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "evidence",
+              "message": "Complete evidence before continuing."
+            }
+          ]
+        },
+        {
+          "id": "correction",
+          "label": "Request evidence correction",
+          "from": [
+            "PENDING"
+          ],
+          "to": "CORRECTION"
+        },
+        {
+          "id": "reject",
+          "label": "Record demo rejection",
+          "from": [
+            "PENDING"
+          ],
+          "to": "REJECTED"
+        },
+        {
+          "id": "review",
+          "label": "Record simulated property review",
+          "from": [
+            "PENDING"
+          ],
+          "to": "DEMO_REVIEWED",
+          "guard": "claim_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "listing",
+      "label": "Property listings",
+      "module": "listings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "unitId",
+          "label": "Unit (optional for land)",
+          "kind": "relation",
+          "required": false,
+          "target": "unit"
+        },
+        {
+          "key": "transaction",
+          "label": "Transaction type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Rent",
+            "Sale",
+            "Short-let",
+            "Land lease"
+          ]
+        },
+        {
+          "key": "description",
+          "label": "Listing description",
+          "kind": "text",
+          "required": true,
+          "max": 500
+        },
+        {
+          "key": "previewed",
+          "label": "I reviewed the sample listing preview",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "preview",
+          "label": "Preview listing",
+          "from": [
+            "DRAFT",
+            "PAUSED"
+          ],
+          "to": "PREVIEW"
+        },
+        {
+          "id": "publish",
+          "label": "Publish in demo only",
+          "from": [
+            "PREVIEW",
+            "PAUSED"
+          ],
+          "to": "DEMO_PUBLISHED",
+          "guard": "publish",
+          "stepUp": true
+        },
+        {
+          "id": "pause",
+          "label": "Pause demo listing",
+          "from": [
+            "DEMO_PUBLISHED"
+          ],
+          "to": "PAUSED"
+        },
+        {
+          "id": "withdraw",
+          "label": "Withdraw listing",
+          "from": [
+            "DEMO_PUBLISHED",
+            "PAUSED",
+            "PREVIEW"
+          ],
+          "to": "WITHDRAWN",
+          "confirm": true
+        },
+        {
+          "id": "archive",
+          "label": "Archive listing",
+          "from": [
+            "DRAFT",
+            "WITHDRAWN"
+          ],
+          "to": "ARCHIVED",
+          "confirm": true
+        },
+        {
+          "id": "copy",
+          "label": "Copy as new draft",
+          "from": [
+            "DRAFT",
+            "PREVIEW",
+            "DEMO_PUBLISHED",
+            "PAUSED",
+            "WITHDRAWN"
+          ],
+          "to": "SAME",
+          "copy": true
+        }
+      ],
+      "wizard": true
+    },
+    {
+      "id": "pricing",
+      "label": "Pricing & fee models",
+      "module": "pricing",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "feeMinor",
+          "label": "Example service fee (minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 0
+        },
+        {
+          "key": "frequency",
+          "label": "Price frequency",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Monthly",
+            "Annually",
+            "Nightly",
+            "Once"
+          ]
+        },
+        {
+          "key": "policy",
+          "label": "Example fee explanation",
+          "kind": "text",
+          "required": true
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "apply",
+          "label": "Apply example pricing",
+          "from": [
+            "DRAFT",
+            "APPLIED"
+          ],
+          "to": "APPLIED"
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "label": "Availability blocks",
+      "module": "availability",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "unitId",
+          "label": "Unit",
+          "kind": "relation",
+          "required": false,
+          "target": "unit"
+        },
+        {
+          "key": "start",
+          "label": "Start date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "End date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "reason",
+          "label": "Reason",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Owner block",
+            "Available window",
+            "Maintenance"
+          ]
+        }
+      ],
+      "initial": "BLOCKED",
+      "actions": [
+        {
+          "id": "confirm",
+          "label": "Confirm sample availability",
+          "from": [
+            "BLOCKED",
+            "STALE"
+          ],
+          "to": "CONFIRMED"
+        },
+        {
+          "id": "unblock",
+          "label": "Remove owner block",
+          "from": [
+            "BLOCKED",
+            "CONFIRMED"
+          ],
+          "to": "RELEASED",
+          "confirm": true
+        }
+      ],
+      "calendar": true,
+      "guard": "date_range"
+    },
+    {
+      "id": "inquiry",
+      "label": "Inquiry center",
+      "module": "inquiries",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "prospect",
+          "label": "Fictional prospect",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "priority",
+          "label": "Priority",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Normal",
+            "High",
+            "Low"
+          ]
+        },
+        {
+          "key": "reminder",
+          "label": "Reminder date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "campaign",
+          "label": "Sample campaign reference",
+          "kind": "text",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "NEW",
+      "actions": [
+        {
+          "id": "acknowledge",
+          "label": "Acknowledge inquiry",
+          "from": [
+            "NEW"
+          ],
+          "to": "ACKNOWLEDGED"
+        },
+        {
+          "id": "qualify",
+          "label": "Record human qualification",
+          "from": [
+            "ACKNOWLEDGED"
+          ],
+          "to": "QUALIFIED"
+        },
+        {
+          "id": "viewing",
+          "label": "Prepare viewing request",
+          "from": [
+            "QUALIFIED"
+          ],
+          "to": "VIEWING_REQUESTED",
+          "effects": [
+            {
+              "type": "viewing",
+              "status": "REQUESTED",
+              "data": {
+                "title": "Viewing from inquiry",
+                "inquiryId": "$id",
+                "listingId": "$listingId",
+                "date": "2026-10-24",
+                "time": "10:00",
+                "consent": false,
+                "representative": "Owner"
+              }
+            }
+          ]
+        },
+        {
+          "id": "close",
+          "label": "Close inquiry",
+          "from": [
+            "NEW",
+            "ACKNOWLEDGED",
+            "QUALIFIED",
+            "VIEWING_REQUESTED"
+          ],
+          "to": "CLOSED",
+          "confirm": true
+        }
+      ]
+    },
+    {
+      "id": "viewing",
+      "label": "Viewings & slots",
+      "module": "viewings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "inquiryId",
+          "label": "Inquiry",
+          "kind": "relation",
+          "required": false,
+          "target": "inquiry"
+        },
+        {
+          "key": "date",
+          "label": "Viewing date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "time",
+          "label": "Viewing time (UTC)",
+          "kind": "time",
+          "required": true
+        },
+        {
+          "key": "consent",
+          "label": "Occupant consent recorded in demo",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "representative",
+          "label": "Fictional representative",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve viewing",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "APPROVED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "consent",
+              "message": "Complete consent before continuing."
+            }
+          ],
+          "guard": "consent_expiry"
+        },
+        {
+          "id": "reschedule",
+          "label": "Confirm rescheduled slot",
+          "from": [
+            "APPROVED",
+            "REQUESTED"
+          ],
+          "to": "REQUESTED"
+        },
+        {
+          "id": "checkin",
+          "label": "Record demo check-in",
+          "from": [
+            "APPROVED"
+          ],
+          "to": "CHECKED_IN"
+        },
+        {
+          "id": "complete",
+          "label": "Record viewing outcome",
+          "from": [
+            "CHECKED_IN"
+          ],
+          "to": "COMPLETED"
+        },
+        {
+          "id": "noshow",
+          "label": "Record no-show",
+          "from": [
+            "APPROVED"
+          ],
+          "to": "NO_SHOW"
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel viewing",
+          "from": [
+            "REQUESTED",
+            "APPROVED"
+          ],
+          "to": "CANCELLED",
+          "confirm": true
+        }
+      ],
+      "calendar": true
+    },
+    {
+      "id": "application",
+      "label": "Rental applications",
+      "module": "applications",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "applicant",
+          "label": "Fictional applicant",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "assessment",
+          "label": "Human screening assessment",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "evidenceAccess",
+          "label": "Sample evidence access granted",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "SUBMITTED",
+      "actions": [
+        {
+          "id": "request_evidence",
+          "label": "Request sample evidence",
+          "from": [
+            "SUBMITTED"
+          ],
+          "to": "EVIDENCE_REQUESTED"
+        },
+        {
+          "id": "grant",
+          "label": "Grant demo evidence access",
+          "from": [
+            "EVIDENCE_REQUESTED",
+            "SUBMITTED"
+          ],
+          "to": "IN_REVIEW",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "evidence",
+              "message": "Complete evidence before continuing."
+            }
+          ]
+        },
+        {
+          "id": "review",
+          "label": "Start human review",
+          "from": [
+            "SUBMITTED"
+          ],
+          "to": "IN_REVIEW"
+        },
+        {
+          "id": "approve",
+          "label": "Approve applicant in demo",
+          "from": [
+            "IN_REVIEW"
+          ],
+          "to": "APPROVED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "assessment",
+              "message": "Complete assessment before continuing."
+            },
+            {
+              "kind": "field",
+              "key": "evidenceAccess",
+              "message": "Complete evidenceAccess before continuing."
+            }
+          ],
+          "effects": [
+            {
+              "type": "offer",
+              "status": "OFFERED",
+              "data": {
+                "title": "Rental offer",
+                "applicationId": "$id",
+                "listingId": "$listingId",
+                "amountMinor": 120000000,
+                "notes": "Fictional offer; not a legal agreement."
+              }
+            }
+          ]
+        },
+        {
+          "id": "reject",
+          "label": "Reject application with review notes",
+          "from": [
+            "IN_REVIEW"
+          ],
+          "to": "REJECTED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "assessment",
+              "message": "Complete assessment before continuing."
+            }
+          ]
+        },
+        {
+          "id": "appeal",
+          "label": "Record applicant appeal",
+          "from": [
+            "REJECTED"
+          ],
+          "to": "APPEAL"
+        },
+        {
+          "id": "reopen",
+          "label": "Reopen human review",
+          "from": [
+            "APPEAL"
+          ],
+          "to": "IN_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "offer",
+      "label": "Rental offers",
+      "module": "applications",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "applicationId",
+          "label": "Application",
+          "kind": "relation",
+          "required": true,
+          "target": "application"
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "OFFERED",
+      "actions": [
+        {
+          "id": "accept",
+          "label": "Simulate offer acceptance",
+          "from": [
+            "OFFERED"
+          ],
+          "to": "ACCEPTED",
+          "effects": [
+            {
+              "type": "agreement",
+              "status": "DRAFT",
+              "data": {
+                "title": "Sample tenancy agreement",
+                "offerId": "$id",
+                "listingId": "$listingId",
+                "reviewed": false,
+                "signers": false,
+                "keys": false,
+                "inspection": false,
+                "terms": "Fictional draft, no legal execution."
+              }
+            }
+          ]
+        },
+        {
+          "id": "decline",
+          "label": "Simulate offer decline",
+          "from": [
+            "OFFERED"
+          ],
+          "to": "DECLINED"
+        }
+      ]
+    },
+    {
+      "id": "agreement",
+      "label": "Agreements",
+      "module": "tenancies",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "offerId",
+          "label": "Rental offer",
+          "kind": "relation",
+          "required": true,
+          "target": "offer"
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "terms",
+          "label": "Fictional agreement terms",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "reviewed",
+          "label": "Draft reviewed",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "signers",
+          "label": "Signer invitations recorded",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "keys",
+          "label": "Key handover recorded",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "inspection",
+          "label": "Move-in inspection recorded",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "review",
+          "label": "Submit draft for review",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "REVIEW",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "terms",
+              "message": "Complete terms before continuing."
+            }
+          ]
+        },
+        {
+          "id": "invite",
+          "label": "Record signer invitations",
+          "from": [
+            "REVIEW"
+          ],
+          "to": "INVITED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "reviewed",
+              "message": "Complete reviewed before continuing."
+            }
+          ]
+        },
+        {
+          "id": "signature",
+          "label": "Record offline signature simulation",
+          "from": [
+            "INVITED"
+          ],
+          "to": "SIGNATURE_RECORDED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "signers",
+              "message": "Complete signers before continuing."
+            }
+          ],
+          "stepUp": true
+        },
+        {
+          "id": "activate",
+          "label": "Activate demo agreement",
+          "from": [
+            "SIGNATURE_RECORDED"
+          ],
+          "to": "ACTIVE",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "reviewed",
+              "message": "Complete reviewed before continuing."
+            }
+          ],
+          "stepUp": true
+        },
+        {
+          "id": "movein",
+          "label": "Complete demo move-in",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "MOVED_IN",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "keys",
+              "message": "Complete keys before continuing."
+            },
+            {
+              "kind": "field",
+              "key": "inspection",
+              "message": "Complete inspection before continuing."
+            }
+          ],
+          "effects": [
+            {
+              "type": "tenancy",
+              "status": "ACTIVE",
+              "data": {
+                "title": "Tenancy from agreement",
+                "agreementId": "$id",
+                "listingId": "$listingId",
+                "start": "2026-10-20",
+                "end": "2027-10-19",
+                "keysReturned": false,
+                "inspection": false,
+                "notes": "Local move-in record only."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tenancy",
+      "label": "Tenancies & handover",
+      "module": "tenancies",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "agreementId",
+          "label": "Agreement",
+          "kind": "relation",
+          "required": true,
+          "target": "agreement"
+        },
+        {
+          "key": "listingId",
+          "label": "Listing",
+          "kind": "relation",
+          "required": true,
+          "target": "listing"
+        },
+        {
+          "key": "start",
+          "label": "Tenancy start",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "Tenancy end",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "keysReturned",
+          "label": "Keys returned",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "inspection",
+          "label": "Move-out inspection complete",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "ACTIVE",
+      "actions": [
+        {
+          "id": "close",
+          "label": "Close tenancy in demo",
+          "from": [
+            "ACTIVE",
+            "MOVE_OUT"
+          ],
+          "to": "CLOSED",
+          "guard": "tenancy_close",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "rent",
+      "label": "Rent obligations & receipts",
+      "module": "rent",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "tenancyId",
+          "label": "Tenancy",
+          "kind": "relation",
+          "required": true,
+          "target": "tenancy"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "due",
+          "label": "Due date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DUE",
+      "actions": [
+        {
+          "id": "observe",
+          "label": "Record fictional funding observation",
+          "from": [
+            "DUE"
+          ],
+          "to": "PENDING",
+          "financial": true
+        },
+        {
+          "id": "hold",
+          "label": "Classify sample amount as held",
+          "from": [
+            "PENDING"
+          ],
+          "to": "HELD",
+          "financial": true
+        },
+        {
+          "id": "available",
+          "label": "Classify sample amount as available",
+          "from": [
+            "HELD",
+            "PENDING"
+          ],
+          "to": "AVAILABLE",
+          "financial": true,
+          "stepUp": true
+        },
+        {
+          "id": "restrict",
+          "label": "Restrict sample amount",
+          "from": [
+            "PENDING",
+            "HELD",
+            "AVAILABLE"
+          ],
+          "to": "RESTRICTED",
+          "financial": true
+        },
+        {
+          "id": "reconcile",
+          "label": "Record demo reconciliation",
+          "from": [
+            "RESTRICTED"
+          ],
+          "to": "HELD",
+          "financial": true,
+          "stepUp": true
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "deposit",
+      "label": "Deposit cases",
+      "module": "rent",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "tenancyId",
+          "label": "Tenancy",
+          "kind": "relation",
+          "required": true,
+          "target": "tenancy"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "reason",
+          "label": "Proposal reason",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        }
+      ],
+      "initial": "PROPOSED",
+      "actions": [
+        {
+          "id": "dispute",
+          "label": "Dispute deposit proposal",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "DISPUTED"
+        },
+        {
+          "id": "resolve",
+          "label": "Record authorized demo resolution",
+          "from": [
+            "DISPUTED",
+            "PROPOSED"
+          ],
+          "to": "RESOLVED",
+          "stepUp": true,
+          "requires": [
+            {
+              "kind": "field",
+              "key": "reason",
+              "message": "Complete reason before continuing."
+            }
+          ]
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "renewal",
+      "label": "Renewal proposals",
+      "module": "renewals",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "tenancyId",
+          "label": "Tenancy",
+          "kind": "relation",
+          "required": true,
+          "target": "tenancy"
+        },
+        {
+          "key": "newEnd",
+          "label": "Proposed end date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "PROPOSED",
+      "actions": [
+        {
+          "id": "accept",
+          "label": "Record demo renewal acceptance",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "ACCEPTED",
+          "updateRelated": {
+            "via": "tenancyId",
+            "type": "tenancy",
+            "sets": {
+              "end": "$newEnd"
+            }
+          }
+        },
+        {
+          "id": "decline",
+          "label": "Record demo renewal decline",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "DECLINED"
+        }
+      ]
+    },
+    {
+      "id": "notice",
+      "label": "Notices",
+      "module": "renewals",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "tenancyId",
+          "label": "Tenancy",
+          "kind": "relation",
+          "required": true,
+          "target": "tenancy"
+        },
+        {
+          "key": "category",
+          "label": "Notice category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Example end of term",
+            "Example owner notice"
+          ]
+        },
+        {
+          "key": "date",
+          "label": "Proposed notice date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "reason",
+          "label": "Notice explanation",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "issue",
+          "label": "Record demo notice issuance",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "ISSUED",
+          "confirm": true
+        },
+        {
+          "id": "delivery",
+          "label": "Record sample delivery observation",
+          "from": [
+            "ISSUED"
+          ],
+          "to": "DELIVERY_OBSERVED"
+        }
+      ]
+    },
+    {
+      "id": "inspection",
+      "label": "Move-out inspections",
+      "module": "renewals",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "tenancyId",
+          "label": "Tenancy",
+          "kind": "relation",
+          "required": true,
+          "target": "tenancy"
+        },
+        {
+          "key": "date",
+          "label": "Inspection date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "keys",
+          "label": "Key return recorded",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "findings",
+          "label": "Inspection findings",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        }
+      ],
+      "initial": "SCHEDULED",
+      "actions": [
+        {
+          "id": "complete",
+          "label": "Complete demo inspection & key return",
+          "from": [
+            "SCHEDULED"
+          ],
+          "to": "COMPLETED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "keys",
+              "message": "Complete keys before continuing."
+            },
+            {
+              "kind": "field",
+              "key": "findings",
+              "message": "Complete findings before continuing."
+            }
+          ],
+          "updateRelated": {
+            "via": "tenancyId",
+            "type": "tenancy",
+            "sets": {
+              "keysReturned": true,
+              "inspection": true
+            },
+            "status": "MOVE_OUT"
+          },
+          "effects": [
+            {
+              "type": "deposit",
+              "status": "PROPOSED",
+              "data": {
+                "title": "Move-out deposit case",
+                "tenancyId": "$tenancyId",
+                "amountMinor": 1000000,
+                "reason": "Fictional deposit review"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "utility",
+      "label": "Utility accounts",
+      "module": "utilities",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "unitId",
+          "label": "Unit",
+          "kind": "relation",
+          "required": false,
+          "target": "unit"
+        },
+        {
+          "key": "category",
+          "label": "Utility type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Electricity",
+            "Water",
+            "Waste"
+          ]
+        },
+        {
+          "key": "reference",
+          "label": "Fictional meter reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "allocation",
+          "label": "Allocation rule",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Equal share",
+            "Metered",
+            "Owner assigned"
+          ]
+        }
+      ],
+      "initial": "ACTIVE",
+      "actions": [
+        {
+          "id": "close",
+          "label": "Close sample utility account",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "CLOSED",
+          "confirm": true
+        }
+      ]
+    },
+    {
+      "id": "meter",
+      "label": "Meter readings",
+      "module": "utilities",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "utilityId",
+          "label": "Utility account",
+          "kind": "relation",
+          "required": true,
+          "target": "utility"
+        },
+        {
+          "key": "date",
+          "label": "Reading date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "reading",
+          "label": "Meter reading",
+          "kind": "number",
+          "required": true,
+          "min": 0
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        }
+      ],
+      "initial": "RECORDED",
+      "actions": [],
+      "guard": "meter"
+    },
+    {
+      "id": "bill",
+      "label": "Utility bills",
+      "module": "utilities",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "utilityId",
+          "label": "Utility account",
+          "kind": "relation",
+          "required": true,
+          "target": "utility"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "due",
+          "label": "Due date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DUE",
+      "actions": [
+        {
+          "id": "observe",
+          "label": "Record sample bill observation",
+          "from": [
+            "DUE"
+          ],
+          "to": "OBSERVED",
+          "financial": true
+        },
+        {
+          "id": "dispute",
+          "label": "Dispute bill",
+          "from": [
+            "DUE",
+            "OBSERVED"
+          ],
+          "to": "DISPUTED"
+        },
+        {
+          "id": "resolve",
+          "label": "Resolve bill in demo",
+          "from": [
+            "DISPUTED"
+          ],
+          "to": "DUE",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "budget",
+      "label": "Service-charge budgets",
+      "module": "utilities",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "start",
+          "label": "Budget start",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "Budget end",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "allocation",
+          "label": "Allocation explanation",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve example budget",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "APPROVED",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "charge",
+      "label": "Service-charge items",
+      "module": "utilities",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "budgetId",
+          "label": "Budget",
+          "kind": "relation",
+          "required": true,
+          "target": "budget"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "category",
+          "label": "Charge category",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "PROPOSED",
+      "actions": [
+        {
+          "id": "allocate",
+          "label": "Record demo allocation",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "ALLOCATED"
+        },
+        {
+          "id": "dispute",
+          "label": "Dispute charge",
+          "from": [
+            "ALLOCATED"
+          ],
+          "to": "DISPUTED"
+        }
+      ]
+    },
+    {
+      "id": "loi",
+      "label": "Commercial letters of intent",
+      "module": "commercial",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "start",
+          "label": "Proposed start",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "Proposed end",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "terms",
+          "label": "Commercial terms",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "counterMinor",
+          "label": "Counteroffer (minor units)",
+          "kind": "number",
+          "required": false,
+          "min": 0
+        }
+      ],
+      "initial": "OFFERED",
+      "actions": [
+        {
+          "id": "counter",
+          "label": "Record counteroffer",
+          "from": [
+            "OFFERED"
+          ],
+          "to": "COUNTERED"
+        },
+        {
+          "id": "accept",
+          "label": "Accept commercial terms in demo",
+          "from": [
+            "OFFERED",
+            "COUNTERED"
+          ],
+          "to": "ACCEPTED"
+        },
+        {
+          "id": "lease",
+          "label": "Record commercial lease progress",
+          "from": [
+            "ACCEPTED"
+          ],
+          "to": "LEASE_REVIEW"
+        },
+        {
+          "id": "sale",
+          "label": "Prepare commercial sale",
+          "from": [
+            "ACCEPTED"
+          ],
+          "to": "SALE_REVIEW",
+          "effects": [
+            {
+              "type": "sale",
+              "status": "OFFER_RECEIVED",
+              "data": {
+                "title": "Commercial sale review",
+                "propertyId": "$propertyId",
+                "amountMinor": "$amountMinor",
+                "counterMinor": "$counterMinor",
+                "diligence": false,
+                "documents": false,
+                "consent": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "landterms",
+      "label": "Land terms & inspections",
+      "module": "land",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "parcelId",
+          "label": "Parcel",
+          "kind": "relation",
+          "required": true,
+          "target": "parcel"
+        },
+        {
+          "key": "transaction",
+          "label": "Transaction",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Rent",
+            "Lease",
+            "Sale"
+          ]
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "inspectionDate",
+          "label": "Site inspection date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "terms",
+          "label": "Land terms",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "offer",
+          "label": "Record land offer",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "OFFERED"
+        },
+        {
+          "id": "accept",
+          "label": "Accept sample land terms",
+          "from": [
+            "OFFERED"
+          ],
+          "to": "ACCEPTED"
+        },
+        {
+          "id": "lease",
+          "label": "Record lease review",
+          "from": [
+            "ACCEPTED"
+          ],
+          "to": "LEASE_REVIEW"
+        },
+        {
+          "id": "sale",
+          "label": "Prepare land sale review",
+          "from": [
+            "ACCEPTED"
+          ],
+          "to": "SALE_REVIEW",
+          "effects": [
+            {
+              "type": "sale",
+              "status": "OFFER_RECEIVED",
+              "data": {
+                "title": "Land transaction review",
+                "propertyId": "$propertyId",
+                "parcelId": "$parcelId",
+                "amountMinor": "$amountMinor",
+                "diligence": false,
+                "documents": false,
+                "consent": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sale",
+      "label": "Sales & closing room",
+      "module": "sales",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "parcelId",
+          "label": "Land parcel",
+          "kind": "relation",
+          "required": false,
+          "target": "parcel"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "counterMinor",
+          "label": "Counteroffer (minor units)",
+          "kind": "number",
+          "required": false,
+          "min": 0
+        },
+        {
+          "key": "diligence",
+          "label": "Diligence checklist reviewed",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "documents",
+          "label": "Document room reviewed",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "consent",
+          "label": "All owner consents recorded",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "OFFER_RECEIVED",
+      "actions": [
+        {
+          "id": "counter",
+          "label": "Record sale counteroffer",
+          "from": [
+            "OFFER_RECEIVED"
+          ],
+          "to": "COUNTERED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "counterMinor",
+              "message": "Complete counterMinor before continuing."
+            }
+          ]
+        },
+        {
+          "id": "accept",
+          "label": "Accept offer for review",
+          "from": [
+            "OFFER_RECEIVED",
+            "COUNTERED"
+          ],
+          "to": "DILIGENCE"
+        },
+        {
+          "id": "closing",
+          "label": "Complete demo closing checklist",
+          "from": [
+            "DILIGENCE"
+          ],
+          "to": "CLOSING_REVIEW",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "diligence",
+              "message": "Complete diligence before continuing."
+            },
+            {
+              "kind": "field",
+              "key": "documents",
+              "message": "Complete documents before continuing."
+            }
+          ]
+        },
+        {
+          "id": "transfer",
+          "label": "Request separate transfer review",
+          "from": [
+            "CLOSING_REVIEW"
+          ],
+          "to": "TRANSFER_REQUESTED",
+          "guard": "consent",
+          "stepUp": true,
+          "effects": [
+            {
+              "type": "transfer",
+              "status": "PENDING_REVIEW",
+              "data": {
+                "title": "Transfer review from sale",
+                "propertyId": "$propertyId",
+                "recipient": "Fictional proposed recipient",
+                "consent": true,
+                "notes": "Settlement remains unconfirmed."
+              }
+            }
+          ]
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "documentgrant",
+      "label": "Document-room grants",
+      "module": "sales",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "saleId",
+          "label": "Sale",
+          "kind": "relation",
+          "required": true,
+          "target": "sale"
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "recipient",
+          "label": "Fictional recipient",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "expires",
+          "label": "Grant expiry",
+          "kind": "date",
+          "required": true
+        }
+      ],
+      "initial": "GRANTED",
+      "actions": [
+        {
+          "id": "revoke",
+          "label": "Revoke document grant",
+          "from": [
+            "GRANTED"
+          ],
+          "to": "REVOKED",
+          "confirm": true
+        },
+        {
+          "id": "expire",
+          "label": "Expire sample grant",
+          "from": [
+            "GRANTED"
+          ],
+          "to": "EXPIRED"
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "booking",
+      "label": "Short-let bookings",
+      "module": "shortlets",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "unitId",
+          "label": "Short-let unit",
+          "kind": "relation",
+          "required": true,
+          "target": "unit"
+        },
+        {
+          "key": "guest",
+          "label": "Fictional guest",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "start",
+          "label": "Arrival date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "Departure date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "prepared",
+          "label": "Turnover preparation complete",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve guest in demo",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "APPROVED",
+          "guard": "booking"
+        },
+        {
+          "id": "decline",
+          "label": "Decline booking",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "DECLINED"
+        },
+        {
+          "id": "checkin",
+          "label": "Record guest check-in",
+          "from": [
+            "APPROVED"
+          ],
+          "to": "CHECKED_IN",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "prepared",
+              "message": "Complete prepared before continuing."
+            }
+          ]
+        },
+        {
+          "id": "checkout",
+          "label": "Record guest check-out",
+          "from": [
+            "CHECKED_IN"
+          ],
+          "to": "CHECKED_OUT",
+          "effects": [
+            {
+              "type": "turnover",
+              "status": "SCHEDULED",
+              "data": {
+                "title": "Post-stay turnover",
+                "bookingId": "$id",
+                "unitId": "$unitId",
+                "date": "$end",
+                "notes": "Fictional cleaning checklist"
+              }
+            }
+          ]
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel booking",
+          "from": [
+            "REQUESTED",
+            "APPROVED"
+          ],
+          "to": "CANCELLED",
+          "confirm": true
+        }
+      ],
+      "calendar": true,
+      "guard": "booking"
+    },
+    {
+      "id": "rate",
+      "label": "Short-let rates & settings",
+      "module": "shortlets",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "unitId",
+          "label": "Short-let unit",
+          "kind": "relation",
+          "required": true,
+          "target": "unit"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "minNights",
+          "label": "Minimum nights",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "maxGuests",
+          "label": "Maximum guests",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "rules",
+          "label": "House rules",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "CONFIGURED",
+      "actions": []
+    },
+    {
+      "id": "turnover",
+      "label": "Turnover jobs",
+      "module": "shortlets",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "bookingId",
+          "label": "Booking",
+          "kind": "relation",
+          "required": true,
+          "target": "booking"
+        },
+        {
+          "key": "unitId",
+          "label": "Unit",
+          "kind": "relation",
+          "required": true,
+          "target": "unit"
+        },
+        {
+          "key": "date",
+          "label": "Turnover date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "SCHEDULED",
+      "actions": [
+        {
+          "id": "start",
+          "label": "Start preparation",
+          "from": [
+            "SCHEDULED"
+          ],
+          "to": "IN_PROGRESS"
+        },
+        {
+          "id": "complete",
+          "label": "Complete turnover checklist",
+          "from": [
+            "IN_PROGRESS"
+          ],
+          "to": "COMPLETED",
+          "updateRelated": {
+            "via": "bookingId",
+            "type": "booking",
+            "sets": {
+              "prepared": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "damage",
+      "label": "Damage claims",
+      "module": "shortlets",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "bookingId",
+          "label": "Booking",
+          "kind": "relation",
+          "required": true,
+          "target": "booking"
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "reason",
+          "label": "Claim explanation",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "PROPOSED",
+      "actions": [
+        {
+          "id": "dispute",
+          "label": "Dispute damage claim",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "DISPUTED"
+        },
+        {
+          "id": "resolve",
+          "label": "Record demo claim review",
+          "from": [
+            "PROPOSED",
+            "DISPUTED"
+          ],
+          "to": "RESOLVED",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "managerproposal",
+      "label": "Manager proposals",
+      "module": "managers",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "manager",
+          "label": "Fictional manager",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "scope",
+          "label": "Proposed scope",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "PROPOSED",
+      "actions": [
+        {
+          "id": "consent",
+          "label": "Record owner consent",
+          "from": [
+            "PROPOSED"
+          ],
+          "to": "CONSENTED",
+          "guard": "delegation_consent",
+          "stepUp": true
+        },
+        {
+          "id": "assign",
+          "label": "Create scoped demo assignment",
+          "from": [
+            "CONSENTED"
+          ],
+          "to": "ASSIGNED",
+          "effects": [
+            {
+              "type": "assignment",
+              "status": "ACTIVE",
+              "data": {
+                "title": "Scoped manager assignment",
+                "propertyId": "$propertyId",
+                "manager": "$manager",
+                "maintenance": true,
+                "viewings": true,
+                "listings": false,
+                "expires": "2026-12-31",
+                "notes": "No payout or title capabilities."
+              }
+            }
+          ]
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "assignment",
+      "label": "Manager assignments",
+      "module": "managers",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "manager",
+          "label": "Fictional manager",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "maintenance",
+          "label": "Maintenance capability",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "viewings",
+          "label": "Viewing capability",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "listings",
+          "label": "Listing capability",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "expires",
+          "label": "Assignment expiry",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "ACTIVE",
+      "actions": [
+        {
+          "id": "suspend",
+          "label": "Suspend assignment",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "SUSPENDED",
+          "stepUp": true
+        },
+        {
+          "id": "resume",
+          "label": "Resume assignment",
+          "from": [
+            "SUSPENDED"
+          ],
+          "to": "ACTIVE",
+          "stepUp": true
+        },
+        {
+          "id": "revoke",
+          "label": "Revoke assignment",
+          "from": [
+            "ACTIVE",
+            "SUSPENDED"
+          ],
+          "to": "REVOKED",
+          "stepUp": true
+        },
+        {
+          "id": "access",
+          "label": "Review manager access",
+          "from": [
+            "ACTIVE",
+            "REVOKED",
+            "SUSPENDED"
+          ],
+          "to": "SAME",
+          "guard": "manager_access"
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "maintenance",
+      "label": "Maintenance requests",
+      "module": "maintenance",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "issue",
+          "label": "Issue description",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "priority",
+          "label": "Priority",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Normal",
+            "Urgent",
+            "Low"
+          ]
+        },
+        {
+          "key": "date",
+          "label": "Scheduled date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "warranty",
+          "label": "Example warranty notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "OPEN",
+      "actions": [
+        {
+          "id": "triage",
+          "label": "Triage request",
+          "from": [
+            "OPEN"
+          ],
+          "to": "TRIAGED"
+        },
+        {
+          "id": "quotes",
+          "label": "Request fictional quotes",
+          "from": [
+            "TRIAGED"
+          ],
+          "to": "QUOTES_RECEIVED",
+          "effects": [
+            {
+              "type": "quote",
+              "status": "RECEIVED",
+              "data": {
+                "title": "Quote A · Demo",
+                "requestId": "$id",
+                "amountMinor": 1500000,
+                "provider": "Fictional provider A",
+                "scope": "Example labour and parts"
+              }
+            },
+            {
+              "type": "quote",
+              "status": "RECEIVED",
+              "data": {
+                "title": "Quote B · Demo",
+                "requestId": "$id",
+                "amountMinor": 1800000,
+                "provider": "Fictional provider B",
+                "scope": "Example work and warranty"
+              }
+            }
+          ]
+        },
+        {
+          "id": "start",
+          "label": "Record job progress",
+          "from": [
+            "SCHEDULED"
+          ],
+          "to": "IN_PROGRESS"
+        },
+        {
+          "id": "complete",
+          "label": "Submit demo completion",
+          "from": [
+            "IN_PROGRESS"
+          ],
+          "to": "COMPLETION_REVIEW"
+        },
+        {
+          "id": "accept",
+          "label": "Accept completion in demo",
+          "from": [
+            "COMPLETION_REVIEW"
+          ],
+          "to": "COMPLETED"
+        },
+        {
+          "id": "dispute",
+          "label": "Dispute completion",
+          "from": [
+            "COMPLETION_REVIEW"
+          ],
+          "to": "DISPUTED"
+        }
+      ]
+    },
+    {
+      "id": "quote",
+      "label": "Quote comparison",
+      "module": "maintenance",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "requestId",
+          "label": "Maintenance request",
+          "kind": "relation",
+          "required": true,
+          "target": "maintenance"
+        },
+        {
+          "key": "provider",
+          "label": "Fictional provider",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "amountMinor",
+          "label": "Amount (NGN minor units)",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "scope",
+          "label": "Quote scope",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "RECEIVED",
+      "actions": [
+        {
+          "id": "approve",
+          "label": "Approve fictional quote",
+          "from": [
+            "RECEIVED"
+          ],
+          "to": "APPROVED",
+          "stepUp": true,
+          "updateRelated": {
+            "via": "requestId",
+            "type": "maintenance",
+            "sets": {},
+            "status": "SCHEDULED"
+          }
+        }
+      ]
+    },
+    {
+      "id": "preventive",
+      "label": "Preventive schedules",
+      "module": "maintenance",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "category",
+          "label": "Preventive task",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "date",
+          "label": "Next due date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "intervalDays",
+          "label": "Repeat interval days",
+          "kind": "number",
+          "required": true,
+          "min": 1
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "SCHEDULED",
+      "actions": [
+        {
+          "id": "record",
+          "label": "Record preventive completion",
+          "from": [
+            "SCHEDULED"
+          ],
+          "to": "COMPLETED"
+        }
+      ],
+      "calendar": true
+    },
+    {
+      "id": "appointment",
+      "label": "Professional appointments",
+      "module": "professionals",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "category",
+          "label": "Service category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Survey review",
+            "Legal review",
+            "Inspection",
+            "Valuation"
+          ]
+        },
+        {
+          "key": "provider",
+          "label": "Fictional provider reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "date",
+          "label": "Requested date",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "findings",
+          "label": "Deliverables and findings",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "schedule",
+          "label": "Schedule fictional appointment",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "SCHEDULED"
+        },
+        {
+          "id": "deliver",
+          "label": "Record sample deliverable",
+          "from": [
+            "SCHEDULED"
+          ],
+          "to": "DELIVERED",
+          "requires": [
+            {
+              "kind": "field",
+              "key": "findings",
+              "message": "Complete findings before continuing."
+            }
+          ]
+        },
+        {
+          "id": "accept",
+          "label": "Accept demo deliverables",
+          "from": [
+            "DELIVERED"
+          ],
+          "to": "ACCEPTED"
+        },
+        {
+          "id": "dispute",
+          "label": "Dispute deliverables",
+          "from": [
+            "DELIVERED"
+          ],
+          "to": "DISPUTED"
+        }
+      ],
+      "calendar": true
+    },
+    {
+      "id": "notification",
+      "label": "Notification inbox",
+      "module": "notifications",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "recordType",
+          "label": "Related record family",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "recordId",
+          "label": "Related demo reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "channel",
+          "label": "Demonstration channel",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "In-app only",
+            "Email unavailable",
+            "SMS unavailable"
+          ]
+        },
+        {
+          "key": "message",
+          "label": "Notification content",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "UNREAD",
+      "actions": [
+        {
+          "id": "read",
+          "label": "Mark read locally",
+          "from": [
+            "UNREAD"
+          ],
+          "to": "READ"
+        },
+        {
+          "id": "unread",
+          "label": "Mark unread locally",
+          "from": [
+            "READ"
+          ],
+          "to": "UNREAD"
+        }
+      ]
+    },
+    {
+      "id": "preference",
+      "label": "Notification & account preferences",
+      "module": "settings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "inApp",
+          "label": "In-app demo alerts",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "email",
+          "label": "Email preference only; delivery unavailable",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "language",
+          "label": "Preferred language",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "English",
+            "Italian"
+          ]
+        },
+        {
+          "key": "largeText",
+          "label": "Larger text preference",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "reducedMotion",
+          "label": "Reduce motion",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "RECORDED",
+      "actions": []
+    },
+    {
+      "id": "report",
+      "label": "Statements & reports",
+      "module": "reports",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "start",
+          "label": "Report from",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "end",
+          "label": "Report to",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "category",
+          "label": "Report type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Portfolio",
+            "Occupancy",
+            "Financial examples",
+            "Maintenance"
+          ]
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "generate",
+          "label": "Generate local demonstration report",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "GENERATED"
+        }
+      ],
+      "guard": "date_range"
+    },
+    {
+      "id": "dispute",
+      "label": "Dispute cases",
+      "module": "safety",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "category",
+          "label": "Case category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Maintenance",
+            "Deposit",
+            "Utility",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "key": "recordId",
+          "label": "Related demo reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Fictional evidence filename",
+          "kind": "evidence",
+          "required": false
+        },
+        {
+          "key": "reason",
+          "label": "Case explanation",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "OPEN",
+      "actions": [
+        {
+          "id": "review",
+          "label": "Start case review",
+          "from": [
+            "OPEN"
+          ],
+          "to": "IN_REVIEW"
+        },
+        {
+          "id": "resolve",
+          "label": "Record simulated case resolution",
+          "from": [
+            "IN_REVIEW"
+          ],
+          "to": "RESOLVED",
+          "stepUp": true
+        },
+        {
+          "id": "appeal",
+          "label": "Record appeal",
+          "from": [
+            "RESOLVED"
+          ],
+          "to": "APPEAL"
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "privacy",
+      "label": "Privacy & data-rights requests",
+      "module": "safety",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "category",
+          "label": "Request type",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Access export",
+            "Correction",
+            "Erase demo metadata",
+            "Withdraw consent"
+          ]
+        },
+        {
+          "key": "reason",
+          "label": "Request explanation",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "REQUESTED",
+      "actions": [
+        {
+          "id": "review",
+          "label": "Review privacy request locally",
+          "from": [
+            "REQUESTED"
+          ],
+          "to": "IN_REVIEW"
+        },
+        {
+          "id": "complete",
+          "label": "Record local review completion",
+          "from": [
+            "IN_REVIEW"
+          ],
+          "to": "RECORDED",
+          "stepUp": true
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "assistance",
+      "label": "Assisted-use controls",
+      "module": "settings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "representative",
+          "label": "Fictional helper",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "readOnly",
+          "label": "Read-only assistance",
+          "kind": "boolean",
+          "required": false
+        },
+        {
+          "key": "expires",
+          "label": "Assistance expiry",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "ACTIVE",
+      "actions": [
+        {
+          "id": "revoke",
+          "label": "Revoke assisted access",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "REVOKED",
+          "stepUp": true
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Account closure requests",
+      "module": "settings",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "reason",
+          "label": "Closure reason",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        },
+        {
+          "key": "understood",
+          "label": "I understand this is a local simulation",
+          "kind": "boolean",
+          "required": false
+        }
+      ],
+      "initial": "DRAFT",
+      "actions": [
+        {
+          "id": "request",
+          "label": "Request demo closure review",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "PENDING",
+          "guard": "closure",
+          "stepUp": true,
+          "requires": [
+            {
+              "kind": "field",
+              "key": "understood",
+              "message": "Complete understood before continuing."
+            }
+          ]
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel closure request",
+          "from": [
+            "PENDING"
+          ],
+          "to": "CANCELLED",
+          "confirm": true
+        }
+      ],
+      "sensitive": true
+    },
+    {
+      "id": "financing",
+      "label": "Financing availability",
+      "module": "financing",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "information",
+          "label": "Read-only financing context",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "PROVIDER_UNAVAILABLE",
+      "actions": [],
+      "readOnly": true,
+      "provider": "No lender is connected. Rates, eligibility and applications are unavailable."
+    },
+    {
+      "id": "insurance",
+      "label": "Existing insurance demo records",
+      "module": "insurance",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "reference",
+          "label": "Fictional record reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "expires",
+          "label": "Illustrative expiry",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "information",
+          "label": "Record description",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "DEMO_RECORD",
+      "actions": [
+        {
+          "id": "reminder",
+          "label": "Create local expiry reminder",
+          "from": [
+            "DEMO_RECORD"
+          ],
+          "to": "REMINDER_RECORDED",
+          "effects": [
+            {
+              "type": "notification",
+              "status": "UNREAD",
+              "data": {
+                "title": "Sample insurance expiry reminder",
+                "recordType": "insurance",
+                "recordId": "$id",
+                "channel": "In-app only",
+                "message": "Fictional record; no coverage or issuer is certified."
+              }
+            }
+          ]
+        }
+      ],
+      "provider": "No insurer is connected. No policy issuance, coverage guarantee or underwriting is available."
+    },
+    {
+      "id": "device",
+      "label": "Fictional access devices",
+      "module": "access",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "propertyId",
+          "label": "Property",
+          "kind": "relation",
+          "required": true,
+          "target": "property"
+        },
+        {
+          "key": "reference",
+          "label": "Non-sensitive fictional device reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "kind",
+          "label": "Device category",
+          "kind": "select",
+          "required": true,
+          "options": [
+            "Demo door reader",
+            "Demo gate controller"
+          ]
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "OFFLINE",
+      "actions": [
+        {
+          "id": "review",
+          "label": "Record device review",
+          "from": [
+            "OFFLINE"
+          ],
+          "to": "REVIEWED"
+        }
+      ],
+      "provider": "Hardware is disconnected. Registering metadata does not activate a device."
+    },
+    {
+      "id": "accessgrant",
+      "label": "Temporary access simulations",
+      "module": "access",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Record title",
+          "kind": "text",
+          "required": true,
+          "max": 100
+        },
+        {
+          "key": "deviceId",
+          "label": "Fictional device",
+          "kind": "relation",
+          "required": true,
+          "target": "device"
+        },
+        {
+          "key": "recipient",
+          "label": "Fictional guest reference",
+          "kind": "text",
+          "required": true
+        },
+        {
+          "key": "expires",
+          "label": "Access expiry",
+          "kind": "date",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "kind": "textarea",
+          "required": false,
+          "max": 1000
+        }
+      ],
+      "initial": "SIMULATED",
+      "actions": [
+        {
+          "id": "expire",
+          "label": "Expire demo grant",
+          "from": [
+            "SIMULATED"
+          ],
+          "to": "EXPIRED"
+        },
+        {
+          "id": "revoke",
+          "label": "Revoke demo grant",
+          "from": [
+            "SIMULATED"
+          ],
+          "to": "REVOKED",
+          "stepUp": true
+        }
+      ],
+      "provider": "No usable codes are generated. All grants are local metadata only."
+    }
+  ]
+}

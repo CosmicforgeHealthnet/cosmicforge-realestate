@@ -1,0 +1,1061 @@
+{
+  "revision": 1,
+  "scenario": "normal",
+  "actor": "owner",
+  "date": "2026-10-17",
+  "records": [
+    {
+      "type": "account",
+      "id": "demo-account-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Alex Demo · Owner",
+        "displayName": "Alex Demo",
+        "email": "alex@example.invalid",
+        "language": "English",
+        "mfa": true
+      }
+    },
+    {
+      "type": "property",
+      "id": "demo-property-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Sapphire Court · Demo",
+        "kind": "Residential",
+        "location": "Fictional address · Lagos",
+        "annualRentMinor": 480000000,
+        "notes": "Fictional property, no legal title is certified."
+      }
+    },
+    {
+      "type": "property",
+      "id": "demo-property-02",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio · Demo",
+        "kind": "Short-let",
+        "location": "Fictional address · Abuja",
+        "annualRentMinor": 0,
+        "notes": "Fictional property, no legal title is certified."
+      }
+    },
+    {
+      "type": "property",
+      "id": "demo-property-03",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Cedar Works · Demo",
+        "kind": "Commercial",
+        "location": "Fictional address · Ibadan",
+        "annualRentMinor": 720000000,
+        "notes": "Fictional property, no legal title is certified."
+      }
+    },
+    {
+      "type": "property",
+      "id": "demo-property-04",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Meadow Parcel · Demo",
+        "kind": "Land",
+        "location": "Fictional address · Ogun",
+        "annualRentMinor": 0,
+        "notes": "Fictional land record. No registry or title certification."
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-01",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Sapphire Court · Demo · Unit 1",
+        "propertyId": "demo-property-01",
+        "kind": "Apartment",
+        "capacity": 2,
+        "occupied": true
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-02",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Sapphire Court · Demo · Unit 2",
+        "propertyId": "demo-property-01",
+        "kind": "Apartment",
+        "capacity": 2,
+        "occupied": true
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-03",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio · Demo · Unit 1",
+        "propertyId": "demo-property-02",
+        "kind": "Short-let",
+        "capacity": 2,
+        "occupied": false
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-04",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Cedar Works · Demo · Unit 1",
+        "propertyId": "demo-property-03",
+        "kind": "Office",
+        "capacity": 2,
+        "occupied": true
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-05",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Cedar Works · Demo · Unit 2",
+        "propertyId": "demo-property-03",
+        "kind": "Office",
+        "capacity": 2,
+        "occupied": true
+      }
+    },
+    {
+      "type": "unit",
+      "id": "demo-unit-06",
+      "status": "AVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Cedar Works · Demo · Unit 3",
+        "propertyId": "demo-property-03",
+        "kind": "Office",
+        "capacity": 2,
+        "occupied": false
+      }
+    },
+    {
+      "type": "session",
+      "id": "demo-session-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Sessions & devices · Demo",
+        "accountId": "demo-account-01",
+        "device": "Sample fictional device · Demo"
+      }
+    },
+    {
+      "type": "identity",
+      "id": "demo-identity-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Identity evidence cases · Demo",
+        "accountId": "demo-account-01",
+        "documentType": "Fictional identity document",
+        "evidence": "sample-evidence.txt",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "bank",
+      "id": "demo-bank-01",
+      "status": "PENDING",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Masked payout preferences · Demo",
+        "holder": "Sample fictional holder · Demo",
+        "lastFour": "0000",
+        "label": "Sample fictional account label · Demo",
+        "isDefault": false
+      }
+    },
+    {
+      "type": "tax",
+      "id": "demo-tax-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Tax profile · Demo",
+        "jurisdiction": "Sample example jurisdiction · Demo",
+        "reference": "Sample fictional reference · Demo",
+        "category": "Individual demonstration",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "parcel",
+      "id": "demo-parcel-01",
+      "status": "RECORDED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Land parcels · Demo",
+        "propertyId": "demo-property-04",
+        "area": 1,
+        "reference": "Sample fictional survey reference · Demo",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "asset",
+      "id": "demo-asset-01",
+      "status": "RECORDED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Property assets · Demo",
+        "propertyId": "demo-property-01",
+        "category": "Sample asset category · Demo",
+        "condition": "Sample condition · Demo",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "media",
+      "id": "demo-media-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Property media & documents · Demo",
+        "propertyId": "demo-property-01",
+        "category": "Illustration",
+        "evidence": "sample-evidence.txt",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "ownership",
+      "id": "demo-ownership-01",
+      "status": "DEMO_REVIEWED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Ownership claims · Demo",
+        "propertyId": "demo-property-01",
+        "claimant": "Sample fictional claimant · Demo",
+        "evidence": "sample-evidence.txt",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "party",
+      "id": "demo-party-01",
+      "status": "ACCEPTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Co-owners & invitations · Demo",
+        "propertyId": "demo-property-01",
+        "name": "Sample fictional co-owner · Demo",
+        "share": 25,
+        "role": "Co-owner",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "consent",
+      "id": "demo-consent-01",
+      "status": "APPROVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Owner consents · Demo",
+        "propertyId": "demo-property-01",
+        "partyId": "demo-party-01",
+        "purpose": "Listing",
+        "expires": "2026-12-31",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "transfer",
+      "id": "demo-transfer-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Ownership transfer requests · Demo",
+        "propertyId": "demo-property-01",
+        "recipient": "Sample fictional proposed recipient · Demo",
+        "consent": false,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "verification",
+      "id": "demo-verification-01",
+      "status": "DEMO_REVIEWED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Property verification cases · Demo",
+        "propertyId": "demo-property-01",
+        "claimId": "demo-ownership-01",
+        "evidence": "sample-evidence.txt",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "listing",
+      "id": "demo-listing-01",
+      "status": "DEMO_PUBLISHED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Property listings · Demo",
+        "propertyId": "demo-property-01",
+        "unitId": "demo-unit-01",
+        "transaction": "Rent",
+        "description": "Sample listing description · Demo",
+        "previewed": true
+      }
+    },
+    {
+      "type": "pricing",
+      "id": "demo-pricing-01",
+      "status": "APPLIED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Pricing & fee models · Demo",
+        "listingId": "demo-listing-01",
+        "amountMinor": 100000000,
+        "feeMinor": 1,
+        "frequency": "Monthly",
+        "policy": "Sample example fee explanation · Demo"
+      }
+    },
+    {
+      "type": "availability",
+      "id": "demo-availability-01",
+      "status": "CONFIRMED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Availability blocks · Demo",
+        "propertyId": "demo-property-02",
+        "unitId": "demo-unit-03",
+        "start": "2026-10-18",
+        "end": "2026-12-31",
+        "reason": "Available window"
+      }
+    },
+    {
+      "type": "inquiry",
+      "id": "demo-inquiry-01",
+      "status": "NEW",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Inquiry center · Demo",
+        "listingId": "demo-listing-01",
+        "prospect": "Sample fictional prospect · Demo",
+        "priority": "Normal",
+        "reminder": "2026-10-24",
+        "campaign": "Sample sample campaign reference · Demo",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "viewing",
+      "id": "demo-viewing-01",
+      "status": "APPROVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Viewings & slots · Demo",
+        "listingId": "demo-listing-01",
+        "inquiryId": "demo-inquiry-01",
+        "date": "2026-10-24",
+        "time": "10:00",
+        "consent": true,
+        "representative": "Sample fictional representative · Demo",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "application",
+      "id": "demo-application-01",
+      "status": "APPROVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Rental applications · Demo",
+        "listingId": "demo-listing-01",
+        "applicant": "Sample fictional applicant · Demo",
+        "evidence": "sample-evidence.txt",
+        "assessment": "Human reviewer sample notes; no external background check.",
+        "evidenceAccess": true
+      }
+    },
+    {
+      "type": "offer",
+      "id": "demo-offer-01",
+      "status": "ACCEPTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Rental offers · Demo",
+        "applicationId": "demo-application-01",
+        "listingId": "demo-listing-01",
+        "amountMinor": 100000000,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "agreement",
+      "id": "demo-agreement-01",
+      "status": "MOVED_IN",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Agreements · Demo",
+        "offerId": "demo-offer-01",
+        "listingId": "demo-listing-01",
+        "terms": "Sample fictional agreement terms · Demo",
+        "reviewed": true,
+        "signers": true,
+        "keys": true,
+        "inspection": true
+      }
+    },
+    {
+      "type": "tenancy",
+      "id": "demo-tenancy-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Tenancies & handover · Demo",
+        "agreementId": "demo-agreement-01",
+        "listingId": "demo-listing-01",
+        "start": "2026-10-01",
+        "end": "2027-09-30",
+        "keysReturned": false,
+        "inspection": false,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "rent",
+      "id": "demo-rent-01",
+      "status": "DUE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Rent obligations & receipts · Demo",
+        "tenancyId": "demo-tenancy-01",
+        "amountMinor": 100000000,
+        "due": "2026-10-24",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "deposit",
+      "id": "demo-deposit-01",
+      "status": "PROPOSED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Deposit cases · Demo",
+        "tenancyId": "demo-tenancy-01",
+        "amountMinor": 100000000,
+        "reason": "Sample proposal reason · Demo",
+        "evidence": "sample-evidence.txt"
+      }
+    },
+    {
+      "type": "renewal",
+      "id": "demo-renewal-01",
+      "status": "PROPOSED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Renewal proposals · Demo",
+        "tenancyId": "demo-tenancy-01",
+        "newEnd": "2028-09-30",
+        "amountMinor": 100000000,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "notice",
+      "id": "demo-notice-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Notices · Demo",
+        "tenancyId": "demo-tenancy-01",
+        "category": "Example end of term",
+        "date": "2026-10-24",
+        "reason": "Sample notice explanation · Demo"
+      }
+    },
+    {
+      "type": "inspection",
+      "id": "demo-inspection-01",
+      "status": "SCHEDULED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Move-out inspections · Demo",
+        "tenancyId": "demo-tenancy-01",
+        "date": "2026-10-24",
+        "keys": false,
+        "findings": "Sample inspection findings · Demo",
+        "evidence": "sample-evidence.txt"
+      }
+    },
+    {
+      "type": "utility",
+      "id": "demo-utility-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Utility accounts · Demo",
+        "propertyId": "demo-property-01",
+        "unitId": "demo-unit-01",
+        "category": "Electricity",
+        "reference": "Sample fictional meter reference · Demo",
+        "allocation": "Equal share"
+      }
+    },
+    {
+      "type": "meter",
+      "id": "demo-meter-01",
+      "status": "RECORDED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Meter readings · Demo",
+        "utilityId": "demo-utility-01",
+        "date": "2026-10-24",
+        "reading": 1,
+        "evidence": "sample-evidence.txt"
+      }
+    },
+    {
+      "type": "bill",
+      "id": "demo-bill-01",
+      "status": "DUE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Utility bills · Demo",
+        "utilityId": "demo-utility-01",
+        "amountMinor": 100000000,
+        "due": "2026-10-24",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "budget",
+      "id": "demo-budget-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Service-charge budgets · Demo",
+        "propertyId": "demo-property-01",
+        "amountMinor": 100000000,
+        "start": "2026-10-24",
+        "end": "2026-10-28",
+        "allocation": "Sample allocation explanation · Demo"
+      }
+    },
+    {
+      "type": "charge",
+      "id": "demo-charge-01",
+      "status": "PROPOSED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Service-charge items · Demo",
+        "budgetId": "demo-budget-01",
+        "amountMinor": 100000000,
+        "category": "Sample charge category · Demo",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "loi",
+      "id": "demo-loi-01",
+      "status": "OFFERED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Commercial letters of intent · Demo",
+        "propertyId": "demo-property-03",
+        "amountMinor": 100000000,
+        "start": "2026-10-24",
+        "end": "2026-10-28",
+        "terms": "Sample commercial terms · Demo",
+        "counterMinor": 1
+      }
+    },
+    {
+      "type": "landterms",
+      "id": "demo-landterms-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Land terms & inspections · Demo",
+        "propertyId": "demo-property-04",
+        "parcelId": "demo-parcel-01",
+        "transaction": "Rent",
+        "amountMinor": 100000000,
+        "inspectionDate": "2026-10-24",
+        "terms": "Sample land terms · Demo"
+      }
+    },
+    {
+      "type": "sale",
+      "id": "demo-sale-01",
+      "status": "OFFER_RECEIVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Sales & closing room · Demo",
+        "propertyId": "demo-property-03",
+        "parcelId": "demo-parcel-01",
+        "amountMinor": 100000000,
+        "counterMinor": 1,
+        "diligence": false,
+        "documents": false,
+        "consent": false,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "documentgrant",
+      "id": "demo-documentgrant-01",
+      "status": "GRANTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Document-room grants · Demo",
+        "saleId": "demo-sale-01",
+        "evidence": "sample-evidence.txt",
+        "recipient": "Sample fictional recipient · Demo",
+        "expires": "2026-12-31"
+      }
+    },
+    {
+      "type": "booking",
+      "id": "demo-booking-01",
+      "status": "APPROVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Short-let bookings · Demo",
+        "propertyId": "demo-property-02",
+        "unitId": "demo-unit-03",
+        "guest": "Sample fictional guest · Demo",
+        "start": "2026-10-25",
+        "end": "2026-10-28",
+        "amountMinor": 100000000,
+        "prepared": false
+      }
+    },
+    {
+      "type": "rate",
+      "id": "demo-rate-01",
+      "status": "CONFIGURED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Short-let rates & settings · Demo",
+        "unitId": "demo-unit-03",
+        "amountMinor": 100000000,
+        "minNights": 1,
+        "maxGuests": 1,
+        "rules": "Sample house rules · Demo"
+      }
+    },
+    {
+      "type": "turnover",
+      "id": "demo-turnover-01",
+      "status": "SCHEDULED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Turnover jobs · Demo",
+        "bookingId": "demo-booking-01",
+        "unitId": "demo-unit-01",
+        "date": "2026-10-24",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "damage",
+      "id": "demo-damage-01",
+      "status": "PROPOSED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Damage claims · Demo",
+        "bookingId": "demo-booking-01",
+        "amountMinor": 100000000,
+        "evidence": "sample-evidence.txt",
+        "reason": "Sample claim explanation · Demo"
+      }
+    },
+    {
+      "type": "managerproposal",
+      "id": "demo-managerproposal-01",
+      "status": "PROPOSED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Manager proposals · Demo",
+        "propertyId": "demo-property-01",
+        "manager": "Sample fictional manager · Demo",
+        "scope": "Sample proposed scope · Demo"
+      }
+    },
+    {
+      "type": "assignment",
+      "id": "demo-assignment-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Manager assignments · Demo",
+        "propertyId": "demo-property-01",
+        "manager": "Sample fictional manager · Demo",
+        "maintenance": false,
+        "viewings": false,
+        "listings": false,
+        "expires": "2026-12-31",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "maintenance",
+      "id": "demo-maintenance-01",
+      "status": "QUOTES_RECEIVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Maintenance requests · Demo",
+        "propertyId": "demo-property-01",
+        "issue": "Sample issue description · Demo",
+        "priority": "Normal",
+        "date": "2026-10-24",
+        "warranty": "Sample example warranty notes · Demo"
+      }
+    },
+    {
+      "type": "quote",
+      "id": "demo-quote-01",
+      "status": "RECEIVED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Quote comparison · Demo",
+        "requestId": "demo-maintenance-01",
+        "provider": "Sample fictional provider · Demo",
+        "amountMinor": 100000000,
+        "scope": "Sample quote scope · Demo"
+      }
+    },
+    {
+      "type": "preventive",
+      "id": "demo-preventive-01",
+      "status": "SCHEDULED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Preventive schedules · Demo",
+        "propertyId": "demo-property-01",
+        "category": "Sample preventive task · Demo",
+        "date": "2026-10-24",
+        "intervalDays": 1,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "appointment",
+      "id": "demo-appointment-01",
+      "status": "REQUESTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Professional appointments · Demo",
+        "propertyId": "demo-property-01",
+        "category": "Survey review",
+        "provider": "Sample fictional provider reference · Demo",
+        "date": "2026-10-24",
+        "evidence": "sample-evidence.txt",
+        "findings": "Sample deliverables and findings · Demo"
+      }
+    },
+    {
+      "type": "notification",
+      "id": "demo-notification-01",
+      "status": "UNREAD",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Notification inbox · Demo",
+        "recordType": "maintenance",
+        "recordId": "demo-maintenance-01",
+        "channel": "In-app only",
+        "message": "A fictional quote is ready for review. No notification was sent."
+      }
+    },
+    {
+      "type": "preference",
+      "id": "demo-preference-01",
+      "status": "RECORDED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Notification & account preferences · Demo",
+        "inApp": false,
+        "email": false,
+        "language": "English",
+        "largeText": false,
+        "reducedMotion": false,
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "report",
+      "id": "demo-report-01",
+      "status": "REQUESTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Statements & reports · Demo",
+        "propertyId": "demo-property-01",
+        "start": "2026-10-24",
+        "end": "2026-10-28",
+        "category": "Portfolio",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "dispute",
+      "id": "demo-dispute-01",
+      "status": "OPEN",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Dispute cases · Demo",
+        "propertyId": "demo-property-01",
+        "category": "Maintenance",
+        "recordId": "Sample related demo reference · Demo",
+        "evidence": "sample-evidence.txt",
+        "reason": "Sample case explanation · Demo"
+      }
+    },
+    {
+      "type": "privacy",
+      "id": "demo-privacy-01",
+      "status": "REQUESTED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Privacy & data-rights requests · Demo",
+        "category": "Access export",
+        "reason": "Sample request explanation · Demo"
+      }
+    },
+    {
+      "type": "assistance",
+      "id": "demo-assistance-01",
+      "status": "ACTIVE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Assisted-use controls · Demo",
+        "representative": "Sample fictional helper · Demo",
+        "readOnly": false,
+        "expires": "2026-12-31",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "closure",
+      "id": "demo-closure-01",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Account closure requests · Demo",
+        "reason": "Sample closure reason · Demo",
+        "understood": false
+      }
+    },
+    {
+      "type": "financing",
+      "id": "demo-financing-01",
+      "status": "PROVIDER_UNAVAILABLE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Financing availability · Demo",
+        "propertyId": "demo-property-01",
+        "information": "Sample read-only financing context · Demo"
+      }
+    },
+    {
+      "type": "insurance",
+      "id": "demo-insurance-01",
+      "status": "DEMO_RECORD",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Existing insurance demo records · Demo",
+        "propertyId": "demo-property-01",
+        "reference": "Sample fictional record reference · Demo",
+        "expires": "2026-12-31",
+        "information": "Sample record description · Demo"
+      }
+    },
+    {
+      "type": "device",
+      "id": "demo-device-01",
+      "status": "OFFLINE",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Fictional access devices · Demo",
+        "propertyId": "demo-property-01",
+        "reference": "Sample non-sensitive fictional device reference · Demo",
+        "kind": "Demo door reader",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "accessgrant",
+      "id": "demo-accessgrant-01",
+      "status": "SIMULATED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Temporary access simulations · Demo",
+        "deviceId": "demo-device-01",
+        "recipient": "Sample fictional guest reference · Demo",
+        "expires": "2026-12-31",
+        "notes": "Sample notes · Demo"
+      }
+    },
+    {
+      "type": "listing",
+      "id": "demo-listing-02",
+      "status": "DEMO_PUBLISHED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio · Short-let demo",
+        "propertyId": "demo-property-02",
+        "unitId": "demo-unit-03",
+        "transaction": "Short-let",
+        "description": "Fictional furnished studio.",
+        "previewed": true
+      }
+    },
+    {
+      "type": "pricing",
+      "id": "demo-pricing-02",
+      "status": "APPLIED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio · Nightly example",
+        "listingId": "demo-listing-02",
+        "amountMinor": 5000000,
+        "feeMinor": 100000,
+        "frequency": "Nightly",
+        "policy": "Illustrative service fee, not statutory."
+      }
+    },
+    {
+      "type": "ownership",
+      "id": "demo-ownership-02",
+      "status": "DEMO_REVIEWED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio claim · Demo",
+        "propertyId": "demo-property-02",
+        "claimant": "Alex Demo",
+        "evidence": "fictional-claim.txt"
+      }
+    },
+    {
+      "type": "verification",
+      "id": "demo-verification-02",
+      "status": "DEMO_REVIEWED",
+      "version": 1,
+      "createdAt": "2026-10-17",
+      "data": {
+        "title": "Palm Studio review · Demo",
+        "propertyId": "demo-property-02",
+        "claimId": "demo-ownership-02",
+        "evidence": "fictional-evidence.txt"
+      }
+    }
+  ],
+  "activity": [],
+  "tasks": [
+    {
+      "id": "demo-task-01",
+      "title": "Review a sample maintenance note",
+      "propertyId": "demo-property-01",
+      "category": "Maintenance",
+      "done": false
+    },
+    {
+      "id": "demo-task-02",
+      "title": "Prepare a fictional viewing checklist",
+      "propertyId": "demo-property-02",
+      "category": "Viewing",
+      "done": false
+    },
+    {
+      "id": "demo-task-03",
+      "title": "Check sample listing details",
+      "propertyId": "demo-property-03",
+      "category": "Listing",
+      "done": true
+    }
+  ],
+  "workspaceName": "My demonstration portfolio"
+}
