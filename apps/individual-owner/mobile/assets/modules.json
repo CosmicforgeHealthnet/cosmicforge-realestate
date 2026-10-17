@@ -1,0 +1,263 @@
+[
+  {
+    "id": "01",
+    "title": "Dashboard & portfolio",
+    "slug": "dashboard",
+    "gate": "A",
+    "pairIds": [
+      "pair-01"
+    ]
+  },
+  {
+    "id": "02",
+    "title": "Sign-up, login, MFA & verification",
+    "slug": "identity",
+    "gate": "A",
+    "pairIds": [
+      "pair-13",
+      "pair-14"
+    ]
+  },
+  {
+    "id": "03",
+    "title": "Payout account & tax profile",
+    "slug": "financial",
+    "gate": "A",
+    "pairIds": [
+      "pair-04"
+    ]
+  },
+  {
+    "id": "04",
+    "title": "Ownership & legal authority",
+    "slug": "ownership",
+    "gate": "A",
+    "pairIds": [
+      "pair-11"
+    ]
+  },
+  {
+    "id": "05",
+    "title": "Properties, units, land & assets",
+    "slug": "properties",
+    "gate": "A",
+    "pairIds": [
+      "pair-02"
+    ]
+  },
+  {
+    "id": "06",
+    "title": "Property verification",
+    "slug": "verification",
+    "gate": "A",
+    "pairIds": [
+      "pair-02"
+    ]
+  },
+  {
+    "id": "07",
+    "title": "Listings across property types",
+    "slug": "listings",
+    "gate": "A",
+    "pairIds": [
+      "pair-03"
+    ]
+  },
+  {
+    "id": "08",
+    "title": "Pricing and fee disclosure",
+    "slug": "pricing",
+    "gate": "A",
+    "pairIds": [
+      "pair-03"
+    ]
+  },
+  {
+    "id": "09",
+    "title": "Availability & listing freshness",
+    "slug": "availability",
+    "gate": "A",
+    "pairIds": [
+      "pair-03"
+    ]
+  },
+  {
+    "id": "10",
+    "title": "Inquiries, leads & campaigns",
+    "slug": "inquiries",
+    "gate": "B",
+    "pairIds": []
+  },
+  {
+    "id": "11",
+    "title": "Viewings & property access",
+    "slug": "viewings",
+    "gate": "A",
+    "pairIds": []
+  },
+  {
+    "id": "12",
+    "title": "Rental applications & screening",
+    "slug": "applications",
+    "gate": "A",
+    "pairIds": [
+      "pair-15"
+    ]
+  },
+  {
+    "id": "13",
+    "title": "Tenancy agreements & move-in",
+    "slug": "tenancies",
+    "gate": "B",
+    "pairIds": [
+      "pair-05",
+      "pair-06"
+    ]
+  },
+  {
+    "id": "14",
+    "title": "Rent, deposits & financial lifecycle",
+    "slug": "rent",
+    "gate": "B",
+    "pairIds": [
+      "pair-04",
+      "pair-05"
+    ]
+  },
+  {
+    "id": "15",
+    "title": "Renewals, notices & move-out",
+    "slug": "renewals",
+    "gate": "B",
+    "pairIds": [
+      "pair-05"
+    ]
+  },
+  {
+    "id": "16",
+    "title": "Utilities & service charges",
+    "slug": "utilities",
+    "gate": "B",
+    "pairIds": [
+      "pair-05"
+    ]
+  },
+  {
+    "id": "17",
+    "title": "Commercial leasing & sales",
+    "slug": "commercial",
+    "gate": "B",
+    "pairIds": [
+      "pair-09"
+    ]
+  },
+  {
+    "id": "18",
+    "title": "Land rent, lease & sale",
+    "slug": "land",
+    "gate": "B",
+    "pairIds": [
+      "pair-09"
+    ]
+  },
+  {
+    "id": "19",
+    "title": "Property sale, offers & closing",
+    "slug": "sales",
+    "gate": "B",
+    "pairIds": [
+      "pair-10"
+    ]
+  },
+  {
+    "id": "20",
+    "title": "Owner-operated short-lets",
+    "slug": "shortlets",
+    "gate": "B",
+    "pairIds": [
+      "pair-07"
+    ]
+  },
+  {
+    "id": "21",
+    "title": "Manager delegation & controls",
+    "slug": "managers",
+    "gate": "B",
+    "pairIds": [
+      "pair-11"
+    ]
+  },
+  {
+    "id": "22",
+    "title": "Maintenance & preventive care",
+    "slug": "maintenance",
+    "gate": "B",
+    "pairIds": [
+      "pair-08"
+    ]
+  },
+  {
+    "id": "23",
+    "title": "Professional services & due diligence",
+    "slug": "professionals",
+    "gate": "B",
+    "pairIds": [
+      "pair-08"
+    ]
+  },
+  {
+    "id": "24",
+    "title": "Notifications & communication",
+    "slug": "notifications",
+    "gate": "B",
+    "pairIds": []
+  },
+  {
+    "id": "25",
+    "title": "Statements, reports & insights",
+    "slug": "reports",
+    "gate": "A",
+    "pairIds": [
+      "pair-12"
+    ]
+  },
+  {
+    "id": "26",
+    "title": "Fraud, disputes & privacy",
+    "slug": "safety",
+    "gate": "A",
+    "pairIds": [
+      "pair-13"
+    ]
+  },
+  {
+    "id": "27",
+    "title": "Accessibility, assisted use & closure",
+    "slug": "settings",
+    "gate": "A",
+    "pairIds": [
+      "pair-13"
+    ]
+  },
+  {
+    "id": "28",
+    "title": "Financing & payment plans",
+    "slug": "financing",
+    "gate": "C",
+    "pairIds": []
+  },
+  {
+    "id": "29",
+    "title": "Insurance & protection",
+    "slug": "insurance",
+    "gate": "C",
+    "pairIds": []
+  },
+  {
+    "id": "30",
+    "title": "Smart access & remote controls",
+    "slug": "access",
+    "gate": "C",
+    "pairIds": []
+  }
+]
