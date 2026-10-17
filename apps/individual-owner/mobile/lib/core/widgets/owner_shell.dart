@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import '../../features/dashboard/dashboard_controller.dart';
+import 'workspace_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+
 import '../theme/owner_theme.dart';
 
 class OwnerShell extends ConsumerWidget {
@@ -19,7 +24,8 @@ class OwnerShell extends ConsumerWidget {
     final exact = paths.indexOf(location);
     final index = exact >= 0
         ? exact
-        : location.startsWith('/properties/')
+        : (location.startsWith('/properties/') ||
+              location.startsWith('/workspace/properties/'))
         ? 1
         : 4;
     return Scaffold(
@@ -35,6 +41,53 @@ class OwnerShell extends ConsumerWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Search workspace',
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              final modules =
+                  (jsonDecode(
+                            await rootBundle.loadString('assets/modules.json'),
+                          )
+                          as List)
+                      .cast<Map<String, dynamic>>();
+              if (!context.mounted) return;
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                builder: (context) => _WorkspaceSearch(modules),
+              );
+            },
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Account and portfolio',
+            onSelected: (value) {
+              if (value.startsWith('/')) {
+                context.push(value);
+              } else {
+                ref.read(propertyScopeProvider.notifier).select(value);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'all', child: Text('All properties')),
+              ...?ref
+                  .watch(dashboardProvider)
+                  .asData
+                  ?.value
+                  .properties
+                  .map((p) => PopupMenuItem(value: p.id, child: Text(p.name))),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: '/workspace/identity',
+                child: Text('Profile & security'),
+              ),
+              const PopupMenuItem(
+                value: '/workspace/settings',
+                child: Text('Settings'),
+              ),
+            ],
+          ),
           const Center(
             child: Text(
               'MOCK',
@@ -82,4 +135,58 @@ class OwnerShell extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _WorkspaceSearch extends StatefulWidget {
+  const _WorkspaceSearch(this.modules);
+  final List<Map<String, dynamic>> modules;
+  @override
+  State<_WorkspaceSearch> createState() => _WorkspaceSearchState();
+}
+
+class _WorkspaceSearchState extends State<_WorkspaceSearch> {
+  String search = '';
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      16,
+      24,
+      16,
+      MediaQuery.viewInsetsOf(context).bottom + 16,
+    ),
+    child: SizedBox(
+      height: MediaQuery.sizeOf(context).height * .65,
+      child: Column(
+        children: [
+          TextField(
+            autofocus: true,
+            decoration: const InputDecoration(labelText: 'Search workspace'),
+            onChanged: (v) => setState(() => search = v),
+          ),
+          Expanded(
+            child: ListView(
+              children: widget.modules
+                  .where(
+                    (m) => (m['title'] as String).toLowerCase().contains(
+                      search.toLowerCase(),
+                    ),
+                  )
+                  .map(
+                    (m) => ListTile(
+                      title: Text(m['title']),
+                      onTap: () {
+                        Navigator.pop(context);
+                        context.push(
+                          m['id'] == '01' ? '/' : '/workspace/${m["slug"]}',
+                        );
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

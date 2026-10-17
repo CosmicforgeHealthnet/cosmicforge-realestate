@@ -22,3 +22,7 @@ Both data paths are UI → feature controller → OwnerRepository → MockOwnerR
 ## Next unfinished scope
 
 Section **6: Information architecture and reusable UI system** is the next unfinished blueprint section: extend the starter shell into full contextual navigation, property scope, account/notification states, forms and accessible component patterns. Continue Section 7's complete mock behavior/state families and Section 8's 30-module acceptance register (Phase 2 starts with modules 01–12). Then implement the Section 9 journeys. Do not treat reference pairs, placeholder routes or this dashboard as complete modules. Full mock approval still precedes any integration.
+
+## Sections 6–10 execution started
+
+Continuation base: `0eb0e7edeefd06d7ae19d6a52bbc35ce55066cd1`. Stage A navigation controls now add web property scope, searchable navigation, an account menu, tablet rail, native search bottom sheet and property/account menu, shared dialog/status/calendar/confirmation controls and draft-guard primitives. Section 6 remains IN_PROGRESS until the complete workflow component families and responsive acceptance matrix are verified. Targeted checks: web TypeScript + existing five tests; Flutter analyze + six tests (reviewed app-bar golden updates). No module is newly marked MOCK_PASS at this checkpoint.
