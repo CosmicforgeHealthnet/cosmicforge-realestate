@@ -73,7 +73,7 @@ export function DashboardScreen(){
           {data.tasks.length?<div className="owner-task-list">{data.tasks.map((t,i)=><div className={`owner-task ${t.done?'is-done':''}`} key={t.id}>
             <span className="owner-task-index">{String(i+1).padStart(2,'0')}</span>
             <div><span className="owner-task-category">{t.category}</span><h3>{t.title}</h3><span className="owner-task-state">{t.done?'Completed in demo':'Awaiting your action'}</span></div>
-            <button type="button" aria-label={t.done?`Reopen ${t.title}`:`Complete ${t.title}`} disabled={task.isPending} onClick={()=>task.mutate({id:t.id,done:!t.done})}>{t.done?<RotateCcw size={16}/>:<Check size={17}/>}</button>
+            <button type="button" aria-label={t.done?'Reopen demo task':'Complete demo task'} title={t.title} disabled={task.isPending} onClick={()=>task.mutate({id:t.id,done:!t.done})}>{t.done?<RotateCcw size={16}/>:<Check size={17}/>}</button>
           </div>)}</div>:<div className="owner-empty"><CircleAlert size={25}/><strong>All caught up</strong><p>No demonstration tasks are waiting in this portfolio.</p></div>}
           <Link href="/workspace/notifications" className="owner-inline-link">Open notification center <ArrowRight size={16} aria-hidden="true"/></Link>
         </section>
