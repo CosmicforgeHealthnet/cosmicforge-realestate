@@ -23,7 +23,7 @@ The implementation borrows UX **principles** (contextual journeys, quick status 
 ### Every web workspace (29/29)
 
 - Context-specific `WorkspaceExperience` product intro for each non-dashboard area, with icon, unique domain copy, three recommended journey steps, real next-workspace route and actual current demo counts/statuses.
-- Redesigned filter/list/record presentation: editorial collection heading, record totals, well-scannable data rows, richer property grids and clear primary actions.
+- Redesigned filter/list/record presentation: editorial collection heading, record totals, **domain-aware icon-led record rows**, richer property grids, legible status presentation and clear primary actions.
 - Detail-page snapshot showing the active fictional record, its related-record count, history count and current state, followed by existing structured fields, related records, audit activity and guarded transitions.
 - Cleaner form hierarchy and tailored multi-step wording for property, listing, evidence, applications, agreements, bookings, maintenance and sales. Untouched underlying validation, event handling, navigation guards and mock transition rules.
 - Accessible month calendar with Monday-based weekday alignment, prev/next month controls, real event titles, UTC demonstration label and scrollable weekly grid at narrow widths.
