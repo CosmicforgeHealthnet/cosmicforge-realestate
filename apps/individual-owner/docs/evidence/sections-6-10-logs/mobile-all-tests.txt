@@ -1,0 +1,54 @@
+00:00 +0: loading C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart
+00:00 +0: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: (setUpAll)
+00:00 +0: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:00 +1: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:00 +2: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:01 +3: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +4: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +5: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +6: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +7: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +8: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +9: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +10: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +11: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +12: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +13: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +14: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +15: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +16: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +17: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +18: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:02 +19: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:03 +20: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:04 +21: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/foundation_test.dart: phone shell navigation, native detail and theme switching
+00:04 +22: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:05 +23: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:06 +24: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:06 +25: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:07 +26: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:07 +27: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:07 +28: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:07 +29: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:08 +30: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:10 +31: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:11 +32: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:11 +33: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:11 +34: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:18 +35: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: All 30 areas and editable forms at narrow width, large text, both themes
+00:21 +36: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 03: Prospect to tenancy
+00:24 +37: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 03: Prospect to tenancy
+00:26 +38: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: Property scope filters tasks, retains account controls, resets through QA
+00:28 +39: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_coverage_test.dart: Property scope filters tasks, retains account controls, resets through QA
+00:28 +40: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 05: Tenancy lifecycle
+00:31 +41: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 06: Short-let
+00:33 +42: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 07: Maintenance
+00:35 +43: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 08: Ownership and delegation
+00:38 +44: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 09: Commercial, land and sale
+00:41 +45: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 10: Insights and privacy
+00:43 +46: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 11: Supplementary utilities and service charges
+00:45 +47: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 12: Supplementary appointments, assets, evidence and viewing slots
+00:47 +48: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 13: Supplementary insurance and disconnected access metadata
+00:49 +49: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: UI Journey 14: Supplementary authority and quote conflict guards
+00:51 +50: C:/Projects/cosmicforge-realestate/apps/individual-owner/mobile/test/workspace_ui_journeys_test.dart: (tearDownAll)
+00:51 +50: All tests passed!

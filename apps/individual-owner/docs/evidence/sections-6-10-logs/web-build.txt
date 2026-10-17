@@ -1,0 +1,37 @@
+
+> @cosmicforge/individual-owner-web@0.1.0 build
+> next build
+
+▲ Next.js 16.4.2 (Turbopack)
+✓ Running next.config.ts took 64ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1723ms
+  Running TypeScript ...
+  Finished TypeScript in 3.7s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/35) ...
+  Generating static pages using 7 workers (8/35) 
+  Generating static pages using 7 workers (17/35) 
+  Generating static pages using 7 workers (26/35) 
+✓ Generating static pages using 7 workers (35/35) in 705ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /demo-lab
+├ ○ /more
+├ ƒ /properties/[id]
+├   /workspace/[module]
+│ ├ ● /workspace/dashboard
+│ ├ ● /workspace/identity
+│ ├ ● /workspace/financial
+│ └ ● [+27 more paths]
+└ ƒ /workspace/[module]/[...record]
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,30 +1,21 @@
 # Individual Owner frontend progress · 17 October 2026
 
-Scope: execution mandate Sections 1–5, reference library and runnable app foundations. This is not acceptance of the complete 30-module mock. Status vocabulary: NOT_STARTED, IN_PROGRESS, MOCK_PASS, INTEGRATED_PASS, EXTERNAL_PENDING, BLOCKED.
+Continuation base: `0eb0e7edeefd06d7ae19d6a52bbc35ce55066cd1`. Branch: `feature/individual-owner-frontend-mock`. Sections 1–5 remain preserved; historical foundation reports are in `history/`.
 
-| Deliverable | Status | Evidence |
+| Blueprint section | Engineering mock status | Evidence |
 |---|---|---|
-| Repository baseline and source hierarchy | MOCK_PASS | Started on development `0d8d14f`; fetched origin and branched from `ee3b8bd` into `feature/individual-owner-frontend-mock`; existing untracked work preserved |
-| Original reference preservation | MOCK_PASS | Archive 11,323,929 bytes; 63 SHA-256 entries; 30 HTML / 30 PNG / 2 Markdown verified |
-| Paired offline gallery | MOCK_PASS | 15 desktop / 15 mobile; browser test exercises filtering, search, pairing, local image loading |
-| Shared tokens, fixtures and licensed fonts | MOCK_PASS | JSON → generated CSS / Dart; mobile fixture and font parity checks |
-| Next.js foundation | MOCK_PASS | Production build, TypeScript, ESLint, unit/component and browser evidence |
-| Flutter foundation | MOCK_PASS | Native widget implementation; analyze, six tests including two visual baselines; compiled web preview |
-| All 30 module workflows | IN_PROGRESS | Dashboard foundation only; remaining workflows NOT_STARTED in SCREEN_COVERAGE.csv |
-| API integration | NOT_STARTED | No HTTP adapter enabled; API_MAPPING.md is a read-only handoff |
-| Real provider execution | EXTERNAL_PENDING | Financial, verification, CF Meet, legal and device actions unavailable |
-| Android/iOS device acceptance | EXTERNAL_PENDING | See current environment and build evidence in IMPLEMENTATION_REPORT.md |
+| 6 Navigation and reusable UI | MOCK_PASS | Grouped shell, property scope, search, menus, native navigation, shared forms/details/dialogs/calendars, draft guards, light/dark and large-text checks |
+| 7 Mock architecture | MOCK_PASS | 60 presentation model families; 72 linked fictional fixtures; 147 declared transitions; 16 deterministic scenarios; transactional TS/Dart engines |
+| 8 Modules 01–30 | MOCK_PASS | 60 WEB/MOBILE rows in SCREEN_COVERAGE.csv; typed schema drives equivalent forms, detail, decisions, timelines and linked effects |
+| 9 Core journeys 01–10 | MOCK_PASS | Rendered web forms/decisions and Flutter native widgets; same shared step specifications; independent state engine assertions |
+| 10 Mock safety corrections | MOCK_PASS | Provider gates, consent and delegated authority, quote/booking conflict rollback, fictional evidence, separate settlement, no access PINs or provider adapters |
+| API integration | NOT_STARTED | No backend/public/internal adapters enabled |
+| Provider execution | EXTERNAL_PENDING | Payments, identity, media upload, CF Meet, signing, notifications, insurance, financing, hardware disconnected |
+| Phase 5 human review | NOT_STARTED | Engineering evidence prepared; owner review and approval remain outstanding |
+| Physical Android/iOS acceptance | EXTERNAL_PENDING | Widget/compiled-browser/build evidence is distinct from device execution |
 
-Implemented web components: responsive sidebar/header/bottom navigation; grouped directory search; dashboard metrics, finance examples, property illustration/list/filter/detail, local checklist; loading/empty/error states; application and global error boundaries; Zod/RHF workspace-label form; theme controller. Flutter counterparts use native widgets, Riverpod providers/controllers and GoRouter.
+The UI uses existing OwnerRepository interfaces. Both repositories own one in-memory universe; mutation invalidation refreshes dashboard, lists, calendar and reports. New forms use RHF/Zod on web and native Flutter Form controls; business decisions are enforced in both state engines. Supporting states and forms extend the original 15 design pairs without importing archived HTML.
 
-Both data paths are UI → feature controller → OwnerRepository → MockOwnerRepository. Repositories own simulated state. A mock action changes only local state; reload/restart resets records. Theme preference persists on web; Flutter follows system appearance and allows a session override. No financial/provider action is implemented.
+Implementation checkpoints: `ba60e98` (contextual navigation and controls), `b12cbb2` (coherent mock state and shared core journeys). Subsequent code and evidence commits are recorded in IMPLEMENTATION_REPORT.md and the final delivery message.
 
-## Next unfinished scope
-
-Section **6: Information architecture and reusable UI system** is the next unfinished blueprint section: extend the starter shell into full contextual navigation, property scope, account/notification states, forms and accessible component patterns. Continue Section 7's complete mock behavior/state families and Section 8's 30-module acceptance register (Phase 2 starts with modules 01–12). Then implement the Section 9 journeys. Do not treat reference pairs, placeholder routes or this dashboard as complete modules. Full mock approval still precedes any integration.
-
-## Sections 6–10 execution started
-
-Continuation base: `0eb0e7edeefd06d7ae19d6a52bbc35ce55066cd1`. Stage A navigation controls now add web property scope, searchable navigation, an account menu, tablet rail, native search bottom sheet and property/account menu, shared dialog/status/calendar/confirmation controls and draft-guard primitives. Section 6 remains IN_PROGRESS until the complete workflow component families and responsive acceptance matrix are verified. Targeted checks: web TypeScript + existing five tests; Flutter analyze + six tests (reviewed app-bar golden updates). No module is newly marked MOCK_PASS at this checkpoint.
-
-Stage B checkpoint: a shared schema now defines 59 model families, 145 transitions and 16 deterministic QA scenarios. The existing repositories own one connected universe (71 fictional seed records, including a land property). TypeScript and Dart engines independently pass the same 10 journey specifications / 179 steps plus integrity and rollback guards. Web targeted suite: 19 pass; Dart repository/engine suites: 14 pass. UI workflow acceptance remains IN_PROGRESS; these state tests alone do not mark any full journey or module MOCK_PASS.
+Next gate: review the interactive mock, reset demo fixtures between reviews and record feedback. Do not start API/provider integration, merge, or deploy without explicit approval.

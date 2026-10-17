@@ -1,0 +1,33 @@
+
+> @cosmicforge/individual-owner-web@0.1.0 test:workflows
+> playwright test --config playwright.workflows.config.ts
+
+[WebServer] (node:3648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:37244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 e2e\workflows\coverage.spec.ts:5:1 › All module lists and model forms are accessible at five widths; light and dark (32.0s)
+  ok  2 e2e\workflows\coverage.spec.ts:16:1 › Developer scenarios change guards, keyboard focus, unsaved draft, and report download (2.4s)
+  ok  3 e2e\workflows\coverage.spec.ts:24:1 › Guarded state visuals preserve permission and unknown-financial outcomes (1.4s)
+  ok  4 e2e\workflows\coverage.spec.ts:34:1 › Portfolio scope filters tasks, keeps owner controls visible and clears on reset/archive (4.6s)
+  ok  5 e2e\workflows\journeys.spec.ts:24:31 › Journey 01: Owner onboarding through rendered forms and decisions (4.3s)
+  ok  6 e2e\workflows\journeys.spec.ts:24:31 › Journey 02: Property to listing through rendered forms and decisions (6.3s)
+  ok  7 e2e\workflows\journeys.spec.ts:24:31 › Journey 03: Prospect to tenancy through rendered forms and decisions (11.9s)
+  ok  8 e2e\workflows\journeys.spec.ts:24:31 › Journey 04: Rent and deposit through rendered forms and decisions (4.5s)
+  ok  9 e2e\workflows\journeys.spec.ts:24:31 › Journey 05: Tenancy lifecycle through rendered forms and decisions (3.8s)
+  ok 10 e2e\workflows\journeys.spec.ts:24:31 › Journey 06: Short-let through rendered forms and decisions (5.0s)
+  ok 11 e2e\workflows\journeys.spec.ts:24:31 › Journey 07: Maintenance through rendered forms and decisions (3.5s)
+  ok 12 e2e\workflows\journeys.spec.ts:24:31 › Journey 08: Ownership and delegation through rendered forms and decisions (4.7s)
+  ok 13 e2e\workflows\journeys.spec.ts:24:31 › Journey 09: Commercial, land and sale through rendered forms and decisions (4.4s)
+  ok 14 e2e\workflows\journeys.spec.ts:24:31 › Journey 10: Insights and privacy through rendered forms and decisions (3.6s)
+  ok 15 e2e\workflows\journeys.spec.ts:24:31 › Journey 11: Supplementary utilities and service charges through rendered forms and decisions (3.6s)
+  ok 16 e2e\workflows\journeys.spec.ts:24:31 › Journey 12: Supplementary appointments, assets, evidence and viewing slots through rendered forms and decisions (3.7s)
+  ok 17 e2e\workflows\journeys.spec.ts:24:31 › Journey 13: Supplementary insurance and disconnected access metadata through rendered forms and decisions (2.8s)
+  ok 18 e2e\workflows\journeys.spec.ts:24:31 › Journey 14: Supplementary authority and quote conflict guards through rendered forms and decisions (2.6s)
+
+  18 passed (1.8m)

@@ -29,3 +29,7 @@ The session-only workspace label and task checklist are demonstration behavior. 
 Future integration must pin the contracts again, generate DTOs, map request/response envelopes, permissions, step-up, idempotency and If-Match/version guards, and verify denied/pending/restricted/unavailable states. Exclude `_Admin`, `_Internal`, service tokens and provider webhooks from frontend operations. No direct database access.
 
 The owner service owns domain records. Payment, Verification, Media & Document, Notification and CF Meet retain their separate authorities. No frontend can issue a real verification, legal signature, settlement, device action or message during this phase. Integration remains gated on completion, testing, review and explicit approval of the full 30-module mock.
+
+## Sections 6–10 handoff update
+
+Integration remains **NOT_STARTED**. `shared/workflows.json` and typed workspace command/state contracts describe presentation-only mock models, not public API DTOs. `MockOwnerRepository` remains the sole active implementation on both platforms. The 60 model families, linked effects, step-up challenge and demo actors must be mapped/replaced only after Phase 5 approval, using the authoritative public Gateway contracts above. No mock command should be forwarded to a production service unchanged. Provider gates remain EXTERNAL_PENDING.

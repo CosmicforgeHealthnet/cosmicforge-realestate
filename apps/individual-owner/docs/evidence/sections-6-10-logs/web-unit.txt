@@ -1,0 +1,13 @@
+
+> @cosmicforge/individual-owner-web@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 C:/Projects/cosmicforge-realestate/apps/individual-owner/web
+
+
+ Test Files  3 passed (3)
+      Tests  24 passed (24)
+   Start at  20:32:11
+   Duration  3.65s (transform 669ms, setup 1.67s, import 1.09s, tests 632ms, environment 4.77s)
+

@@ -1,0 +1,47 @@
+{
+  "verifiedImplementationCommit": "65f35e493af6f2980c9134cd83cb927af88c0f0b",
+  "base": "0eb0e7edeefd06d7ae19d6a52bbc35ce55066cd1",
+  "branch": "feature/individual-owner-frontend-mock",
+  "recordedAtUTC": "2026-10-17T18:38:45.231521+00:00",
+  "testResults": {
+    "webUnit": 24,
+    "webWorkflows": 18,
+    "webFoundation": 3,
+    "compiledFlutterBrowser": 1,
+    "flutter": 50,
+    "failures": 0
+  },
+  "builds": {
+    "next": "PASS",
+    "flutterWebRelease": "PASS",
+    "androidDebug": "PASS"
+  },
+  "checks": {
+    "tokensAndFixtures": "PASS",
+    "originalReferenceHashes": "PASS",
+    "runtimeBoundaries": "PASS",
+    "lint": "PASS",
+    "typescript": "PASS",
+    "flutterAnalyze": "PASS"
+  },
+  "audit": {
+    "runtimeVulnerabilities": 0,
+    "developmentHigh": 5
+  },
+  "apk": {
+    "path": "apps/individual-owner/mobile/build/app/outputs/flutter-apk/app-debug.apk",
+    "bytes": 189364104,
+    "sha256": "bb782374d1d2bc09937e72581bcd6354f77da1e4f5055b3895a0cd027038ce98"
+  },
+  "sharedSourceHashes": {
+    "shared/dashboard.json": "ad216358a47825a4d95bc7374eb774942649fe0370d384e478ef2739d8ea8361",
+    "shared/journeys.json": "3add62a7c5c0d497fdf1c03fb4b4351b4021acefc5ba29e8b5cdccaf72c9c7a3",
+    "shared/modules.json": "c84aed8fe0befbc6cc9c30cd9cb45277cc4bdbc27984967227ce3cb5a3b8aa87",
+    "shared/supplementary-journeys.json": "3b99b5c4561fe13f64fadf39f8fd6992462b82434bd49b4fa2487e3c53a9b11d",
+    "shared/workflows.json": "2b26602028c0ba655b29f78d9c03c404aea94aece05c9f115a4b55b40afcaa44",
+    "shared/workspace-seed.json": "defe22fb76182617fbbb36aa09db9f03161c47c5699db0f24a586d62bcd4c1d0"
+  },
+  "humanPhase5": "NOT_STARTED",
+  "apiIntegration": "NOT_STARTED",
+  "physicalDeviceAcceptance": "EXTERNAL_PENDING"
+}

@@ -1,0 +1,23 @@
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:23] "GET / HTTP/1.1" 200 -
+
+Running 1 test using 1 worker
+
+(node:28512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET / HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /flutter_bootstrap.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /canvaskit/chromium/canvaskit.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /canvaskit/chromium/canvaskit.wasm HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /main.dart.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/FontManifest.json HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/fonts/MaterialIcons-Regular.otf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/assets/fonts/Inter.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/assets/fonts/Roboto-Regular.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/packages/cupertino_icons/assets/CupertinoIcons.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /favicon.png HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/assets/workflows.json HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/assets/workspace-seed.json HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [17/Oct/2026 20:38:25] "GET /assets/assets/dashboard.json HTTP/1.1" 200 -
+  ok 1 e2e\flutter\preview.spec.ts:3:1 › compiled Flutter preview renders with local assets, navigation and themes (2.8s)
+
+  1 passed (5.3s)

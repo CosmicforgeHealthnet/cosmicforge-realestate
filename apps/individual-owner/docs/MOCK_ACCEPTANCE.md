@@ -1,37 +1,24 @@
-# Sections 1–5 mock foundation acceptance
+# Interactive mock acceptance · engineering evidence
 
-These checks accept the foundation only. No row grants full module workflow acceptance, production readiness, provider certification or approval to integrate.
+Engineering status: MOCK_PASS for Sections 6–10 and all 30 module workspaces on both platforms. Human Phase 5 acceptance: NOT_STARTED. API integration: NOT_STARTED. Provider execution: EXTERNAL_PENDING. MOCK_PASS is a local workflow result and never an integrated or production certification.
 
-| Check | Result | Reproduction / evidence |
-|---|---|---|
-| Source bytes and 15 pairs | MOCK_PASS | `node scripts/verify-references.mjs`: ZIP plus 62 extracted hashes; all HTML/PNG gallery links exist |
-| Setup safety/idempotence | MOCK_PASS | `powershell -File scripts/test-reference-setup.ps1`: isolated extraction, repeat manifest/inventory stability, altered-source refusal and traversal refusal |
-| Gallery behavior | MOCK_PASS | `web/e2e/foundation.spec.ts`: local file URL, 30 previews, 15 mobile filtered previews, dashboard search, pair navigation, all PNG decodes |
-| Token/fixture/font parity | MOCK_PASS | `node scripts/generate-tokens.mjs --check` |
-| Runtime mock boundary | MOCK_PASS | `node scripts/verify-boundaries.mjs`; no HTTP client calls, provider URLs, DSNs or credential/PIN patterns in runtime sources |
-| Web package installation | MOCK_PASS | Clean `npx --yes npm@11 ci` completed; original npm 10 encountered an edgesOut resolver error while changing dev dependencies; npm 11 resolved it |
-| Web compile/lint | MOCK_PASS | `npm run typecheck`, `npm run lint`, `npm run build` |
-| Web repository/components | MOCK_PASS | `npm test`: 5 passing tests, isolated repositories, immutable snapshots, mutations, empty/error recovery, RHF/Zod validation, theme persistence |
-| Web browser behavior | MOCK_PASS | `npm run test:e2e`: 3 passing Chrome tests; desktop, phone and gallery; zero external requests/page errors in application flow |
-| Flutter dependency resolution | MOCK_PASS | `flutter pub get`, committed lockfile |
-| Flutter static analysis | MOCK_PASS | `flutter analyze`: no issues |
-| Flutter repository/widgets | MOCK_PASS | `flutter test`: 6 tests pass: repository isolation/guards; shell navigation/back/themes; state/scenarios/preferences; light/dark goldens |
-| Flutter compiled preview | MOCK_PASS | `flutter build web --no-web-resources-cdn`; browser test configured in `web/playwright.flutter.config.ts` |
-| Flutter compiled browser behavior | MOCK_PASS | `npx playwright test --config=playwright.flutter.config.ts`: 1 passing test; local renderer/fonts/fixtures only, light/dark appearance, native-widget root navigation |
-| Android debug APK compilation | MOCK_PASS | `flutter build apk --debug`; artifact is under ignored `mobile/build/app/outputs/flutter-apk/` |
-| Native-device validation | EXTERNAL_PENDING | See IMPLEMENTATION_REPORT.md; widget/Chrome tests do not certify Android/iOS devices |
-| Backend/provider integration | NOT_STARTED | No backend files or public contracts changed; no production request or provider action executed |
+## Review procedure
 
-From `web/`, run `npx playwright test --config=playwright.flutter.config.ts` after building Flutter web. It verifies the actual compiled widgets, both themes, root navigation and local-only renderer/fonts/assets. Screenshot evidence lives under `docs/evidence/`. Flutter goldens are under `mobile/test/goldens/` and use the bundled Inter/Material icon fonts; update only after reviewing intentional visual changes.
+1. Start Next.js with `npm run dev -- --port 3100` in `web/`, or production `npm run build` then `npm run start -- --port 3100`. Use `/more` to review all areas. Native Flutter: `flutter run -d <device-id>` from `mobile/`.
+2. Open Developer QA from the directory or account menu; opt in, select Normal and Reset Demo Data. Scenario changes reset fixtures deterministically. Select a property to inspect contextual records.
+3. Review the ten core journeys from `shared/journeys.json`: onboarding; property→listing; prospect→tenancy; rent/deposit; tenancy lifecycle; short-let; maintenance; authority/delegation; commercial/land/sale; insights/privacy.
+4. Review `shared/supplementary-journeys.json` for utilities/budgets, appointments/assets/evidence/viewing slots, insurance/access metadata and negative consent/quote guards.
+5. Try invalid required fields, stale/duplicate conflict, expired consent, restricted/offline/session/permission scenarios and an unknown financial outcome. Failed operations must leave revision and records unchanged. Provider buttons must explain their unavailable status.
+6. Review both themes, keyboard tab/Escape behavior, cancel/discard, deep links/back navigation, property scope, calendars, evidence metadata and JSON report exports. Inspect screenshots and exact commands in IMPLEMENTATION_REPORT.md.
 
-## Manual reproduction
+## Engineering acceptance checks
 
-1. Start Next.js (`cd web; npm run dev`) and open loopback port 3000. Confirm MOCK MODE and fictional/pending/unavailable copy.
-2. Complete/reopen a demo task. The open-task KPI and checklist update together. No money, documents, messages or device states change.
-3. Filter property type, open a sample detail and return. Choose empty/error/populated scenarios to see actual repository states.
-4. Change theme, refresh and verify persistence. Test the narrow layout's five root navigation links.
-5. Open Settings, submit a blank workspace label, correct it, save and return to Home. The portfolio label changes in local memory. Refresh resets it.
-6. Run Flutter on a supported device or Chrome. Exercise the same shell, scenario, theme, task and label behavior. In Flutter, theme override lasts for the session.
-7. Open the offline gallery separately. Use desktop/mobile filtering and pair links; original screenshot references stay available without external assets.
+- Thirty web + thirty native coverage rows; all areas have working fictional records/forms and relevant decisions, with financing deliberately provider-gated.
+- Shared stable references and linked side effects; independent TS/Dart engines pass the same journey contracts. Invalid writes roll back the whole state.
+- Financial bucket totals derive from rent statuses. Review/closing/transfer/settlement and evidence/submission/review remain distinct states.
+- Managers have scoped listing/viewing/maintenance capabilities only. Revocation/suspension/expiry removes simulated write permission; title and payout actions remain owner-only. Representatives have zero title shares.
+- Every accepted co-owner requires current purpose-specific consent for publication/transfer. Competing quote approval and overlapping bookings/blocks are rejected.
+- Source boundary scan and browser network checks reject service/provider requests, remote runtime data endpoints, secret/access-code patterns and real execution claims. Flutter CanvasKit loads from local bundled files.
+- Five web widths (1440/1280/1024/768/390); native 360px at 160% text scale in both themes, required-field forms, keyboard/draft protection and reviewed visual baselines.
 
-Source HTML intentionally remains unmodified and may contain misleading demo claims or example access codes. Neither app renders those templates, uses their credentials/links, or presents those claims as fact.
+Record reviewer decisions separately; automated tests do not grant permission for integration, merge or deployment.
