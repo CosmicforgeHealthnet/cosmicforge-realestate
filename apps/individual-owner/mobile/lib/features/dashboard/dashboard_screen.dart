@@ -337,19 +337,81 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       'Choose another type, or switch to Sample portfolio. Create a fictional property to begin.',
                 ),
               ...properties.map(
-                (property) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    Icons.apartment_outlined,
-                    color: Theme.of(context).colorScheme.primary,
+                (property) => Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(16),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => context.push('/properties/${property.id}'),
+                      child: Container(
+                        padding: const EdgeInsets.all(11),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 75,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary.withValues(alpha: .24),
+                                    Theme.of(context).colorScheme.primary.withValues(alpha: .06),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                property.kind == 'Land'
+                                    ? Icons.landscape_outlined
+                                    : property.kind == 'Short-let'
+                                    ? Icons.villa_outlined
+                                    : property.kind == 'Commercial'
+                                    ? Icons.business_outlined
+                                    : Icons.apartment_outlined,
+                                size: 34,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    property.kind.toUpperCase(),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      letterSpacing: .75,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    property.name,
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    '${property.units} units · ${property.verification}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_outward_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 19,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  title: Text(property.name),
-                  subtitle: Text(
-                    '${property.kind} · ${property.units} units\n${property.verification}',
-                  ),
-                  isThreeLine: true,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/properties/${property.id}'),
                 ),
               ),
             ],
