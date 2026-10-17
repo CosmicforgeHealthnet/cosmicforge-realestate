@@ -77,6 +77,7 @@ export function Calendar({events,onSelect}:{events:CalendarEvent[];onSelect:(id:
           </div>:null}
         </div>;
       })}
+      {Array.from({length:(7-(layout.offset+layout.days)%7)%7},(_,i)=><div className="calendar-blank" key={`after-${i}`} aria-hidden="true"/>)}
     </div>
     <div className="calendar-agenda" aria-label="Calendar event agenda">
       <div className="calendar-agenda-heading">
