@@ -52,8 +52,13 @@ class _DemoLabState extends ConsumerState<DemoLab> {
                                 .map(
                                   (s) => DropdownMenuItem<String>(
                                     value: s,
-                                    child: Text(
-                                      s.toString().replaceAll('_', ' '),
+                                    child: SizedBox(
+                                      width: 200,
+                                      child: Text(
+                                        s.toString().replaceAll('_', ' '),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -70,6 +75,7 @@ class _DemoLabState extends ConsumerState<DemoLab> {
                           DropdownButtonFormField<String>(
                             key: ValueKey(state.actor),
                             initialValue: state.actor,
+                            isExpanded: true,
                             decoration: const InputDecoration(
                               labelText: 'Simulated actor',
                             ),
