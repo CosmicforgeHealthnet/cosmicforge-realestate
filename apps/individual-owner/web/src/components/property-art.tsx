@@ -1,0 +1,3 @@
+export function PropertyArt({variant=0}:{variant?:number}) {
+  return <svg className={`property-art art-${variant % 3}`} viewBox="0 0 360 180" aria-hidden="true"><path className="art-ground" d="M0 144h360v36H0z"/><path className="art-building" d="M62 58h142v100H62zM218 86h80v72h-80z"/><path className="art-roof" d="m48 58 84-38 86 38ZM207 86l51-28 52 28Z"/><path className="art-glass" d="M80 76h30v28H80zM126 76h30v28h-30zM172 76h16v28h-16zM80 120h30v38H80zM126 120h62v18h-62zM232 102h20v24h-20zM266 102h18v24h-18z"/><path className="art-tree" d="M318 108h5v50h-5zM28 101h5v57h-5z"/><circle className="art-leaves" cx="320" cy="100" r="23"/><circle className="art-leaves" cx="31" cy="89" r="25"/></svg>;
+}
