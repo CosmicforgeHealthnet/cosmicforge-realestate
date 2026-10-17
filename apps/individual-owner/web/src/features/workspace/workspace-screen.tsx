@@ -12,7 +12,6 @@ import {WorkspacePreferences} from '@/features/settings/workspace-preferences';
 import {PropertyArt} from '@/components/property-art';
 import {money} from '@/lib/utils/format';
 import {WorkspaceExperience} from './workspace-experience';
-import {ArrowUpRight,SlidersHorizontal,LayoutGrid,CalendarDays,Search} from 'lucide-react';
 export function WorkspaceScreen({slug,segments=[]}:{slug:string;segments?:string[]}){
  const router=useRouter();
  const {data:state,isPending,error,refetch}=useWorkspace(),params=useSearchParams(),{propertyId}=usePropertyScope();
