@@ -752,3 +752,33 @@
 .record-form-intro>span{font-size:10px;white-space:nowrap;padding:8px 11px;border-radius:10px;background:var(--card);font-weight:790;color:var(--action)}
 @media(max-width:900px){.record-overview-banner{align-items:flex-start;flex-direction:column}.record-overview-facts{width:100%;justify-content:space-between;gap:10px}.record-overview-facts>div{min-width:0;flex:1}}
 @media(max-width:767px){.record-overview-banner{padding:20px 16px}.record-overview-facts{flex-wrap:wrap}.record-overview-facts>div{padding-left:10px}.record-overview-facts>div:first-child{padding-left:0;border-left:0}.record-form-intro{align-items:flex-start;flex-direction:column}.record-form-intro>span{align-self:flex-start}}
+
+
+/* Accessible real-week calendar for bookings, visits and owner operations. */
+.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:17px;margin-bottom:15px}
+.calendar-toolbar .eyebrow{color:var(--action);font-size:9px}
+.calendar-toolbar h3{font-size:19px;letter-spacing:-.04em;margin:5px 0}
+.calendar-toolbar small{font-size:10px}
+.calendar-month-controls{display:flex;align-items:end;gap:6px}
+.calendar-month-controls button{height:44px;min-width:40px;padding:0 10px;border-radius:11px;background:var(--subtle);color:var(--action);font-size:24px;line-height:1}
+.calendar-month-controls label{display:grid;gap:5px;font-size:10px;color:var(--muted);font-weight:690}
+.calendar-month-controls input{min-width:150px;font-size:11px}
+.calendar-scroll{max-width:100%;overflow-x:auto;border-radius:14px;outline-offset:3px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-radius:14px;border:1px solid var(--premium-border);overflow:hidden;min-width:630px}
+.calendar-weekday{display:grid;place-items:center;min-height:37px;background:var(--subtle);color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.06em;border-bottom:1px solid var(--premium-border)}
+.calendar-blank{min-height:83px;background:var(--subtle);opacity:.65;border-right:1px solid var(--premium-border);border-bottom:1px solid var(--premium-border)}
+.calendar-day{min-height:83px;padding:7px;border-right:1px solid var(--premium-border);border-bottom:1px solid var(--premium-border);background:var(--card)}
+.calendar-day time{font-size:11px;margin-bottom:6px;font-weight:770}
+.calendar-day button{display:block;width:100%;min-height:0;line-height:1.35;padding:5px 6px;margin:4px 0;border:0;border-radius:6px;background:var(--premium-glow);text-align:left;color:var(--action);font-size:10px;font-weight:640;overflow-wrap:anywhere}
+.calendar-day button:hover{background:var(--subtle)}
+.calendar-day button small{font-size:9px;color:var(--muted)}
+.calendar-overflow{font-size:9px;color:var(--action);font-weight:700}
+.calendar-caption{font-size:10px;margin-top:11px;color:var(--muted)}
+@media(max-width:767px){
+ .calendar-month-controls{width:100%}
+ .calendar-month-controls label{flex:1}
+ .calendar-month-controls input{width:100%;min-width:0}
+ .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));min-width:630px}
+ .calendar-toolbar{align-items:flex-start}
+ .calendar-day{min-height:77px}
+}
