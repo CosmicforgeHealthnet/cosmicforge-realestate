@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "archive": {
+    "file": "stitch_individual_owner_design_system.zip",
     "bytes": 11323929,
-    "sha256": "ba0ee9fa12f3d276d2b2f29327dc7c39c985dd8a439ff77fdb1dcac660891337",
-    "file": "stitch_individual_owner_design_system.zip"
+    "sha256": "ba0ee9fa12f3d276d2b2f29327dc7c39c985dd8a439ff77fdb1dcac660891337"
   },
   "counts": {
-    "png": 30,
-    "desktop": 15,
     "html": 30,
+    "png": 30,
     "markdown": 2,
+    "desktop": 15,
     "mobile": 15
   },
   "screens": [

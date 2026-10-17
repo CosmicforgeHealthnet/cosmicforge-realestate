@@ -17,7 +17,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   function toggle() {
     memoryTheme = !dark;
     try { localStorage.setItem(key, dark ? 'light' : 'dark'); } catch {}
-    document.documentElement.dataset.theme = dark ? 'light' : 'dark';
     window.dispatchEvent(new Event('owner-theme'));
   }
   return <ThemeContext value={{dark,toggle}}><div className="theme-root" data-theme={dark ? 'dark' : 'light'}>{children}</div></ThemeContext>;

@@ -52,6 +52,7 @@ try {
     foreach ($entry in $entries) {
         $destination = Join-Path $original $entry.FullName
         if (-not (Test-Path -LiteralPath $destination)) {
+            Write-Output "Restoring missing source: $($entry.FullName)"
             New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
             [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $destination, $false)
         }
@@ -65,10 +66,10 @@ try {
         foreach ($platform in @('DESKTOP', 'MOBILE')) {
             $folder = if ($platform -eq 'DESKTOP') { $pair.desktop } else { $pair.mobile }
             $rel = "original/$rootName/$folder"
-            $screens += [ordered]@{ id = "$($pair.id)-$($platform.ToLowerInvariant())"; originalFolder = $folder; title = $meta[0].title; platform = $platform; pairId = $pair.id; html = "$rel/code.html"; screenshot = "$rel/screen.png"; sourcePresence = @{ html = $true; screenshot = $true }; modules = @($meta[0].modules) }
+            $screens += [ordered]@{ id = "$($pair.id)-$($platform.ToLowerInvariant())"; originalFolder = $folder; title = $meta[0].title; platform = $platform; pairId = $pair.id; html = "$rel/code.html"; screenshot = "$rel/screen.png"; sourcePresence = [ordered]@{ html = $true; screenshot = $true }; modules = @($meta[0].modules) }
         }
     }
-    $inventory = [ordered]@{ schemaVersion = 1; archive = @{ file = 'stitch_individual_owner_design_system.zip'; bytes = (Get-Item -LiteralPath $Zip).Length; sha256 = $archiveHash }; counts = @{ html = 30; png = 30; markdown = 2; desktop = 15; mobile = 15 }; screens = $screens }
+    $inventory = [ordered]@{ schemaVersion = 1; archive = [ordered]@{ file = 'stitch_individual_owner_design_system.zip'; bytes = (Get-Item -LiteralPath $Zip).Length; sha256 = $archiveHash }; counts = [ordered]@{ html = 30; png = 30; markdown = 2; desktop = 15; mobile = 15 }; screens = $screens }
     $inventory | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $design 'inventory.json') -Encoding UTF8
     $sums = @("$archiveHash  stitch_individual_owner_design_system.zip")
     foreach ($name in ($hashes.Keys | Sort-Object)) { $sums += "$($hashes[$name])  design/stitch/original/$name" }

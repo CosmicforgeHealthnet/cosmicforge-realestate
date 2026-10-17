@@ -1,0 +1,10 @@
+import { readFileSync,writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const owner=fileURLToPath(new URL('../',import.meta.url));
+const modules=JSON.parse(readFileSync(path.join(owner,'shared/modules.json'),'utf8'));
+const rows=[['module_id','module_title','platform','route','reference_pairs','reference_present','foundation_status','workflow_status','integration_status','external_status']];
+for(const module of modules)for(const platform of ['WEB','MOBILE'])rows.push([module.id,module.title,platform,module.id==='01'?'/':`/workspace/${module.slug}`,module.pairIds.join(';'),String(module.pairIds.length>0),module.id==='01'?'MOCK_PASS':'IN_PROGRESS',module.id==='01'?'IN_PROGRESS':'NOT_STARTED','NOT_STARTED',module.gate==='C'?'EXTERNAL_PENDING':'NOT_STARTED']);
+const csv=rows.map(row=>row.map(cell=>`"${cell.replaceAll('"','""')}"`).join(',')).join('\n')+'\n';
+writeFileSync(path.join(owner,'docs/SCREEN_COVERAGE.csv'),csv);
+console.log('Generated 60 web/mobile coverage rows. Foundation status is separate from full workflow acceptance.');
