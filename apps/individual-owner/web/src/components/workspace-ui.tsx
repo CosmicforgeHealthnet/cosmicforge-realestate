@@ -79,7 +79,7 @@ export function Calendar({events,onSelect}:{events:CalendarEvent[];onSelect:(id:
       })}
       {Array.from({length:(7-(layout.offset+layout.days)%7)%7},(_,i)=><div className="calendar-blank" key={`after-${i}`} aria-hidden="true"/>)}
     </div>
-    <div className="calendar-agenda" aria-label="Calendar event agenda">
+    <div className="calendar-agenda" role="region" aria-label="Calendar event agenda">
       <div className="calendar-agenda-heading">
         <div><span className="eyebrow">SCHEDULE DETAILS</span><h4>{selectedDay?`Events · ${selectedDay}`:'This month’s activity'}</h4></div>
         {selectedDay?<button type="button" onClick={()=>{setSelectedDay(null);setShowAll(false)}}>Show whole month</button>:null}
