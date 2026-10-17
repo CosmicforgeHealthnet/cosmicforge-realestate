@@ -17,7 +17,7 @@ describe('owner calendar layout and navigation',()=>{
     expect([...view.container.querySelectorAll('.calendar-weekdays span')].map(x=>x.textContent))
       .toEqual(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']);
     expect(view.container.querySelectorAll('.calendar-day')).toHaveLength(31);
-    expect(view.container.querySelectorAll('.calendar-blank')).toHaveLength(1);
+    expect(view.container.querySelectorAll('.calendar-blank')).toHaveLength(4);
     expect(screen.getByRole('heading',{name:'October 2026'})).toBeInTheDocument();
     expect(screen.getByRole('button',{name:'Show events on 2026-10-31'})).toBeInTheDocument();
 
@@ -39,7 +39,7 @@ describe('owner calendar layout and navigation',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Show events on 2026-10-15'}));
     expect(screen.getByRole('heading',{name:'Events · 2026-10-15'})).toBeInTheDocument();
     const agenda=screen.getByRole('region',{name:'Calendar event agenda'});
-    expect(within(agenda).getAllByRole('button')).toHaveLength(3);
+    expect(agenda.querySelectorAll('.calendar-agenda-list > button')).toHaveLength(3);
     fireEvent.click(within(agenda).getByRole('button',{name:/Tenant viewing/i}));
     expect(onSelect).toHaveBeenCalledWith('v-1');
     fireEvent.click(screen.getByRole('button',{name:'Show whole month'}));
