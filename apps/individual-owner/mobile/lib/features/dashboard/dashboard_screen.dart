@@ -5,6 +5,7 @@ import '../../core/models/dashboard.dart';
 import '../../core/widgets/async_states.dart';
 import 'dashboard_controller.dart';
 import 'dashboard_workbench.dart';
+import 'dashboard_quick_access.dart';
 import '../workspace/workspace_controller.dart';
 import '../../core/widgets/workspace_controls.dart';
 
@@ -39,20 +40,80 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'YOUR PORTFOLIO, AT A GLANCE',
-          style: Theme.of(context).textTheme.labelSmall,
+        Container(
+          padding: const EdgeInsets.fromLTRB(22, 27, 22, 23),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF102549), Color(0xFF1D4383), Color(0xFF2865DA)],
+            ),
+            borderRadius: BorderRadius.circular(23),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'COSMICFORGE / INDIVIDUAL OWNER',
+                style: TextStyle(
+                  color: Color(0xFFB9D6FF),
+                  fontFamily: 'Inter',
+                  fontSize: 10,
+                  letterSpacing: 1.25,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 17),
+              const Text(
+                'Welcome back, Alex.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: 30,
+                  letterSpacing: -1.15,
+                  fontWeight: FontWeight.w800,
+                  height: 1.13,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Your properties, finances and next decisions — all in one place.',
+                style: TextStyle(
+                  color: Color(0xFFDEEBFF),
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 23),
+              Wrap(
+                spacing: 10,
+                runSpacing: 9,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () => context.push('/workspace/properties'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF153B7A),
+                    ),
+                    icon: const Icon(Icons.apartment_outlined, size: 18),
+                    label: const Text('Manage portfolio'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/workspace/properties/property/new'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFF91B3F1)),
+                    ),
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('Add property'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Welcome back, Alex.',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        const Text('A clear view of your properties and what needs attention.'),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
         ExpansionTile(
           title: const Text('Developer QA scenarios'),
           children: [
@@ -113,6 +174,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 16),
+        const DashboardQuickAccess(),
+        const SizedBox(height: 17),
         dashboard.when(
           loading: () => const LoadingView(),
           error: (e, _) => ErrorView(
