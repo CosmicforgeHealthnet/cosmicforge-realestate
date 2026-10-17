@@ -764,7 +764,7 @@
 .calendar-month-controls label{display:grid;gap:5px;font-size:10px;color:var(--muted);font-weight:690}
 .calendar-month-controls input{min-width:150px;font-size:11px}
 .calendar-scroll{max-width:100%;overflow-x:auto;border-radius:14px;outline-offset:3px}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-radius:14px;border:1px solid var(--premium-border);overflow:hidden;min-width:630px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-radius:14px;border:1px solid var(--premium-border);overflow:hidden;min-width:0}
 .calendar-weekday{display:grid;place-items:center;min-height:37px;background:var(--subtle);color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.06em;border-bottom:1px solid var(--premium-border)}
 .calendar-blank{min-height:83px;background:var(--subtle);opacity:.65;border-right:1px solid var(--premium-border);border-bottom:1px solid var(--premium-border)}
 .calendar-day{min-height:83px;padding:7px;border-right:1px solid var(--premium-border);border-bottom:1px solid var(--premium-border);background:var(--card)}
@@ -778,7 +778,7 @@
  .calendar-month-controls{width:100%}
  .calendar-month-controls label{flex:1}
  .calendar-month-controls input{width:100%;min-width:0}
- .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));min-width:630px}
+ .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));min-width:0}
  .calendar-toolbar{align-items:flex-start}
  .calendar-day{min-height:77px}
 }
