@@ -1,6 +1,6 @@
 import {render,screen,cleanup} from '@testing-library/react';
 import {describe,it,expect,afterEach} from 'vitest';
-import modules from '../../../shared/modules.json';
+import modules from '../../shared/modules.json';
 import {WorkspaceExperience} from '@/features/workspace/workspace-experience';
 afterEach(()=>cleanup());
 describe('premium owner workflow guide',()=>{
