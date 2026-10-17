@@ -1,0 +1,21 @@
+{
+  "asOf":"2026-10-17T09:00:00Z",
+  "ownerName":"Alex Demo",
+  "workspaceName":"My demonstration portfolio",
+  "properties":[
+    {"id":"demo-property-01","name":"Sapphire Court · Demo","location":"Fictional address · Lagos","kind":"Residential","units":2,"occupied":2,"listingCount":1,"verification":"Pending review","annualRentMinor":480000000},
+    {"id":"demo-property-02","name":"Palm Studio · Demo","location":"Fictional address · Abuja","kind":"Short-let","units":1,"occupied":0,"listingCount":1,"verification":"Not submitted","annualRentMinor":0},
+    {"id":"demo-property-03","name":"Cedar Works · Demo","location":"Fictional address · Ibadan","kind":"Commercial","units":3,"occupied":2,"listingCount":0,"verification":"Pending review","annualRentMinor":720000000}
+  ],
+  "tasks":[
+    {"id":"demo-task-01","title":"Review a sample maintenance note","propertyId":"demo-property-01","category":"Maintenance","done":false},
+    {"id":"demo-task-02","title":"Prepare a fictional viewing checklist","propertyId":"demo-property-02","category":"Viewing","done":false},
+    {"id":"demo-task-03","title":"Check sample listing details","propertyId":"demo-property-03","category":"Listing","done":true}
+  ],
+  "balances":[
+    {"label":"Available · example","amountMinor":480000000,"state":"success","description":"Illustrative balance. Withdrawals unavailable."},
+    {"label":"Pending · example","amountMinor":125000000,"state":"warning","description":"Simulated pending record; no collection initiated."},
+    {"label":"Held · example","amountMinor":200000000,"state":"neutral","description":"Illustrative category; no custody arrangement."},
+    {"label":"Restricted · example","amountMinor":50000000,"state":"danger","description":"Example restriction. No financial actions enabled."}
+  ]
+}
