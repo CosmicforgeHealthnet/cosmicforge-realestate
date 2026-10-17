@@ -327,6 +327,16 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
             ),
           ],
           const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text('YOUR WORKSPACE RECORDS',style:Theme.of(context).textTheme.labelSmall?.copyWith(
+                color:Theme.of(context).colorScheme.primary,letterSpacing:1,
+              ))),
+              Text('${filteredRows.length} / ${rows.length} shown',style:Theme.of(context).textTheme.labelSmall),
+            ],
+          ),
+          const SizedBox(height: 12),
           TextField(
             key: const Key('record-search'),
             decoration: InputDecoration(
@@ -542,28 +552,52 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
               child: ListTile(
                 key: Key('record-${r.id}'),
                 contentPadding: const EdgeInsets.all(16),
-                leading: r.type == 'property'
-                    ? Icon(
-                        Icons.apartment_outlined,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    : null,
-                title: Text(r.data['title']),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(r.id, style: Theme.of(context).textTheme.bodySmall),
-                    Text(r.status.replaceAll('_', ' ')),
-                    if (r.data['date'] != null || r.data['start'] != null)
-                      Text(
-                        '${r.data["date"] ?? r.data["start"]} ${r.data["end"] != null ? "→ ${r.data["end"]}" : ""}',
-                      ),
-                    if (r.type == 'bank') Text('•••• ${r.data["lastFour"]}'),
-                    if (['quote', 'rent'].contains(r.type))
-                      Text(demoMoney((r.data['amountMinor'] as num).toInt())),
-                  ],
+                leading: Container(
+                  width: 48,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: .08),
+                  ),
+                  child: Icon(
+                    r.type == 'property' || r.type == 'parcel'
+                        ? Icons.apartment_outlined
+                        : r.type == 'booking' || r.type == 'viewing'
+                        ? Icons.event_available_outlined
+                        : r.type == 'rent' || r.type == 'bank'
+                        ? Icons.account_balance_wallet_outlined
+                        : r.type == 'maintenance' || r.type == 'quote'
+                        ? Icons.handyman_outlined
+                        : r.type == 'listing'
+                        ? Icons.storefront_outlined
+                        : Icons.description_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 23,
+                  ),
                 ),
-                trailing: const Icon(Icons.chevron_right),
+                title: Text(
+                  r.data['title'].toString(),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      StatusChip(r.status),
+                      const SizedBox(height: 4),
+                      Text(r.id, style: Theme.of(context).textTheme.bodySmall),
+                      if (r.data['date'] != null || r.data['start'] != null)
+                        Text(
+                          '${r.data["date"] ?? r.data["start"]} ${r.data["end"] != null ? "→ ${r.data["end"]}" : ""}',
+                        ),
+                      if (r.type == 'bank') Text('•••• ${r.data["lastFour"]}'),
+                      if (['quote', 'rent'].contains(r.type))
+                        Text(demoMoney((r.data['amountMinor'] as num).toInt())),
+                    ],
+                  ),
+                ),
+                trailing: Icon(Icons.arrow_outward_rounded, color: Theme.of(context).colorScheme.primary, size: 19),
                 onTap: () => context.push(recordPath(definition, r.type, r.id)),
               ),
             ),
