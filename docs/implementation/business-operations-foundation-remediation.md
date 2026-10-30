@@ -14,7 +14,7 @@ Canonical new business contract: `/api/v1/business/`. The existing reserved `/ap
 
 ## Contracts
 
-Business Operations adapters use shared authenticated HTTP clients for Verification and Notification. Verification already supports `BUSINESS` cases for `BUSINESS` subjects in the `business-operations` domain. Creation uses an idempotency key; reads preserve provider status. Only Verification owns verification decisions. Notification acceptance is distinct from delivery. Adapter tests verify signed service identity, audience, request body, idempotency and provider outage handling. These tests use HTTP contract fakes; live provider certification remains outstanding. Application composition and Section 3 callers remain outstanding.
+Business Operations adapters use shared authenticated HTTP clients for Verification and Notification. Verification already supports `BUSINESS` cases for `BUSINESS` subjects in the `business-operations` domain. Creation uses an idempotency key; reads preserve provider status. Only Verification owns verification decisions. Notification acceptance is distinct from delivery. Adapter tests verify signed service identity, audience, request body, idempotency and provider outage handling. These tests use HTTP contract fakes; live provider certification remains outstanding. Application composition, Section 3 callers, durable notification and verification workers are now implemented; see the Section 3 report for the current certification matrix.
 
 ## NATS certification
 
@@ -27,7 +27,7 @@ Repository API inspection found zero self-hosted Actions runners, no visible rep
 The existing staging Compose uses an immutable `BUSINESS_OPERATIONS_SERVICE_DIGEST` and separate migration/API/worker commands. An authorized operator must:
 
 1. Provision or verify `business_operations_db`, its migration owner and a separate runtime role restricted to that database. Remove public database connection/schema-create grants where compatible with the shared PostgreSQL host; verify denial against every other service database. Provide runtime DML grants and migration-owner DDL grants separately. Do not grant runtime superuser, CREATEDB, CREATEROLE or other-service ownership.
-2. Supply DATABASE_URL and NATS authentication using the existing external service environment mechanism; configure service identity/key trust for Verification, Notification and Gateway when Section 3 composition is implemented. Never commit key material.
+2. Supply DATABASE_URL and NATS authentication using the existing external service environment mechanism; configure service identity/key trust for the implemented Verification, Notification and Gateway composition. Never commit key material.
 3. Establish a preauthorized GitHub deployment transport and staging environment secret policy. Until then, a deployment workflow cannot honestly perform a rollout. The coding agent must not obtain SSH access.
 4. Verify the Images workflow digest artifact for the selected SHA, run migration preflight/up/status as a controlled one-off process, then start only Business Operations API/worker and the configured Gateway update. Do not restart unrelated services unnecessarily.
 5. Check API and worker readiness, Gateway routing and broker backlog. On failure, retain database state and outbox rows; restore the previous API/worker image digest. Schema rollback is not automated. New migrations must remain compatible with that previous image or require an explicit recovery plan.
@@ -43,3 +43,7 @@ Real durable duplicate consumption exposed a shared JetStream bug: AckWait <= 1s
 The migration test previously deferred closing its admin handle before cleanup callbacks ran, so database deletion used a closed handle. The cleanup ordering is corrected.
 
 Controlled local Individual Owner execution: go test -json -timeout=20m -count=1 ./... with the disposable PostgreSQL cluster: 180 tests/subtests passed, zero failures or skips. Local race checks remain unavailable because no C compiler is configured; GitHub runs race checks.
+
+## Completed implementation certification
+
+All five workflows passed for 0e4e792: Backend 41115860251, Contracts 41115860249, Architecture 41115860305, Security 41115860499 and Images 41115860326. Business Operations race tests passed 62 tests/subtests with no failures/skips; actual Gateway/API/worker/migration and broker recovery containers passed. The final evidence-only delivery SHA is independently checked in the delivery response. See the Section 3 report for immutable digest and external-provider/staging limits.
