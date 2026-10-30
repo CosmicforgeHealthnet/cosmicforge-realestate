@@ -10,6 +10,278 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 )
 
+type ApprovalDecision struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	RequestID      ids.ID
+	Level          int32
+	ActorID        ids.ID
+	Outcome        string
+	Reason         string
+	EvidenceIds    []ids.ID
+	IdempotencyKey string
+	CreatedAt      time.Time
+}
+
+type ApprovalPolicy struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PolicyKey      ids.ID
+	Version        int64
+	Action         string
+	Risk           string
+	Active         bool
+	Definition     []byte
+	EffectiveAt    time.Time
+	ExpiresAt      *time.Time
+	CreatedAt      time.Time
+}
+
+type ApprovalRequest struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PolicyID       ids.ID
+	RequesterID    ids.ID
+	Action         string
+	ScopeKind      string
+	ScopeID        ids.ID
+	AmountMinor    *int64
+	Currency       *string
+	PolicySnapshot []byte
+	State          string
+	CurrentLevel   int32
+	Deadline       time.Time
+	Reason         string
+	IdempotencyKey string
+	RequestHash    string
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ApprovalStep struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	RequestID      ids.ID
+	Level          int32
+	Capability     string
+	RequiredCount  int32
+	RequireMfa     bool
+}
+
+type AuditEvent struct {
+	ID             ids.ID
+	ActorID        *ids.ID
+	OrganisationID ids.ID
+	Action         string
+	TargetType     string
+	TargetID       ids.ID
+	CorrelationID  string
+	ChangeContext  []byte
+	OccurredAt     time.Time
+}
+
+type Branch struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	RegionID       *ids.ID
+	Name           string
+	Timezone       string
+	Currency       string
+	Status         string
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type BreakGlassGrant struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	MembershipID   ids.ID
+	ScopeKind      string
+	ScopeID        ids.ID
+	Capabilities   []string
+	Reason         string
+	ExpiresAt      time.Time
+	RevokedAt      *time.Time
+	MfaAt          time.Time
+	ReviewedBy     *ids.ID
+	ReviewReason   *string
+	ReviewedAt     *time.Time
+	CreatedAt      time.Time
+}
+
+type BusinessAccount struct {
+	ID          ids.ID
+	Email       string
+	DisplayName string
+	Status      string
+	Version     int64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type BusinessAuthLimit struct {
+	KeyHash     string
+	WindowStart time.Time
+	Attempts    int32
+}
+
+type BusinessCredential struct {
+	AccountID    ids.ID
+	PasswordHash string
+	ChangedAt    time.Time
+}
+
+type BusinessDevice struct {
+	ID         ids.ID
+	AccountID  ids.ID
+	Label      string
+	Platform   string
+	RiskFlags  []byte
+	CreatedAt  time.Time
+	LastSeenAt time.Time
+}
+
+type BusinessMfaChallenge struct {
+	ID             ids.ID
+	AccountID      ids.ID
+	TokenHash      string
+	Purpose        string
+	SessionID      *ids.ID
+	OrganisationID *ids.ID
+	DeviceName     string
+	DevicePlatform string
+	Attempts       int32
+	ExpiresAt      time.Time
+	ConsumedAt     *time.Time
+	CreatedAt      time.Time
+}
+
+type BusinessMfaMethod struct {
+	ID              ids.ID
+	AccountID       ids.ID
+	Kind            string
+	Status          string
+	KeyID           string
+	EncryptedSecret []byte
+	LastStep        int64
+	ExpiresAt       *time.Time
+	CreatedAt       time.Time
+	ConfirmedAt     *time.Time
+	RemovedAt       *time.Time
+}
+
+type BusinessMfaRecoveryCode struct {
+	ID         ids.ID
+	MethodID   ids.ID
+	CodeHash   string
+	ConsumedAt *time.Time
+	CreatedAt  time.Time
+}
+
+type BusinessRefreshToken struct {
+	ID         ids.ID
+	SessionID  ids.ID
+	TokenHash  string
+	IssuedAt   time.Time
+	ExpiresAt  time.Time
+	ConsumedAt *time.Time
+	ReplacedBy *ids.ID
+}
+
+type BusinessRegistrationKey struct {
+	KeyHash        string
+	RequestHash    string
+	AccountID      ids.ID
+	OrganisationID ids.ID
+	CreatedAt      time.Time
+}
+
+type BusinessSession struct {
+	ID              ids.ID
+	AccountID       ids.ID
+	DeviceID        *ids.ID
+	OrganisationID  *ids.ID
+	CreatedAt       time.Time
+	ExpiresAt       time.Time
+	LastRefreshedAt time.Time
+	RevokedAt       *time.Time
+	RevokeReason    string
+	MfaAt           *time.Time
+}
+
+type CapabilityPack struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	Code               string
+	RequiredCapacities []string
+	Enabled            bool
+	Version            int64
+	CreatedAt          time.Time
+}
+
+type DelegationGrant struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	DelegatorMembershipID ids.ID
+	DelegateMembershipID  ids.ID
+	Capability            string
+	ScopeKind             string
+	ScopeID               ids.ID
+	Inherit               bool
+	EffectiveAt           time.Time
+	ExpiresAt             time.Time
+	RevokedAt             *time.Time
+	RequireMfa            bool
+	AmountLimitMinor      *int64
+	Currency              *string
+	Reason                string
+	CreatedAt             time.Time
+}
+
+type Department struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	BranchID       ids.ID
+	Name           string
+	Status         string
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type Organisation struct {
+	ID                      ids.ID
+	RepresentativeAccountID ids.ID
+	Name                    string
+	RegisteredName          string
+	RegistrationNumber      string
+	Category                string
+	Jurisdiction            string
+	Currency                string
+	Timezone                string
+	State                   string
+	Version                 int64
+	ActivatedAt             *time.Time
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
+}
+
+type OrganisationCapacity struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	Code               string
+	Status             string
+	VerificationLinkID *ids.ID
+	EffectiveAt        time.Time
+	ExpiresAt          *time.Time
+	RestrictedAt       *time.Time
+	Version            int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 type OutboxEvent struct {
 	EventID        ids.ID
 	EventType      string
@@ -31,4 +303,136 @@ type OutboxEvent struct {
 	DeadAt         *time.Time
 	LastError      *string
 	CreatedAt      time.Time
+}
+
+type Permission struct {
+	Code        string
+	Description string
+}
+
+type ProcessedEvent struct {
+	Consumer    string
+	EventID     ids.ID
+	EventType   string
+	ProcessedAt time.Time
+}
+
+type Region struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Name           string
+	Status         string
+	Version        int64
+	CreatedAt      time.Time
+}
+
+type RolePermission struct {
+	RoleID     ids.ID
+	Permission string
+}
+
+type RoleTemplate struct {
+	ID                      ids.ID
+	OrganisationID          ids.ID
+	RoleKey                 ids.ID
+	Name                    string
+	Version                 int64
+	Active                  bool
+	SeniorEmergencyEligible bool
+	CreatedAt               time.Time
+}
+
+type SecurityEvent struct {
+	ID             ids.ID
+	AccountID      *ids.ID
+	OrganisationID *ids.ID
+	EventType      string
+	TargetID       *ids.ID
+	CorrelationID  string
+	Context        []byte
+	OccurredAt     time.Time
+}
+
+type StaffInvitation struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	Email             string
+	RoleID            ids.ID
+	TokenHash         string
+	EncryptedDelivery []byte
+	DeliveryKeyID     string
+	InvitedBy         ids.ID
+	Status            string
+	Scopes            []byte
+	ExpiresAt         time.Time
+	AcceptedAt        *time.Time
+	CreatedAt         time.Time
+}
+
+type StaffMembership struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	AccountID      ids.ID
+	RoleID         ids.ID
+	DepartmentID   *ids.ID
+	TeamID         *ids.ID
+	Kind           string
+	Status         string
+	EffectiveAt    time.Time
+	ExpiresAt      *time.Time
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type StaffMembershipHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	MembershipID   ids.ID
+	ActorID        ids.ID
+	FromStatus     *string
+	ToStatus       string
+	Reason         string
+	CreatedAt      time.Time
+}
+
+type StaffScopeGrant struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	MembershipID     ids.ID
+	Capability       string
+	ScopeKind        string
+	ScopeID          ids.ID
+	Inherit          bool
+	Deny             bool
+	EffectiveAt      time.Time
+	ExpiresAt        *time.Time
+	RevokedAt        *time.Time
+	AmountLimitMinor *int64
+	Currency         *string
+	RequireMfa       bool
+	CreatedAt        time.Time
+}
+
+type Team struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	DepartmentID   ids.ID
+	Name           string
+	Status         string
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type VerificationLink struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	CaseID            ids.ID
+	Purpose           string
+	ProviderStatus    string
+	ExpiresAt         *time.Time
+	ProviderUpdatedAt *time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }

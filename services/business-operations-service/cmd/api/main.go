@@ -43,6 +43,9 @@ func run() error {
 		return err
 	}
 	defer a.Close()
+	if err := a.EnableIdentity(sharedcfg.New()); err != nil {
+		return err
+	}
 	log.Info("business operations api starting", "commit", buildinfo.Get().Commit)
 	return httpx.ListenAndServe(ctx, httpx.ServerConfig{Addr: cfg.HTTPAddr, Handler: a.Router, Logger: log, ShutdownTimeout: cfg.ShutdownTimeout, BeforeShutdown: a.Health.SetShuttingDown})
 }

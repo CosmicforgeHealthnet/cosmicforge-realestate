@@ -1,5 +1,25 @@
 # Business Operations Section 3 implementation checkpoint
 
+## Continuing implementation after ac40ef1
+
+The matrix below records the earlier domain-rule checkpoint and is superseded
+for the following implemented work: migration 00002 now contains the complete
+Section 3 table catalogue plus secure supporting records; SQLC account/session
+queries are generated; registration, credentials, rotating sessions, family
+reuse detection/revocation, encrypted TOTP, one-time recovery codes, session/device
+HTTP APIs and organisation context selection are implemented. API startup requires
+shared service identity and separate business signing/MFA keys. Organisation profile
+and authenticated KYB create/evidence/submit/refresh operations are wired. Frontend
+input cannot set verification truth. The current local suite passes 30 tests/subtests,
+zero skips, against disposable PostgreSQL and real JetStream; vet/staticcheck and
+SQLC drift pass. The full CI checkpoint on ac40ef1 passed all five workflows.
+
+Workforce, hierarchy management, durable approval/delegation/break-glass operations,
+capacity eligibility, notifications, lifecycle workers, API contracts and full end-to-end
+certification remain in progress. The old FAIL rows must not be read as a current
+absence of the account and database implementation just listed. This report will be
+reconciled into a final matrix when the remaining implementation is complete.
+
 **Overall: FAIL / incomplete.** This change delivers tested domain rules and
 foundation repairs. It does not deliver the complete Section 3 system requested.
 No public business account, workforce or approval endpoint is implemented or

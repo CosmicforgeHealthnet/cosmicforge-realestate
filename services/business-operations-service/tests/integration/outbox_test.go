@@ -21,7 +21,7 @@ import (
 // This exercises the service's actual migration and shared relay against a
 // disposable PostgreSQL database and a real, disk-backed JetStream server.
 func TestBusinessOutboxRecovery(t *testing.T) {
-	db := testkit.NewDatabase(t, migrations.FS, events.ProcessedSchemaSQL)
+	db := testkit.NewDatabase(t, migrations.FS)
 	broker := testkit.StartNATS(t)
 	conn, err := jetstream.Connect(jetstream.Config{URL: broker.URL, Name: "business-outbox-test", PublishTimeout: 100 * time.Millisecond})
 	if err != nil {
