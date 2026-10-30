@@ -31,7 +31,7 @@ func TestOutboxMigrationFromEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer admin.Close()
+	t.Cleanup(func() { _ = admin.Close() })
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	dbname := "bo_migration_" + uuid.NewString()[:8]

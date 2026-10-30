@@ -7,6 +7,7 @@ package verification
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 	"time"
@@ -66,6 +67,9 @@ type Client struct{ c *httpx.Client }
 
 // New builds a client authenticated with service tokens.
 func New(baseURL string, tokens httpx.TokenSource, timeout time.Duration) (*Client, error) {
+	if tokens == nil {
+		return nil, errors.New("verification: service authentication is required")
+	}
 	c, err := httpx.NewClient(httpx.ClientConfig{BaseURL: baseURL, Audience: string(platform.VerificationService), Tokens: tokens, Timeout: timeout})
 	if err != nil {
 		return nil, err

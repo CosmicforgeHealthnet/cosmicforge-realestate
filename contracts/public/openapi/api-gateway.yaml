@@ -13,6 +13,10 @@ info:
       `/webhooks/v1/<provider>/*` to the configured service.
     * User-domain prefixes (`/api/v1/<domain>/*`) are reserved and routed only
       once the domain service is deployed.
+    * Business Operations uses `/api/v1/business/*` as its canonical contract.
+      `/api/v1/business-operations/*` is the retained compatibility prefix.
+      Both preserve the path upstream and enforce identical business-domain
+      JWT, service delegation and authentication rate-limit policies.
     * `/internal/*` is never routable from the edge (404 ROUTE_NOT_FOUND).
     * Distributed rate limiting (`RATE_LIMITED`, `Retry-After`), CORS, security
       headers, request-size limits, request ID and W3C trace propagation.

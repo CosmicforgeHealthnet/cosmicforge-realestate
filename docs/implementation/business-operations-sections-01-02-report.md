@@ -2,6 +2,33 @@
 
 **Status: PARTIAL.** The foundation compiles, the CI pipelines passed, and CI exercised the migration against a fresh PostgreSQL database. Live NATS relay behavior and an actual staging deployment remain unverified.
 
+## 2026-10-30 remediation update
+
+The original report below is historical evidence for `72ef535`, not a claim
+that every later SHA passed. Final commit `065b8e1` had an overall Backend
+failure: Individual Owner's hosted runner lost communication with GitHub.
+The failed job passed on an unchanged-SHA rerun; the subsequent end-to-end
+rerun was superseded by the foundation remediation push. No Individual Owner
+implementation was changed. See [foundation remediation](business-operations-foundation-remediation.md)
+for incident metadata, integration contracts, route compatibility and exact
+staging operator actions.
+
+Local disposable PostgreSQL 18 and real disk-backed JetStream now exercise
+Business Operations' actual migrations and shared relay. Recovery tests pass
+for transaction rollback, publication, outage/restart, duplicate consumption,
+expired leases, stale owners, poison-event quarantine and worker cancellation.
+The worker stream was corrected to accept canonical `business.*` events while
+retaining the legacy namespace. Certification also exposed and repaired a
+shared consumer deadline bug when AckWait was one second or less.
+
+Gateway tests cover both business prefixes, signed gateway identity, forwarded
+business JWT, domain isolation, request IDs, internal route isolation and
+upstream timeout behavior (503 under the existing Gateway error convention).
+Typed Verification/Notification clients and signed HTTP contract tests exist;
+application composition and live provider certification remain outstanding.
+Staging database grants, credentials and actual rollout remain unverified.
+Overall Sections 1–2 status remains PARTIAL.
+
 ## A. Repository baseline
 
 - Repository: CosmicforgeHealthnet/cosmicforge-realestate

@@ -3,9 +3,11 @@ package integration
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/migrations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events/jetstream"
@@ -28,7 +30,7 @@ func TestBusinessOutboxRecovery(t *testing.T) {
 	defer conn.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-	if err := conn.EnsureStream(ctx, jetstream.StreamConfig{Name: "BUSINESS_TEST", Subjects: []string{"realestate.business.>"}}); err != nil {
+	if err := conn.EnsureStream(ctx, businessEvents.StreamConfig("realestate")); err != nil {
 		t.Fatal(err)
 	}
 	store := outbox.NewStore(db.Pool, "realestate")
@@ -86,6 +88,43 @@ func TestBusinessOutboxRecovery(t *testing.T) {
 	ack, err := conn.Publish(ctx, events.Subject("realestate", event.EventType), event)
 	if err != nil || !ack.Duplicate {
 		t.Fatalf("republish must deduplicate: %+v %v", ack, err)
+	}
+	// Force broker-level redelivery of the same envelope without a message-id
+	// optimization, then prove a real durable consumer commits it only once.
+	raw, err := event.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := conn.JetStream().Publish(ctx, events.Subject("realestate", event.EventType), raw); err != nil {
+		t.Fatal(err)
+	}
+	var delivered, effects atomic.Int32
+	consumer, err := conn.Consume(ctx, jetstream.ConsumerConfig{Stream: businessEvents.StreamConfig("realestate").Name, Durable: "business-recovery-consumer", AckWait: time.Second}, func(ctx context.Context, delivery events.Delivery) error {
+		tx, err := db.Pool.Begin(ctx)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback(ctx)
+		fresh, err := events.MarkProcessed(ctx, tx, "business-recovery-consumer", delivery.Envelope)
+		if err != nil {
+			return err
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return err
+		}
+		if fresh {
+			effects.Add(1)
+		}
+		delivered.Add(1)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	testkit.Eventually(t, 5*time.Second, func() bool { return delivered.Load() >= 2 }, "real consumer duplicate delivery")
+	consumer.Stop()
+	if effects.Load() != 1 {
+		t.Fatalf("consumer committed %d effects for one event", effects.Load())
 	}
 	for i := 0; i < 2; i++ {
 		tx, err := db.Pool.Begin(ctx)

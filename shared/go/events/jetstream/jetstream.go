@@ -222,6 +222,9 @@ func (c *Conn) Consume(ctx context.Context, cfg ConsumerConfig, h events.Handler
 	}
 	if cfg.HandlerTimeout <= 0 || cfg.HandlerTimeout > cfg.AckWait {
 		cfg.HandlerTimeout = cfg.AckWait - time.Second
+		if cfg.HandlerTimeout <= 0 {
+			cfg.HandlerTimeout = cfg.AckWait - cfg.AckWait/2
+		}
 	}
 	jc := jetstream.ConsumerConfig{
 		Durable:        cfg.Durable,

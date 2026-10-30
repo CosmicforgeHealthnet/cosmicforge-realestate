@@ -18,7 +18,7 @@ Business Operations adapters use shared authenticated HTTP clients for Verificat
 
 ## NATS certification
 
-The Business Operations migration integration suite now includes real disk-backed JetStream with disposable PostgreSQL using existing test infrastructure. It covers owning transaction rollback, committed publication, broker outage/restart, relay restart, deduplication, processed-event idempotency, expired lease recovery, stale-owner fencing, bounded poison-event quarantine and cancellation. Local PostgreSQL execution is unavailable; CI is required to certify these assertions. Quarantine uses shared `outbox_events.dead_at`; rows are retained for operator review. It does not imply that arbitrary event consumers have been implemented.
+The Business Operations migration integration suite now includes real disk-backed JetStream with disposable PostgreSQL using existing test infrastructure. It covers owning transaction rollback, committed publication, broker outage/restart, relay restart, deduplication, processed-event idempotency, expired lease recovery, stale-owner fencing, bounded poison-event quarantine and cancellation. Local certification now runs against a separate disposable PostgreSQL 18 cluster on loopback port 55439, never the existing installed instance. The original recovery test passed ten repetitions; the production-stream/real-consumer revision passed three repetitions. CI also passed the original revision on c84ffa1. Quarantine uses shared `outbox_events.dead_at`; rows are retained for operator review. It does not imply that arbitrary event consumers have been implemented.
 
 ## Staging operational boundary
 
@@ -33,3 +33,13 @@ The existing staging Compose uses an immutable `BUSINESS_OPERATIONS_SERVICE_DIGE
 5. Check API and worker readiness, Gateway routing and broker backlog. On failure, retain database state and outbox rows; restore the previous API/worker image digest. Schema rollback is not automated. New migrations must remain compatible with that previous image or require an explicit recovery plan.
 
 Live staging database, NATS credentials, grants, rollout, smoke checks and rollback remain unverified. Sections 1–2 therefore remain PARTIAL even if disposable-infrastructure CI passes.
+
+## Additional recovered defects
+
+The worker originally subscribed its producer stream to realestate.business_operations.>, which could not accept the specification's realestate.business.* events. A service event-contract package now supplies the actual worker and tests with one stream configuration accepting both namespaces. The stream name is preserved.
+
+Real durable duplicate consumption exposed a shared JetStream bug: AckWait <= 1s produced a non-positive default handler timeout. The fallback now uses a positive fraction of AckWait, with a real-broker regression test. No JWT, password, service-auth or scheduler framework was replaced.
+
+The migration test previously deferred closing its admin handle before cleanup callbacks ran, so database deletion used a closed handle. The cleanup ordering is corrected.
+
+Controlled local Individual Owner execution: go test -json -timeout=20m -count=1 ./... with the disposable PostgreSQL cluster: 180 tests/subtests passed, zero failures or skips. Local race checks remain unavailable because no C compiler is configured; GitHub runs race checks.

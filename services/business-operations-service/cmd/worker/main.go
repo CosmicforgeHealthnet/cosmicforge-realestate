@@ -11,6 +11,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/app"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/config"
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/buildinfo"
 	sharedcfg "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
@@ -55,10 +56,7 @@ func run() error {
 		return fmt.Errorf("nats: %w", err)
 	}
 	defer conn.Close()
-	if err := conn.EnsureStream(ctx, jetstream.StreamConfig{
-		Name:     jetstream.StreamName(cfg.SubjectPrefix, "business_operations"),
-		Subjects: []string{cfg.SubjectPrefix + ".business_operations.>"},
-	}); err != nil {
+	if err := conn.EnsureStream(ctx, businessEvents.StreamConfig(cfg.SubjectPrefix)); err != nil {
 		return fmt.Errorf("ensure business operations event stream: %w", err)
 	}
 	host, _ := os.Hostname()
