@@ -1,6 +1,6 @@
 # Business Operations Sections 1–2 Implementation Report
 
-**Status: PARTIAL.** The foundation compiles and local unit/configuration checks pass. PostgreSQL, NATS, Docker, GitHub Actions and staging deployment have not yet been exercised from this environment.
+**Status: PARTIAL.** The foundation compiles, the CI pipelines passed, and CI exercised the migration against a fresh PostgreSQL database. Live NATS relay behavior and an actual staging deployment remain unverified.
 
 ## A. Repository baseline
 
@@ -20,22 +20,22 @@
 | 1.1 Canonical supply authority | Target README identified business_operations_db ownership | PARTIAL | Expanded ownership documentation; domain records/workflows remain deferred | Repository audit |
 | 1.2 Service ownership boundaries | shared/go/platform, service boundaries and existing architecture script | PARTIAL | Documented owners; added target import/schema/provider guard; concrete client contracts deferred | Dependency review and CI gate |
 | 1.3 Communication architecture | Gateway routes and shared event/outbox infrastructure existed | PARTIAL | Added staging upstream and outbox relay; live authenticated integrations deferred | Build/config checks; no live broker |
-| 1.4 Gateway integration | Reserved prefix and upstream env key already existed | PASS | Connected staging Compose to upstream and API health | Source audit and YAML parse |
-| 1.5 Database isolation | Shared PostgreSQL pool and Goose helpers existed | PARTIAL | Enforces business_operations_db; added owned pool/migration lifecycle | Unit/build; no live PostgreSQL |
-| 1.6 Outbox/events | Shared UUIDv7 envelope, outbox, JetStream publisher/relay existed | PARTIAL | Added outbox schema, stream setup and worker relay | Build; no DB/NATS connectivity |
+| 1.4 Gateway integration | Reserved prefix and upstream env key already existed | PASS | Connected staging Compose to upstream and API health | Source audit, workflow tests and YAML parse |
+| 1.5 Database isolation | Shared PostgreSQL pool and Goose helpers existed | PASS | Enforces business_operations_db; added owned pool/migration lifecycle | Config tests and fresh-database CI migration |
+| 1.6 Outbox/events | Shared UUIDv7 envelope, outbox, JetStream publisher/relay existed | PARTIAL | Added outbox schema, stream setup and worker relay | CI migration; live NATS connectivity/recovery untested |
 | 1.7 Integration contracts | Shared auth primitives exist; target integration folders were empty | DEFERRED | Avoided speculative operations; contracts and endpoint/signing config await Sections 3+ definitions | Source/contract audit |
 | 1.8 Architecture enforcement | Existing CI checks cross-service imports and payment provider ownership | PARTIAL | Added target source guard and CI step | CI configured; local bash unavailable; dependency list reviewed |
 | 2.1 Package layout | Partial scaffold existed | PASS | Added all 36 named contexts from the supplied layout; prompt says 34 but enumerates 36 | Directory inventory |
 | 2.2 Bounded contexts | Scaffold only | PASS | All named contexts remain explicitly unimplemented boundaries | Directory/source audit |
 | 2.3 API entry point | No API command existed | PARTIAL | Added validated bootstrap, shared health/request/error middleware, graceful shutdown. Only health, readiness and version are live | Build and router tests |
 | 2.4 Worker entry point | No worker command existed | PARTIAL | Added DB/NATS startup, stream setup, outbox relay, health and signal shutdown | Build; live broker untested |
-| 2.5 Migration entry point | No migrate command existed | PARTIAL | Added embedded Goose migrations and up/status/version/preflight; disables rollback | Build and DB-name guard; DB execution untested |
+| 2.5 Migration entry point | No migrate command existed | PASS | Added embedded Goose migrations and up/status/version/preflight; disables rollback | CI applies migration twice to a fresh PostgreSQL database |
 | 2.6 SQLC | Config existed but was inactive; no queries | PASS | Added config and foundational outbox backlog query; generated code and checked drift | sqlc generate/diff |
 | 2.7 Dependency composition | No composition root | PARTIAL | Added explicit app composition and close lifecycle | Build/source review |
 | 2.8 HTTP infrastructure | Shared HTTP/errors/health/request context exist | PARTIAL | Reused shared middleware; business routes remain absent | Router tests |
 | 2.9 Configuration | No service config existed | PARTIAL | Added DB, HTTP, NATS worker and telemetry settings; service endpoints await concrete contracts | Config tests |
-| 2.10 Docker/runtime | No target Dockerfile | PARTIAL | Added multi-stage distroless non-root API/worker/migrate image | Static review; Docker unavailable |
-| 2.11 Staging integration | Existing Compose/image workflow omitted target | PARTIAL | Added staging API/worker/migrate, image digest input and CI entries | YAML parse; Actions/deploy pending |
+| 2.10 Docker/runtime | No target Dockerfile | PASS | Added multi-stage distroless non-root API/worker/migrate image | GitHub image build, smoke and Trivy checks |
+| 2.11 Staging integration | Existing Compose/image workflow omitted target | PARTIAL | Added staging API/worker/migrate, image digest input and CI entries | Image published; no automated Compose deployment |
 | 2.12 Documentation | Short initial README | PARTIAL | Added purpose, ownership, runtime and deferral docs plus this report | Source review |
 
 ## B. Section 1 results
@@ -68,6 +68,7 @@ Foundational infrastructure now includes API, worker and migration commands; con
 | gofmt on Go sources; gofmt -l | PASS; no unformatted files |
 | go test -count=1 ./... | PASS for unit and integration packages |
 | go test -count=1 -v ./tests/integration | PASS with migration integration skipped because CF_TEST_POSTGRES_URL is absent |
+| GitHub go test -race -count=1 -coverprofile=coverage.out ./... for the target module | PASS; PostgreSQL migration test ran against a fresh database and repeated up |
 | go vet ./... | PASS |
 | go build ./cmd/api ./cmd/worker ./cmd/migrate | PASS |
 | go mod tidy and go.mod/go.sum diff check | PASS; no drift |
@@ -77,33 +78,35 @@ Foundational infrastructure now includes API, worker and migration commands; con
 | go test -race ./... | BLOCKED locally: CGO_ENABLED=0; Go requires CGO for race |
 | git diff --check | PASS |
 | Parse workflow and staging Compose YAML | PASS |
-| Architecture Bash checks | NOT RUN locally: Bash resolves to WSL but no WSL distribution is installed; GitHub Linux CI is configured |
-| Docker build/image smoke/scan | NOT RUN: Docker CLI/daemon unavailable |
-| Secret scan | NOT RUN: gitleaks unavailable; no secrets were intentionally added |
+| GitHub architecture boundary self-test and both architecture checks | PASS |
+| GitHub govulncheck, gitleaks full-history/working-tree scans, and Trivy configuration scan | PASS |
+| GitHub image build, non-root/binary smoke checks and Trivy HIGH/CRITICAL scan | PASS for business-operations-service |
+| Local go test -race ./... | BLOCKED locally: CGO_ENABLED=0; GitHub Linux race-enabled tests passed |
+| Local Docker build | NOT RUN: Docker CLI/daemon unavailable; GitHub build and smoke checks passed |
+| Local secret scan | NOT RUN: gitleaks unavailable; GitHub full-history and working-tree scans passed |
 
 ## F. Infrastructure and integration verification
 
 - **Gateway:** existing route prefix/upstream audited; staging Compose now configures the upstream. No live gateway was available.
-- **Database:** shared pool and database-name guard implemented. Empty-database migration and reproducibility tests await PostgreSQL.
-- **SQLC/Goose:** SQLC generation and drift passed; CI migration integration test requires PostgreSQL.
-- **NATS/outbox:** shared relay and JetStream code compile; connectivity, retry/recovery and broker outage were not exercised.
+- **Database:** shared pool and database-name guard implemented. GitHub CI created a fresh temporary PostgreSQL database, applied the migration twice, and confirmed the outbox table and migration version.
+- **SQLC/Goose:** SQLC generation and drift passed; CI migration integration passed against PostgreSQL.
+- **NATS/outbox:** shared relay and JetStream code compile; broker connectivity, retry/recovery and broker outage were not exercised.
 - **Security:** no internal operation routes exist; route tests assert public/internal future paths are 404. Full service-to-service auth awaits concrete contracts.
 - **Worker:** binary builds and worker config requires NATS_URL; no process tested against live dependencies.
-- **Docker:** non-root distroless Dockerfile added; image verification is pending.
+- **Docker:** non-root distroless image built; binary smoke checks, non-root check and Trivy image scan passed in GitHub Actions.
 - **OpenAPI/Postman:** no executable frontend business endpoint exists, so no fake endpoint was added. Existing 03 Business Operations collection structure and OpenAPI artifacts are preserved. Operational health routes are described in the service README.
-- **Staging CI/deployment:** CI now includes target build/lint/test/SQLC/security/image jobs. GitHub outcome and deployment remain pending. Compose requires a CI image digest and externally provisioned service DB credentials. No deployment occurred.
+- **Staging CI/deployment:** all staging-triggered workflows passed for commit 72ef535bc2f58f3b2deaa574f30095123dd01758: [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/40982722582), [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/40982722595), [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/40982722633), [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/40982722621), [Repository structure](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/40982722520). CI published the target image and digest artifact. No deployment automation workflow exists, so the image was not rolled out to a staging host. Compose still requires externally provisioned database/NATS credentials.
 
 ## G. Blockers
 
-1. No local PostgreSQL URL, NATS broker, Docker CLI/daemon, gitleaks, or working Bash environment.
-2. CGO is disabled locally, preventing race-detector execution.
-3. GitHub Actions must run on the pushed staging commit.
-4. Staging must provision a least-privilege business_operations_db role and NATS credentials before Compose can start. No Terraform database provisioning module was found in this repository.
-5. Concrete internal integration contracts remain undefined and are deferred.
+1. No local PostgreSQL URL, NATS broker, Docker CLI/daemon, gitleaks, or working Bash environment. PostgreSQL-backed migration, Docker image, secret and architecture checks passed in GitHub Actions.
+2. CGO is disabled locally, preventing local race-detector execution; CI race tests passed.
+3. Staging must provision a least-privilege business_operations_db role and NATS credentials before Compose can start. No Terraform database provisioning module was found in this repository.
+4. Concrete internal integration contracts remain undefined and are deferred.
 
 ## H. Remaining work
 
-- **Sections 1–2:** execute PostgreSQL migration/reproducibility and NATS relay/recovery tests; build and scan the container; confirm GitHub Actions and staging Compose/deployment evidence; implement concrete service contracts when defined.
+- **Sections 1–2:** execute live NATS relay/recovery tests and verify an eventual staging rollout after credentials/database provisioning and deployment setup; implement concrete service contracts when defined.
 - **Section 3:** business account, organisation, membership, RBAC, account lifecycle and approval foundations.
 - **Sections 4–27:** implement each business context and workflow from its specification. Directories do not certify features.
 
@@ -114,11 +117,11 @@ Foundational infrastructure now includes API, worker and migration commands; con
 | Section 1: Architecture boundaries | PARTIAL |
 | Section 2: Package structure | PASS |
 | Service compilation | PASS |
-| Database/migrations | PARTIAL |
+| Database/migrations | PASS |
 | API/Gateway integration | PARTIAL |
 | Worker/event infrastructure | PARTIAL |
 | Security | PARTIAL |
-| Docker | PARTIAL |
+| Docker | PASS |
 | Local tests | PARTIAL |
-| GitHub Actions | PARTIAL |
+| GitHub Actions | PASS |
 | Staging deployment | PARTIAL |
