@@ -1,43 +1,46 @@
 # Business Operations Service
 
-Business Operations is the canonical authority for business-managed supply and operating state. Its database is `business_operations_db`; no other service database is an integration surface.
+Business Operations owns business accounts, organisation membership, scopes and enterprise approvals in `business_operations_db`. Section 3 is implemented; live provider and staging certification are reported separately from executable test evidence.
 
-## Boundaries
+## Architecture and public contract
 
-- Business account identity belongs to this domain; there is no central Real Estate identity service. Reusable authentication cryptography and session primitives live in shared/go, while business account persistence and authority belong here and in business_operations_db. Section 3 implements the business account flows.
-- Organisation, staff, portfolio, inventory, listings, reservations and operational records belong here as their Sections 3–27 workflows are implemented.
-- Verification decisions remain authoritative in Verification Service. Media and document bytes remain in Media & Document Service. Payment execution and ledger state remain in Payment Service. Notification delivery remains in Notification Service. Marketplace owns customer discovery and booking journeys. Manager, artisan and professional provider profiles remain in their respective services. CF Meet remains the human messaging and call history authority.
-- Synchronous integrations use authenticated internal contracts. Durable events use the shared versioned envelope and transactional outbox. This service never queries another service's database.
-- Canonical public routes use `/api/v1/business/`. The retained `/api/v1/business-operations/` prefix has identical security and handler behavior. Every business request requires the Gateway's signed service identity; protected operations also re-verify the business account JWT and live session. No `/internal/v1/*` operation is currently exposed.
+- Existing shared Go configuration, HTTP, Argon2id, Ed25519 JWT, service authentication, sessions, PostgreSQL, idempotency, outbox and JetStream primitives are reused.
+- Verification owns verification truth; Notification owns delivery; Payment owns all money movement. Media owns document bytes; CF Meet owns human messages. No cross-service SQL or provider delivery/execution SDK is introduced.
+- Canonical public prefix: `/api/v1/business/`. The existing `/api/v1/business-operations/` prefix is a tested compatibility alias with the same handlers and security.
+- Annex D profile/verification shorthand has explicit `/profile` and `/verification` aliases of the canonical organisation handlers. `/capabilities` returns effective capacity eligibility, while `/organisation/capacities` and `/organisation/capability-packs` manage declarations/configuration.
+- The Gateway signs its service identity and forwards the business access JWT. The service verifies both and checks current account, session, selected organisation, membership, role, grants and expiry. Client organisation headers never override that context. No Business Operations internal/admin/webhook bypass is exposed.
+- [OpenAPI](../../contracts/public/openapi/business-operations.yaml), [route inventory](contracts/routes.json) and the official `03 Business Operations` Postman folder cover 96 method/path pairs. Regenerate with `python scripts/contracts/generate_business_operations.py` from repository root.
 
-## Layout and ownership
+## Implemented Section 3
 
-`internal/` is organized by bounded context. Context directories that contain only `.gitkeep` are intentional future ownership boundaries, not implemented functionality. Shared bootstrap lives in `internal/app`, configuration in `internal/config`, and stable cross-service adapters belong under `internal/integrations` only when their contracts are implemented. Reusable platform primitives are imported from `shared/go`.
+Registration creates a DRAFT organisation and explicit initial owner capabilities; it never grants KYB approval. Authentication includes rotating refresh families, reuse invalidation, current-session checks, logout/all, password change, device labels/revocation, rate limits and protected TOTP with confirmation, expiring login challenges, step-up, replay prevention and one-time recovery codes. TOTP, email and SMS methods are implemented. Email/SMS challenges use encrypted Notification jobs and protected contact data, eight-digit challenge-bound codes, five-minute expiry, five attempts and single-use recovery. One active/pending method per account prevents silent method replacement. Actual provider delivery and enterprise federation remain separate configuration/certification concerns.
 
-The per-context responsibility and external authority mapping is in [Business Operations bounded-context boundaries](../../docs/architecture/BUSINESS_OPERATIONS_BOUNDARIES.md).
+Organisation profile/lifecycle, branches/regions/departments/teams, staff invitations and membership, versioned roles, explicit scope grants, deny policies, amount limits, effective dates, handover/termination, versioned multi-level approvals, approval delegation and emergency access are executable. Immutable decisions retain both acting accounts and delegated authority provenance. Policy snapshots include action, risk, amount/currency, scope, actor-role and channel context.
 
-The service owns its Goose migrations and SQLC output. Migration 00001 creates the durable outbox; 00002 adds Section 3 accounts, sessions, organisation/workforce, role/scope, approval/delegation and immutable audit storage. Table presence does not certify the corresponding workflow.
+Initial privilege configuration is limited to the primary representative with recent MFA while the organisation has never been activated and is DRAFT/KYB_PENDING. Creating any policy permanently seals its action’s bootstrap exception, even if later deactivated. First activation permanently seals all remaining exceptions. Later role/scope changes bind an independently approved exact operation digest; no self-escalation is permitted. Initial onboarding must configure independent approvers before activation.
 
-## Run locally
+Delegation cannot exceed direct authority or be chained. Its source account/role/grants are rechecked on every use. Delegated approvals cannot approve the source actor's request or reuse one authority across independent approval requirements. Emergency access requires a designated senior role, an independent reviewer, recent MFA, a written reason, a branch/department/team scope and a 30–900 second lifetime. Only explicit read capabilities are permitted, existing denies remain effective, and every emergency use is audited.
 
-Copy `.env.example` to a local environment file and provide a PostgreSQL URL whose database path is exactly `/business_operations_db`. Apply migrations with `go run ./cmd/migrate up`, then run the API with `go run ./cmd/api`. Start a worker with `go run ./cmd/worker` and `NATS_URL` set; the worker relays committed outbox rows to JetStream and serves health endpoints on port 8081 by default. All processes respond to SIGINT/SIGTERM and close resources cleanly.
+The Verification client uses existing authenticated BUSINESS case create/read/evidence/submit/reverify contracts. Renewal preserves immutable case lineage and requires a new authoritative decision. Broker events are hints: a signed API read-back is always required. Reconciliation rejects stale updates and cannot clear an independent administrative restriction. Capacity-specific and legal-representative assertions have typed fail-closed boundaries because those provider operations do not exist yet. Previously active organisation closure also requires an external readiness assertion rather than fabricated closure safety.
 
-The API and worker use the same required database configuration. The API additionally requires the standard SERVICE_AUTH identity, BUSINESS_ACCESS signing key, BUSINESS_CODE_PEPPER (at least 32 bytes), BUSINESS_MFA AES key (32 bytes encoded as base64), key IDs and Verification/Notification service URLs. Secrets support the shared `_FILE` mechanism. Retired access public keys and MFA encryption keys can be supplied as JSON key-ID maps. See the staging service environment example. NATS is required only by the worker. Optional telemetry is enabled by `OTEL_EXPORTER_OTLP_ENDPOINT`.
+## Persistence and worker
 
-## Current Section 3 routes
+Goose migrations 00001–00004 add the complete required catalogue and supporting records. SQLC generates account/session/outbox queries and models; domain commands use typed parameters and owning transactions. Tenant FKs, unique invitation constraints, row locks, optimistic versions and immutable audit/decision/policy/role definitions protect concurrency. Application IDs use shared UUIDv7 generation; monetary values use integer minor units and currency.
 
-Implemented: registration; login; rotating refresh; logout and logout-all; session/device listing and revocation; organisation context selection; encrypted TOTP enrolment, confirmation, login challenge, step-up and removal; one-time recovery codes; organisation profile read/update; KYB create, attach evidence, submit and authoritative status refresh; capacity projection listing. The API process requires identity configuration before serving any of these routes.
+The worker runs the established outbox relay, encrypted Notification jobs, durable verification consumer, authoritative verification reconciliation and one maintenance loop for invitations, memberships/scopes, sessions, MFA challenges, delegations, emergency access, approvals and capacity/KYB expiry. API expiry checks work independently of maintenance availability. Poison jobs retain quarantine metadata; unaccepted notifications can be replayed from retained outbox records. Notification acceptance is not a delivery receipt.
 
-KYB never approves locally. The Verification Service remains the decision authority. A registration creates a DRAFT organisation. The capacity catalogue/eligibility authority and remaining workforce/approval management workflows are still being implemented; the full Section 3 system is not yet certified.
+## Configuration and operation
 
-## Checks
+Use `.env.example` and `infrastructure/docker/service-env/business-operations-service.env.example`. `DATABASE_URL` must effectively connect to `business_operations_db`, including after driver query-parameter overrides. Startup also checks `current_database()`.
 
-From this directory, run `go test ./...`, `go vet ./...`, `go build ./cmd/api ./cmd/worker ./cmd/migrate`, and `sqlc diff -f sql/sqlc.yaml`. Set `CF_REQUIRE_INTEGRATION=1` and `CF_TEST_POSTGRES_URL` to a disposable test PostgreSQL admin connection for mandatory database tests. The test kit starts a real isolated JetStream server. From the repository root, run `scripts/ci/check-architecture.sh`. SQLC generates outbox and account/session queries.
+API configuration requires standard `SERVICE_AUTH_*`, separate `BUSINESS_ACCESS_*` signing keys, `BUSINESS_CODE_PEPPER`, protected `BUSINESS_MFA_*` encryption keys, provider service URLs and an HTTPS `BUSINESS_INVITATION_ACCEPT_URL` for invitation delivery. Secrets support `_FILE`; retired public/encryption keys are configurable. Workers need service identity/protected storage and provider URLs, but do not load account JWT signing keys. NATS is required by the worker. Pool size and graceful shutdown are bounded.
 
-## Deployment
+Operator-run provisioning and least-privilege grant scripts are under `scripts/database/business-operations-*.sql`. No credential is committed. Use a separate migrator identity that assumes the NOLOGIN owner role; API/worker use the runtime role. Apply runtime grants after migrations. The scripts refuse conflicting ownership and modify only the Business Operations database/roles.
 
-Build from repository root using `docker build -f services/business-operations-service/Dockerfile .`. The image contains API, worker and migration binaries and runs as distroless non-root. Staging must provision a least-privilege `business_operations_db` role and its secret independently. No production deployment or production configuration is part of this scaffold.
+## Verification and deployment
 
-## Deferred scope
+Run `go test ./...`, `go test -race ./...`, `go vet ./...`, `staticcheck ./...`, `go mod tidy` and `sqlc diff -f sql/sqlc.yaml` in this module. Set `CF_REQUIRE_INTEGRATION=1` and `CF_TEST_POSTGRES_URL` to an isolated test administrator. Tests create/drop unique disposable databases and use real disk-backed JetStream. The Images workflow additionally runs PostgreSQL and NATS containers with the actual migration/API/worker image, runtime database grants, authenticated provider contract fake, broker recovery and SIGTERM checks.
 
-Section 3 remains in progress; consult its implementation report and executable tests. All domain workflows in Sections 4–27 remain deferred. Live staging database/provider/deployment certification requires the authorized operator prerequisites documented in the foundation remediation report.
+The distroless non-root image includes API, worker and migration binaries. Existing staging Compose uses immutable digests and controlled migration dependencies. There is no preauthorised GitHub-to-staging deployment transport or available staging credential here. No direct VPS access or production deployment is used. See [Section 3 report](../../docs/implementation/business-operations-section-03-report.md) and [staging runbook](../../docs/implementation/business-operations-staging-readiness.md).
+
+Sections 4–27 remain future work. Their directory placeholders are boundaries, not completed workflows.

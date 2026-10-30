@@ -1,6 +1,6 @@
 # Business Operations Sections 1–2 Implementation Report
 
-**Status: PARTIAL.** The foundation compiles, the CI pipelines passed, and CI exercised the migration against a fresh PostgreSQL database. Live NATS relay behavior and an actual staging deployment remain unverified.
+**Current status: PARTIAL for live staging; repository foundation implemented and tested.** Real PostgreSQL/JetStream relay, recovery and authenticated service composition are now exercised. Actual staging connectivity, provisioning and deployment remain unverified. The original implementation matrix below is retained as historical evidence, superseded by this update and the Section 3 report.
 
 ## 2026-10-30 remediation update
 
@@ -25,9 +25,28 @@ Gateway tests cover both business prefixes, signed gateway identity, forwarded
 business JWT, domain isolation, request IDs, internal route isolation and
 upstream timeout behavior (503 under the existing Gateway error convention).
 Typed Verification/Notification clients and signed HTTP contract tests exist;
-application composition and live provider certification remain outstanding.
+API/worker composition and callers are now implemented and tested. Live provider certification remains outstanding.
 Staging database grants, credentials and actual rollout remain unverified.
 Overall Sections 1–2 status remains PARTIAL.
+
+## Current foundation re-certification matrix
+
+| Component | Current result |
+|---|---|
+| Architecture boundaries / package layout | Repository checks implemented; full checkpoint CI green at 1c26b26; final SHA checks recorded in Section 3 report |
+| Go compilation / quality | Local tests, vet, staticcheck, tidy PASS |
+| Migrations / SQLC | Fresh/repeated migrations through version 4, status/version and SQLC drift PASS on disposable PG |
+| Gateway | Canonical business prefix + explicit legacy alias, signed identity/forwarded JWT, scope-safe handlers, errors/timeouts/internal isolation tested |
+| NATS / outbox | Real disk-backed JetStream/PG commit, rollback, outage/restart, dedup, recovery, poison retention and shutdown PASS |
+| Internal contracts | Verification/Notification signed clients and API/worker callers implemented; live provider certification separate |
+| Security / runtime | Current account/session/membership enforcement, secret separation, immutable audit, least-privilege provisioning tested |
+| Docker | API/worker/migration image and full configured disposable container certification; delivery SHA evidence in Section 3 report |
+| GitHub Actions | All five workflows green on 1c26b26; final SHA must be checked separately |
+| Staging deployment | PARTIAL: no preauthorised transport or usable staging credentials; no VPS access attempted |
+
+See [Section 3 certification](business-operations-section-03-report.md) for the current implementation matrix and [staging runbook](business-operations-staging-readiness.md) for exact operator actions. Disposable CI migration is not proof of actual staging readiness.
+
+## Historical original report
 
 ## A. Repository baseline
 

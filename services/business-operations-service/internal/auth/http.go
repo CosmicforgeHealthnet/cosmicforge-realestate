@@ -33,7 +33,7 @@ type Handler struct {
 }
 
 func NewHandler(s *Service, gateway *serviceauth.Verifier) (*Handler, error) {
-	if s == nil || gateway == nil {
+	if s == nil || s.Sealer == nil || gateway == nil {
 		return nil, errors.New("business HTTP identity dependencies required")
 	}
 	h := &Handler{Service: s}
@@ -48,13 +48,18 @@ func NewHandler(s *Service, gateway *serviceauth.Verifier) (*Handler, error) {
 		r.Use(h.Authenticate)
 		r.Post("/auth/logout", h.logout)
 		r.Post("/auth/logout-all", h.logoutAll)
+		r.Post("/auth/password/change", h.changePassword)
+		r.Get("/account", h.account)
 		r.Post("/auth/mfa/enrol", h.enrol)
 		r.Post("/auth/mfa/confirm", h.confirm)
+		r.Post("/auth/mfa/challenge", h.challengeMFA)
 		r.Delete("/auth/mfa", h.removeMFA)
 		r.Get("/auth/mfa", h.mfaStatus)
 		r.Get("/sessions", h.sessions)
 		r.Delete("/sessions/{session_id}", h.revokeSession)
 		r.Get("/devices", h.devices)
+		r.Patch("/devices/{id}", h.updateDevice)
+		r.Delete("/devices/{id}", h.revokeDevice)
 		r.Get("/memberships", h.memberships)
 		r.Post("/auth/organisation", h.selectOrganisation)
 	})
@@ -140,15 +145,46 @@ func (h *Handler) logoutAll(w http.ResponseWriter, r *http.Request) {
 	p, _ := PrincipalFrom(r.Context())
 	reply(w, r, 200, map[string]bool{"revoked": true}, h.Service.Revoke(r.Context(), p.ActorID, p.SessionID, true))
 }
-func (h *Handler) enrol(w http.ResponseWriter, r *http.Request) {
+
+func (h *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		Password string `json:"password"`
+		Current string `json:"current_password"`
+		Next    string `json:"new_password"`
 	}
 	if !decode(w, r, &in) {
 		return
 	}
 	p, _ := PrincipalFrom(r.Context())
-	out, err := h.Service.EnrolTOTP(r.Context(), p.ActorID, p.SessionID, in.Password)
+	reply(w, r, 200, map[string]bool{"changed": true, "sessions_revoked": true}, h.Service.ChangePassword(r.Context(), p.ActorID, p.SessionID, in.Current, in.Next))
+}
+func (h *Handler) account(w http.ResponseWriter, r *http.Request) {
+	p, _ := PrincipalFrom(r.Context())
+	a, err := h.Service.q.GetAccount(r.Context(), h.Service.Pool, p.ActorID)
+	reply(w, r, 200, map[string]any{"account_id": a.ID, "email": a.Email, "display_name": a.DisplayName, "status": a.Status, "version": a.Version, "created_at": a.CreatedAt}, err)
+}
+
+type enrolMFABody struct {
+	Password string `json:"password"`
+	Kind     string `json:"kind,omitempty"`
+	Phone    string `json:"phone,omitempty"`
+}
+
+func (h *Handler) enrol(w http.ResponseWriter, r *http.Request) {
+	var in enrolMFABody
+	if !decode(w, r, &in) {
+		return
+	}
+	if in.Kind == "" {
+		in.Kind = "TOTP"
+	}
+	p, _ := PrincipalFrom(r.Context())
+	var out Enrolment
+	var err error
+	if in.Kind == "TOTP" {
+		out, err = h.Service.EnrolTOTP(r.Context(), p.ActorID, p.SessionID, in.Password)
+	} else {
+		out, err = h.Service.EnrolDeliveryMFA(r.Context(), p.ActorID, p.SessionID, in.Password, in.Kind, in.Phone)
+	}
 	reply(w, r, 201, out, err)
 }
 func (h *Handler) confirm(w http.ResponseWriter, r *http.Request) {
@@ -262,7 +298,7 @@ func (h *Handler) devices(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, r, err)
 		return
 	}
-	rows, err := h.Service.Pool.Query(r.Context(), `SELECT id,label,platform,risk_flags,created_at,last_seen_at FROM business_devices WHERE account_id=$1 ORDER BY created_at DESC,id DESC LIMIT $2 OFFSET $3`, p.ActorID, limit, offset)
+	rows, err := h.Service.Pool.Query(r.Context(), `SELECT id,label,platform,risk_flags,created_at,last_seen_at,version,retired_at FROM business_devices WHERE account_id=$1 ORDER BY created_at DESC,id DESC LIMIT $2 OFFSET $3`, p.ActorID, limit, offset)
 	if err != nil {
 		httpx.WriteError(w, r, err)
 		return
@@ -272,18 +308,24 @@ func (h *Handler) devices(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var id ids.ID
 		var label, platformName string
-		var flags, created, last any
-		if err := rows.Scan(&id, &label, &platformName, &flags, &created, &last); err != nil {
+		var flags, created, last, retired any
+		var version int64
+		if err := rows.Scan(&id, &label, &platformName, &flags, &created, &last, &version, &retired); err != nil {
 			httpx.WriteError(w, r, err)
 			return
 		}
-		out = append(out, map[string]any{"device_id": id, "label": label, "platform": platformName, "risk_flags": flags, "created_at": created, "last_seen_at": last})
+		out = append(out, map[string]any{"device_id": id, "label": label, "platform": platformName, "risk_flags": flags, "created_at": created, "last_seen_at": last, "version": version, "retired_at": retired})
 	}
 	reply(w, r, 200, map[string]any{"items": out, "limit": limit, "offset": offset}, rows.Err())
 }
 func (h *Handler) memberships(w http.ResponseWriter, r *http.Request) {
 	p, _ := PrincipalFrom(r.Context())
-	rows, err := h.Service.Pool.Query(r.Context(), `SELECT m.id,m.organisation_id,o.name,m.status,m.role_id,m.effective_at,m.expires_at FROM staff_memberships m JOIN organisations o ON o.id=m.organisation_id WHERE m.account_id=$1 ORDER BY m.organisation_id LIMIT 100`, p.ActorID)
+	limit, offset, err := page(r)
+	if err != nil {
+		httpx.WriteError(w, r, err)
+		return
+	}
+	rows, err := h.Service.Pool.Query(r.Context(), `SELECT m.id,m.organisation_id,o.name,m.status,m.role_id,m.effective_at,m.expires_at FROM staff_memberships m JOIN organisations o ON o.id=m.organisation_id WHERE m.account_id=$1 ORDER BY m.organisation_id LIMIT $2 OFFSET $3`, p.ActorID, limit, offset)
 	if err != nil {
 		httpx.WriteError(w, r, err)
 		return

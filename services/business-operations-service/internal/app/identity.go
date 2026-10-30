@@ -33,7 +33,8 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 	if err != nil {
 		return err
 	}
-	businesshttp.Register(handler, verify, notify)
+	domain := businesshttp.Register(handler, verify, notify)
+	domain.InvitationAcceptURL = loader.String("BUSINESS_INVITATION_ACCEPT_URL", "")
 	a.Router = NewRouter(a.Health, handler.Router)
 	return nil
 }

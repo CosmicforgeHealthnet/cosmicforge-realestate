@@ -137,9 +137,13 @@ func Build(upstreams map[platform.Service]*url.URL, webhooks map[string]platform
 	// User-domain services: reserved, mounted only once deployed.
 	for d, prefix := range domainPrefixes {
 		svc, _ := platform.ServiceForDomain(d)
+		rules := []Rule{{Prefix: prefix + "auth/", Category: CategoryAuthSensitive}}
+		if d == platform.DomainBusinessOperations {
+			rules = append(rules, Rule{Prefix: prefix + "staff/invitations/accept", Category: CategoryAuthSensitive})
+		}
 		_ = add(Route{Name: string(d), Prefix: prefix, Service: svc, Auth: AuthOptional, Category: CategoryPublic,
 			ActorDomains: []platform.Domain{d}, ForwardUserToken: true,
-			Rules: []Rule{{Prefix: prefix + "auth/", Category: CategoryAuthSensitive}}})
+			Rules: rules})
 	}
 
 	// Section 3 canonical business contract. The previously reserved prefix
@@ -147,7 +151,7 @@ func Build(upstreams map[platform.Service]*url.URL, webhooks map[string]platform
 	_ = add(Route{Name: "business", Prefix: "/api/v1/business/", Service: platform.BusinessOperationsService,
 		Auth: AuthOptional, Category: CategoryPublic,
 		ActorDomains: []platform.Domain{platform.DomainBusinessOperations}, ForwardUserToken: true,
-		Rules: []Rule{{Prefix: "/api/v1/business/auth/", Category: CategoryAuthSensitive}}})
+		Rules: []Rule{{Prefix: "/api/v1/business/auth/", Category: CategoryAuthSensitive}, {Prefix: "/api/v1/business/staff/invitations/accept", Category: CategoryAuthSensitive}}})
 
 	// Provider webhooks: /webhooks/v1/<provider>/...
 	providers := make([]string, 0, len(webhooks))

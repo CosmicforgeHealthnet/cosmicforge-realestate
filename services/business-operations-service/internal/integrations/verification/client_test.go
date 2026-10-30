@@ -24,11 +24,22 @@ func TestAuthenticatedBusinessContract(t *testing.T) {
 		t.Fatal(err)
 	}
 	verifier, _ := serviceauth.NewVerifier(serviceauth.VerifierConfig{Self: platform.VerificationService, Registry: registry})
-	id, org := ids.New(), ids.New()
+	id, renewed, org := ids.New(), ids.New(), ids.New()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		principal, err := verifier.Verify(r.Context(), strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
 		if err != nil || principal.Service != platform.BusinessOperationsService {
 			w.WriteHeader(401)
+			return
+		}
+		if r.URL.Path == "/internal/v1/verifications/"+id.String()+"/reverify" {
+			var body struct {
+				Reference string `json:"caller_reference"`
+			}
+			if r.Method != "POST" || json.NewDecoder(r.Body).Decode(&body) != nil || body.Reference != "renew-business" || r.Header.Get("Idempotency-Key") != "kyb-renew" {
+				w.WriteHeader(422)
+				return
+			}
+			httpx.WriteData(w, 200, Case{VerificationID: renewed, SupersedesID: &id, Type: TypeBusiness, Subject: Subject{Type: SubjectBusiness, Domain: string(platform.DomainBusinessOperations), ID: org}, Status: "DRAFT"})
 			return
 		}
 		if r.Method == "POST" {
@@ -55,6 +66,10 @@ func TestAuthenticatedBusinessContract(t *testing.T) {
 	c, err = client.Get(context.Background(), id)
 	if err != nil || c.VerificationID != id {
 		t.Fatalf("get: %+v %v", c, err)
+	}
+	c, err = client.Reverify(context.Background(), id, "renew-business", "kyb-renew")
+	if err != nil || c.VerificationID != renewed || c.SupersedesID == nil || *c.SupersedesID != id {
+		t.Fatalf("renew: %+v %v", c, err)
 	}
 	srv.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)

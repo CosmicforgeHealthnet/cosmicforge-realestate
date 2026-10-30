@@ -27,6 +27,7 @@ type businessHarness struct {
 	db      *testkit.Database
 	server  *httptest.Server
 	signer  *serviceauth.Signer
+	domain  *businesshttp.Handler
 }
 type businessUser struct {
 	registered      businessauth.Registered
@@ -58,10 +59,12 @@ func newBusinessHTTP(t *testing.T, provider verification.API) *businessHarness {
 	if err != nil {
 		t.Fatal(err)
 	}
-	businesshttp.Register(handler, provider, nil)
+	domain := businesshttp.Register(handler, provider, nil)
+	domain.InvitationAcceptURL = "https://business.example.test/invitations/accept"
 	server := httptest.NewServer(app.NewRouter(health.New("business-operations-service", "test", 0), handler.Router))
 	t.Cleanup(server.Close)
-	return &businessHarness{t: t, service: service, db: db, server: server, signer: signer}
+	t.Cleanup(func() { validateStoredBusinessEvents(t, db.Pool) })
+	return &businessHarness{t: t, service: service, db: db, server: server, signer: signer, domain: domain}
 }
 func (h *businessHarness) user() *businessUser {
 	h.t.Helper()

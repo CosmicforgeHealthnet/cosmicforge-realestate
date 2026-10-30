@@ -73,6 +73,11 @@ func (g Grant) matches(target Target) bool {
 	return false
 }
 
+// ScopeContains evaluates only a trusted, resolved hierarchy path.
+func ScopeContains(parent Scope, target Target, inherit bool) bool {
+	return (Grant{Scope: parent, Inherit: inherit}).matches(target)
+}
+
 type Membership struct {
 	AccountID, OrganisationID ids.ID
 	Status                    string

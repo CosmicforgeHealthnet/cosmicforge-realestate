@@ -31,23 +31,25 @@ func (s *Service) mfaReady() error {
 }
 
 type Enrolment struct {
+	Kind            string    `json:"kind"`
+	DeliveryQueued  bool      `json:"delivery_queued,omitempty"`
 	MethodID        ids.ID    `json:"method_id"`
-	Secret          string    `json:"secret"`
-	ProvisioningURI string    `json:"provisioning_uri"`
+	Secret          string    `json:"secret,omitempty"`
+	ProvisioningURI string    `json:"provisioning_uri,omitempty"`
 	ExpiresAt       time.Time `json:"expires_at"`
 }
 type mfaMethod struct {
-	id          ids.ID
-	account     ids.ID
-	status, key string
-	cipher      []byte
-	last        int64
-	expiry      *time.Time
+	id                ids.ID
+	account           ids.ID
+	status, key, kind string
+	cipher            []byte
+	last              int64
+	expiry            *time.Time
 }
 
 func loadMethod(ctx context.Context, tx pgx.Tx, account ids.ID, status string) (mfaMethod, error) {
 	var m mfaMethod
-	err := tx.QueryRow(ctx, `SELECT id,account_id,status,key_id,encrypted_secret,last_step,expires_at FROM business_mfa_methods WHERE account_id=$1 AND status=$2 FOR UPDATE`, account, status).Scan(&m.id, &m.account, &m.status, &m.key, &m.cipher, &m.last, &m.expiry)
+	err := tx.QueryRow(ctx, `SELECT id,account_id,status,key_id,encrypted_secret,last_step,expires_at,kind FROM business_mfa_methods WHERE account_id=$1 AND status=$2 FOR UPDATE`, account, status).Scan(&m.id, &m.account, &m.status, &m.key, &m.cipher, &m.last, &m.expiry, &m.kind)
 	return m, err
 }
 func aad(account, method ids.ID) []byte { return []byte(account.String() + ":" + method.String()) }
@@ -76,7 +78,7 @@ func (s *Service) EnrolTOTP(ctx context.Context, account, session ids.ID, passwo
 	if err := s.limit(ctx, "mfa-enrol:"+account.String(), 5); err != nil {
 		return Enrolment{}, err
 	}
-	result := Enrolment{MethodID: ids.New(), ExpiresAt: s.Now().UTC().Add(10 * time.Minute)}
+	result := Enrolment{Kind: "TOTP", MethodID: ids.New(), ExpiresAt: s.Now().UTC().Add(10 * time.Minute)}
 	err := database.WithTx(ctx, s.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
 		if _, err := s.liveSession(ctx, tx, account, session); err != nil {
 			return err
@@ -121,6 +123,7 @@ func (s *Service) ConfirmTOTP(ctx context.Context, account, session ids.ID, code
 		return nil, err
 	}
 	var recovery []string
+	var clientErr error
 	err := database.WithTx(ctx, s.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
 		recovery = nil
 		if _, err := s.liveSession(ctx, tx, account, session); err != nil {
@@ -137,14 +140,27 @@ func (s *Service) ConfirmTOTP(ctx context.Context, account, session ids.ID, code
 		if m.expiry == nil || !now.Before(*m.expiry) {
 			return invalidMFA()
 		}
-		secret, err := s.Sealer.Open(m.key, m.cipher, aad(account, m.id))
-		if err != nil {
-			return err
+		step := int64(-1)
+		if m.kind == "TOTP" {
+			secret, err := s.Sealer.Open(m.key, m.cipher, aad(account, m.id))
+			if err != nil {
+				return err
+			}
+			step, err = (credentials.TOTP{}).Verify(secret, code, now)
+			if err != nil || step <= m.last {
+				clientErr = invalidMFA()
+				return s.record(ctx, tx, &account, "MFA_CONFIRMATION_FAILED", m.id)
+			}
+		} else {
+			if err := s.consumeMFAOTP(ctx, tx, m, m.id, "ENROL", code); err != nil {
+				if errors.As(err, new(*apperrors.Error)) {
+					clientErr = invalidMFA()
+					return s.record(ctx, tx, &account, "MFA_CONFIRMATION_FAILED", m.id)
+				}
+				return err
+			}
 		}
-		step, err := (credentials.TOTP{}).Verify(secret, code, now)
-		if err != nil || step <= m.last {
-			return invalidMFA()
-		}
+
 		if _, err := tx.Exec(ctx, `UPDATE business_mfa_methods SET status='ACTIVE',confirmed_at=$2,last_step=$3,expires_at=NULL WHERE id=$1`, m.id, now, step); err != nil {
 			return err
 		}
@@ -166,10 +182,10 @@ func (s *Service) ConfirmTOTP(ctx context.Context, account, session ids.ID, code
 	if err != nil {
 		return nil, err
 	}
-	return recovery, nil
+	return recovery, clientErr
 }
 
-func (s *Service) verifyCode(ctx context.Context, tx pgx.Tx, account ids.ID, code string, backup bool) error {
+func (s *Service) verifyCode(ctx context.Context, tx pgx.Tx, account ids.ID, code string, backup bool, binding ids.ID, purpose string) error {
 	m, err := loadMethod(ctx, tx, account, "ACTIVE")
 	if errors.Is(err, pgx.ErrNoRows) {
 		return invalidMFA()
@@ -187,6 +203,9 @@ func (s *Service) verifyCode(ctx context.Context, tx pgx.Tx, account ids.ID, cod
 			return invalidMFA()
 		}
 		return nil
+	}
+	if m.kind != "TOTP" {
+		return s.consumeMFAOTP(ctx, tx, m, binding, purpose, code)
 	}
 	secret, err := s.Sealer.Open(m.key, m.cipher, aad(account, m.id))
 	if err != nil {
@@ -207,11 +226,16 @@ func (s *Service) StepUp(ctx context.Context, account, session ids.ID, code stri
 	if err := s.limit(ctx, "mfa-step-up:"+account.String(), 10); err != nil {
 		return err
 	}
-	return database.WithTx(ctx, s.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
+	var clientErr error
+	err := database.WithTx(ctx, s.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
 		if _, err := s.liveSession(ctx, tx, account, session); err != nil {
 			return err
 		}
-		if err := s.verifyCode(ctx, tx, account, code, backup); err != nil {
+		if err := s.verifyCode(ctx, tx, account, code, backup, session, "STEP_UP"); err != nil {
+			if errors.As(err, new(*apperrors.Error)) {
+				clientErr = invalidMFA()
+				return s.record(ctx, tx, &account, "MFA_STEP_UP_FAILED", session)
+			}
 			return err
 		}
 		if _, err := tx.Exec(ctx, `UPDATE business_sessions SET mfa_at=$2 WHERE id=$1`, session, s.Now().UTC()); err != nil {
@@ -219,6 +243,10 @@ func (s *Service) StepUp(ctx context.Context, account, session ids.ID, code stri
 		}
 		return s.record(ctx, tx, &account, "MFA_STEP_UP", session)
 	})
+	if err != nil {
+		return err
+	}
+	return clientErr
 }
 
 func (s *Service) CompleteMFALogin(ctx context.Context, raw, code string, backup bool) (Tokens, error) {
@@ -262,7 +290,7 @@ func (s *Service) CompleteMFALogin(ctx context.Context, raw, code string, backup
 		if err != nil {
 			return err
 		}
-		if err := s.verifyCode(ctx, nested, account, code, backup); err != nil {
+		if err := s.verifyCode(ctx, nested, account, code, backup, id, "LOGIN"); err != nil {
 			_ = nested.Rollback(ctx)
 			if errors.As(err, new(*apperrors.Error)) {
 				clientErr = invalidMFA()

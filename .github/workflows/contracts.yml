@@ -17,6 +17,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install openapi-spec-validator==0.9.0 check-jsonschema==0.38.2
+      - name: Business Operations generated contracts and examples
+        run: |
+          python scripts/contracts/generate_business_operations.py --check --validate
+          python scripts/contracts/generate_business_events.py --check
       - name: OpenAPI documents are valid
         run: |
           set -euo pipefail

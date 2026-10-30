@@ -87,6 +87,18 @@ jobs:
         run: docker pull '${{ steps.ref.outputs.image }}'
       - name: Smoke test (non-root, all binaries, probes fail without a server)
         run: bash scripts/ci/check-image-smoke.sh '${{ steps.ref.outputs.image }}' '${{ matrix.component }}'
+      - uses: actions/setup-go@v5
+        if: matrix.component == 'business-operations-service'
+        with:
+          go-version: "1.26.10"
+          cache-dependency-path: tests/e2e/go.sum
+      - name: Business API worker migration and broker recovery containers
+        if: matrix.component == 'business-operations-service'
+        working-directory: tests/e2e
+        env:
+          GOWORK: "off"
+          GOTOOLCHAIN: local
+        run: go run ../../scripts/ci/business-container-smoke.go '${{ steps.ref.outputs.image }}'
       - name: Vulnerability scan (Trivy, HIGH/CRITICAL with a fix available)
         # Container pinned by digest (no third-party action dependency). PR
         # images are read from the local daemon; pushed images from GHCR.

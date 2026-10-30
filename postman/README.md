@@ -184,3 +184,25 @@ For every implemented frontend-facing endpoint:
 6. examples reflect the actual contract.
 
 Postman is the frontend/QA handoff. OpenAPI is the machine contract.
+# Business Operations Section 3 handoff
+
+The official `03 Business Operations` folder contains 96 implemented operations
+under `00 Auth & Security`, `01 Organisation & Staff` and
+`02 Roles, Permissions & Approvals`. `_Internal`, `_Webhooks` and `_Admin` remain
+separate: no frontend authentication bypass or verification-truth callback exists.
+The canonical public prefix is `/api/v1/business/`; the explicit legacy alias
+shares the same security. Use an authorised local/staging environment only.
+
+Set business email/password and base_url, register, log in, capture tokens and
+select the created organisation. Enrol and confirm MFA before protected changes.
+The collection captures created IDs/tokens; target IDs, versions and fresh MFA
+codes must match the workflow. Reuse an idempotency key only for an identical
+retry; use a new key for a different command. Configure independent approvers
+before activation and before sealing an action with its first approval policy.
+KYB/capacity truth is never provided by frontend input.
+
+OpenAPI is `contracts/public/openapi/business-operations.yaml`. Regenerate and
+check both handoff artifacts together using
+`python scripts/contracts/generate_business_operations.py --check --validate`.
+Actual registered-handler drift is tested by the Business Operations suite.
+See the Section 3 report for provider and deployment certification limits.

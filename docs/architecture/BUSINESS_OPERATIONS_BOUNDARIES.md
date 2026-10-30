@@ -42,3 +42,29 @@ These are ownership boundaries for future sections. A directory does not mean it
 | workers | Process registration, lifecycle and worker composition | Worker jobs use local repositories or authorized service contracts only |
 
 Common restrictions: no cross-service SQL, no payment-provider SDK/calls, no raw media/document storage, no duplicate verification authority, no notification provider delivery and no locally authoritative human messaging history.
+
+## Section 3 implemented composition
+
+`internal/auth`, `organisation`, `workforce` and `approvals` now supply durable
+business identity, organisation, membership/scope and approval workflows.
+`internal/http` composes these bounded contexts; `finance` contains only approval
+reference validation. Context placeholders for Sections 4–27 remain future work.
+
+Gateway canonical public routing is `/api/v1/business/`; the retained
+`/api/v1/business-operations/` compatibility prefix uses identical security and
+handlers. The Gateway validates the business access JWT and signs its own service
+identity. Business Operations verifies both and derives the organisation from
+the selected session and live membership. Request headers cannot select a tenant.
+Current account/session/role/grant state is checked on every protected request.
+
+Verification broker events are hints, never authoritative decisions. API/worker
+read the owning service through signed HTTP before updating local projections.
+Capacity-specific and legal representative assertions are separate typed,
+fail-closed contracts; a generic verified business case cannot provide them.
+Notification jobs contain protected ciphertext and use the owning service's
+authenticated acceptance API. Delivery is never performed locally.
+
+PostgreSQL and event ownership checks reject effective database/subject namespace
+overrides. Runtime, migration and worker secret requirements are separate.
+Local and CI disposable infrastructure certification is distinct from actual
+staging provisioning and rollout; see the implementation reports/runbook.

@@ -25,22 +25,31 @@ type Level struct {
 	RequireMFA bool                   `json:"require_mfa"`
 }
 type Policy struct {
-	ID                   ids.ID     `json:"id"`
-	OrganisationID       ids.ID     `json:"organisation_id"`
-	Version              int64      `json:"version"`
-	Action               string     `json:"action"`
-	Risk                 string     `json:"risk"`
-	Active               bool       `json:"active"`
-	EffectiveAt          time.Time  `json:"effective_at"`
-	ExpiresAt            *time.Time `json:"expires_at,omitempty"`
-	ThresholdMinor       *int64     `json:"threshold_minor,omitempty"`
-	Currency             string     `json:"currency,omitempty"`
-	SeparationOfDuties   bool       `json:"separation_of_duties"`
-	DistinctAcrossLevels bool       `json:"distinct_across_levels"`
-	Levels               []Level    `json:"levels"`
+	Channel              string           `json:"channel,omitempty"`
+	Scope                *workforce.Scope `json:"scope,omitempty"`
+	ActorRoleKey         *ids.ID          `json:"actor_role_key,omitempty"`
+	ID                   ids.ID           `json:"id"`
+	OrganisationID       ids.ID           `json:"organisation_id"`
+	Version              int64            `json:"version"`
+	Action               string           `json:"action"`
+	Risk                 string           `json:"risk"`
+	Active               bool             `json:"active"`
+	EffectiveAt          time.Time        `json:"effective_at"`
+	ExpiresAt            *time.Time       `json:"expires_at,omitempty"`
+	ThresholdMinor       *int64           `json:"threshold_minor,omitempty"`
+	Currency             string           `json:"currency,omitempty"`
+	SeparationOfDuties   bool             `json:"separation_of_duties"`
+	DistinctAcrossLevels bool             `json:"distinct_across_levels"`
+	Levels               []Level          `json:"levels"`
 }
 
 func (p Policy) Validate() error {
+	if len(p.Channel) > 64 {
+		return ErrInvalid
+	}
+	if p.Scope != nil && (!p.Scope.Valid() || p.Scope.Organisation != p.OrganisationID) || p.ActorRoleKey != nil && p.ActorRoleKey.ValidateV7() != nil {
+		return ErrInvalid
+	}
 	if p.ID.ValidateV7() != nil || p.OrganisationID.ValidateV7() != nil || p.Version < 1 || strings.TrimSpace(p.Action) == "" || p.EffectiveAt.IsZero() || len(p.Levels) == 0 || len(p.Levels) > 10 || p.ExpiresAt != nil && !p.ExpiresAt.After(p.EffectiveAt) {
 		return ErrInvalid
 	}
@@ -75,6 +84,14 @@ func (p Policy) Applies(org ids.ID, action, risk string, amount *int64, ccy stri
 }
 
 func clone(p Policy) Policy {
+	if p.Scope != nil {
+		value := *p.Scope
+		p.Scope = &value
+	}
+	if p.ActorRoleKey != nil {
+		value := *p.ActorRoleKey
+		p.ActorRoleKey = &value
+	}
 	p.Levels = append([]Level(nil), p.Levels...)
 	if p.ThresholdMinor != nil {
 		v := *p.ThresholdMinor
@@ -85,6 +102,45 @@ func clone(p Policy) Policy {
 		p.ExpiresAt = &v
 	}
 	return p
+}
+
+func (p Policy) MatchesTarget(target workforce.Target, actorRoleKey ids.ID) bool {
+	return (p.ActorRoleKey == nil || *p.ActorRoleKey == actorRoleKey) && (p.Scope == nil || workforce.ScopeContains(*p.Scope, target, true))
+}
+
+// Restore accepts only repository-owned state read while holding the request's
+// database row lock. Historical decisions retain their original authorization;
+// they are not re-evaluated against roles that may have changed since then.
+func Restore(view View, amount *int64, ccy string) (*Request, error) {
+	if view.ID.ValidateV7() != nil || view.RequesterID.ValidateV7() != nil || !view.Scope.Valid() || view.Policy.Validate() != nil || view.Scope.Organisation != view.Policy.OrganisationID || view.Level < 0 || view.Level > len(view.Policy.Levels) || view.Deadline.IsZero() {
+		return nil, ErrInvalid
+	}
+	switch view.State {
+	case "DRAFT", "PENDING", "APPROVED", "REJECTED", "CANCELLED", "EXPIRED":
+	default:
+		return nil, ErrInvalid
+	}
+	if view.State == "PENDING" && view.Level >= len(view.Policy.Levels) || view.State == "APPROVED" && view.Level != len(view.Policy.Levels) {
+		return nil, ErrInvalid
+	}
+	if amount != nil && (*amount < 0 || !currency(ccy)) {
+		return nil, ErrInvalid
+	}
+	view.Policy = clone(view.Policy)
+	view.Decisions = append([]Decision(nil), view.Decisions...)
+	for i := range view.Decisions {
+		d := &view.Decisions[i]
+		if d.ID.ValidateV7() != nil || d.ActorID.ValidateV7() != nil || d.Level < 0 || d.Level >= len(view.Policy.Levels) {
+			return nil, ErrInvalid
+		}
+		d.Evidence = append([]ids.ID(nil), d.Evidence...)
+	}
+	r := &Request{view: view, currency: ccy}
+	if amount != nil {
+		value := *amount
+		r.amount = &value
+	}
+	return r, nil
 }
 
 type Decision struct {
@@ -226,7 +282,7 @@ func (r *Request) Cancel(actor ids.ID, reason string, now time.Time) error {
 	if actor != r.view.RequesterID || strings.TrimSpace(reason) == "" || len(reason) > 2000 || now.IsZero() {
 		return ErrDenied
 	}
-	if r.view.State != "PENDING" {
+	if r.view.State != "PENDING" && r.view.State != "DRAFT" {
 		return ErrConflict
 	}
 	if !now.Before(r.view.Deadline) {

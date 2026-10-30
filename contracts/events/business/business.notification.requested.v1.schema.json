@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/business/business.notification.requested.v1.schema.json",
+  "title": "business.notification.requested.v1",
+  "description": "Producer business-operations-service. Canonical subject realestate.business.notification.requested.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "business.notification.requested.v1"
+    },
+    "producer": {
+      "const": "business-operations-service"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "ciphertext": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "minLength": 32
+        }
+      },
+      "required": [
+        "job_id",
+        "key_id",
+        "ciphertext"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

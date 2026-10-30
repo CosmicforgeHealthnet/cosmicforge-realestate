@@ -7,6 +7,7 @@ import (
 	"time"
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth/credentials"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/migrations"
 	sharedauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/jwt"
@@ -24,6 +25,10 @@ func newBusinessAuth(t *testing.T) (*businessauth.Service, *testkit.Database) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	sealer, err := credentials.NewSealer("test-protection", []byte("01234567890123456789012345678901"), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	verifier, err := sharedauth.NewVerifier(sharedauth.VerifierConfig{Issuers: []sharedauth.TrustedIssuer{{Issuer: string(platform.BusinessOperationsService), Domain: platform.DomainBusinessOperations, Keys: jwt.NewStaticKeys().Add(string(platform.BusinessOperationsService), key.KID, key.PublicKey())}}})
 	if err != nil {
 		t.Fatal(err)
@@ -36,6 +41,7 @@ func newBusinessAuth(t *testing.T) (*businessauth.Service, *testkit.Database) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	service.Sealer = sealer
 	return service, db
 }
 

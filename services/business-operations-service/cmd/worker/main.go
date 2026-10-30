@@ -12,6 +12,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/app"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/config"
 	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/workers"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/buildinfo"
 	sharedcfg "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
@@ -59,6 +60,11 @@ func run() error {
 	if err := conn.EnsureStream(ctx, businessEvents.StreamConfig(cfg.SubjectPrefix)); err != nil {
 		return fmt.Errorf("ensure business operations event stream: %w", err)
 	}
+	jobs, err := workers.Start(ctx, a.Pool, conn, cfg.SubjectPrefix, sharedcfg.New(), log)
+	if err != nil {
+		return fmt.Errorf("business event workers: %w", err)
+	}
+	defer jobs.Stop()
 	host, _ := os.Hostname()
 	owner := fmt.Sprintf("%s-%s", host, ids.New().String()[24:])
 	relay, err := outbox.NewWorker(a.Outbox, conn, outbox.WorkerConfig{Owner: owner, PollInterval: cfg.OutboxPollInterval, Logger: log})
@@ -70,6 +76,8 @@ func run() error {
 	a.Health.Register(r)
 	var wg sync.WaitGroup
 	wg.Add(1)
+	wg.Add(1)
+	go func() { defer wg.Done(); _ = jobs.Run(ctx) }()
 	go func() {
 		defer wg.Done()
 		if err := relay.Run(ctx); err != nil && ctx.Err() == nil {

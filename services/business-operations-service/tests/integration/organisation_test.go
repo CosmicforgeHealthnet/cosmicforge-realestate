@@ -64,6 +64,21 @@ func (f *businessVerificationFake) Submit(_ context.Context, id ids.ID, key stri
 	f.cases[id] = c
 	return c, nil
 }
+func (f *businessVerificationFake) Reverify(_ context.Context, previous ids.ID, reference, key string) (verification.Case, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.down {
+		return verification.Case{}, errors.New("provider unavailable")
+	}
+	if id, ok := f.keys[key]; ok {
+		return f.cases[id], nil
+	}
+	old := f.cases[previous]
+	c := verification.Case{VerificationID: ids.New(), Type: old.Type, Subject: old.Subject, Status: "DRAFT", SupersedesID: &previous, UpdatedAt: time.Now().UTC()}
+	f.cases[c.VerificationID] = c
+	f.keys[key] = c.VerificationID
+	return c, nil
+}
 func (f *businessVerificationFake) Process(ctx context.Context, id ids.ID, key string) (verification.Case, error) {
 	return f.Get(ctx, id)
 }

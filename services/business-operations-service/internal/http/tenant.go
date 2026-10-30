@@ -24,9 +24,13 @@ import (
 )
 
 type Handler struct {
-	Auth         *businessauth.Handler
-	Verification verification.API
-	Notification notification.Sender
+	Auth                    *businessauth.Handler
+	Verification            verification.API
+	Notification            notification.Sender
+	InvitationAcceptURL     string
+	CapacityAuthority       verification.CapacityAuthority
+	RepresentativeAuthority verification.RepresentativeAuthority
+	ClosureReadiness        verification.ClosureReadiness
 }
 type tenant struct {
 	Account, Organisation, Member, Role ids.ID
@@ -34,6 +38,9 @@ type tenant struct {
 	MFAAt                               *time.Time
 	Representative                      ids.ID
 	Membership                          workforce.Membership
+	Direct                              workforce.Membership
+	Emergency                           []ids.ID
+	Delegated                           []delegatedAuthority
 }
 
 func (h *Handler) load(ctx context.Context, q database.Querier) (tenant, error) {
@@ -45,7 +52,11 @@ func (h *Handler) load(ctx context.Context, q database.Querier) (tenant, error) 
 	var status string
 	var effective time.Time
 	var expiry *time.Time
-	err := q.QueryRow(ctx, `SELECT m.id,m.account_id,m.organisation_id,m.role_id,m.status,m.effective_at,m.expires_at,o.state,o.representative_account_id,s.mfa_at FROM staff_memberships m JOIN role_templates r ON r.id=m.role_id AND r.organisation_id=m.organisation_id JOIN organisations o ON o.id=m.organisation_id JOIN business_sessions s ON s.account_id=m.account_id AND s.id=$3 WHERE m.account_id=$1 AND m.organisation_id=$2 AND r.active AND s.revoked_at IS NULL AND s.expires_at>now()`, p.ActorID, p.OrganizationID, p.SessionID).Scan(&t.Member, &t.Account, &t.Organisation, &t.Role, &status, &effective, &expiry, &t.State, &t.Representative, &t.MFAAt)
+	query := `SELECT m.id,m.account_id,m.organisation_id,m.role_id,m.status,m.effective_at,m.expires_at,o.state,o.representative_account_id,s.mfa_at FROM staff_memberships m JOIN role_templates r ON r.id=m.role_id AND r.organisation_id=m.organisation_id JOIN organisations o ON o.id=m.organisation_id JOIN business_sessions s ON s.account_id=m.account_id AND s.id=$3 AND s.organisation_id=m.organisation_id WHERE m.account_id=$1 AND m.organisation_id=$2 AND r.active AND s.revoked_at IS NULL AND s.expires_at>now()`
+	if _, transaction := q.(pgx.Tx); transaction {
+		query += " FOR UPDATE OF o FOR SHARE OF m,r,s"
+	}
+	err := q.QueryRow(ctx, query, p.ActorID, p.OrganizationID, p.SessionID).Scan(&t.Member, &t.Account, &t.Organisation, &t.Role, &status, &effective, &expiry, &t.State, &t.Representative, &t.MFAAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return t, apperrors.PermissionDenied("Organisation access denied.")
 	}
@@ -92,6 +103,22 @@ func (h *Handler) load(ctx context.Context, q database.Querier) (tenant, error) 
 	}
 	err = rows.Err()
 	rows.Close()
+	if err != nil {
+		return t, err
+	}
+	t.Direct = t.Membership
+	t.Direct.Grants = append([]workforce.Grant(nil), t.Membership.Grants...)
+	// A delayed maintenance worker must never extend verified authority.
+	if t.State == "ACTIVE" {
+		var current bool
+		if err := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM verification_links WHERE organisation_id=$1 AND purpose='KYB' AND provider_status='VERIFIED' AND expires_at>$2)`, t.Organisation, now).Scan(&current); err != nil {
+			return t, err
+		}
+		if !current {
+			t.State = "RESTRICTED"
+		}
+	}
+	err = h.loadTemporary(ctx, q, &t, now)
 	return t, err
 }
 
@@ -145,13 +172,16 @@ func (h *Handler) authorize(ctx context.Context, q database.Querier, capability,
 		return t, workforce.Target{}, err
 	}
 	if kind == "COMPANY" {
+		if !id.IsZero() && id != t.Organisation {
+			return t, workforce.Target{}, apperrors.PermissionDenied("Organisation scope mismatch.")
+		}
 		id = t.Organisation
 	}
 	target, err := resolve(ctx, q, t.Organisation, kind, id)
 	if err != nil {
 		return t, target, err
 	}
-	restricted := (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify"
+	restricted := (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify" && capability != "approvals:create" && capability != "approvals:decide" && capability != "break_glass:review"
 	now := h.Auth.Service.Now().UTC()
 	if stepUp && !workforce.RecentMFA(t.MFAAt, now, 5*time.Minute) {
 		return t, target, apperrors.PermissionDenied("Recent MFA is required.")
@@ -159,6 +189,11 @@ func (h *Handler) authorize(ctx context.Context, q database.Querier, capability,
 	err = workforce.Authorize(t.Membership, workforce.DecisionInput{AccountID: t.Account, Target: target, Capability: permissions.Permission(capability), Now: now, MFAAt: t.MFAAt, StepUpWindow: 5 * time.Minute, Restricted: restricted})
 	if err != nil {
 		return t, target, apperrors.PermissionDenied("Capability or scope denied.")
+	}
+	if len(t.Emergency) > 0 && workforce.Authorize(t.Direct, workforce.DecisionInput{AccountID: t.Account, Target: target, Capability: permissions.Permission(capability), Now: now, MFAAt: t.MFAAt, StepUpWindow: 5 * time.Minute, Restricted: restricted}) != nil {
+		if err := audit(ctx, q, t, "BREAK_GLASS_USED", "resource", target.Scope.ID, map[string]any{"scope": target.Scope, "capability": capability, "grants": t.Emergency}); err != nil {
+			return t, target, err
+		}
 	}
 	return t, target, nil
 }
@@ -179,6 +214,16 @@ func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 }
 func reply(w http.ResponseWriter, r *http.Request, status int, data any, err error) {
 	if err != nil {
+		switch database.SQLState(err) {
+		case database.CodeForeignKeyViolation:
+			err = apperrors.Conflict("RESOURCE_REFERENCE_CONFLICT", "The resource is still referenced or its hierarchy changed.")
+		case database.CodeUniqueViolation:
+			err = apperrors.Conflict("DUPLICATE_RESOURCE", "An equivalent resource already exists.")
+		case database.CodeCheckViolation:
+			err = apperrors.InvalidRequest("The requested values violate a resource constraint.")
+		case database.CodeSerializationFailure, database.CodeDeadlockDetected:
+			err = apperrors.Conflict("CONCURRENT_MODIFICATION", "The resource changed concurrently. Retry with its current version.")
+		}
 		httpx.WriteError(w, r, err)
 		return
 	}

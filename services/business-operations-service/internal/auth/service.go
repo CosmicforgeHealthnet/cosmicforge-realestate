@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth/credentials"
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"net/mail"
 	"strings"
 	"time"
@@ -116,7 +118,7 @@ func (s *Service) Register(ctx context.Context, in Registration, key string) (Re
 		if _, err := tx.Exec(ctx, `INSERT INTO role_templates(id,organisation_id,role_key,name,version,senior_emergency_eligible) VALUES($1,$2,$1,'Owner',1,true)`, role, result.OrganisationID); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(ctx, `INSERT INTO staff_memberships(id,organisation_id,account_id,role_id,kind,status,effective_at) VALUES($1,$2,$3,$4,'OWNER','ACTIVE',$5)`, member, result.OrganisationID, result.AccountID, role, s.Now().UTC()); err != nil {
+		if _, err := tx.Exec(ctx, `INSERT INTO staff_memberships(id,organisation_id,account_id,role_id,kind,status,effective_at,scope_id) VALUES($1,$2,$3,$4,'OWNER','ACTIVE',$5,$2)`, member, result.OrganisationID, result.AccountID, role, s.Now().UTC()); err != nil {
 			return err
 		}
 		for _, capability := range ownerCapabilities {
@@ -149,12 +151,29 @@ func (s *Service) Register(ctx context.Context, in Registration, key string) (Re
 }
 
 func (s *Service) record(ctx context.Context, tx database.Querier, account *ids.ID, typ string, target ids.ID) error {
+	if _, ok := tx.(pgx.Tx); !ok {
+		return database.WithTx(ctx, s.Pool, database.TxOptions{}, func(ctx context.Context, owned pgx.Tx) error { return s.record(ctx, owned, account, typ, target) })
+	}
 	var targetValue any
 	if !target.IsZero() {
 		targetValue = target
 	}
-	_, err := tx.Exec(ctx, `INSERT INTO security_events(id,account_id,event_type,target_id,correlation_id) VALUES($1,$2,$3,$4,$5)`, ids.New(), account, typ, targetValue, requestcontext.From(ctx).RequestID)
-	return err
+	_, err := tx.Exec(ctx, `INSERT INTO security_events(id,account_id,event_type,target_id,correlation_id,organisation_id) VALUES($1,$2,$3,$4,$5,$6)`, ids.New(), account, typ, targetValue, requestcontext.From(ctx).RequestID, requestcontext.From(ctx).OrganizationID)
+	if err != nil {
+		return err
+	}
+	if account != nil {
+		var email string
+		if err := tx.QueryRow(ctx, `SELECT email FROM business_accounts WHERE id=$1`, *account).Scan(&email); err != nil {
+			return err
+		}
+		event, err := businessEvents.NotificationRequest(ctx, s.Sealer, ids.New(), notification.SendRequest{Recipient: notification.Recipient{Domain: string(platform.DomainBusinessOperations), ID: *account}, TemplateKey: notification.TemplateSecurityAlert, Channels: []string{notification.ChannelEmail}, Variables: map[string]string{"event": typ}, Destinations: notification.Destinations{Email: email}})
+		if err != nil {
+			return err
+		}
+		return s.Outbox.Add(ctx, tx, event)
+	}
+	return nil
 }
 
 func (s *Service) limit(ctx context.Context, key string, max int) error {
@@ -167,6 +186,14 @@ func (s *Service) limit(ctx context.Context, key string, max int) error {
 		return apperrors.New(429, "RATE_LIMITED", "Please retry later.").WithRetryAfter(900)
 	}
 	return nil
+}
+
+func (s *Service) RateLimit(ctx context.Context, purpose string, max int) error {
+	return s.limit(ctx, purpose, max)
+}
+
+func (s *Service) RecordSecurity(ctx context.Context, tx pgx.Tx, account ids.ID, eventType string, target ids.ID) error {
+	return s.record(ctx, tx, &account, eventType, target)
 }
 
 type Login struct {
@@ -183,9 +210,11 @@ type Tokens struct {
 	ExpiresAt    time.Time `json:"expires_at"`
 }
 type LoginResult struct {
-	Tokens      *Tokens `json:"tokens,omitempty"`
-	MFAToken    string  `json:"mfa_token,omitempty"`
-	MFARequired bool    `json:"mfa_required"`
+	MFAKind        string  `json:"mfa_kind,omitempty"`
+	DeliveryQueued bool    `json:"delivery_queued,omitempty"`
+	Tokens         *Tokens `json:"tokens,omitempty"`
+	MFAToken       string  `json:"mfa_token,omitempty"`
+	MFARequired    bool    `json:"mfa_required"`
 }
 
 func (s *Service) Login(ctx context.Context, in Login, clientKey string) (LoginResult, error) {
@@ -233,12 +262,24 @@ func (s *Service) Login(ctx context.Context, in Login, clientKey string) (LoginR
 		}
 		if mfa {
 			raw := security.RandomToken(32)
-			_, err := tx.Exec(ctx, `INSERT INTO business_mfa_challenges(id,account_id,token_hash,purpose,expires_at,organisation_id,device_name,device_platform) VALUES($1,$2,$3,'LOGIN',$4,$5,$6,$7)`, ids.New(), a.ID, s.hash("mfa-login", raw), s.Now().UTC().Add(5*time.Minute), nullableID(in.OrganisationID), in.DeviceName, in.DevicePlatform)
+			challengeID := ids.New()
+			_, err := tx.Exec(ctx, `INSERT INTO business_mfa_challenges(id,account_id,token_hash,purpose,expires_at,organisation_id,device_name,device_platform) VALUES($1,$2,$3,'LOGIN',$4,$5,$6,$7)`, challengeID, a.ID, s.hash("mfa-login", raw), s.Now().UTC().Add(5*time.Minute), nullableID(in.OrganisationID), in.DeviceName, in.DevicePlatform)
 			if err != nil {
 				return err
 			}
-			result = LoginResult{MFAToken: raw, MFARequired: true}
-			return nil
+			method, err := loadMethod(ctx, tx, a.ID, "ACTIVE")
+			if err != nil {
+				return err
+			}
+			queued := false
+			if method.kind != "TOTP" {
+				if _, err = s.queueMFAOTP(ctx, tx, method, challengeID, "LOGIN"); err != nil {
+					return err
+				}
+				queued = true
+			}
+			result = LoginResult{MFAToken: raw, MFARequired: true, MFAKind: method.kind, DeliveryQueued: queued}
+			return s.record(ctx, tx, &a.ID, "MFA_LOGIN_CHALLENGE", challengeID)
 		}
 		tokens, err := s.start(ctx, tx, a.ID, in.OrganisationID, in.DeviceName, in.DevicePlatform, nil)
 		if err != nil {
@@ -264,7 +305,7 @@ func (s *Service) start(ctx context.Context, tx pgx.Tx, account, org ids.ID, nam
 		orgRef = &org
 	}
 	device := ids.New()
-	if _, err := tx.Exec(ctx, `INSERT INTO business_devices(id,account_id,label,platform) VALUES($1,$2,$3,$4)`, device, account, name, platformName); err != nil {
+	if _, err := tx.Exec(ctx, `INSERT INTO business_devices(id,account_id,label,platform,risk_flags) VALUES($1,$2,$3,$4,jsonb_build_array('UNTRUSTED_NEW_DEVICE'))`, device, account, name, platformName); err != nil {
 		return Tokens{}, err
 	}
 	store := &sessionStore{q: s.q, tx: tx, create: db.CreateSessionParams{DeviceID: &device, OrganisationID: orgRef, MfaAt: mfaAt}}
@@ -294,7 +335,11 @@ func (s *Service) Refresh(ctx context.Context, raw string) (Tokens, error) {
 		issued, err := manager.Refresh(ctx, raw)
 		if err != nil {
 			if errors.Is(err, sessions.ErrTokenReuse) {
-				if err := s.record(ctx, tx, nil, "REFRESH_TOKEN_REUSE", ids.Nil); err != nil {
+				var account, family ids.ID
+				if err := tx.QueryRow(ctx, `SELECT s.account_id,s.id FROM business_refresh_tokens t JOIN business_sessions s ON s.id=t.session_id WHERE t.token_hash=$1`, sessions.HashToken(raw)).Scan(&account, &family); err != nil {
+					return err
+				}
+				if err := s.record(ctx, tx, &account, "REFRESH_TOKEN_REUSE", family); err != nil {
 					return err
 				}
 				clientErr = apperrors.InvalidToken()

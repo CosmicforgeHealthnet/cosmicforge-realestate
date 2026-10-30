@@ -14,24 +14,40 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/organisation"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
-	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/money"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 )
 
 func Register(authHandler *auth.Handler, verifier verification.API, notify notification.Sender) *Handler {
 	h := &Handler{Auth: authHandler, Verification: verifier, Notification: notify}
+	authHandler.Router.Post("/staff/invitations/accept", h.acceptInvitation)
 	authHandler.Router.Group(func(r chi.Router) {
 		r.Use(authHandler.Authenticate)
+		h.registerHierarchy(r)
+		h.registerApprovals(r)
+		h.registerRoles(r)
+		h.registerStaff(r)
+		h.registerHandovers(r)
+		h.registerTemporary(r)
+		h.registerCapacities(r)
+		h.registerLifecycle(r)
 		r.Get("/organisation", h.getOrganisation)
 		r.Patch("/organisation", h.updateOrganisation)
+		// Annex D uses profile/verification family shorthand; these explicit aliases
+		// share the canonical organisation handlers and all security middleware.
+		r.Get("/profile", h.getOrganisation)
+		r.Patch("/profile", h.updateOrganisation)
+		r.Get("/verification", h.getKYB)
+		r.Get("/capabilities", h.effectiveCapabilities)
 		r.Post("/organisation/verification", h.createKYB)
 		r.Get("/organisation/verification", h.getKYB)
 		r.Post("/organisation/verification/refresh", h.refreshKYB)
 		r.Post("/organisation/verification/submit", h.submitKYB)
+		r.Post("/organisation/verification/renew", h.renewKYB)
 		r.Post("/organisation/verification/evidence", h.attachKYBEvidence)
 		r.Get("/organisation/capacities", h.capacities)
 	})
@@ -142,6 +158,11 @@ func (h *Handler) createKYB(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.Unavailable("Verification Service could not create the case."))
 		return
 	}
+	c, err = h.Verification.Get(r.Context(), c.VerificationID)
+	if err != nil {
+		reply(w, r, 0, nil, apperrors.Unavailable("Authoritative verification status is unavailable."))
+		return
+	}
 	err = h.applyVerification(r.Context(), t, c)
 	reply(w, r, 202, c, err)
 }
@@ -170,7 +191,7 @@ func (h *Handler) submitKYB(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.NotFound("VERIFICATION_NOT_FOUND", "No KYB case is linked."))
 		return
 	}
-	_, err = h.Verification.Submit(r.Context(), id, "business-kyb:"+t.Organisation.String()+":submit")
+	_, err = h.Verification.Submit(r.Context(), id, "business-kyb:"+t.Organisation.String()+":case:"+id.String()+":submit")
 	if err != nil {
 		reply(w, r, 0, nil, apperrors.Unavailable("Verification submission is unavailable."))
 		return
@@ -216,76 +237,8 @@ func (h *Handler) refreshKYB(w http.ResponseWriter, r *http.Request) {
 	reply(w, r, 200, c, err)
 }
 func (h *Handler) applyVerification(ctx context.Context, t tenant, c verification.Case) error {
-	if c.VerificationID.ValidateV7() != nil || c.Type != verification.TypeBusiness || c.Subject.Type != verification.SubjectBusiness || c.Subject.Domain != string(platform.DomainBusinessOperations) || c.Subject.ID != t.Organisation {
-		return apperrors.PermissionDenied("Verification case does not belong to this organisation.")
-	}
-	switch c.Status {
-	case "CREATED", "DRAFT", "SUBMITTED", "PROCESSING", "MANUAL_REVIEW_REQUIRED", "VERIFIED", "REJECTED", "EXPIRED", "RESTRICTED":
-	default:
-		return apperrors.Unavailable("Unsupported authoritative verification outcome.")
-	}
-	return database.WithTx(ctx, h.Auth.Service.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
-		var current organisation.State
-		if err := tx.QueryRow(ctx, `SELECT state FROM organisations WHERE id=$1 FOR UPDATE`, t.Organisation).Scan(&current); err != nil {
-			return err
-		}
-		if current == organisation.Closed || current == organisation.ClosurePending {
-			return apperrors.Conflict("ORGANISATION_CLOSING", "Organisation is closing.")
-		}
-		linked, err := tx.Exec(ctx, `INSERT INTO verification_links(id,organisation_id,case_id,purpose,provider_status,expires_at,provider_updated_at) VALUES($1,$2,$3,'KYB',$4,$5,$6) ON CONFLICT(organisation_id,purpose) DO UPDATE SET provider_status=excluded.provider_status,expires_at=excluded.expires_at,provider_updated_at=excluded.provider_updated_at,updated_at=now() WHERE verification_links.case_id=excluded.case_id`, ids.New(), t.Organisation, c.VerificationID, c.Status, c.ExpiresAt, c.UpdatedAt)
-		if err != nil {
-			return err
-		}
-		if linked.RowsAffected() != 1 {
-			return apperrors.Conflict("VERIFICATION_LINK_CONFLICT", "A different KYB case is already linked.")
-		}
-		next := current
-		now := h.Auth.Service.Now().UTC()
-		v := organisation.Verification{CaseID: c.VerificationID, Status: c.Status, ExpiresAt: c.ExpiresAt}
-		if current == organisation.Draft {
-			if err := organisation.Transition(current, organisation.KYBPending, v, now, false); err != nil {
-				return err
-			}
-			if _, err := tx.Exec(ctx, `UPDATE organisations SET state='KYB_PENDING',version=version+1,updated_at=now() WHERE id=$1`, t.Organisation); err != nil {
-				return err
-			}
-			if err := audit(ctx, tx, t, "ORGANISATION_KYB_PENDING", "organisation", t.Organisation, map[string]any{"case_id": c.VerificationID}); err != nil {
-				return err
-			}
-			current = organisation.KYBPending
-			next = current
-		}
-		if c.Status == "VERIFIED" && v.Current(now) {
-			next = organisation.Active
-		} else if c.Status == "REJECTED" || c.Status == "EXPIRED" || c.Status == "RESTRICTED" || c.ExpiresAt != nil && !now.Before(*c.ExpiresAt) {
-			next = organisation.Restricted
-		}
-		if current == organisation.Suspended {
-			next = current
-		}
-		if next != current {
-			if err := organisation.Transition(current, next, v, now, false); err != nil {
-				return apperrors.Conflict("ORGANISATION_STATE_CONFLICT", "Invalid organisation lifecycle transition.")
-			}
-			if _, err := tx.Exec(ctx, `UPDATE organisations SET state=$2,version=version+1,updated_at=now(),activated_at=CASE WHEN $2='ACTIVE' THEN coalesce(activated_at,now()) ELSE activated_at END WHERE id=$1`, t.Organisation, string(next)); err != nil {
-				return err
-			}
-			eventType := "business.organisation.restricted.v1"
-			if next == organisation.Active {
-				eventType = "business.verified.v1"
-			} else if next == organisation.KYBPending {
-				eventType = "business.organisation.verification_pending.v1"
-			}
-			event, err := events.New(ctx, platform.BusinessOperationsService, eventType, "organisation", t.Organisation, map[string]any{"organisation_id": t.Organisation, "verification_id": c.VerificationID, "state": next, "expires_at": c.ExpiresAt})
-			if err != nil {
-				return err
-			}
-			if err := h.Auth.Service.Outbox.Add(ctx, tx, event); err != nil {
-				return err
-			}
-		}
-		return audit(ctx, tx, t, "KYB_STATUS_UPDATED", "organisation", t.Organisation, map[string]any{"case_id": c.VerificationID, "status": c.Status, "state": next})
-	})
+	p := organisation.Projection{Sealer: h.Auth.Service.Sealer, Pool: h.Auth.Service.Pool, Outbox: h.Auth.Service.Outbox, Now: h.Auth.Service.Now}
+	return p.Apply(ctx, t.Organisation, &t.Account, c)
 }
 func (h *Handler) attachKYBEvidence(w http.ResponseWriter, r *http.Request) {
 	var in struct {
@@ -318,7 +271,7 @@ func (h *Handler) attachKYBEvidence(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.NotFound("VERIFICATION_NOT_FOUND", "No KYB case is linked."))
 		return
 	}
-	out, err := h.Verification.AttachEvidence(r.Context(), id, in.MediaID, in.EvidenceType, "business-evidence:"+t.Organisation.String()+":"+key)
+	out, err := h.Verification.AttachEvidence(r.Context(), id, in.MediaID, in.EvidenceType, "business-evidence:"+t.Organisation.String()+":"+security.SHA256Hex([]byte(key)))
 	if err != nil {
 		reply(w, r, 0, nil, apperrors.Unavailable("Verification evidence operation is unavailable."))
 		return
@@ -331,7 +284,12 @@ func (h *Handler) capacities(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, err)
 		return
 	}
-	rows, err := h.Auth.Service.Pool.Query(r.Context(), `SELECT to_jsonb(x) FROM (SELECT id AS capacity_id,code,status,verification_link_id,effective_at,expires_at,restricted_at,version FROM organisation_capacities WHERE organisation_id=$1 ORDER BY code LIMIT 100) x`, t.Organisation)
+	limit, offset, err := pagination(r)
+	if err != nil {
+		reply(w, r, 0, nil, err)
+		return
+	}
+	rows, err := h.Auth.Service.Pool.Query(r.Context(), `SELECT to_jsonb(x) FROM (SELECT id AS capacity_id,code,status,verification_link_id,effective_at,expires_at,restricted_at,version FROM organisation_capacities WHERE organisation_id=$1 ORDER BY code LIMIT $2 OFFSET $3) x`, t.Organisation, limit, offset)
 	if err != nil {
 		reply(w, r, 0, nil, err)
 		return
@@ -346,5 +304,5 @@ func (h *Handler) capacities(w http.ResponseWriter, r *http.Request) {
 		}
 		items = append(items, raw)
 	}
-	reply(w, r, 200, map[string]any{"items": items}, rows.Err())
+	reply(w, r, 200, map[string]any{"items": items, "limit": limit, "offset": offset}, rows.Err())
 }

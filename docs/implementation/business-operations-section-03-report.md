@@ -1,182 +1,129 @@
-# Business Operations Section 3 implementation checkpoint
+# Business Operations Section 3 implementation and certification
 
-## Continuing implementation after ac40ef1
+## A. Baseline and delivery identity
 
-The matrix below records the earlier domain-rule checkpoint and is superseded
-for the following implemented work: migration 00002 now contains the complete
-Section 3 table catalogue plus secure supporting records; SQLC account/session
-queries are generated; registration, credentials, rotating sessions, family
-reuse detection/revocation, encrypted TOTP, one-time recovery codes, session/device
-HTTP APIs and organisation context selection are implemented. API startup requires
-shared service identity and separate business signing/MFA keys. Organisation profile
-and authenticated KYB create/evidence/submit/refresh operations are wired. Frontend
-input cannot set verification truth. The current local suite passes 30 tests/subtests,
-zero skips, against disposable PostgreSQL and real JetStream; vet/staticcheck and
-SQLC drift pass. The full CI checkpoint on ac40ef1 passed all five workflows.
+Repository: `CosmicforgeHealthnet/cosmicforge-realestate`; branch: **staging only**. Starting remote commit: `065b8e133bd19e6500fe67bcd31bfb61f2cf6b54`, fetched and compared before changes. Historical commits `cdc76f4`, `72ef535` and `065b8e1` were audited before reuse.
 
-Workforce, hierarchy management, durable approval/delegation/break-glass operations,
-capacity eligibility, notifications, lifecycle workers, API contracts and full end-to-end
-certification remain in progress. The old FAIL rows must not be read as a current
-absence of the account and database implementation just listed. This report will be
-reconciled into a final matrix when the remaining implementation is complete.
+The authoritative Word source was read in full, Sections 1–27 and Annexes D–J. Its faithful paragraph/table transcription and source SHA256 are in [the specification](../specifications/CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0.md). This delivery implements Section 3 and applicable annex requirements; later domain workflows remain future work.
 
-**Overall: FAIL / incomplete.** This change delivers tested domain rules and
-foundation repairs. It does not deliver the complete Section 3 system requested.
-No public business account, workforce or approval endpoint is implemented or
-certified by this checkpoint. These are missing implementation tasks, not
-external infrastructure blockers.
-
-## A. Baseline
-
-- Repository: CosmicforgeHealthnet/cosmicforge-realestate.
-- Branch: staging only.
-- Starting commit: 065b8e133bd19e6500fe67bcd31bfb61f2cf6b54, matching freshly fetched origin/staging.
-- Foundation commits: c84ffa15dbf3bd69b41542def252ee3ad0ad8a76 and 0d61f5e92ca497eacf17370e5af8fe933b121b7d.
-- Section 3 domain-rule implementation commit: f57eb475b5abd99e8ca0638e960af5c2cb8fc710.
-- Final delivery commit is the subsequent documentation commit containing this
-  report; its SHA is recorded in the delivery response rather than embedded in
-  its own Git content. CI evidence below is explicitly tied to a SHA.
-- Pre-existing Individual Owner frontend changes and user documents remain
-  preserved and unstaged. Main, production and remote hosts were not accessed.
+History: `c84ffa1`/`0d61f5e` foundation, `f57eb47` domain rules, `1c26b26` accounts/sessions/MFA/KYB, `da1dc34` effective database/event ownership, followed by the workforce/approval delivery containing this report. Final SHA is recorded outside its own content; CI evidence is tied to a SHA below. Original dirty Individual Owner frontend files and user documents remain preserved and unstaged. Main and production were not changed. No VPS access was used.
 
 ## B. Sections 1–2 remediation
 
-See [foundation remediation](business-operations-foundation-remediation.md) and
-[updated original report](business-operations-sections-01-02-report.md).
-
-| Previous issue | Evidence/change | Status |
+| Previous blocker | Root cause/remediation | Evidence/status |
 |---|---|---|
-| Backend failed on final prior SHA | GitHub runner communication failure; unchanged-SHA Individual Owner rerun passed; full Backend on c84ffa1 passed | PASS for c84ffa1 |
-| NATS relay not exercised | Disposable PostgreSQL + real JetStream recovery suite; actual worker stream configuration reused | PASS locally; final CI recorded separately |
-| Worker stream rejected canonical names | Added business.* subjects while preserving stream/legacy subject | PASS locally |
-| Short consumer deadline | Real duplicate consumption reproduced a non-positive timeout; shared regression test and fix | PASS locally |
-| Gateway route mismatch | Canonical /api/v1/business/ plus explicit retained compatibility prefix, identical edge security | PASS for routing; domain HTTP handlers absent |
-| Internal contracts deferred | Typed authenticated Verification and Notification adapters with signed contract tests | PARTIAL: composition/callers/live certification absent |
-| Migration cleanup | Corrected cleanup order to drop temporary database before closing admin connection | PASS locally |
-| Live staging database/deployment | No authorized deployment transport or accessible staging connection; operator actions documented | PARTIAL |
+| Backend failure at 065b8e1 | Job 123830771080 reports hosted runner lost communication. Detailed log blob unavailable. Same-SHA failed-job rerun passed as job 123963506900. No failing assertion or Owner regression demonstrated. | Controlled real-PG Owner reproduction: 180 tests/subtests PASS, no skips. No Owner implementation changed. Full CI green at 1c26b26; delivery SHA evaluated separately. |
+| NATS/outbox unproven | Real shared relay/JetStream exercised; business subjects added preserving legacy. Fixed shared consumer timeout when AckWait <=1s. | Commit/rollback, outage/restart, republish, deduplication, leases/fences, poison quarantine and shutdown PASS. |
+| Gateway path mismatch | Canonical `/api/v1/business/`; explicit retained `/api/v1/business-operations/` alias with identical security/handlers. | Signed identity/JWT forwarding, domain denial, request/trace IDs, errors/timeouts, internal/unknown routes tested. |
+| Internal contracts deferred | Typed signed Verification/Notification clients composed into API/worker. | Signed contract, outage, idempotency and durable workflow tests PASS; live providers separate. |
+| Staging database | Effective driver DB and actual current_database enforced; owner/migrator/runtime scripts and separate credentials. | Isolated provisioning twice, up twice/status/version 4, runtime privileges PASS. Actual staging credentials/grants/connectivity unverified. |
+| Deployment absent | Existing Images/Compose retained; separate migration/API/worker secrets and fail-safe migration dependencies. | Repository preparation complete. No preauthorised transport/runner/usable staging secrets; no invented SSH deployment. Live PARTIAL. |
+
+See [foundation incident evidence](business-operations-foundation-remediation.md), [updated original report](business-operations-sections-01-02-report.md) and [staging operator runbook](business-operations-staging-readiness.md).
 
 ## C. Section 3 requirements matrix
 
-Paths in this table are relative to services/business-operations-service.
-PARTIAL means executable rules exist but the complete workflow is unavailable.
+Paths are relative to `services/business-operations-service`. PASS means implemented and tested on the stated infrastructure; it does not certify live providers/staging.
 
-| Requirement | Status | Implementation/evidence and missing work |
+| Requirement | Result | Files/evidence |
 |---|---|---|
-| 2.1 Registration | FAIL | No account repository, migration or registration handler |
-| 2.2 Authentication/passwords/tokens | FAIL | Shared primitives audited; no business account authentication composition |
-| 2.3 Sessions/devices | FAIL | No business session/device persistence or API |
-| 2.4 MFA | FAIL | No business enrolment/challenge/recovery flow |
-| 2.5 Organisation lifecycle | PARTIAL | internal/organisation/lifecycle.go and lifecycle_test.go enforce transitions, current authoritative KYB and closure readiness; profile persistence/API/audit missing |
-| 2.6 Operating capacities | PARTIAL | Capacity.Authorizes and EvaluatePack deny expired, restricted, unsupported and unverified capacity; catalogue, persistence, expiry reconciliation and APIs missing |
-| 2.7 KYB | PARTIAL | internal/integrations/verification signed HTTP client supports existing BUSINESS cases; organisation link persistence, callers and event processing missing |
-| 2.8 Hierarchy | FAIL | Scope value types exist; hierarchy records, CRUD and trusted ancestor resolver absent |
-| 2.9 Staff/invitations | FAIL | Membership input model exists; invitation issuance/acceptance, history and lifecycle workflows absent |
-| 2.10 RBAC | PARTIAL | internal/workforce/authorization.go requires current role capability plus matching scope grant; role/grant persistence, versioning and management API absent |
-| 2.11 Hierarchical authorization | PARTIAL | Tenant/account equality, explicit denies, expiry, inheritance, MFA and integer limits tested; trusted hierarchy resolution and HTTP middleware absent |
-| 2.12 Approval policies | PARTIAL | internal/approvals/engine.go validates/snapshots immutable policy versions and amount_minor/currency; durable versioned CRUD absent |
-| 2.13 Multi-level approvals/SoD | PARTIAL | Ordered quorum, distinct actors, self-approval denial, idempotency, concurrent decisions, cancellation and expiry tested; PostgreSQL locks/history, APIs and notifications absent |
-| 2.14 Delegation | PARTIAL | ValidateDelegation prevents capability/scope/date/amount/MFA expansion and membership expiry overflow; grants, commands, live evaluation and worker absent |
-| 2.15 Break-glass | FAIL | No complete emergency-access workflow, audit, alert or review record |
-| 2.16 High-risk controls | PARTIAL | internal/approvals/actions.go declares required action contracts; no executable Section 3 high-risk command integration |
-| 2.17 SSO/provisioning | FAIL | Shared identity primitives audited; no business federation adapters or provisioning contract |
-| 2.18 Security/immutable audit | FAIL | No business security_events/audit_events persistence |
+| 2.1 Registration | PASS | `internal/auth/service.go`, SQLC auth repository: DRAFT organisation, explicit representative role/grants, duplicate prevention, peppered retry fingerprint, audit/outbox; `auth_test.go`. |
+| 2.2 Authentication | PASS | Shared bounded Argon2id/Ed25519/session primitives; key rotation, safe failures, rate limits, refresh-family reuse invalidation; auth/security concurrency tests. |
+| 2.3 Sessions/devices | PASS | Current server-side session/account checks, rotation locks/CAS, logout/all, password invalidation, device version/retirement and untrusted risk metadata; auth/concurrency tests. |
+| 2.4 MFA | PASS workflows; live delivery PARTIAL | `auth/mfa*.go`: protected TOTP, EMAIL/SMS Notification jobs, confirmation, bound login/step-up codes, expiry/attempts/replay, one-time recovery/removal; auth and `mfa_delivery_test.go`. |
+| 2.5 Organisation | PASS local; external changes PARTIAL | Profile/FSM, independent admin restrictions, fresh KYB to resume, draft closure; `http/lifecycle.go`, organisation/annex/final-guard tests. Activated closure/legal representative change fail closed pending owning assertions. |
+| 2.6 Capacities/packs | PASS framework; provider PARTIAL | Declaration/status/restriction/expiry and typed capacity/pack evaluation; `http/capacities.go`, `capacity_verification_test.go`. Unsupported/unverified capacity never authorizes use. |
+| 2.7 KYB | PASS contract/workflows; live PARTIAL | Existing BUSINESS create/read/evidence/submit/reverify, immutable lineage, signed read-back of broker hints, stale update/forgery rejection, expiry/restriction; organisation/renewal/event tests. |
+| 2.8 Hierarchy | PASS | Regions/branches/departments/teams CRUD/lifecycle, timezone/currency, tenant ancestry/version checks; `http/hierarchy.go`, hierarchy tests. |
+| 2.9 Workforce | PASS | Hashed single-use invitations, encrypted delivery, provisional accounts/existing-account proof, membership lifecycle/history, acknowledged handover; staff/annex/notification suppression tests. |
+| 2.10 RBAC | PASS | Immutable versioned roles/mappings, capability+scope+dates+denies+MFA+amount checks, direct authority ceiling and self-escalation prevention; workforce/hierarchy/temporary/concurrency tests. |
+| 2.11 Hierarchical scopes | PASS | Trusted signed session organisation plus live membership, company/region/branch/department/team ancestry, cross-tenant denial; `http/tenant.go`. Future graph references fail closed until Section 4 resolution exists. |
+| 2.12 Policies | PASS | Immutable versioned policy, risk/action/channel/actor-role/scope/amount/currency, ambiguity denial, exact operation digest; policy/approval tests. |
+| 2.13 Multi-level/SoD | PASS | Ordered quorum, distinct actor and delegated authority provenance, frozen version, deadlines/cancel/draft-submit, evidence, concurrent idempotent decisions; HTTP/concurrency/annex tests. |
+| 2.14 Delegation | PASS | <=30-day grants, scope/capability/MFA/amount ceiling, no chain, source authority rechecked, immediate revocation/expiry; temporary/annex tests. |
+| 2.15 Break-glass | PASS | Senior eligibility, recent MFA, written reason, independent reviewer, narrow read scope, 30–900 seconds, audit/alert/review, deny/tenant boundaries preserved; temporary tests. |
+| 2.16 High-risk controls | PASS Section 3 | Annex F action/capability contracts; exact approved role/scope/lifecycle/representative/emergency commands. `approvals/actions.go`, `finance/authorization.go`; no future-domain/payment execution. |
+| 2.17 Federation/provisioning | PASS adapter requirement; configured provider N/A | `auth/federation`: OIDC/SAML challenge/assertion and SCIM-style provisioning boundaries, mapping schema; issuer/audience/state/nonce/PKCE/expiry/replay tests. No implicit email linking/IdP role authority. |
+| 2.18 Audit/security | PASS | Transactional audit/security/outbox and immutable database history/privileges; sensitive material excluded; actual stored event schemas validated by HTTP fixtures. |
 
-## D. Database
+Bootstrap privilege configuration requires the primary representative, recent MFA and never-activated DRAFT/KYB_PENDING state. Creating any policy permanently seals its action's exception; deactivation never reopens it. Activation seals all remaining bootstrap authority. Configure independent approvers before activation. Later privilege commands consume an exact unused/unexpired approved operation; requester/proxy authority cannot satisfy separation of duties.
 
-Only migration 00001_outbox.sql exists. Its fresh application, repeated up,
-version and relay operations are tested. SQLC generation/drift for the existing
-outbox query pass. **None of the required Section 3 tables or queries is
-implemented.** The approval request mutex protects concurrent in-process domain
-commands only; it is not a substitute for PostgreSQL row locking or durable
-decision history. No database concurrency certification is claimed for Section 3.
+## D. Database implementation
 
-## E. API and contracts
+Goose 00001–00004 are additive/forward-only; published 00002 was not rewritten. Required names retained: business_accounts, business_credentials, business_sessions, business_devices, business_mfa_methods, organisations, organisation_capacities, capability_packs, branches, departments, teams, staff_memberships, role_templates, permissions, role_permissions, staff_scope_grants, approval_policies, approval_requests, approval_steps, delegation_grants, verification_links, security_events, audit_events.
 
-The service still exposes only /health, /ready and /version. Canonical business
-gateway prefix: /api/v1/business/. Existing /api/v1/business-operations/ remains
-explicit compatibility routing with the same security policy. Requests preserve
-their path upstream. Internal paths remain isolated.
+Supporting tables cover refresh tokens/families, MFA challenges/recovery/delivery codes, regions, invitations/history/handover, approval decisions, emergency grants/review, external identity mappings, verification lineage, shared idempotency, outbox/processed/quarantine/notification acceptance. Tenant composite FKs, unique credentials/pending invitations/MFA/decisions/versions and expiry/list indexes protect integrity. Application IDs use shared UUIDv7; money uses int64 amount_minor plus currency.
 
-The Gateway OpenAPI description now documents this distinction. No fake Section
-3 operations were added to OpenAPI or the 03 Business Operations Postman folder.
-The Section 3 OpenAPI/Postman schemas, examples, handlers and drift gate are
-missing. Gateway tests verify service assertions, business token forwarding,
-cross-domain token denial, request IDs, internal isolation and timeout handling.
+SQLC auth/session/outbox queries and generated models are current. Domain commands use typed Go input and parameterized owning transactions. Organisation serialization, row locks, optimistic versions and shared idempotency protect retries. Audit/decisions/role mappings/policy definitions/approval snapshots/completed handover/verification lineage are immutable. Runtime cannot create objects, mutate audit or read Goose metadata. Password/token hashes, peppered codes and protected MFA/delivery ciphertext are stored without logging secrets.
+
+Disposable PostgreSQL tests cover fresh/repeated migrations/status/version 4, concurrency, duplicates and immutability. Provisioning/grants executed twice locally; schema CREATE and audit UPDATE false for runtime. This does not certify actual staging ownership/connectivity.
+
+## E. API / OpenAPI / Postman
+
+Complete [96-route inventory](../../services/business-operations-service/contracts/routes.json): account/auth/password/MFA/recovery/sessions/devices/organisation selection; profile/lifecycle/closure/representative/KYB/evidence/renewal/capacities/packs; regions/branches/departments/teams; staff/invitations/handover/scopes; roles/catalogue; policies/evaluation/version/activation; approvals/decisions; delegation/emergency/review/audit.
+
+Canonical `/api/v1/business/...` preserves Annex E paths. Legacy prefix and Annex D profile/verification aliases share security. Internal provider/broker operations have no frontend bypass. Auth exceptions are documented; every request requires trusted Gateway identity. Updates use current versions/locks; side-effect retries use stable idempotency where required; lists use bounded pagination/filters; shared errors and request correlation are preserved.
+
+[OpenAPI](../../contracts/public/openapi/business-operations.yaml) and official Postman `03 Business Operations` contain 78 referenced schemas, examples, success/validation/auth/forbidden/conflict responses, headers/permissions/idempotency and representative tests/ID capture. Required 00/01/02 folders and separate _Internal/_Webhooks/_Admin folders are present; empty restricted folders explain that no public bypass exists.
+
+`generate_business_operations.py --check --validate` verifies outputs/examples. `TestBusinessRegisteredRoutesMatchOpenAPIAndOfficialPostman` compares actual chi registrations against both contracts. Event generator verifies 25 producer/schema contracts; HTTP journeys validate stored outbox envelopes.
 
 ## F. Security
 
-Domain tests cover wrong account/tenant/branch, suspended membership, revoked
-role/grant, effective dates, expiry, explicit deny, missing MFA, currency/amount
-limits, delegation escalation, policy snapshot mutation, requester self-approval,
-cross-level actor reuse, idempotent decisions, conflicting keys and concurrent
-double submission. Currency validation reuses shared/go/money; financial values
-use int64 minor units.
+Executed coverage includes correct/wrong/disabled login, expiry/signature/key rotation, refresh expiry/reuse/concurrency, logout/revocation/password invalidation, Argon2id, rate limits, MFA replay/expiry/attempts/recovery; tenant/branch/membership isolation, untrusted organisation header denial, revoked/expired role/grants, dates/denies/amount/MFA, self-escalation; ordered/immutable/concurrent approval, self/proxy authority denial; delegation ceiling/source/expiry/revocation; emergency controls/alerts/review; forged verification producer/case/subject and signed read-back; Notification outage/retry/duplicates/poison and outbox rollback/recovery.
 
-These rules are not invoked by business HTTP middleware yet. Trusted membership,
-role/grant loading and ancestor resolution must be implemented before exposing
-endpoints. Domain-rule test success does not certify authentication, MFA, durable
-approvals, session revocation or production tenant isolation.
+No production secrets/customer data used. Shared crypto/key rotation/service auth reused. Worker does not load account JWT private signing key. Local race/Docker/Gitleaks unavailable; enabled Linux Actions checks must provide those results. No failing check was disabled.
 
-## G. Integrations and events
+## G. Integrations/events/workers
 
-| Integration | Status |
+| Boundary | Result |
 |---|---|
-| Gateway | Edge routes and integration tests implemented; business handlers absent |
-| Verification | Existing BUSINESS API supported by typed authenticated client; live KYB journey absent |
-| Notification | Typed authenticated client with acceptance/error classification tests; workflow callers absent |
-| NATS | Shared publisher/relay and real recovery/duplicate-consumer certification; business event names declared |
-| Business event production | No Section 3 durable producer or verification consumer yet |
-| Payment | No payment execution or cross-service database access introduced |
-| Database | Foundation migration certified on disposable infrastructure; staging grants/connectivity unverified |
-| Deployment | Immutable-image Compose already prepared; authorized rollout transport and environment prerequisites absent |
+| Gateway | Route/server tests PASS; actual Gateway/container smoke configured in Images, latest result recorded after execution. |
+| Verification | Signed HTTP/reverify contract and fake-authority journeys PASS; live PARTIAL. |
+| Notification | Signed acceptance, encrypted jobs, real-broker retry/duplicate/quarantine PASS; live delivery unverified. |
+| NATS/outbox | Real PG/JetStream PASS; canonical outbox recovery, quarantine, at-least-once/idempotent consumers. |
+| Payment/other services | Typed references/boundaries only; no payment execution, cross-service SQL, provider SDK or fabricated graph. |
+| Database/deployment | Disposable tests/repository preparation PASS; actual staging PARTIAL. |
 
-## H. Executed checks
+Naming reconciliation: business.staff.updated.v1 follows main specification instead of Annex staff.updated.v1; business.restricted.v1 follows Annex D.2; business.approval.completed.v1 is terminal completion corresponding to Annex approval.completed.v1. Intermediate decisions use business.approval.decided.v1. Future consumers must filter action; no approval event executes payment. Required business.verified.v1/business.capacity.changed.v1 retained. Shared UUIDv7 envelopes carry producer/aggregate/actor/trace fields via transactional outbox.
 
-- Business Operations: gofmt, go vet, staticcheck, go mod tidy and sqlc diff pass.
-- With CF_REQUIRE_INTEGRATION=1 and disposable PostgreSQL 18: go test -json -count=1 ./... passed **26 tests/subtests, zero failures and zero skips** after domain rules were added.
-- The production-stream real JetStream recovery/consumer test passed three repetitions after the short-deadline fix. The original recovery revision passed ten repetitions.
-- shared/go/events/jetstream: go test and go vet pass, including the new real-broker short-AckWait regression.
-- Gateway routing and server tests pass locally; earlier foundation revision also passed race-enabled Gateway CI.
-- Individual Owner controlled local reproduction: 180 tests/subtests passed, zero failures/skips, using the isolated PostgreSQL cluster. No Individual Owner code changed.
-- Local race testing unavailable: CGO_ENABLED=0 and no configured C compiler. Race checks remain enabled in GitHub Actions.
-- Full CI for c84ffa1 passed: [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41026354855), [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41026354773), [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41026354574), [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41026354589), [Architecture](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41026354785).
-- Final delivery SHA checks must be evaluated separately; earlier CI is not final-SHA certification.
+One established worker/maintenance loop handles relay, encrypted notices, durable verification consumer, authoritative reconciliation and invitation/member/scope/session/MFA/delegation/emergency/approval/capacity/KYB expiry. Synchronous authorization enforces expiry independently of maintenance. Invalid delayed invitation/MFA jobs are suppressed/audited; poison jobs quarantine; unaccepted canonical outbox jobs remain recoverable. Notification acceptance is not delivery proof.
 
-## I. Dependencies and remaining implementation
+## H. Testing and CI evidence
 
-External prerequisites: authoritative specification/Annexes D–G were absent from
-the repository, supplied attachments, checked document locations and connected
-Drive search; exact annex reconciliation is pending the source. Staging database
-credentials/grants, service key trust, NATS credentials and an authorized GitHub
-deployment transport require operator setup. No fake KYB approval or deployment
-was performed.
+- Local full run with CF_REQUIRE_INTEGRATION=1, isolated PG18 and real disk-backed JetStream: `go test -json -count=1 -timeout=15m ./...` **62 tests/subtests PASS, zero failures/skips**, including the final authoritative-resume and invalidated-invitation regressions.
+- gofmt, go vet, staticcheck, go mod tidy, sqlc diff PASS. Gateway routing/server and shared JetStream packages PASS.
+- Contract generation/example validation: 96 routes/78 typed schemas PASS; 25 event schemas PASS. Container certification tool compiles.
+- Isolated provisioning/grants twice, migration up twice/status/version and forbidden runtime privileges PASS. Full race, Docker, Trivy and Gitleaks require CI Linux; local tools unavailable.
+- Checkpoint **1c26b269ff3fae60d740de7e9503e718871e3f43** all green: [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41032138946), [Architecture](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41032138950), [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41032138959), [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41032139599), [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41032138947). These do not certify a later delivery SHA.
 
-Missing Section 3 implementation is separate from those external prerequisites:
-business authentication/MFA/session storage, all Section 3 migrations/repositories,
-workforce CRUD/invitations, trusted hierarchy resolution, role/policy management,
-durable approval/delegation/break-glass workflows, immutable audit, event
-consumers/producers, lifecycle workers, public APIs, OpenAPI/Postman and the ten
-requested end-to-end journeys. These are not future Section 4 work. Later property,
-inventory and payment execution remains outside Section 3.
+Images adds disposable PG/NATS/Redis containers, actual migration/API/worker image and Gateway binary, runtime grants, canonical/legacy routing, signed Notification fake, outbox outage/recovery, restart and SIGTERM. Its final SHA execution/digest must be observed before PASS. Image publishing is not deployment.
+
+E2E journeys 1–10 map respectively to organisation/renewal, auth/MFA, staff, role revocation, multi-membership hierarchy, approvals, delegation, break-glass, capacity/restriction and refresh-family tests. Provider truth/delivery is explicitly fake in these journeys; PostgreSQL and JetStream are real.
+
+## I. Deferred dependencies
+
+Operator: provision/verify staging DB roles and runtime/migrator secrets, service trust registries, NATS ACLs, Notification providers/invitation frontend, approved staging-only GitHub deployment transport; then actual rollout/readiness/smoke/rollback evidence.
+
+Owning-provider operations absent: capacity-specific eligibility and legal representative assertions. Generic KYB cannot substitute. Previously activated closure needs downstream readiness evidence. Typed interfaces fail closed and tests distinguish fakes. SSO live certification needs configured IdP; adapter readiness is implemented as specified.
+
+Future Section 4 graph and Sections 5–27 workflows are deliberately absent; scope references, Annex F policy identifiers and Payment reference boundary are ready without fabricating those records/execution.
 
 ## J. Certification
 
 | Area | Result |
 |---|---|
-| Sections 1–2 closure | PARTIAL: repository recovery/routing tests pass; composition and live staging incomplete |
-| Business authentication | FAIL: absent |
-| Organisation/capacities | PARTIAL: domain rules only |
-| KYB | PARTIAL: authenticated adapter only |
-| Staff/workforce | FAIL: complete workflows absent |
-| RBAC | PARTIAL: tested evaluator without persistence/middleware |
-| Approvals | PARTIAL: tested in-process engine without durable workflow |
-| MFA | FAIL: absent |
-| Security | PARTIAL: scoped-rule tests; full security suite absent |
-| Section 3 database | FAIL: absent |
-| Events | PARTIAL: foundation relay certified; Section 3 business producers/consumers absent |
-| Section 3 API | FAIL: absent |
-| Section 3 OpenAPI/Postman | FAIL: absent |
-| Final SHA CI | PENDING: consult final delivery checks |
-| Staging deployment | PARTIAL: prepared Compose, no rollout |
+| Sections 1–2 repository closure | PASS available local tests/prior green CI; final SHA CI pending |
+| Authentication/sessions/devices | PASS executable tests |
+| Organisation/capacities | PASS framework; external assertions/activated closure PARTIAL |
+| KYB | PASS contract/fake-authority workflows; live PARTIAL |
+| Staff/workforce/RBAC/scopes | PASS |
+| Approvals/SoD/delegation/break-glass | PASS |
+| MFA | PASS TOTP/Notification-mediated EMAIL/SMS; live delivery PARTIAL |
+| Security/audit | PASS local; final scanners/race pending CI |
+| Database/events/API | PASS disposable tests/contracts; live staging PARTIAL |
+| OpenAPI/Postman | PASS |
+| Final delivery CI/image digest | PENDING push/Actions observation; updated after execution |
+| Actual staging deployment | PARTIAL / NOT EXECUTED: authorised transport/environment unavailable |
 
-Section 3 is not ready for acceptance or a claim of readiness for Section 4.
+Overall live operational certification remains **PARTIAL**. Repository functionality and executed evidence are distinguished from external authority and rollout prerequisites.

@@ -36,6 +36,7 @@ type Subject struct {
 
 // Case is the subset of the verification case used here.
 type Case struct {
+	SupersedesID   *ids.ID    `json:"supersedes_verification_id,omitempty"`
 	VerificationID ids.ID     `json:"verification_id"`
 	Type           string     `json:"verification_type"`
 	Subject        Subject    `json:"subject"`
@@ -44,6 +45,18 @@ type Case struct {
 	DecidedAt      *time.Time `json:"decided_at"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
+}
+
+// RenewalAPI is supported by the existing Verification Service reverify
+// operation. Its result must be read back and preserve subject/supersedes IDs.
+type RenewalAPI interface {
+	Reverify(context.Context, ids.ID, string, string) (Case, error)
+}
+
+func (c *Client) Reverify(ctx context.Context, id ids.ID, reference, key string) (Case, error) {
+	var out envelope[Case]
+	err := c.c.Do(ctx, httpx.Request{Method: http.MethodPost, Path: "/internal/v1/verifications/" + url.PathEscape(id.String()) + "/reverify", Body: map[string]string{"caller_reference": reference}, IdempotencyKey: key}, &out)
+	return out.Data, err
 }
 
 // Evidence is an attached media reference.

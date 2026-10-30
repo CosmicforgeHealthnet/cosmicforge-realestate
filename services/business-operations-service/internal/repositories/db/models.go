@@ -11,16 +11,17 @@ import (
 )
 
 type ApprovalDecision struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	RequestID      ids.ID
-	Level          int32
-	ActorID        ids.ID
-	Outcome        string
-	Reason         string
-	EvidenceIds    []ids.ID
-	IdempotencyKey string
-	CreatedAt      time.Time
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	RequestID           ids.ID
+	Level               int32
+	ActorID             ids.ID
+	Outcome             string
+	Reason              string
+	EvidenceIds         []ids.ID
+	IdempotencyKey      string
+	CreatedAt           time.Time
+	AuthorityAccountIds []ids.ID
 }
 
 type ApprovalPolicy struct {
@@ -38,25 +39,30 @@ type ApprovalPolicy struct {
 }
 
 type ApprovalRequest struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	PolicyID       ids.ID
-	RequesterID    ids.ID
-	Action         string
-	ScopeKind      string
-	ScopeID        ids.ID
-	AmountMinor    *int64
-	Currency       *string
-	PolicySnapshot []byte
-	State          string
-	CurrentLevel   int32
-	Deadline       time.Time
-	Reason         string
-	IdempotencyKey string
-	RequestHash    string
-	Version        int64
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PolicyID            ids.ID
+	RequesterID         ids.ID
+	Action              string
+	ScopeKind           string
+	ScopeID             ids.ID
+	AmountMinor         *int64
+	Currency            *string
+	PolicySnapshot      []byte
+	State               string
+	CurrentLevel        int32
+	Deadline            time.Time
+	Reason              string
+	IdempotencyKey      string
+	RequestHash         string
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	Channel             string
+	OperationDigest     string
+	OperationContext    []byte
+	ConsumedAt          *time.Time
+	ConsumedByAccountID *ids.ID
 }
 
 type ApprovalStep struct {
@@ -141,6 +147,19 @@ type BusinessDevice struct {
 	RiskFlags  []byte
 	CreatedAt  time.Time
 	LastSeenAt time.Time
+	Version    int64
+	RetiredAt  *time.Time
+}
+
+type BusinessExternalIdentity struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	AccountID      ids.ID
+	ProviderID     string
+	Issuer         string
+	Subject        string
+	CreatedAt      time.Time
+	DisabledAt     *time.Time
 }
 
 type BusinessMfaChallenge struct {
@@ -170,6 +189,19 @@ type BusinessMfaMethod struct {
 	CreatedAt       time.Time
 	ConfirmedAt     *time.Time
 	RemovedAt       *time.Time
+}
+
+type BusinessMfaOneTimeCode struct {
+	ID         ids.ID
+	AccountID  ids.ID
+	MethodID   ids.ID
+	BindingID  ids.ID
+	Purpose    string
+	CodeHash   string
+	Attempts   int32
+	ExpiresAt  time.Time
+	ConsumedAt *time.Time
+	CreatedAt  time.Time
 }
 
 type BusinessMfaRecoveryCode struct {
@@ -251,6 +283,44 @@ type Department struct {
 	UpdatedAt      time.Time
 }
 
+type EventFailure struct {
+	ID           ids.ID
+	Consumer     string
+	Stream       string
+	Sequence     int64
+	EventID      string
+	Digest       string
+	FailureClass string
+	Attempt      int64
+	CreatedAt    time.Time
+}
+
+type IdempotencyRecord struct {
+	ID             ids.ID
+	Scope          string
+	CallerType     string
+	CallerID       string
+	IdempotencyKey string
+	RequestHash    string
+	Status         string
+	ResponseCode   *int32
+	ResponseBody   []byte
+	ResourceType   *string
+	ResourceID     *string
+	Attempts       int32
+	LockedUntil    *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ExpiresAt      time.Time
+}
+
+type NotificationAcceptance struct {
+	JobID          ids.ID
+	EventID        ids.ID
+	NotificationID ids.ID
+	AcceptedAt     time.Time
+}
+
 type Organisation struct {
 	ID                      ids.ID
 	RepresentativeAccountID ids.ID
@@ -266,6 +336,8 @@ type Organisation struct {
 	ActivatedAt             *time.Time
 	CreatedAt               time.Time
 	UpdatedAt               time.Time
+	AuthorizationVersion    int64
+	RestrictionSource       string
 }
 
 type OrganisationCapacity struct {
@@ -324,6 +396,7 @@ type Region struct {
 	Status         string
 	Version        int64
 	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type RolePermission struct {
@@ -353,20 +426,44 @@ type SecurityEvent struct {
 	OccurredAt     time.Time
 }
 
+type StaffHandover struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	MembershipID          ids.ID
+	SuccessorMembershipID ids.ID
+	Status                string
+	InitiatedBy           ids.ID
+	Reason                string
+	EvidenceIds           []ids.ID
+	AcknowledgedBy        *ids.ID
+	AcknowledgedAt        *time.Time
+	AcknowledgementReason *string
+	CompletedBy           *ids.ID
+	CompletedAt           *time.Time
+	CompletionReason      *string
+	CancelledBy           *ids.ID
+	CancelledAt           *time.Time
+	Version               int64
+	CreatedAt             time.Time
+}
+
 type StaffInvitation struct {
-	ID                ids.ID
-	OrganisationID    ids.ID
-	Email             string
-	RoleID            ids.ID
-	TokenHash         string
-	EncryptedDelivery []byte
-	DeliveryKeyID     string
-	InvitedBy         ids.ID
-	Status            string
-	Scopes            []byte
-	ExpiresAt         time.Time
-	AcceptedAt        *time.Time
-	CreatedAt         time.Time
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	Email                string
+	RoleID               ids.ID
+	TokenHash            string
+	EncryptedDelivery    []byte
+	DeliveryKeyID        string
+	InvitedBy            ids.ID
+	Status               string
+	Scopes               []byte
+	ExpiresAt            time.Time
+	AcceptedAt           *time.Time
+	CreatedAt            time.Time
+	AccountID            *ids.ID
+	AuthorizationVersion int64
+	MembershipID         *ids.ID
 }
 
 type StaffMembership struct {
@@ -383,13 +480,15 @@ type StaffMembership struct {
 	Version        int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	ScopeKind      string
+	ScopeID        ids.ID
 }
 
 type StaffMembershipHistory struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	MembershipID   ids.ID
-	ActorID        ids.ID
+	ActorID        *ids.ID
 	FromStatus     *string
 	ToStatus       string
 	Reason         string
@@ -435,4 +534,16 @@ type VerificationLink struct {
 	ProviderUpdatedAt *time.Time
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+}
+
+type VerificationLinkHistory struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	CaseID            ids.ID
+	ReplacementCaseID ids.ID
+	ProviderStatus    string
+	ExpiresAt         *time.Time
+	ProviderUpdatedAt *time.Time
+	ActorID           *ids.ID
+	CreatedAt         time.Time
 }
