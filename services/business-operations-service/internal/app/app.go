@@ -29,6 +29,11 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger) (*App, err
 	if err != nil {
 		return nil, fmt.Errorf("database: %w", err)
 	}
+	var connectedDatabase string
+	if err := pool.QueryRow(ctx, "SELECT current_database()").Scan(&connectedDatabase); err != nil || connectedDatabase != config.DatabaseName {
+		pool.Close()
+		return nil, fmt.Errorf("database ownership boundary could not be verified")
+	}
 	a := &App{Cfg: cfg, Log: log, Pool: pool, Outbox: outbox.NewStore(pool, cfg.SubjectPrefix)}
 	a.Health = health.New(string(platform.BusinessOperationsService), cfg.Environment, 2*time.Second, health.Check{Name: "postgres", Fn: database.Ping(pool)})
 	a.Router = NewRouter(a.Health)

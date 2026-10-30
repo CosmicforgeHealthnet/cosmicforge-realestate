@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/url"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/config"
 	"os"
 	"strings"
 
@@ -23,8 +23,7 @@ func main() {
 			u = strings.TrimSpace(string(b))
 		}
 	}
-	parsed, err := url.Parse(u)
-	if err != nil || parsed.Path != "/business_operations_db" {
+	if err := config.ValidateOwnedDatabase(u); err != nil {
 		fmt.Fprintln(os.Stderr, "DATABASE_URL must point to business_operations_db")
 		os.Exit(1)
 	}

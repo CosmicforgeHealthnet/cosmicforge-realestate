@@ -3,7 +3,6 @@ package config
 
 import (
 	"errors"
-	"net/url"
 	"strings"
 	"time"
 
@@ -46,8 +45,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		return nil, err
 	}
 	var problems []string
-	dsn, err := url.Parse(c.DatabaseURL.Reveal())
-	if err != nil || dsn.Path != "/business_operations_db" {
+	if err := ValidateOwnedDatabase(c.DatabaseURL.Reveal()); err != nil {
 		problems = append(problems, "DATABASE_URL must connect to the service-owned business_operations_db")
 	}
 	if c.DBMaxConns < 1 || c.DBMaxConns > 100 {
@@ -59,7 +57,7 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 	if c.OutboxPollInterval < 50*time.Millisecond || c.OutboxPollInterval > time.Minute {
 		problems = append(problems, "OUTBOX_POLL_INTERVAL must be within [50ms, 1m]")
 	}
-	if c.SubjectPrefix == "" || strings.ContainsAny(c.SubjectPrefix, " .") {
+	if !validSubjectPrefix(c.SubjectPrefix) {
 		problems = append(problems, "NATS_SUBJECT_PREFIX is invalid")
 	}
 	if c.SampleRatio < 0 || c.SampleRatio > 1 {
@@ -72,4 +70,19 @@ func Load(l *sharedcfg.Loader, mode Mode) (*Config, error) {
 		return nil, errors.New("invalid configuration: " + strings.Join(problems, "; "))
 	}
 	return c, nil
+}
+
+func validSubjectPrefix(prefix string) bool {
+	if len(prefix) < 1 || len(prefix) > 64 {
+		return false
+	}
+	for i, r := range prefix {
+		if i == 0 && (r < 'a' || r > 'z') {
+			return false
+		}
+		if !(r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '_' || r == '-') {
+			return false
+		}
+	}
+	return true
 }
