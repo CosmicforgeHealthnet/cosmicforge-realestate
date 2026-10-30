@@ -142,6 +142,13 @@ func Build(upstreams map[platform.Service]*url.URL, webhooks map[string]platform
 			Rules: []Rule{{Prefix: prefix + "auth/", Category: CategoryAuthSensitive}}})
 	}
 
+	// Section 3 canonical business contract. The previously reserved prefix
+	// remains available with identical authentication and rate-limit policy.
+	_ = add(Route{Name: "business", Prefix: "/api/v1/business/", Service: platform.BusinessOperationsService,
+		Auth: AuthOptional, Category: CategoryPublic,
+		ActorDomains: []platform.Domain{platform.DomainBusinessOperations}, ForwardUserToken: true,
+		Rules: []Rule{{Prefix: "/api/v1/business/auth/", Category: CategoryAuthSensitive}}})
+
 	// Provider webhooks: /webhooks/v1/<provider>/...
 	providers := make([]string, 0, len(webhooks))
 	for p := range webhooks {
