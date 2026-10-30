@@ -1,1 +1,30 @@
-# sqlc configuration will be activated with the first queries for business-operations-service.
+version: "2"
+sql:
+  - engine: postgresql
+    schema: ../migrations
+    queries: queries
+    gen:
+      go:
+        package: db
+        out: ../internal/repositories/db
+        sql_package: pgx/v5
+        emit_pointers_for_null_types: true
+        emit_methods_with_db_argument: true
+        overrides:
+          - db_type: uuid
+            go_type:
+              import: github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids
+              type: ID
+          - db_type: uuid
+            nullable: true
+            go_type:
+              import: github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids
+              type: ID
+              pointer: true
+          - db_type: timestamptz
+            go_type: time.Time
+          - db_type: timestamptz
+            nullable: true
+            go_type:
+              type: time.Time
+              pointer: true

@@ -1,11 +1,12 @@
 go 1.26.0
 
-toolchain go1.26.9
+toolchain go1.26.10
 
 use (
 	./gateway/api-gateway
 	./services/individual-owner-service
 	./services/payment-service
+	./services/business-operations-service
 	./services/media-document-service
 	./services/notification-service
 	./services/verification-service
