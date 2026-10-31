@@ -45,3 +45,5 @@ Goose 00006 and SQLC add commercial tables only in business_operations_db. The c
 ## External limitations
 
 No actual operating-capacity assertion operation is available in Verification; commercial use fails closed rather than granting authority from a declaration. Live Marketplace consumer, OTA access/certification, Section 9 acceptance and staging deployment require their owning operations. Payment, Media, Notification and CF Meet boundaries remain intact. Profitability without current reconciled source facts returns explicit missingness/null net. This document is not a live rollout certificate.
+
+Per-connection credential grants are persisted by forward-only migration 00007. Provider-wide certification alone cannot grant CONTENT, mapping, polling, webhook or stop authority to a credential. Revalidate existing connections after migration; default grants are empty/fail-closed.

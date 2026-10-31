@@ -20,18 +20,19 @@ import (
 )
 
 type CommercialChannelConnection struct {
-	ID                    ids.ID     `json:"id"`
-	OrganisationID        ids.ID     `json:"organisation_id"`
-	PropertyID            ids.ID     `json:"property_id"`
-	ProviderID            ids.ID     `json:"provider_id"`
-	ProviderCode          string     `json:"provider_code"`
-	ProviderAccountID     string     `json:"provider_account_id"`
-	State                 string     `json:"state"`
-	Version               int64      `json:"version"`
-	ValidatedAt           *time.Time `json:"validated_at,omitempty"`
-	CredentialExpiresAt   *time.Time `json:"credential_expires_at,omitempty"`
-	CredentialsConfigured bool       `json:"credentials_configured"`
-	CredentialReference   string     `json:"-"`
+	AuthorizedCapabilities []string   `json:"authorized_capabilities"`
+	ID                     ids.ID     `json:"id"`
+	OrganisationID         ids.ID     `json:"organisation_id"`
+	PropertyID             ids.ID     `json:"property_id"`
+	ProviderID             ids.ID     `json:"provider_id"`
+	ProviderCode           string     `json:"provider_code"`
+	ProviderAccountID      string     `json:"provider_account_id"`
+	State                  string     `json:"state"`
+	Version                int64      `json:"version"`
+	ValidatedAt            *time.Time `json:"validated_at,omitempty"`
+	CredentialExpiresAt    *time.Time `json:"credential_expires_at,omitempty"`
+	CredentialsConfigured  bool       `json:"credentials_configured"`
+	CredentialReference    string     `json:"-"`
 }
 
 func (c CommercialChannelConnection) contract() distribution.Connection {
@@ -39,7 +40,7 @@ func (c CommercialChannelConnection) contract() distribution.Connection {
 }
 func (h *Handler) loadChannelConnection(ctx context.Context, q database.Querier, org, id ids.ID) (CommercialChannelConnection, error) {
 	var c CommercialChannelConnection
-	e := q.QueryRow(ctx, `SELECT c.id,c.organisation_id,c.property_id,c.provider_id,p.code,c.provider_account_id,c.state,c.version,c.validated_at,c.credential_expires_at,c.credential_reference FROM channel_connections c JOIN channel_providers p ON p.id=c.provider_id WHERE c.organisation_id=$1 AND c.id=$2`, org, id).Scan(&c.ID, &c.OrganisationID, &c.PropertyID, &c.ProviderID, &c.ProviderCode, &c.ProviderAccountID, &c.State, &c.Version, &c.ValidatedAt, &c.CredentialExpiresAt, &c.CredentialReference)
+	e := q.QueryRow(ctx, `SELECT c.id,c.organisation_id,c.property_id,c.provider_id,p.code,c.provider_account_id,c.state,c.version,c.validated_at,c.credential_expires_at,c.credential_reference,c.authorized_capabilities FROM channel_connections c JOIN channel_providers p ON p.id=c.provider_id WHERE c.organisation_id=$1 AND c.id=$2`, org, id).Scan(&c.ID, &c.OrganisationID, &c.PropertyID, &c.ProviderID, &c.ProviderCode, &c.ProviderAccountID, &c.State, &c.Version, &c.ValidatedAt, &c.CredentialExpiresAt, &c.CredentialReference, &c.AuthorizedCapabilities)
 	if errors.Is(e, pgx.ErrNoRows) {
 		e = apperrors.NotFound("CHANNEL_CONNECTION_NOT_FOUND", "Channel connection not found.")
 	}
@@ -64,6 +65,9 @@ func (h *Handler) channelTarget(r *http.Request, cap string, mfa bool) (tenant, 
 func (h *Handler) requireChannelCapability(ctx context.Context, q database.Querier, c CommercialChannelConnection, cap string) error {
 	if c.State != "CONNECTED" || c.ValidatedAt == nil || c.CredentialReference == "" || c.CredentialExpiresAt == nil || !h.Auth.Service.Now().Before(*c.CredentialExpiresAt) || h.ChannelAdapters[c.ProviderCode] == nil {
 		return apperrors.Unavailable("A configured, authenticated active provider connection is required.")
+	}
+	if !slices.Contains(c.AuthorizedCapabilities, cap) {
+		return apperrors.PermissionDenied("The provider credential does not authorize this connection operation.")
 	}
 	if _, disabled := h.ChannelAdapters[c.ProviderCode].(distribution.DisabledAdapter); disabled {
 		return apperrors.Unavailable("The optional provider adapter is disabled until real access and certification are available.")
@@ -216,7 +220,7 @@ func (h *Handler) channelAuthorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := h.Auth.Service.Now().UTC()
-	if authorization.ProviderAccountID != c.ProviderAccountID || authorization.PropertyID != c.PropertyID || authorization.Reference == "" || len(authorization.Reference) > 500 || !now.Before(authorization.ExpiresAt) || authorization.ExpiresAt.After(now.Add(90*24*time.Hour)) || !slices.Contains(authorization.Capabilities, "ARI") {
+	if authorization.ProviderAccountID != c.ProviderAccountID || authorization.PropertyID != c.PropertyID || authorization.Reference == "" || len(authorization.Reference) > 500 || !now.Before(authorization.ExpiresAt) || authorization.ExpiresAt.After(now.Add(90*24*time.Hour)) || !slices.Contains(authorization.Capabilities, "ARI") || len(authorization.Capabilities) > 32 {
 		reply(w, r, 0, nil, apperrors.PermissionDenied("Provider proof does not authorize this account/property or a bounded ARI credential lifetime."))
 		return
 	}
@@ -240,7 +244,7 @@ func (h *Handler) channelAuthorize(w http.ResponseWriter, r *http.Request) {
 		if e = h.requireCommercialApproval(ctx, tx, t, "COMMERCIAL_CHANNEL_CHANGE", target.Scope, in.ApprovalID, map[string]any{"connection_id": c.ID, "command": command}, c.ProviderCode, nil, ""); e != nil {
 			return 0, nil, e
 		}
-		if _, e = tx.Exec(ctx, `UPDATE channel_connections SET state='CONNECTED',credential_reference=$3,credential_expires_at=$4,validation_reference=$5,validated_at=$6,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, c.ID, in.CredentialReference, authorization.ExpiresAt, authorization.Reference, now); e != nil {
+		if _, e = tx.Exec(ctx, `UPDATE channel_connections SET state='CONNECTED',credential_reference=$3,credential_expires_at=$4,validation_reference=$5,validated_at=$6,authorized_capabilities=$7,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, c.ID, in.CredentialReference, authorization.ExpiresAt, authorization.Reference, now, authorization.Capabilities); e != nil {
 			return 0, nil, e
 		}
 		value, e := h.loadChannelConnection(ctx, tx, t.Organisation, c.ID)

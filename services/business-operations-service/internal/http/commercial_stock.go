@@ -371,7 +371,7 @@ func (h *Handler) commercialChannel(ctx context.Context, q database.Querier, t t
 		return nil
 	}
 	var enabled bool
-	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM channel_connections c JOIN channel_providers p ON p.id=c.provider_id JOIN channel_capabilities cap ON cap.provider_id=p.id AND cap.capability='ARI' WHERE c.organisation_id=$1 AND c.property_id=$2 AND p.code=$3 AND c.state='CONNECTED' AND p.status='CERTIFIED' AND cap.status='CERTIFIED' AND c.validated_at IS NOT NULL AND (c.credential_expires_at IS NULL OR c.credential_expires_at>$4))`, t.Organisation, p.PropertyID, channel, h.Auth.Service.Now().UTC()).Scan(&enabled)
+	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM channel_connections c JOIN channel_providers p ON p.id=c.provider_id JOIN channel_capabilities cap ON cap.provider_id=p.id AND cap.capability='ARI' WHERE c.organisation_id=$1 AND c.property_id=$2 AND p.code=$3 AND c.state='CONNECTED' AND 'ARI'=ANY(c.authorized_capabilities) AND p.status='CERTIFIED' AND cap.status='CERTIFIED' AND c.validated_at IS NOT NULL AND (c.credential_expires_at IS NULL OR c.credential_expires_at>$4))`, t.Organisation, p.PropertyID, channel, h.Auth.Service.Now().UTC()).Scan(&enabled)
 	if e != nil {
 		return e
 	}

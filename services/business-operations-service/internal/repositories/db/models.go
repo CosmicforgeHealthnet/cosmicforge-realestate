@@ -365,22 +365,23 @@ type ChannelConflictDecision struct {
 }
 
 type ChannelConnection struct {
-	ID                   ids.ID
-	OrganisationID       ids.ID
-	PropertyID           ids.ID
-	ProviderID           ids.ID
-	ProviderAccountID    string
-	State                string
-	CredentialReference  string
-	CredentialKeyID      *string
-	EncryptedCredentials []byte
-	CredentialExpiresAt  *time.Time
-	ValidationReference  *string
-	ValidatedAt          *time.Time
-	Version              int64
-	CreatedBy            ids.ID
-	CreatedAt            time.Time
-	UpdatedAt            time.Time
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	PropertyID             ids.ID
+	ProviderID             ids.ID
+	ProviderAccountID      string
+	State                  string
+	CredentialReference    string
+	CredentialKeyID        *string
+	EncryptedCredentials   []byte
+	CredentialExpiresAt    *time.Time
+	ValidationReference    *string
+	ValidatedAt            *time.Time
+	Version                int64
+	CreatedBy              ids.ID
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+	AuthorizedCapabilities []string
 }
 
 type ChannelContentOverride struct {

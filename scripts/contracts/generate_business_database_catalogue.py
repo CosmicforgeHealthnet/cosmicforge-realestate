@@ -114,13 +114,14 @@ for entry in entries:
     entry['repository']='internal/repositories/db (SQLC); internal/'+owner+' owning command/query interfaces' if entry['schema'] else 'Planned internal/'+owner+' repository with owning-section migration'
     if entry['schema']:
         all_source='\n'.join(p.read_text(encoding='utf-8') for p in (SERVICE/'migrations').glob('*.sql'))
+        entry['schema']['altered_in']=[p.name for p in sorted((SERVICE/'migrations').glob('*.sql')) if re.search(r'ALTER TABLE '+re.escape(name)+r'\b',p.read_text(encoding='utf-8'),re.I)]
         entry['schema']['indexes']=sorted(set(re.findall(r'CREATE (?:UNIQUE )?INDEX (\w+) ON '+re.escape(name)+r'\b',all_source,re.I)))
 entries.sort(key=lambda e: (e['category'], e['canonical_table']))
-data = {'specification': 'CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0', 'aliases': aliases, 'entries': entries}
+data = {'latest_migration':sorted((SERVICE/'migrations').glob('*.sql'))[-1].name,'specification': 'CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0', 'aliases': aliases, 'entries': entries}
 md = ['# Section 5: reconciled database catalogue', '', 'Generated from the complete Section 5 catalogue, Annex D table supplements and actual owned migrations. SCHEMA_PRESENT certifies presence, not unexecuted workflows. Future-domain tables are deliberately deferred, with no placeholder DDL. Run `python scripts/contracts/generate_business_database_catalogue.py --check` to detect drift. Integration tests verify implemented tables against real pg_catalog. SQLC generates typed query models; domain commands retain owning transactions and explicit scope checks.', '', '| Specified table | Canonical table | Owner / section | Decision | Migration | Tenant / FK / unique / check / indexes / immutability |', '|---|---|---|---|---|---|']
 for e in entries:
     a = e['schema']
-    detail = ('tenant=' + str(a['organisation_column']) + '; FK=' + str(a['foreign_key_count']) + '; unique=' + str(a['unique_constraint_count']) + '; checks=' + str(a['check_constraint_count']) + '; indexes=' + ', '.join(a['indexes']) + '; immutable=' + str(a['immutable'])) if a else e['dependency']
+    detail = ('altered_in='+','.join(a['altered_in'])+'; tenant=' + str(a['organisation_column']) + '; FK=' + str(a['foreign_key_count']) + '; unique=' + str(a['unique_constraint_count']) + '; checks=' + str(a['check_constraint_count']) + '; indexes=' + ', '.join(a['indexes']) + '; immutable=' + str(a['immutable'])) if a else e['dependency']
     md.append('| ' + ' | '.join([e['specified_table'], e['canonical_table'], e['owner_package'] + ' / ' + e['owning_section'], e['decision'], a['migration'] if a else 'Future owning-section migration', detail]) + ' |')
 outputs = {ROOT / 'docs/implementation/business-operations-database-catalogue.json': json.dumps(data, indent=2) + '\n', ROOT / 'docs/implementation/business-operations-database-catalogue.md': '\n'.join(md) + '\n'}
 changed = []

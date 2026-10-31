@@ -20,7 +20,7 @@ The migration appends eligible initial Owner role versions and explicit capabili
 
 `sql/queries/commercial.sql` and generated `internal/repositories/db/commercial.sql.go` provide typed tenant reads, ordered calendar locks, expiry work and SKIP LOCKED sync claims. Domain repositories use the shared Querier/transaction interface for composed reads and owning transaction writes. SQLC 1.31.1 generation and drift are checked by Backend CI.
 
-Runtime grants reserve schema/migration ownership and provider certification to the authorised operator. Immutable evidence is not updateable/deletable by runtime. Grants are applied after migrations through the existing container certificate/provisioning mechanism. They do not provision or inspect another service database.
+Runtime grants reserve schema/migration ownership and provider certification to the authorised operator. Immutable evidence is not updateable/deletable by runtime. Grants are applied after migrations through the existing container certificate/provisioning scripts. They do not provision or inspect another service database.
 
 ## Database dependency matrix
 
@@ -38,3 +38,5 @@ Runtime grants reserve schema/migration ownership and provider certification to 
 `TestBusinessCompleteCatalogueMatchesActualPostgreSQL` verifies all implemented tables, foreign keys and declared indexes against real PostgreSQL, rejects unexpected public tables, and confirms deferred tables do not exist. `TestBusinessCommercialMigrationPreservesPopulatedSection4Database` runs fresh/repeated upgrades and proves old graph IDs/content are preserved. `TestBusinessCommercialMigrationUpgradesOnlyUnrestrictedInitialOwner` verifies populated role migration. The complete service suite runs all prior migration tests too. Final counts, CI runtime grants and scan results are in the combined certificate.
 
 Status: repository schema/catalogue implemented and disposable PostgreSQL certified. **Live staging database, role ACLs, real pooling/connectivity and operator rollout remain PARTIAL/unverified.**
+
+Connection authority hardening: forward-only migration `00007_channel_connection_authority.sql` persists the operation list from the signed provider credential proof. Every capability requires both provider certification and a grant to that particular connection. Existing connections default to no grants until real revalidation. `TestBusinessCommercialProviderCertificationCannotExpandCredentialAuthority` proves registry certification cannot authorize polling/webhook intake with a narrower credential. Current Goose schema version is **7**; migration 00006 remains unchanged.

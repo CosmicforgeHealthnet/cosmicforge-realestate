@@ -46233,6 +46233,9 @@
                   "data": {
                     "items": [
                       {
+                        "authorized_capabilities": [
+                          "example"
+                        ],
                         "id": "019a5fb0-0000-7000-8000-000000000001",
                         "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                         "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -46417,6 +46420,9 @@
                 },
                 "example": {
                   "data": {
+                    "authorized_capabilities": [
+                      "example"
+                    ],
                     "id": "019a5fb0-0000-7000-8000-000000000001",
                     "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                     "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -46618,6 +46624,9 @@
                 },
                 "example": {
                   "data": {
+                    "authorized_capabilities": [
+                      "example"
+                    ],
                     "id": "019a5fb0-0000-7000-8000-000000000001",
                     "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                     "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -46811,6 +46820,9 @@
                 },
                 "example": {
                   "data": {
+                    "authorized_capabilities": [
+                      "example"
+                    ],
                     "id": "019a5fb0-0000-7000-8000-000000000001",
                     "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                     "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -47021,6 +47033,9 @@
                 },
                 "example": {
                   "data": {
+                    "authorized_capabilities": [
+                      "example"
+                    ],
                     "id": "019a5fb0-0000-7000-8000-000000000001",
                     "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                     "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -48642,6 +48657,9 @@
                 "example": {
                   "data": {
                     "connection": {
+                      "authorized_capabilities": [
+                        "example"
+                      ],
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                       "property_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -62398,6 +62416,12 @@
       "CommercialChannelConnection": {
         "type": "object",
         "properties": {
+          "authorized_capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -62451,6 +62475,7 @@
         },
         "additionalProperties": false,
         "required": [
+          "authorized_capabilities",
           "id",
           "organisation_id",
           "property_id",

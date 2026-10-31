@@ -6,6 +6,8 @@ import (
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/serviceauth"
 	"testing"
 	"time"
 )
@@ -254,5 +256,30 @@ func TestBusinessCommercialExplicitReadbackResolvesOnlyMatchingDeliveryConflict(
 	consumer.mu.Unlock()
 	if applied != 1 {
 		t.Fatalf("Reconciliation duplicated provider mutation %d", applied)
+	}
+}
+
+func TestBusinessCommercialProviderCertificationCannotExpandCredentialAuthority(t *testing.T) {
+	c := newCommercialHTTP(t)
+	_, adapter := newCommercialSupplyConsumer(t)
+	conn := c.connectMarketplace(adapter)
+	if _, e := c.db.Pool.Exec(t.Context(), `UPDATE channel_connections SET authorized_capabilities=ARRAY['ARI','READBACK','PROPERTY_MAPPING','PRODUCT_MAPPING','RATE_MAPPING'],version=version+1 WHERE id=$1`, conn.ID); e != nil {
+		t.Fatal(e)
+	}
+	if e := c.domain.PollChannel(t.Context(), c.owner.registered.OrganisationID, conn.ID); e == nil {
+		t.Fatal("Provider-wide POLLING certification expanded credential authority")
+	}
+	signer := c.supplySigner(platform.MarketplaceService)
+	token, e := signer.TokenFor(string(platform.BusinessOperationsService), serviceauth.Delegation{OrganizationID: c.owner.registered.OrganisationID})
+	if e != nil {
+		t.Fatal(e)
+	}
+	event := distribution.Receipt{ProviderEventID: "scope-denied", ExternalObjectID: "scope-denied", ExternalVersion: "v1", Kind: "CONTENT_CHANGED", OccurredAt: time.Now().UTC()}
+	if status, _ := c.rootCall("/internal/v1/business-supply/channel-receipts", businesshttp.CommercialReceiptCommand{OrganisationID: c.owner.registered.OrganisationID, ConnectionID: conn.ID, Receipt: event}, map[string]string{"Authorization": "Bearer " + token}); status != 403 {
+		t.Fatalf("Credential without webhook authority accepted receipt %d", status)
+	}
+	var count int
+	if e = c.db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM channel_event_receipts WHERE connection_id=$1`, conn.ID).Scan(&count); e != nil || count != 0 {
+		t.Fatalf("Denied operation persisted state %d %v", count, e)
 	}
 }

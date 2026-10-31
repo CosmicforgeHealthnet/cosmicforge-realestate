@@ -82,7 +82,7 @@ func (s *commercialSupplyConsumer) handle(w http.ResponseWriter, r *http.Request
 			w.WriteHeader(403)
 			return
 		}
-		respond(distribution.Authorization{ProviderAccountID: c.ProviderAccountID, PropertyID: c.PropertyID, Reference: "disposable-signed-provider-authorization", ExpiresAt: time.Now().Add(time.Hour), Capabilities: []string{"ARI", "CONTENT", "MAPPING", "READBACK", "PAUSE", "WITHDRAW", "WEBHOOK", "POLLING"}})
+		respond(distribution.Authorization{ProviderAccountID: c.ProviderAccountID, PropertyID: c.PropertyID, Reference: "disposable-signed-provider-authorization", ExpiresAt: time.Now().Add(time.Hour), Capabilities: []string{"ARI", "CONTENT", "PROPERTY_MAPPING", "PRODUCT_MAPPING", "RATE_MAPPING", "READBACK", "PAUSE", "WITHDRAW", "WEBHOOK", "POLLING"}})
 		return
 	}
 	if strings.HasSuffix(r.URL.Path, "/mapping-inspection") {

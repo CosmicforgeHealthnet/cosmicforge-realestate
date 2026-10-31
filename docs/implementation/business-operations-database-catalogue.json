@@ -1,4 +1,5 @@
 {
+  "latest_migration": "00007_channel_connection_authority.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -237,7 +238,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
       "dependency": "Mapped to existing canonical table; no duplicate identity.",
@@ -315,7 +317,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Mapped to existing canonical table; no duplicate identity.",
@@ -354,7 +357,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Mapped to existing canonical table; no duplicate identity.",
@@ -616,7 +622,10 @@
         ],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Mapped to existing canonical table; no duplicate identity.",
@@ -863,7 +872,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -889,7 +901,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -915,7 +928,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -941,7 +955,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -967,7 +982,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -993,7 +1009,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1019,7 +1036,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 2,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1045,7 +1063,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1071,7 +1090,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1099,7 +1119,8 @@
         ],
         "immutable": true,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1127,7 +1148,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1153,7 +1175,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00007_channel_connection_authority.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1179,7 +1204,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1205,7 +1231,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1231,7 +1258,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1257,7 +1285,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1283,7 +1312,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1309,7 +1339,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1335,7 +1366,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1361,7 +1395,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1390,7 +1425,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1546,7 +1584,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 2,
-        "check_constraint_count": 6
+        "check_constraint_count": 6,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1572,7 +1611,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1598,7 +1640,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1626,7 +1669,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1652,7 +1698,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 5
+        "check_constraint_count": 5,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1678,7 +1727,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1704,7 +1754,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1732,7 +1783,8 @@
         ],
         "immutable": true,
         "unique_constraint_count": 3,
-        "check_constraint_count": 6
+        "check_constraint_count": 6,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1758,7 +1810,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1784,7 +1837,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1812,7 +1866,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1838,7 +1893,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1866,7 +1922,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 6
+        "check_constraint_count": 6,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2100,7 +2159,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2129,7 +2189,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2155,7 +2218,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2181,7 +2245,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2207,7 +2272,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2233,7 +2301,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2259,7 +2328,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2288,7 +2360,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2316,7 +2391,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2344,7 +2420,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2370,7 +2447,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2398,7 +2476,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2424,7 +2503,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2450,7 +2532,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2476,7 +2559,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2504,7 +2588,8 @@
         ],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2533,7 +2618,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2561,7 +2649,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 5
+        "check_constraint_count": 5,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2587,7 +2678,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2615,7 +2707,8 @@
         ],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/events owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2643,7 +2736,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/platform owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2672,7 +2766,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/events owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2698,7 +2793,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/platform owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2724,7 +2820,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2789,7 +2886,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2815,7 +2913,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2841,7 +2940,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2869,7 +2969,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/finance owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2895,7 +2996,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2921,7 +3023,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2947,7 +3050,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -2973,7 +3077,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3003,7 +3108,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3029,7 +3135,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3055,7 +3162,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3081,7 +3189,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3107,7 +3216,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3133,7 +3243,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3159,7 +3270,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3185,7 +3297,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -4162,7 +4275,10 @@
         ],
         "immutable": true,
         "unique_constraint_count": 2,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4190,7 +4306,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/approvals owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4216,7 +4333,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4242,7 +4360,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4268,7 +4387,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4294,7 +4414,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4320,7 +4441,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4348,7 +4470,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4374,7 +4497,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4402,7 +4526,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4428,7 +4553,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4454,7 +4580,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4480,7 +4607,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4506,7 +4634,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 3,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4532,7 +4663,10 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4558,7 +4692,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 1,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4584,7 +4719,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4610,7 +4746,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4639,7 +4776,10 @@
         ],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/events owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4665,7 +4805,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/events owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4693,7 +4834,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4719,7 +4863,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4747,7 +4894,8 @@
         ],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4773,7 +4921,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4801,7 +4950,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4827,7 +4979,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4853,7 +5006,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4881,7 +5035,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4909,7 +5066,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 3
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4935,7 +5095,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4961,7 +5124,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -4989,7 +5155,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5018,7 +5187,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 10
+        "check_constraint_count": 10,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5044,7 +5216,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5070,7 +5243,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 2,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5096,7 +5270,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workers owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5122,7 +5297,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5148,7 +5324,10 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 1,
-        "check_constraint_count": 4
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00006_commercial_inventory_distribution.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5174,7 +5353,10 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 1
+        "check_constraint_count": 1,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5200,7 +5382,8 @@
         "indexes": [],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5228,7 +5411,8 @@
         ],
         "immutable": false,
         "unique_constraint_count": 0,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5257,7 +5441,10 @@
         ],
         "immutable": false,
         "unique_constraint_count": 1,
-        "check_constraint_count": 2
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5283,7 +5470,10 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 0,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5309,7 +5499,8 @@
         "indexes": [],
         "immutable": true,
         "unique_constraint_count": 2,
-        "check_constraint_count": 0
+        "check_constraint_count": 0,
+        "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",

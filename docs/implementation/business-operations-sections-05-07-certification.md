@@ -10,9 +10,19 @@ Authoritative inputs: full v1.0 specification Sections 1–27 and Annexes D–J,
 
 ## Delivery evidence
 
-Implementation SHA: pending commit. Final delivery SHA: this report's final committed revision, independently verified in the delivery response. All five final-SHA workflows and immutable image digest: **pending initial push**, no CI/deployment success asserted at this stage. The certificate will be updated from actual run results.
+Initial implementation SHA: `0edf2adcd892ce7d0684720c121fec983e2a0bd9`. Its Repository structure, Contracts, Security and Images workflows passed; Business Operations Linux race tests passed **151/151**, with no skips/failures. Backend including all 20 jobs and process E2E also passed. The correction adds migration 00007, not a rewrite of migration 00006. Its local focused tests passed **24/24**. Final delivery SHA is the committed report revision and is independently checked in the delivery response; all five workflows must be verified for that SHA before final CI PASS.
 
-Live staging audit on 2026-10-31: GitHub repository environments `[]`, self-hosted runners count `0`, deployments `[]`. The existing staging-only operator workflow has no preauthorised runtime transport/configuration here. A published image is not a rollout. Actual staging DB/ACLs/secrets/provider connectivity, smoke and rollback are **PARTIAL / unverified**.
+| Initial implementation workflow | Run | Observed result |
+|---|---|---|
+| Repository structure | [41208841411](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841411) | PASS |
+| Contracts | [41208841440](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841440) | PASS |
+| Security | [41208841516](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841516) | PASS |
+| Images | [41208841526](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841526) | PASS |
+| Backend | [41208841404](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841404) | PASS (20 jobs, including process E2E) |
+
+Initial implementation Business digest: `sha256:926301dc00a993e07ef918725e68ceef275334e80f6cfee8444d757b6407c824`. Images certified API/worker/migrator non-root startup, real PostgreSQL/NATS/Redis and Gateway processes, migration/runtime grants, health, restart/broker recovery and SIGTERM. Trivy image HIGH/CRITICAL fixed findings: 0. This initial digest is **not** the final correction's image and not evidence of deployment.
+
+Live staging audit on 2026-10-31: GitHub repository environments `[]`, self-hosted runners count `0`, deployments `[]`. No staging deployment workflow or preauthorised runtime transport exists; only Images publication and staging Compose are present. The production promotion workflow was neither changed nor invoked. A published image is not a rollout. Actual staging DB/ACLs/secrets/provider connectivity, smoke and rollback are **PARTIAL / unverified**.
 
 ## Requirement matrix
 
@@ -46,9 +56,9 @@ PASS below denotes implemented repository behavior verified with the listed disp
 | 23–24 pipeline and Section 3 scope/approval integration | PASS | canonical graph → reviewed content/price → durable distribution; self approval/revocation/amount and multitenant tests |
 | 25–26 public/private APIs and contract drift | PASS | 282 routes total, 94 added, 213 typed schemas; actual Chi walk vs OpenAPI/Postman; service-only intake isolated |
 | 27 events/workers/recovery | PASS | seven new versioned event types, shared outbox, increasing source checkpoints, existing scheduler; actual JetStream recovery/inbox dedupe |
-| 28–31 DB/domain/channel/security journeys | PASS | local service suite 150 tests passed (0 skipped); focused later reconciliation changes passed; final Linux CI verifies exact pushed source |
+| 28–31 DB/domain/channel/security journeys | PASS | local service suite 150 tests passed (0 skipped); focused later reconciliation changes passed; initial Linux CI passed 151/151; corrected final source is verified separately |
 | 32 local quality/architecture/vulnerability checks | PASS | gofmt, tidy, vet, staticcheck, architecture checks, Gateway routing; govulncheck: 0 reachable findings |
-| 32 secret scan / 34 Docker, race, Trivy and all five Actions | PARTIAL | candidate secret scan passed; exact pushed-SHA CI pending; no local Docker/CGO race runtime |
+| 32 secret scan / 34 Docker, race, Trivy and all five Actions | PARTIAL | candidate secret scan and initial Images/Trivy passed; initial Business race 151/151 passed; exact corrected-SHA CI pending |
 | 33 OpenAPI/Postman | PASS | generated schema-valid examples and handler drift gate; preserved old folders, new frontend/private folders |
 | 35 reports | PASS | three section reports, this certificate, full machine/human database catalogue, architecture/contract docs |
 | 36–39 live verification/capacity and staging | PARTIAL | authoritative CapacityAuthority operation is missing; runtime commercial activation remains 503/fail-closed; staging transport/secrets unverified |
@@ -93,7 +103,7 @@ Local logs are temporary under the task's TEMP directory and are not committed (
 2. Marketplace owner must implement/certify the versioned signed supply validation, mapping inspection, durable command, readback and optional poll operations described in the architecture/contract document. Configure reciprocal service keys and `MARKETPLACE_SERVICE_URL` for API and worker.
 3. Section 9 must implement canonical reservation acceptance/commitment and source-of-truth reconciliation. Until then all external reservation changes remain quarantined/dependency-blocked and safety pauses are explicit intent.
 4. Approved OTA operator must obtain provider access/property scopes, implement the actual provider-specific adapter/signature/OAuth contracts and supply certification evidence before changing capability states. Optional unsupported capabilities stay disabled.
-5. Authorised staging infrastructure operator must configure the existing staging-only automation environment/runner/transport and secrets, provision business_operations_db and least-privilege roles, run migration 00006 then runtime grants, deploy the exact API/worker image digest and perform actual readiness/signed smoke/broker/provider/rollback checks. Do not access VPS from the coding agent or invent a transport.
+5. Authorised staging infrastructure operator must establish an approved staging-only workflow/environment/runner/transport and secrets before rollout, provision business_operations_db and least-privilege roles, run migrations 00006–00007 then runtime grants, deploy the exact API/worker image digest and perform actual readiness/signed smoke/broker/provider/rollback checks. Do not access VPS from the coding agent or invent a transport.
 6. Roll back only to a compatible immutable image through the approved staging workflow; pause/withdraw remote supply with confirmed provider outcomes first. Preserve additive schema/immutable evidence. Prefer reviewed forward corrections to dropping tables or reverting audit history.
 
 ## API additions
@@ -196,3 +206,5 @@ All public browser paths use `/api/v1/business`; the existing Gateway compatibil
 | GET | `/api/v1/business/compliance-holds` | `restrictions:read` | `—` → `List:CommercialComplianceHold` | 200 | False |
 | POST | `/api/v1/business/compliance-holds` | `restrictions:write` | `CommercialComplianceCreate` → `CommercialComplianceHold` | 201 | True |
 | POST | `/api/v1/business/compliance-holds/{id}/revoke` | `restrictions:write` | `CommercialStateChange` → `CommercialComplianceHold` | 200 | True |
+
+Connection authority hardening: forward-only migration `00007_channel_connection_authority.sql` persists the operation list from the signed provider credential proof. Every capability requires both provider certification and a grant to that particular connection. Existing connections default to no grants until real revalidation. `TestBusinessCommercialProviderCertificationCannotExpandCredentialAuthority` proves registry certification cannot authorize polling/webhook intake with a narrower credential. Current Goose schema version is **7**; migration 00006 remains unchanged.

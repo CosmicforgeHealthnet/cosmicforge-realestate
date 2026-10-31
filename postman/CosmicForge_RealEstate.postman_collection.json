@@ -225508,7 +225508,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"provider_code\": \"example\",\n        \"provider_account_id\": \"example\",\n        \"state\": \"example\",\n        \"version\": 1,\n        \"credentials_configured\": true\n      }\n    ]\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"items\": [\n      {\n        \"authorized_capabilities\": [\n          \"example\"\n        ],\n        \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"provider_code\": \"example\",\n        \"provider_account_id\": \"example\",\n        \"state\": \"example\",\n        \"version\": 1,\n        \"credentials_configured\": true\n      }\n    ]\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
@@ -226077,7 +226077,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"authorized_capabilities\": [\n      \"example\"\n    ],\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
@@ -226633,7 +226633,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"authorized_capabilities\": [\n      \"example\"\n    ],\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
@@ -227119,7 +227119,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"authorized_capabilities\": [\n      \"example\"\n    ],\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
@@ -227705,7 +227705,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"authorized_capabilities\": [\n      \"example\"\n    ],\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"provider_code\": \"example\",\n    \"provider_account_id\": \"example\",\n    \"state\": \"example\",\n    \"version\": 1,\n    \"credentials_configured\": true\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
@@ -232063,7 +232063,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"data\": {\n    \"connection\": {\n      \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"provider_code\": \"example\",\n      \"provider_account_id\": \"example\",\n      \"state\": \"example\",\n      \"version\": 1,\n      \"credentials_configured\": true\n    },\n    \"status\": \"example\",\n    \"cursor\": {},\n    \"queued_jobs\": 1,\n    \"unconfirmed_publications\": 1,\n    \"confirmed_publications\": 1,\n    \"last_success_at\": \"example\"\n  }\n}"
+                  "body": "{\n  \"data\": {\n    \"connection\": {\n      \"authorized_capabilities\": [\n        \"example\"\n      ],\n      \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"provider_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"provider_code\": \"example\",\n      \"provider_account_id\": \"example\",\n      \"state\": \"example\",\n      \"version\": 1,\n      \"credentials_configured\": true\n    },\n    \"status\": \"example\",\n    \"cursor\": {},\n    \"queued_jobs\": 1,\n    \"unconfirmed_publications\": 1,\n    \"confirmed_publications\": 1,\n    \"last_success_at\": \"example\"\n  }\n}"
                 },
                 {
                   "name": "Invalid request fields.",
