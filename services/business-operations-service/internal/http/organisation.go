@@ -28,6 +28,7 @@ func Register(authHandler *auth.Handler, verifier verification.API, notify notif
 	authHandler.Router.Group(func(r chi.Router) {
 		r.Use(authHandler.Authenticate)
 		h.registerHierarchy(r)
+		h.registerInventory(r)
 		h.registerApprovals(r)
 		h.registerRoles(r)
 		h.registerStaff(r)

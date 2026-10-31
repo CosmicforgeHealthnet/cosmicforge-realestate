@@ -13,7 +13,7 @@ An authorised infrastructure operator must provide the staging database, service
 1. Confirm the endpoint is the authorised staging PostgreSQL cluster. Use a protected operator connection, not a service runtime credential.
 2. Execute `scripts/database/business-operations-provision.sql` with `psql -v ON_ERROR_STOP=1`. It creates only `business_operations_db`, `cf_business_owner`, `cf_business_migrator` and `cf_business_runtime`; existing conflicting ownership/privileged roles cause failure. It does not replace another service database or assign passwords.
 3. Set migrator/runtime credentials through the approved secret manager/GitHub environment mechanism. The migrator assumes `cf_business_owner`; API and worker use `cf_business_runtime`. Owner is NOLOGIN. Never commit credentials, DSNs, private signing keys or decrypted MFA material.
-4. Apply the immutable image's `/app/migrate up` using the migrator connection; repeat `up`, inspect `status` and require `version == 4`. The effective database must be `business_operations_db`. A malformed or cross-service database configuration is rejected before migration and at application startup.
+4. Apply the immutable image's `/app/migrate up` using the migrator connection; repeat `up`, inspect `status` and require `version == 5`. The effective database must be `business_operations_db`. A malformed or cross-service database configuration is rejected before migration and at application startup.
 5. Apply `scripts/database/business-operations-runtime-grants.sql`. Confirm runtime cannot create schema objects, mutate immutable history, read Goose metadata, assume owner, or access other services' objects. Other services' database ACLs require their operators' independent verification; this script deliberately does not change those databases.
 6. Verify actual staging connectivity, pooling, ownership and migration status with the real runtime/migrator credentials. Disposable CI success cannot substitute for this step.
 
@@ -48,3 +48,27 @@ Local isolated PostgreSQL provisioning was run twice successfully; fresh/repeate
 Actual staging database provisioning, credentials, external-provider delivery, rollout, live smoke and rollback proof remain unverified until the authorised operator path is available. Production and main are outside this task.
 
 Implementation certificate: all five workflows passed at `0e4e792`; Images run 41115860326 published and certified Business Operations digest `sha256:966bc07a44985e27bd5268481e49148fa1ecd69e0b84c0e4b3f30a2d2523f302`. This is image/test evidence, not a rollout. Use the independently verified final delivery SHA/digest when an authorised staging deployment path is available.
+
+## Section 4 rollout addition
+
+Apply migration 00005 using the existing owner/migrator process, then reapply
+runtime grants before starting the new API/worker. Do not roll back by dropping
+graph identities or history. Migration creates immutable new Owner role versions
+only for eligible initial representatives with current unrestricted company
+role-management authority; custom/limited staff roles retain their versions.
+Configure independent `inventory:approve` reviewers and INVENTORY_RESTRUCTURE /
+INVENTORY_MAPPING_CHANGE policies through Section 3 before reviewed changes.
+
+Set `MEDIA_SERVICE_URL` for API and worker when the authenticated Media endpoint
+is available. New property envelopes keep the specification's property.* types,
+with Business transport subjects `realestate.business.property.*` to avoid the
+Individual Owner stream's existing `realestate.property.>` reservation. Grant
+only the established Business publish ACL; do not alter the Owner stream.
+
+Post-rollout smoke additionally creates disposable draft property/unit identities,
+checks scoped hierarchy/summary, previews a bounded import and verifies worker
+restart recovery. Exercise signed property/Media references with an authorised
+provider test case. Draft creation is not proof of KYB, operating-capacity,
+property-authority or downstream reservation/lease/sale dependency certification.
+The repository still has no preauthorised staging transport/environment; rollout
+and real connectivity remain operator-owned and unverified.

@@ -127,6 +127,19 @@ func normalizedOperation(operation any) (json.RawMessage, error) {
 	normalize = func(value any) {
 		switch object := value.(type) {
 		case map[string]any:
+			if command, ok := object["command"].(map[string]any); ok && object["node_id"] != nil {
+				for _, key := range []string{"parent_id", "branch_id", "room_type_id", "expected_node_id"} {
+					if command[key] == nil || command[key] == ids.Nil.String() {
+						delete(command, key)
+					}
+				}
+				for _, key := range []string{"detach", "cascade", "remove", "clear_organisational_scopes"} {
+					if command[key] == false {
+						delete(command, key)
+					}
+				}
+			}
+
 			delete(object, "approval_id")
 			for key, item := range object {
 				if (key == "scope_id" || key == "previous_role_id") && item == nil {
@@ -681,7 +694,7 @@ func (h *Handler) requirePrivilegeChange(ctx context.Context, tx pgx.Tx, t tenan
 	if err := tx.QueryRow(ctx, `SELECT activated_at FROM organisations WHERE id=$1`, t.Organisation).Scan(&activated); err != nil {
 		return err
 	}
-	if activated == nil && (t.State == "DRAFT" || t.State == "KYB_PENDING") && t.Account == t.Representative {
+	if action != approvals.ActionInventoryRestructure && action != approvals.ActionInventoryMapping && activated == nil && (t.State == "DRAFT" || t.State == "KYB_PENDING") && t.Account == t.Representative {
 		var governed bool
 		if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM approval_policies WHERE organisation_id=$1 AND action=$2)`, t.Organisation, action).Scan(&governed); err != nil {
 			return err

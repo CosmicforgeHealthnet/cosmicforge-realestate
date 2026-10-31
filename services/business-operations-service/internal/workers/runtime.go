@@ -5,11 +5,15 @@ import (
 	"log/slog"
 	"time"
 
+	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth/credentials"
 	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
+	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/organisation"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events/jetstream"
@@ -20,6 +24,8 @@ import (
 )
 
 type Runtime struct {
+	Inventory            *businesshttp.Handler
+	InventoryReferences  *InventoryReferences
 	Notifications        *Notifications
 	Lifecycle            *Lifecycle
 	consumer             *jetstream.Consumer
@@ -62,7 +68,18 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 	if log == nil {
 		log = slog.Default()
 	}
-	return &Runtime{Notifications: worker, Lifecycle: &Lifecycle{Pool: pool, Outbox: outbox.NewStore(pool, prefix)}, consumer: consumer, log: log, conn: conn, prefix: prefix, Verification: &Verification{Projection: organisation.Projection{Sealer: sealer, Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}, API: verify}}, nil
+	projection := &portfolio.VerificationProjector{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}
+	inventory := &businesshttp.Handler{Auth: &businessauth.Handler{Service: &businessauth.Service{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Sealer: sealer, Now: time.Now}}}
+	refs := &InventoryReferences{Projection: *projection, Verification: verify}
+	if mediaURL := l.String("MEDIA_SERVICE_URL", ""); mediaURL != "" {
+		client, err := media.New(mediaURL, identity.Signer, 5*time.Second)
+		if err != nil {
+			consumer.Stop()
+			return nil, err
+		}
+		refs.Media = client
+	}
+	return &Runtime{Inventory: inventory, InventoryReferences: refs, Notifications: worker, Lifecycle: &Lifecycle{Pool: pool, Outbox: outbox.NewStore(pool, prefix)}, consumer: consumer, log: log, conn: conn, prefix: prefix, Verification: &Verification{Inventory: projection, Projection: organisation.Projection{Sealer: sealer, Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}, API: verify}}, nil
 }
 func (r *Runtime) Stop() {
 	if r != nil && r.consumer != nil {
@@ -73,25 +90,48 @@ func (r *Runtime) Stop() {
 	}
 }
 func (r *Runtime) Run(ctx context.Context) error {
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(time.Second)
+	var nextMaintenance time.Time
 	defer ticker.Stop()
 	for {
-		if r.verificationConsumer == nil {
-			consumer, err := r.conn.Consume(ctx, jetstream.ConsumerConfig{Stream: jetstream.StreamName(r.prefix, "verification"), Durable: VerificationConsumer, FilterSubjects: []string{r.prefix + ".verification.>"}, AckWait: 30 * time.Second, HandlerTimeout: 15 * time.Second, MaxDeliver: 12, OnFailure: r.Notifications.Quarantine}, r.Verification.Handle)
-			if err == nil {
-				r.verificationConsumer = consumer
-			} else if ctx.Err() == nil {
-				r.log.Warn("verification event stream unavailable; authenticated reconciliation remains active")
+		if r.Inventory != nil {
+			call, cancel := context.WithTimeout(ctx, 20*time.Second)
+			err := r.Inventory.ProcessInventoryImports(call, 20)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("inventory import batch failed", "error", err.Error())
 			}
 		}
-		if err := r.Verification.Tick(ctx); err != nil && ctx.Err() == nil {
-			r.log.Error("verification reconciliation failed", "error", err.Error())
-		}
-		if err := r.Lifecycle.Tick(ctx); err != nil && ctx.Err() == nil {
-			r.log.Error("business lifecycle reconciliation failed", "error", err.Error())
-		}
-		if err := r.Notifications.RequeueUnaccepted(ctx); err != nil && ctx.Err() == nil {
-			r.log.Error("notification source reconciliation failed", "error", err.Error())
+		if !time.Now().Before(nextMaintenance) {
+			nextMaintenance = time.Now().Add(time.Minute)
+			if r.verificationConsumer == nil {
+				consumer, err := r.conn.Consume(ctx, jetstream.ConsumerConfig{Stream: jetstream.StreamName(r.prefix, "verification"), Durable: VerificationConsumer, FilterSubjects: []string{r.prefix + ".verification.>"}, AckWait: 30 * time.Second, HandlerTimeout: 15 * time.Second, MaxDeliver: 12, OnFailure: r.Notifications.Quarantine}, r.Verification.Handle)
+				if err == nil {
+					r.verificationConsumer = consumer
+				} else if ctx.Err() == nil {
+					r.log.Warn("verification event stream unavailable; authenticated reconciliation remains active")
+				}
+			}
+			verifyCtx, verifyCancel := context.WithTimeout(ctx, 20*time.Second)
+			verifyErr := r.Verification.Tick(verifyCtx)
+			verifyCancel()
+			if err := verifyErr; err != nil && ctx.Err() == nil {
+				r.log.Error("verification reconciliation failed", "error", err.Error())
+			}
+			if err := r.Lifecycle.Tick(ctx); err != nil && ctx.Err() == nil {
+				r.log.Error("business lifecycle reconciliation failed", "error", err.Error())
+			}
+			if err := r.Notifications.RequeueUnaccepted(ctx); err != nil && ctx.Err() == nil {
+				r.log.Error("notification source reconciliation failed", "error", err.Error())
+			}
+			if r.InventoryReferences != nil {
+				call, cancel := context.WithTimeout(ctx, 20*time.Second)
+				err := r.InventoryReferences.Tick(call)
+				cancel()
+				if err != nil && ctx.Err() == nil {
+					r.log.Error("inventory reference reconciliation failed", "error", err.Error())
+				}
+			}
 		}
 		select {
 		case <-ctx.Done():

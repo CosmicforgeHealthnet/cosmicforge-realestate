@@ -1,6 +1,6 @@
 # Business Operations Service
 
-Business Operations owns business accounts, organisation membership, scopes and enterprise approvals in `business_operations_db`. Section 3 is implemented; live provider and staging certification are reported separately from executable test evidence.
+Business Operations owns business accounts, organisation membership, scopes and enterprise approvals in `business_operations_db`. Sections 3–4 are implemented; live provider and staging certification are reported separately from executable test evidence.
 
 ## Architecture and public contract
 
@@ -9,7 +9,7 @@ Business Operations owns business accounts, organisation membership, scopes and 
 - Canonical public prefix: `/api/v1/business/`. The existing `/api/v1/business-operations/` prefix is a tested compatibility alias with the same handlers and security.
 - Annex D profile/verification shorthand has explicit `/profile` and `/verification` aliases of the canonical organisation handlers. `/capabilities` returns effective capacity eligibility, while `/organisation/capacities` and `/organisation/capability-packs` manage declarations/configuration.
 - The Gateway signs its service identity and forwards the business access JWT. The service verifies both and checks current account, session, selected organisation, membership, role, grants and expiry. Client organisation headers never override that context. No Business Operations internal/admin/webhook bypass is exposed.
-- [OpenAPI](../../contracts/public/openapi/business-operations.yaml), [route inventory](contracts/routes.json) and the official `03 Business Operations` Postman folder cover 96 method/path pairs. Regenerate with `python scripts/contracts/generate_business_operations.py` from repository root.
+- [OpenAPI](../../contracts/public/openapi/business-operations.yaml), [route inventory](contracts/routes.json) and the official `03 Business Operations` Postman folder cover 188 method/path pairs. Regenerate with `python scripts/contracts/generate_business_operations.py` from repository root.
 
 ## Implemented Section 3
 
@@ -25,7 +25,7 @@ The Verification client uses existing authenticated BUSINESS case create/read/ev
 
 ## Persistence and worker
 
-Goose migrations 00001–00004 add the complete required catalogue and supporting records. SQLC generates account/session/outbox queries and models; domain commands use typed parameters and owning transactions. Tenant FKs, unique invitation constraints, row locks, optimistic versions and immutable audit/decision/policy/role definitions protect concurrency. Application IDs use shared UUIDv7 generation; monetary values use integer minor units and currency.
+Goose migrations 00001–00005 add the complete required catalogue and supporting records. SQLC generates account/session/outbox queries and models; domain commands use typed parameters and owning transactions. Tenant FKs, unique invitation constraints, row locks, optimistic versions and immutable audit/decision/policy/role definitions protect concurrency. Application IDs use shared UUIDv7 generation; monetary values use integer minor units and currency.
 
 The worker runs the established outbox relay, encrypted Notification jobs, durable verification consumer, authoritative verification reconciliation and one maintenance loop for invitations, memberships/scopes, sessions, MFA challenges, delegations, emergency access, approvals and capacity/KYB expiry. API expiry checks work independently of maintenance availability. Poison jobs retain quarantine metadata; unaccepted notifications can be replayed from retained outbox records. Notification acceptance is not a delivery receipt.
 
@@ -43,4 +43,34 @@ Run `go test ./...`, `go test -race ./...`, `go vet ./...`, `staticcheck ./...`,
 
 The distroless non-root image includes API, worker and migration binaries. Existing staging Compose uses immutable digests and controlled migration dependencies. There is no preauthorised GitHub-to-staging deployment transport or available staging credential here. No direct VPS access or production deployment is used. See [Section 3 report](../../docs/implementation/business-operations-section-03-report.md) and [staging runbook](../../docs/implementation/business-operations-staging-readiness.md).
 
-Sections 4–27 remain future work. Their directory placeholders are boundaries, not completed workflows.
+Sections 5–27 remain future work. Their directory placeholders are boundaries, not completed workflows.
+
+## Section 4 canonical inventory
+
+`internal/portfolio` owns one graph with 14 typed identity anchors: portfolio,
+development, phase, parcel, property, building, block, floor, unit, room type,
+room, facility, common area and asset. Physical containment, portfolio membership
+and parcel associations are explicit distinct edges. Room categories never act
+as physical parents. Common-area responses derive `non_sellable=true` from the
+immutable kind. No availability, publication, reservation, lease, sale or payment
+operation is added.
+
+All graph APIs use the existing trusted tenant, current RBAC, versioned approvals,
+idempotency and transactional audit/outbox. Controlled changes bind node and
+subtree revisions plus destination revision. Previously activated structures
+require complete downstream dependency evidence; absent providers return 503.
+There is no onboarding approval bypass for inventory restructuring or remapping.
+
+The existing worker performs bounded JSON/CSV preview, execution/checkpoint,
+resume and safe soft recovery. Preview never creates canonical nodes. Live
+initiator/session/role/grants are rechecked per batch; concurrent claims are
+fenced. Unexpected failures quarantine a row and pause unless partial execution
+was explicitly accepted. Recovery preserves canonical IDs and mapping provenance,
+with reconciliation tasks for later changes or acquired dependencies.
+
+Optional `MEDIA_SERVICE_URL` enables authenticated metadata and purpose-bound
+access. Only references and confirmed space coordinates are retained; Media
+owns bytes. Verification owns property authority; current case read-back and
+expiry/version checks control projections. See the [Section 4 data/security/event
+contract](../../docs/architecture/BUSINESS_OPERATIONS_SECTION4_GRAPH.md) and
+[implementation report](../../docs/implementation/business-operations-section-04-report.md).

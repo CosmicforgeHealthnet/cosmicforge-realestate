@@ -3,6 +3,7 @@ package app
 import (
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
@@ -34,6 +35,13 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		return err
 	}
 	domain := businesshttp.Register(handler, verify, notify)
+	if mediaURL := loader.String("MEDIA_SERVICE_URL", ""); mediaURL != "" {
+		client, err := media.New(mediaURL, identity.Signer, 5*time.Second)
+		if err != nil {
+			return err
+		}
+		domain.Media = client
+	}
 	domain.InvitationAcceptURL = loader.String("BUSINESS_INVITATION_ACCEPT_URL", "")
 	a.Router = NewRouter(a.Health, handler.Router)
 	return nil

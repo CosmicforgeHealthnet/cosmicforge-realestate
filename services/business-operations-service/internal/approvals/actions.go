@@ -3,6 +3,8 @@ package approvals
 // Action identifiers are authorization/approval contracts. Entries for later
 // domains do not execute or imply implementation of those business workflows.
 const (
+	ActionInventoryRestructure        = "INVENTORY_RESTRUCTURE"
+	ActionInventoryMapping            = "INVENTORY_MAPPING_CHANGE"
 	ActionPayoutDestinationChange     = "BUSINESS_PAYOUT_DESTINATION_CHANGE"
 	ActionHighValueRefund             = "HIGH_VALUE_REFUND"
 	ActionVerifiedPropertyPublication = "VERIFIED_PROPERTY_PUBLICATION"

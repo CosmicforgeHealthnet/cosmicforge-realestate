@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/organisation"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
@@ -17,6 +18,7 @@ import (
 const VerificationConsumer = "business-operations-verification-v1"
 
 type Verification struct {
+	Inventory  *portfolio.VerificationProjector
 	Projection organisation.Projection
 	API        verification.API
 	after      ids.ID
@@ -78,6 +80,24 @@ func (w *Verification) Handle(ctx context.Context, d events.Delivery) error {
 		}
 		return w.Projection.ApplyEvent(ctx, org, authoritative, e)
 	}
+	if w.Inventory != nil {
+		var node ids.ID
+		lookup := w.Projection.Pool.QueryRow(ctx, `SELECT organisation_id,node_id FROM inventory_verification_links WHERE case_id=$1`, payload.Case).Scan(&org, &node)
+		if lookup == nil {
+			c, providerErr := w.API.Get(requestcontext.WithActor(ctx, requestcontext.Actor{}), payload.Case)
+			if providerErr != nil {
+				return errors.New("authoritative property verification unavailable")
+			}
+			if c.VerificationID != payload.Case {
+				return events.Permanent(errors.New("property verification identity mismatch"))
+			}
+			return w.Inventory.Apply(requestcontext.WithActor(ctx, requestcontext.Actor{}), org, node, ids.Nil, 0, c, &e)
+		}
+		if !errors.Is(lookup, pgx.ErrNoRows) {
+			return lookup
+		}
+	}
+
 	_, err = w.Projection.Pool.Exec(ctx, `INSERT INTO processed_events(consumer,event_id,event_type) VALUES($1,$2,$3) ON CONFLICT DO NOTHING`, VerificationConsumer, e.EventID, e.EventType)
 	return err
 }

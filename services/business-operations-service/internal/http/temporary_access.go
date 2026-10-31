@@ -22,9 +22,9 @@ import (
 // its original authority actor and is checked against every decision's SoD.
 func temporaryCapability(code string, emergency bool) bool {
 	switch code {
-	case "hierarchy:read", "staff:read":
+	case "hierarchy:read", "staff:read", "portfolio:read", "development:read", "parcel:read", "property:read", "structure:read", "assets:read", "imports:read":
 		return true
-	case "hierarchy:write":
+	case "hierarchy:write", "portfolio:write", "development:write", "parcel:write", "property:write", "structure:write", "assets:write", "inventory:approve":
 		return !emergency
 	case "approvals:read", "approvals:decide", "staff:approve", "roles:approve":
 		return !emergency
@@ -177,9 +177,6 @@ func (h *Handler) createDelegation(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.InvalidRequest("Invalid temporary delegation."))
 		return
 	}
-	if in.Grant.EffectiveAt.IsZero() {
-		in.Grant.EffectiveAt = h.Auth.Service.Now().UTC().Add(time.Second)
-	}
 	h.execute(w, r, "delegation:create", in, "delegations:write", in.Grant.ScopeKind, in.Grant.ScopeID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
 		t, target, err := h.authorize(ctx, tx, "delegations:write", in.Grant.ScopeKind, in.Grant.ScopeID, true)
 		if err != nil {
@@ -191,6 +188,10 @@ func (h *Handler) createDelegation(w http.ResponseWriter, r *http.Request) {
 		}
 		g := workforce.Grant{Capability: permissions.Permission(in.Grant.Capability), Scope: target.Scope, Inherit: in.Grant.Inherit, EffectiveAt: in.Grant.EffectiveAt, ExpiresAt: in.Grant.ExpiresAt, AmountLimitMinor: in.Grant.AmountLimitMinor, Currency: in.Grant.Currency, RequireMFA: in.Grant.RequireMFA}
 		now := h.Auth.Service.Now().UTC()
+		if g.EffectiveAt.IsZero() {
+			g.EffectiveAt = now
+			in.Grant.EffectiveAt = now
+		}
 		if delegate.Status != "ACTIVE" || now.Before(delegate.EffectiveAt) || delegate.ExpiresAt != nil && !now.Before(*delegate.ExpiresAt) || !delegate.RoleCapabilities.Has(g.Capability) || workforce.ValidateDelegation(t.Direct, delegate.AccountID, g, target, now, 30*24*time.Hour) != nil {
 			return 0, nil, apperrors.PermissionDenied("Delegation exceeds direct authority or recipient capability.")
 		}

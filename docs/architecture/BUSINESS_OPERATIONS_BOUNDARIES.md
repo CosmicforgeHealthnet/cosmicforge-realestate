@@ -48,7 +48,7 @@ Common restrictions: no cross-service SQL, no payment-provider SDK/calls, no raw
 `internal/auth`, `organisation`, `workforce` and `approvals` now supply durable
 business identity, organisation, membership/scope and approval workflows.
 `internal/http` composes these bounded contexts; `finance` contains only approval
-reference validation. Context placeholders for Sections 4–27 remain future work.
+reference validation. Section 4 canonical graph is implemented in `internal/portfolio`; placeholders for Sections 5–27 remain future work.
 
 Gateway canonical public routing is `/api/v1/business/`; the retained
 `/api/v1/business-operations/` compatibility prefix uses identical security and
@@ -68,3 +68,12 @@ PostgreSQL and event ownership checks reject effective database/subject namespac
 overrides. Runtime, migration and worker secret requirements are separate.
 Local and CI disposable infrastructure certification is distinct from actual
 staging provisioning and rollout; see the implementation reports/runbook.
+
+## Section 4 inventory ownership
+
+The canonical graph and typed identity anchors are owned only by Business
+Operations. `internal/http/inventory*.go` composes graph, existing workforce/RBAC,
+exact approvals, provider references and bounded import commands. The existing
+worker runs those commands without account JWT signing keys. Physical context
+and trusted database ancestry replace the former resource-scope placeholders.
+See [graph/data/event boundaries](BUSINESS_OPERATIONS_SECTION4_GRAPH.md).

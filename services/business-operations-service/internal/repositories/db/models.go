@@ -75,6 +75,12 @@ type ApprovalStep struct {
 	RequireMfa     bool
 }
 
+type Asset struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
 type AuditEvent struct {
 	ID             ids.ID
 	ActorID        *ids.ID
@@ -85,6 +91,12 @@ type AuditEvent struct {
 	CorrelationID  string
 	ChangeContext  []byte
 	OccurredAt     time.Time
+}
+
+type Block struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type Branch struct {
@@ -115,6 +127,12 @@ type BreakGlassGrant struct {
 	ReviewReason   *string
 	ReviewedAt     *time.Time
 	CreatedAt      time.Time
+}
+
+type Building struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type BusinessAccount struct {
@@ -253,6 +271,12 @@ type CapabilityPack struct {
 	CreatedAt          time.Time
 }
 
+type CommonArea struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
 type DelegationGrant struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -283,6 +307,24 @@ type Department struct {
 	UpdatedAt      time.Time
 }
 
+type Development struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
+type DevelopmentPhase struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
+type DigitalTwinRef struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	NodeID         ids.ID
+}
+
 type EventFailure struct {
 	ID           ids.ID
 	Consumer     string
@@ -293,6 +335,18 @@ type EventFailure struct {
 	FailureClass string
 	Attempt      int64
 	CreatedAt    time.Time
+}
+
+type Facility struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
+type Floor struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type IdempotencyRecord struct {
@@ -312,6 +366,177 @@ type IdempotencyRecord struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	ExpiresAt      time.Time
+}
+
+type InventoryEdge struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	ParentID       ids.ID
+	ChildID        ids.ID
+	Relation       string
+	CreatedAt      time.Time
+	CreatedBy      ids.ID
+}
+
+type InventoryEdgeHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	EdgeID         ids.ID
+	ParentID       ids.ID
+	ChildID        ids.ID
+	Relation       string
+	Action         string
+	ActorID        ids.ID
+	CorrelationID  string
+	CreatedAt      time.Time
+}
+
+type InventoryEdgeRule struct {
+	ParentKind string
+	ChildKind  string
+	Relation   string
+}
+
+type InventoryExternalMapping struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	NodeID          ids.ID
+	Provider        string
+	ExternalID      string
+	SourceReference string
+	Version         int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	CreatedBy       ids.ID
+	ObjectType      string
+}
+
+type InventoryGraphVersion struct {
+	OrganisationID ids.ID
+	NodeID         ids.ID
+	Version        int64
+}
+
+type InventoryHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	NodeID         ids.ID
+	ActorID        *ids.ID
+	Operation      string
+	BeforeSnapshot []byte
+	AfterSnapshot  []byte
+	CorrelationID  string
+	CreatedAt      time.Time
+}
+
+type InventoryImportJob struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	ActorID          ids.ID
+	MembershipID     ids.ID
+	SessionID        *ids.ID
+	BranchID         ids.ID
+	Provider         string
+	Format           string
+	Status           string
+	RecordCount      int32
+	Checkpoint       int32
+	Version          int64
+	ExecuteRequested bool
+	LeaseOwner       *ids.ID
+	LeaseExpiresAt   *time.Time
+	Attempts         int32
+	LastError        string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	AllowPartial     bool
+	RecoveryState    string
+}
+
+type InventoryImportReconciliation struct {
+	ID              ids.ID
+	JobID           ids.ID
+	NodeID          ids.ID
+	Action          string
+	ExpectedVersion *int64
+	Reason          string
+	Status          string
+	CreatedAt       time.Time
+}
+
+type InventoryImportRecord struct {
+	JobID            ids.ID
+	RowNumber        int32
+	SourceKey        string
+	NodeID           ids.ID
+	Command          []byte
+	ParentKey        *string
+	Action           string
+	Status           string
+	ValidationErrors []byte
+	BeforeSnapshot   []byte
+	AfterSnapshot    []byte
+	AppliedVersion   *int64
+	ErrorCode        string
+	SourceRowNumber  int32
+	MappingID        *ids.ID
+	MappingCreated   bool
+	RecoveryStatus   string
+	MappingVersion   *int64
+}
+
+type InventoryMediaLink struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	NodeID               ids.ID
+	MediaID              ids.ID
+	Purpose              string
+	ProviderStatus       string
+	AccessClassification string
+	ProviderCheckedAt    time.Time
+	Version              int64
+	CreatedBy            ids.ID
+	CreatedAt            time.Time
+	OwnerType            string
+	OwnerID              ids.ID
+}
+
+type InventoryNode struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	BranchID       ids.ID
+	DepartmentID   *ids.ID
+	TeamID         *ids.ID
+	Kind           string
+	Code           string
+	Name           string
+	State          string
+	Timezone       string
+	Currency       string
+	PolicyCode     string
+	PolicyVersion  int64
+	CapacityCode   string
+	Attributes     []byte
+	RoomTypeID     *ids.ID
+	Version        int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ActivatedAt    *time.Time
+	CreatedBy      ids.ID
+	UpdatedBy      ids.ID
+}
+
+type InventoryVerificationLink struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	NodeID            ids.ID
+	CaseID            ids.ID
+	ProviderStatus    string
+	NodeVersion       int64
+	ProviderUpdatedAt time.Time
+	ExpiresAt         *time.Time
+	CheckedAt         time.Time
+	Version           int64
 }
 
 type NotificationAcceptance struct {
@@ -377,9 +602,21 @@ type OutboxEvent struct {
 	CreatedAt      time.Time
 }
 
+type Parcel struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
 type Permission struct {
 	Code        string
 	Description string
+}
+
+type Portfolio struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type ProcessedEvent struct {
@@ -387,6 +624,12 @@ type ProcessedEvent struct {
 	EventID     ids.ID
 	EventType   string
 	ProcessedAt time.Time
+}
+
+type Property struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type Region struct {
@@ -415,6 +658,18 @@ type RoleTemplate struct {
 	CreatedAt               time.Time
 }
 
+type Room struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
+type RoomType struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
+}
+
 type SecurityEvent struct {
 	ID             ids.ID
 	AccountID      *ids.ID
@@ -424,6 +679,18 @@ type SecurityEvent struct {
 	CorrelationID  string
 	Context        []byte
 	OccurredAt     time.Time
+}
+
+type SpaceGraph struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	NodeID           ids.ID
+	MediaLinkID      ids.ID
+	CoordinateSystem string
+	Spaces           []byte
+	ConfirmedBy      ids.ID
+	Version          int64
+	CreatedAt        time.Time
 }
 
 type StaffHandover struct {
@@ -522,6 +789,12 @@ type Team struct {
 	Version        int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type Unit struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Kind           string
 }
 
 type VerificationLink struct {

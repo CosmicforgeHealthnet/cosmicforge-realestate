@@ -8,8 +8,12 @@ import (
 	"bytes"
 	"context"
 	"crypto/ed25519"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha1"
+	"encoding/base32"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -221,7 +225,7 @@ func run(image string) error {
 		if err != nil {
 			return fmt.Errorf("migration %s failed", command)
 		}
-		if command == "version" && out != "4" {
+		if command == "version" && out != "5" {
 			return fmt.Errorf("unexpected migration version %s", out)
 		}
 	}
@@ -404,6 +408,87 @@ func run(image string) error {
 	if decodeErr != nil || loginResponse.StatusCode != 200 || login.Data.Tokens.AccessToken == "" {
 		return errors.New("gateway login did not return validated business credentials")
 	}
+	command := func(method, path string, body any, want int) (map[string]any, error) {
+		raw, _ := json.Marshal(body)
+		req, _ := http.NewRequestWithContext(ctx, method, "http://"+gatewayAddr+"/api/v1/business"+path, bytes.NewReader(raw))
+		req.Header.Set("Authorization", "Bearer "+login.Data.Tokens.AccessToken)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Idempotency-Key", ids.New().String())
+		res, e := client.Do(req)
+		if e != nil {
+			return nil, e
+		}
+		defer res.Body.Close()
+		if res.StatusCode != want {
+			return nil, fmt.Errorf("container graph route %s %s returned %d", method, path, res.StatusCode)
+		}
+		var response struct {
+			Data map[string]any `json:"data"`
+		}
+		e = json.NewDecoder(res.Body).Decode(&response)
+		return response.Data, e
+	}
+	enrol, err := command("POST", "/auth/mfa/enrol", map[string]string{"password": "correct horse battery smoke"}, 201)
+	if err != nil {
+		return err
+	}
+	secret, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(enrol["secret"].(string))
+	if err != nil {
+		return err
+	}
+	var counter [8]byte
+	binary.BigEndian.PutUint64(counter[:], uint64(time.Now().Unix()/30))
+	mac := hmac.New(sha1.New, secret)
+	_, _ = mac.Write(counter[:])
+	hash := mac.Sum(nil)
+	offset := hash[len(hash)-1] & 15
+	otp := fmt.Sprintf("%06d", (binary.BigEndian.Uint32(hash[offset:offset+4])&0x7fffffff)%1000000)
+	if _, err = command("POST", "/auth/mfa/confirm", map[string]string{"code": otp}, 200); err != nil {
+		return err
+	}
+	branch, err := command("POST", "/branches", map[string]string{"name": "Container inventory branch"}, 201)
+	if err != nil {
+		return err
+	}
+	property, err := command("POST", "/properties", map[string]any{"branch_id": branch["id"], "code": "CONTAINER-P", "name": "Container property", "attributes": map[string]any{"classification": "MIXED_USE"}}, 201)
+	if err != nil {
+		return err
+	}
+	if _, err = command("POST", "/properties/"+property["id"].(string)+"/units", map[string]any{"code": "101", "name": "Apartment", "attributes": map[string]any{}}, 201); err != nil {
+		return err
+	}
+	job, err := command("POST", "/imports", map[string]any{"branch_id": branch["id"], "provider": "container-import", "format": "CSV", "csv": "source_key,kind,code,name,parent_key\np,PROPERTY,IMPORTED-P,Imported property,\nu,UNIT,201,Imported unit,p\n"}, 202)
+	if err != nil {
+		return err
+	}
+	jobPath := "/imports/" + job["import_id"].(string)
+	if err = wait("container import preview", func() bool {
+		data, e := command("GET", jobPath, nil, 200)
+		if e == nil {
+			job = data
+		}
+		return e == nil && data["status"] == "PREVIEW_READY"
+	}); err != nil {
+		return err
+	}
+	if _, err = docker("stop", "--time", "20", worker); err != nil {
+		return err
+	}
+	if _, err = command("POST", jobPath+"/commit", map[string]any{"version": job["version"], "reason": "Execute persisted preview across worker restart"}, 200); err != nil {
+		return err
+	}
+	if _, err = docker("start", worker); err != nil {
+		return err
+	}
+	if err = wait("container import restart recovery", func() bool {
+		data, e := command("GET", jobPath, nil, 200)
+		return e == nil && data["status"] == "COMPLETED"
+	}); err != nil {
+		return err
+	}
+	if _, err = command("GET", "/inventory-nodes/"+property["id"].(string)+"/summary", nil, 200); err != nil {
+		return err
+	}
 	for _, path := range []string{"/api/v1/business/organisation", "/api/v1/business-operations/organisation", "/api/v1/business/sessions"} {
 		request, _ := http.NewRequestWithContext(ctx, "GET", "http://"+gatewayAddr+path, nil)
 		request.Header.Set("Authorization", "Bearer "+login.Data.Tokens.AccessToken)
@@ -487,6 +572,6 @@ func run(image string) error {
 	if err = stop(api); err != nil {
 		return err
 	}
-	fmt.Println("PASS: actual Gateway process with Redis, signed user/service identity and canonical/compatibility/internal routing; real PostgreSQL/NATS containers; fresh/repeated migrations/version; non-root API/worker startup; registration commit; authenticated notification acceptance; broker outage/recovery; worker restart; health/readiness; graceful SIGTERM. Provider is a signed contract fake, not staging delivery.")
+	fmt.Println("PASS: actual Gateway process with Redis, signed user/service identity and canonical/compatibility/internal routing; real PostgreSQL/NATS containers; fresh/repeated migrations/version; non-root API/worker startup; registration/login/TOTP; property/unit graph; CSV preview and committed import across worker restart; authenticated notification acceptance; broker outage/recovery; health/readiness; graceful SIGTERM. Provider is a signed contract fake, not staging delivery.")
 	return nil
 }

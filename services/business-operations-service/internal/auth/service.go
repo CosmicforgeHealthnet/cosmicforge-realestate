@@ -60,7 +60,7 @@ func (s *Service) hash(purpose, value string) string {
 
 // Role names carry no authority: each initial owner receives explicit local
 // capabilities and organisation-bound inheritable grants.
-var ownerCapabilities = []string{"organisation:read", "organisation:write", "organisation:verify", "capacity:write", "hierarchy:read", "hierarchy:write", "staff:read", "staff:invite", "staff:write", "staff:approve", "roles:read", "roles:write", "roles:approve", "permissions:read", "scopes:write", "approvals:read", "approvals:create", "approvals:decide", "policies:read", "policies:write", "delegations:write", "break_glass:request", "break_glass:review", "audit:read"}
+var ownerCapabilities = []string{"portfolio:read", "portfolio:write", "development:read", "development:write", "parcel:read", "parcel:write", "property:read", "property:write", "structure:read", "structure:write", "assets:read", "assets:write", "imports:read", "imports:write", "inventory:restructure", "inventory:mappings", "inventory:verify", "inventory:media", "inventory:approve", "organisation:read", "organisation:write", "organisation:verify", "capacity:write", "hierarchy:read", "hierarchy:write", "staff:read", "staff:invite", "staff:write", "staff:approve", "roles:read", "roles:write", "roles:approve", "permissions:read", "scopes:write", "approvals:read", "approvals:create", "approvals:decide", "policies:read", "policies:write", "delegations:write", "break_glass:request", "break_glass:review", "audit:read"}
 
 type Registration struct {
 	Email            string `json:"email"`

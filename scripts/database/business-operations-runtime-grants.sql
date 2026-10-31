@@ -8,10 +8,16 @@ GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO cf_business_runtime;
 REVOKE ALL ON goose_db_version FROM cf_business_runtime;
 REVOKE UPDATE,DELETE,TRUNCATE ON audit_events,security_events,approval_decisions,staff_membership_history,role_permissions,verification_link_history FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON approval_policies,role_templates,approval_requests,staff_handovers,break_glass_grants FROM cf_business_runtime;
+REVOKE INSERT,UPDATE,DELETE,TRUNCATE ON inventory_edge_rules FROM cf_business_runtime;
+REVOKE UPDATE,DELETE,TRUNCATE ON inventory_history,inventory_edge_history,space_graphs,digital_twin_refs FROM cf_business_runtime;
+REVOKE UPDATE,DELETE,TRUNCATE ON portfolios,developments,development_phases,parcels,properties,buildings,blocks,floors,units,room_types,rooms,facilities,common_areas,assets FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON inventory_nodes,inventory_import_jobs,inventory_import_records,inventory_external_mappings FROM cf_business_runtime;
 -- Assertions fail before an incorrectly privileged role can be certified.
 DO $$ BEGIN
  IF has_schema_privilege('cf_business_runtime','public','CREATE')
  OR has_table_privilege('cf_business_runtime','audit_events','UPDATE')
  OR has_table_privilege('cf_business_runtime','goose_db_version','SELECT')
+ OR has_table_privilege('cf_business_runtime','inventory_edge_rules','INSERT')
+ OR has_table_privilege('cf_business_runtime','inventory_history','UPDATE')
  THEN RAISE EXCEPTION 'Runtime least-privilege check failed'; END IF;
 END $$;

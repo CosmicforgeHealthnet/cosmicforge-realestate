@@ -1,4 +1,4 @@
-"""Generate Section 3 OpenAPI/Postman together. No runtime secrets or network IO.
+"""Generate Sections 3–4 OpenAPI/Postman together. No runtime secrets or network IO.
 Run from repository root: python scripts/contracts/generate_business_operations.py
 --check compares generated artifacts without changing them.
 """
@@ -22,8 +22,9 @@ def typ(t):
  if t in ('ids.ID',):return {'type':'string','format':'uuid','pattern':'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$','example':UID}
  if t=='time.Time':return {'type':'string','format':'date-time','example':DATE}
  if t=='bool':return {'type':'boolean'}
+ if t=='float64':return {'type':'number'}
  if t in ('int','int32','int64','uint64'):return {'type':'integer','format':'int64'}
- if t in ('string','permissions.Permission','State','organisation.State','Protocol'):return {'type':'string'}
+ if t in ('string','permissions.Permission','State','organisation.State','Protocol','Kind','portfolio.Kind'):return {'type':'string'}
  if t in ('json.RawMessage','any') or t.startswith('map['):return {'type':'object','additionalProperties':True}
  return ref(t.split('.')[-1])
 S={}
@@ -196,9 +197,71 @@ route('POST','/break-glass','break_glass:request','emergencyCommand','Emergency'
 route('DELETE','/break-glass/{id}','break_glass:request','Reason','BooleanResult',200,True,True)
 route('POST','/break-glass/{id}/review','break_glass:review','Reason','BooleanResult',200,True,True,notes='Independent reviewer only; immutable once completed; revokes access immediately.')
 route('GET','/audit-events','audit:read',res='List:Audit',mfa=True)
+# Section 4 canonical inventory graph; actual handler registrations are drift-tested.
+node_kinds={'portfolios':('PORTFOLIO','portfolio'),'developments':('DEVELOPMENT','development'),'development-phases':('DEVELOPMENT_PHASE','development'),'parcels':('PARCEL','parcel'),'properties':('PROPERTY','property'),'buildings':('BUILDING','structure'),'blocks':('BLOCK','structure'),'floors':('FLOOR','structure'),'units':('UNIT','structure'),'room-types':('ROOM_TYPE','structure'),'rooms':('ROOM','structure'),'facilities':('FACILITY','structure'),'common-areas':('COMMON_AREA','structure'),'assets':('ASSET','assets')}
+S['Geometry']=obj({'type':{'type':'string','enum':['Polygon','MultiPolygon']},'coordinates':{'type':'array','items':{}}},('type','coordinates'),True)
+S['Attributes']=S.get('Attributes',{})
+for name in ('InventoryCreate','InventoryImportRow','InventoryImportInput','SpaceGraphCommand'):
+ if name not in S:raise RuntimeError('missing Section 4 input '+name)
+S['InventoryCreate']['required']=['code','name','attributes']
+S['InventoryPatch']['required']=['version','reason']
+S['InventoryMove']['required']=['version','tree_version','reason','approval_id']
+S['InventoryLifecycle']['required']=['version','tree_version','state','reason']
+S['InventoryMembership']['required']=['version','tree_version','parent_id','parent_version','relation','remove','reason','approval_id']
+S['InventoryMapping']['required']=['provider','external_id','source_reference','reason']
+S['InventoryVerification']['required']=['version']
+S['InventoryMedia']['required']=['version','media_id','purpose','reason']
+S['ImportControl']['required']=['version','reason']
+S['Node']['properties']['kind']={'type':'string','enum':[x[0] for x in node_kinds.values()]}
+S['InventoryImportRow']['properties']['kind']=S['Node']['properties']['kind']
+S['InventoryHierarchy']=obj({'root_id':typ('ids.ID'),'items':arr(ref('Node')),'active_counts_on_page':{'type':'object','additionalProperties':{'type':'integer'}},'limit':{'type':'integer'},'offset':{'type':'integer'}},('root_id','items'))
+S['InventoryHistory']=obj({'id':typ('ids.ID'),'actor_id':typ('ids.ID'),'operation':{'type':'string'},'before':{'type':['object','null']},'after':ref('Node'),'created_at':typ('time.Time'),'correlation_id':{'type':'string'}})
+S['MappingResult']=fields(object_type='string',mapping_id='ids.ID',node_id='ids.ID',provider='string',external_id='string',source_reference='string',version='int64')
+S['MediaLink']=fields(media_link_id='ids.ID',media_id='ids.ID',purpose='string',provider_status='string',access_classification='string',checked_at='time.Time',version='int64')
+S['SpaceGraphResult']=fields(space_graph_id='ids.ID',media_link_id='ids.ID',coordinate_system='string',spaces='[]InventorySpace',version='int64',created_at='time.Time',confirmed_by='ids.ID')
+S['ImportJob']=obj({'import_id':typ('ids.ID'),'provider':{'type':'string'},'format':{'type':'string'},'branch_id':typ('ids.ID'),'status':{'type':'string'},'record_count':{'type':'integer'},'checkpoint':{'type':'integer'},'version':{'type':'integer'},'outcomes':{'type':'object','additionalProperties':{'type':'integer'}},'last_error':{'type':'string'},'created_at':typ('time.Time'),'updated_at':typ('time.Time')})
+S['ImportRecordResult']=fields(kind='string',code='string',parent_key='string',parent_id='ids.ID',portfolio_ids='[]ids.ID',row_number='int',source_key='string',node_id='ids.ID',action='string',status='string',validation_errors='[]string',error_code='string',applied_version='int64')
+S['ImportRecordResult']['properties']['applied_version']['type']=['integer','null']
+S['ImportRecovery']=obj({'import_id':typ('ids.ID'),'items':arr({'type':'object','additionalProperties':True}),'policy':{'type':'string'},'limit':{'type':'integer'},'offset':{'type':'integer'}})
+S['RecoveryResult']=fields(import_id='ids.ID',recovery_state='string',restored='int',reconciliation_tasks='int',remaining='int',version='int64')
+for path,(kind,cap) in node_kinds.items():
+ route('GET','/'+path,cap+':read',res='List:Node',notes='Bounded deterministic pagination; branch_id, state and q filters. Only current authorised resource scopes are returned.')
+ route('POST','/'+path,cap+':write','InventoryCreate','Node',201,True,notes='Creates a DRAFT canonical identity; no legal authority or availability is inferred. Physical parents inherit context; portfolio memberships are distinct. Non-root types require a physical parent; rooms require a same-property room_type_id.')
+ route('GET','/'+path+'/{id}',cap+':read',res='Node')
+ route('PATCH','/'+path+'/{id}',cap+':write','InventoryPatch','Node',200,True,notes='Versioned metadata update. Previously activated structural changes require the controlled move workflow and downstream dependency evidence.')
+for path in ('units','room-types','rooms','facilities'):
+ route('GET','/properties/{id}/'+path,'structure:read',res='List:Node')
+ route('POST','/properties/{id}/'+path,'structure:write','InventoryCreate','Node',201,True,notes='Explicit parent_id may identify a physical descendant of this property; cross-property attachment is rejected.')
+route('GET','/developments/{id}/phases','development:read',res='List:Node')
+route('POST','/developments/{id}/phases','development:write','InventoryCreate','Node',201,True)
+route('GET','/inventory-nodes/{id}/hierarchy','structure:read',res='InventoryHierarchy')
+S['InventorySummary']=obj({'root_id':typ('ids.ID'),'tree_version':typ('int64'),'visible_count':typ('int'),'counts_by_kind':{'type':'object','additionalProperties':typ('int')},'active_counts_by_kind':{'type':'object','additionalProperties':typ('int')},'counts_by_state':{'type':'object','additionalProperties':typ('int')}})
+route('GET','/inventory-nodes/{id}/summary','structure:read',res='InventorySummary',notes='Counts only currently authorised resources, including collection membership. Bounded to 10000 nodes; larger migrations require operational review.')
+route('GET','/inventory-nodes/{id}/history','structure:read',res='List:InventoryHistory')
+route('POST','/inventory-nodes/{id}/move','inventory:restructure','InventoryMove','Node',200,True,True,notes='Exact independent INVENTORY_RESTRUCTURE approval, source and destination scope, snapshot versions and dependency safety. Approval operation is {node_id,command:<body without approval_id>}. Never-active draft subtrees need no external dependency assertion; prior-active structures fail closed without a complete current assertion.')
+route('POST','/inventory-nodes/{id}/lifecycle','inventory:restructure','InventoryLifecycle','Node',200,True,True,notes='Activation requires current KYB, supported verified capacity and applicable property authority. Destructive prior-active transitions require exact approval and dependency assertions. Draft archival preserves canonical IDs; cascade must be explicit.')
+route('POST','/inventory-nodes/{id}/relationships','inventory:restructure','InventoryMembership','Node',200,True,True,notes='Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.')
+route('GET','/inventory-nodes/{id}/mappings','structure:read',res='List:MappingResult')
+route('POST','/inventory-nodes/{id}/mappings','inventory:mappings','InventoryMapping','MappingResult',200,True,True,notes='Provider+object_type+external_id is tenant-unique. Remapping requires expected_node_id, mapping version, node_version/tree_version and previous_node_version/previous_tree_version plus exact INVENTORY_MAPPING_CHANGE approval, both resource scopes and applicable dependency assertions.')
+route('GET','/inventory-nodes/{id}/verification','structure:read',res='VerificationProjection')
+route('POST','/inventory-nodes/{id}/verification','inventory:verify','InventoryVerification','VerificationProjection',200,True,True,notes='Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.')
+route('GET','/inventory-nodes/{id}/media','structure:read',res='List:MediaLink')
+route('POST','/inventory-nodes/{id}/media','inventory:media','InventoryMedia','MediaLink',200,True,True,notes='Authenticated Media metadata and explicit owner validation. Stores references/status only, no bytes. Supported purposes PHOTO, DOCUMENT, SURVEY, FLOOR_PLAN, DIGITAL_TWIN, WARRANTY.')
+route('POST','/inventory-nodes/{id}/media/{link_id}/access','inventory:media',res='Access',mfa=True,notes='Fresh metadata read plus owning Media purpose-bound HTTPS URL; no URL or document bytes are stored; audited, no-store response.')
+route('GET','/inventory-nodes/{id}/space-graphs','structure:read',res='List:SpaceGraphResult')
+route('POST','/inventory-nodes/{id}/space-graphs','inventory:media','SpaceGraphCommand','SpaceGraphResult',201,True,True,notes='Operator-confirmed coordinates reference existing same-property canonical space IDs and a fresh READY floor-plan/digital-twin media link. No 3D generation or competing property graph.')
+route('POST','/imports','imports:write','InventoryImportInput','ImportJob',202,True,True,notes='One MiB bounded structured JSON/CSV, maximum 1000 rows. No external URL/file fetching. Async preview does not mutate inventory; stable source keys, typed dependencies and exact provider IDs determine identity.')
+route('GET','/imports','imports:read',res='List:ImportJob')
+route('GET','/imports/{id}','imports:read',res='ImportJob')
+route('GET','/imports/{id}/preview','imports:read',res='ImportJob')
+route('GET','/imports/{id}/records','imports:read',res='List:ImportRecordResult')
+for action in ('commit','pause','resume','cancel'):route('POST','/imports/{id}/'+action,'imports:write','ImportControl','ImportJob',200,True,True,notes='Current job version and reason; rechecks current membership/session/scopes. Partial execution requires explicit acceptance of validation errors; unexpected execution failures pause until partial continuation is reviewed. Resume uses the current authenticated initiator and durable checkpoint.')
+route('GET','/imports/{id}/recovery-plan','imports:read',res='ImportRecovery')
+route('POST','/imports/{id}/rollback','imports:write','ImportControl','RecoveryResult',200,True,True,notes='At most 20 reverse-order recovery actions per command. Repeat with new key/current version for further batches. Only unchanged never-active draft identities are restored/soft-archived. Changed versions, authority loss or acquired dependencies produce reconciliation tasks; mappings retain traceability, never delete valid data.')
 # Request examples are syntactically representative, not seeded demo records.
 def example(schema,depth=0):
  if depth>20:return {}
+ if "example" in schema:return copy.deepcopy(schema["example"])
  if 'oneOf'in schema:return example(schema['oneOf'][0],depth+1)
  if '$ref'in schema:return example(S[schema['$ref'].split('/')[-1]],depth+1)
  t=schema.get('type','object');t=t[0] if isinstance(t,list) else t
@@ -206,7 +269,11 @@ def example(schema,depth=0):
  if t=='array':return [example(schema['items'],depth+1)]
  if t=='boolean':return True
  if t=='integer':return 1
+ if t=='number':return 1.0
  return schema.get('example',schema.get('enum',['example'])[0])
+S['Node']['example']={'id':UID,'organisation_id':UID,'branch_id':UID,'tree_version':1,'parents':[],'kind':'PROPERTY','non_sellable':False,'code':'PROPERTY-001','name':'Example Property','state':'DRAFT','timezone':'Africa/Lagos','currency':'NGN','policy_code':'STANDARD','policy_version':1,'attributes':{'classification':'RESIDENTIAL_BUILDING'},'version':1,'created_at':DATE,'updated_at':DATE,'created_by':UID,'updated_by':UID,'verification':{'status':'UNVERIFIED'}}
+S['Attributes']['example']={'classification':'RESIDENTIAL_BUILDING'}
+S['Access']['example']={'url':'https://media.example.test/temporary-authorised-reference','expires_at':DATE}
 S['Error']=obj({'error':obj({'code':{'type':'string'},'message':{'type':'string'},'request_id':{'type':'string'}},('code','message'))},('error',))
 # Fix parser name collision: Evidence request and response share the same key.
 S['EvidenceResponse']=fields(evidence_id='ids.ID',media_id='ids.ID',evidence_type='string')
@@ -237,6 +304,19 @@ EXAMPLES={
  'enrolMFABody':{'password':'{{business_password}}','kind':'TOTP'},
  'ProfilePatch':{'version':1,'registered_name':'Example Business Limited','registration_number':'EXAMPLE-001','jurisdiction':'NG','currency':'NGN','timezone':'Africa/Lagos'},
 }
+EXAMPLES.update({
+ 'InventoryCreate':{'branch_id':UID,'code':'PROPERTY-001','name':'Example Property','attributes':{'classification':'RESIDENTIAL_BUILDING','address':'Example business address'}},
+ 'InventoryPatch':{'version':1,'name':'Revised property name','reason':'Approved metadata correction'},
+ 'InventoryMove':{'version':1,'tree_version':1,'parent_version':1,'parent_id':UID,'detach':False,'reason':'Reviewed physical hierarchy correction','approval_id':UID},
+ 'InventoryLifecycle':{'version':1,'tree_version':1,'state':'ACTIVE','cascade':False,'reason':'Verified operating prerequisites satisfied'},
+ 'InventoryMembership':{'version':1,'tree_version':1,'parent_version':1,'parent_id':UID,'relation':'MEMBERSHIP','remove':False,'reason':'Reviewed portfolio association','approval_id':UID},
+ 'InventoryMapping':{'provider':'legacy-pms','external_id':'PROPERTY-42','source_reference':'approved-import-2026','reason':'Preserve legacy canonical identity'},
+ 'InventoryVerification':{'version':1,'verification_id':UID,'create_case':False},
+ 'InventoryMedia':{'version':1,'media_id':UID,'purpose':'FLOOR_PLAN','reason':'Link approved physical floor plan'},
+ 'SpaceGraphCommand':{'version':1,'media_link_id':UID,'coordinate_system':'LOCAL_METRES','spaces':[{'node_id':UID,'label':'Confirmed physical room','points':[[0,0,0],[5,0,0],[5,4,0],[0,4,0]]}],'confirmed':True,'reason':'Operator confirms source-space correspondence'},
+ 'InventoryImportInput':{'branch_id':UID,'provider':'legacy-pms','format':'JSON','records':[{'source_key':'property-42','kind':'PROPERTY','create':{'code':'PROP-42','name':'Imported Property','attributes':{'classification':'HOTEL'}}}]},
+ 'ImportControl':{'version':1,'allow_partial':False,'reason':'Reviewed migration lifecycle operation'},
+})
 # Exclude implementation-only structs and ensure no dangling references.
 used=set()
 def include(s):
@@ -248,11 +328,14 @@ def include(s):
   for v in s.values():include(v)
  elif isinstance(s,list):
   for v in s:include(v)
-O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations — Section 3','version':'1.0.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
-folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','_Internal','_Webhooks','_Admin')}
+O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations — Sections 3–4','version':'1.2.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
+folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','_Internal','_Webhooks','_Admin')}
 error_defs={'400':('VALIDATION_ERROR','Invalid request fields.'),'401':('AUTHENTICATION_REQUIRED','Authentication required.'),'403':('PERMISSION_DENIED','Capability or scope denied.'),'404':('RESOURCE_NOT_FOUND','Resource not found.'),'409':('VERSION_CONFLICT','Version changed or idempotency conflicts.'),'429':('RATE_LIMITED','Try again later.'),'503':('SERVICE_UNAVAILABLE','Required provider is unavailable.')}
 for r in R:
  method,path=r['method'],r['path'];name=method+' '+path
+ collection=next((part for part in reversed(path.split('/')) if part in node_kinds or part=='phases'),None)
+ if collection=='phases':collection='development-phases'
+ graph_kind=node_kinds[collection][0] if collection else None
  response=r['response'];schema=ref(response) if not response.startswith('List:') else obj({'items':arr(ref(response[5:])),'limit':{'type':'integer'},'offset':{'type':'integer'},'next_offset':{'type':'integer'}},('items',))
  if path.endswith('/auth/mfa/verify'):schema={'oneOf':[ref('Tokens'),obj({'verified':{'type':'boolean'}},('verified',),True)]}
  wrapped=obj({'data':schema},('data',))
@@ -262,19 +345,34 @@ for r in R:
   parameters +=[{'name':'limit','in':'query','schema':{'type':'integer','minimum':1,'maximum':100,'default':50}},{'name':'offset','in':'query','schema':{'type':'integer','minimum':0,'maximum':100000,'default':0}}]
  if path in ('/api/v1/business/branches','/api/v1/business/regions','/api/v1/business/departments','/api/v1/business/teams','/api/v1/business/staff') and method=='GET':parameters.append({'name':'status','in':'query','schema':{'type':'string'}})
  if path=='/api/v1/business/approvals' and method=='GET':parameters.append({'name':'state','in':'query','schema':{'type':'string','enum':['DRAFT','PENDING','APPROVED','REJECTED','EXPIRED','CANCELLED']}})
+ if method=='GET' and path.removeprefix('/api/v1/business/').split('/')[0] in node_kinds and response=='List:Node':
+  parameters += [{'name':'branch_id','in':'query','schema':typ('ids.ID')},{'name':'state','in':'query','schema':{'type':'string','enum':['DRAFT','ACTIVE','INACTIVE','RETIRED','ARCHIVED']}},{'name':'q','in':'query','schema':{'type':'string','maxLength':200}}]
  parameters.append({'name':'X-Request-ID','in':'header','required':False,'schema':{'type':'string','maxLength':128}})
  if r['idempotent']:parameters.append({'name':'Idempotency-Key','in':'header','required':True,'schema':{'type':'string','minLength':8,'maxLength':128}})
  desc='Authentication: '+('public account entry through authenticated Gateway' if r['public'] else 'business access JWT plus live account/session')+'. '
  desc+='Permission: '+(r['capability'] or 'own account / current membership')+'. Scope: trusted organisation and resolved resource hierarchy. '
  if r['step_up']:desc+='Recent MFA (under five minutes) required where configured; see operation-specific rules. '
  desc+=('Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. ' if r['idempotent'] else 'Optimistic version, token single-use or documented provider key protects applicable retries. ')+r['notes']
- responses={str(r['status']):{'description':'Committed success','content':{'application/json':{'schema':wrapped,'example':{'data':example(schema)}}}}}
+ response_example=example(schema)
+ if graph_kind and response in ('Node','List:Node'):
+  item=copy.deepcopy(S['Node']['example']);item.update({'kind':graph_kind,'non_sellable':graph_kind=='COMMON_AREA','code':graph_kind+'-001','name':'Example '+graph_kind.replace('_',' ').title(),'attributes':{'classification':{'UNIT':'APARTMENT','COMMON_AREA':'NON_SELLABLE','ASSET':'AIR_CONDITIONER','PROPERTY':'MIXED_USE'}.get(graph_kind,graph_kind)}})
+  if graph_kind not in ('PORTFOLIO','DEVELOPMENT','PARCEL','PROPERTY'):item['parents']=[{'edge_id':UID,'parent_id':UID,'relation':'CONTAINS'}]
+  if graph_kind=='ROOM':item['room_type_id']=UID
+  response_example=item if response=='Node' else {'items':[item],'limit':50,'offset':0}
+ responses={str(r['status']):{'description':'Committed success','content':{'application/json':{'schema':wrapped,'example':{'data':response_example}}}}}
  for code,(err,msg) in error_defs.items():responses[code]={'description':msg,'content':{'application/json':{'schema':ref('Error'),'example':{'error':{'code':err,'message':msg,'request_id':'example-request'}}}}}
  op={'operationId':re.sub('[^a-zA-Z0-9]+','_',name).strip('_'),'summary':name,'description':desc,'x-permission':r['capability'] or 'self','x-step-up':r['step_up'],'x-idempotency-key':r['idempotent'],'parameters':parameters,'responses':responses}
  if r['public']:op['security']=[]
  body=None
  if r['request']:
   body=copy.deepcopy(EXAMPLES.get(r['request'],example(ref(r['request']))));
+  if r['request']=='InventoryCreate' and graph_kind:
+   body={'code':graph_kind+'-001','name':'Example '+graph_kind.replace('_',' ').title(),'attributes':{'classification':{'UNIT':'APARTMENT','COMMON_AREA':'NON_SELLABLE','PROPERTY':'MIXED_USE','ASSET':'AIR_CONDITIONER'}.get(graph_kind,graph_kind)}}
+   if graph_kind in ('PORTFOLIO','DEVELOPMENT','PARCEL','PROPERTY'):body['branch_id']=UID
+   else:body['parent_id']=UID
+   if graph_kind=='ROOM':body['room_type_id']=UID
+   if graph_kind=='FLOOR':body['attributes']={'floor_number':1}
+   if graph_kind=='PARCEL':body['attributes'].update({'area_square_metres':'1250.25','geometry':{'type':'Polygon','coordinates':[[[3,6],[4,6],[4,7],[3,7],[3,6]]]}})
   if method=='POST' and path.endswith('/departments'):body['branch_id']=UID
   if method=='POST' and path.endswith('/teams'):body['department_id']=UID
   if method=='PATCH' and r['request']=='hierarchyCommand':body['version']=1
@@ -299,15 +397,22 @@ for r in R:
    elif isinstance(value,list):
     for child in value:interpolate(child)
   interpolate(body)
+  if r['request']=='InventoryCreate' and graph_kind and 'parent_id' in body:body['parent_id']='{{business_'+{'DEVELOPMENT_PHASE':'development','BLOCK':'building','FLOOR':'block','UNIT':'floor','ROOM':'floor','ASSET':'room'}.get(graph_kind,'property')+'_id}}'
   request['body']={'mode':'raw','raw':json.dumps(body,indent=2),'options':{'raw':{'language':'json'}}}
- tests=[f'pm.test("Documented status", () => pm.expect([{r["status"]},400,401,403,404,409,429,503]).to.include(pm.response.code));','const body = pm.response.json();','pm.test("Consistent envelope", () => pm.expect(body).to.have.property(pm.response.code < 300 ? "data" : "error"));', 'if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set("business_access_token", tokens.access_token); if (tokens.refresh_token) pm.environment.set("business_refresh_token", tokens.refresh_token); for (const k of ["account_id","organisation_id","session_id","device_id","method_id","role_id","staff_id","invitation_id","capacity_id","capability_pack_id","delegation_id","break_glass_id","mfa_token","verification_id","handover_id"]) if (d[k]) pm.environment.set("business_"+k,d[k]); if (d.handover_id) pm.environment.set("business_handover_id",d.handover_id); if (d.id) pm.environment.set("business_id",d.id); if (d.approval) pm.environment.set("business_approval_id",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set("business_policy_id",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set("business_version",d.version); }']
+ tests=[f'pm.test("Documented status", () => pm.expect([{r["status"]},400,401,403,404,409,429,503]).to.include(pm.response.code));','const body = pm.response.json();','pm.test("Consistent envelope", () => pm.expect(body).to.have.property(pm.response.code < 300 ? "data" : "error"));', 'if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set("business_access_token", tokens.access_token); if (tokens.refresh_token) pm.environment.set("business_refresh_token", tokens.refresh_token); for (const k of ["account_id","organisation_id","session_id","device_id","method_id","role_id","staff_id","invitation_id","capacity_id","capability_pack_id","delegation_id","break_glass_id","mfa_token","verification_id","handover_id","import_id","mapping_id","media_link_id","space_graph_id"]) if (d[k]) pm.environment.set("business_"+k,d[k]); if (d.handover_id) pm.environment.set("business_handover_id",d.handover_id); if (d.id) pm.environment.set("business_id",d.id); if (d.approval) pm.environment.set("business_approval_id",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set("business_policy_id",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set("business_version",d.version); }']
  target=''
  for family,variable in [('roles','role_id'),('approval-policies','policy_id'),('approvals','approval_id'),('branches','branch_id'),('departments','department_id'),('teams','team_id'),('regions','region_id'),('devices','device_id'),('delegations','delegation_id'),('break-glass','break_glass_id'),('organisation/capacities','capacity_id'),('organisation/capability-packs','capability_pack_id')]:
   if path.startswith('/api/v1/business/'+family+'/'):target='business_'+variable
+ if graph_kind and '{id}' in path:
+  target='business_'+('property_id' if '/properties/{id}/' in path else 'development_id' if '/developments/{id}/' in path else graph_kind.lower()+'_id')
+ if '/inventory-nodes/{id}' in path:target='business_node_id'
+ if '/imports/{id}' in path:target='business_import_id'
  if '/handover/{id}' in path:target='business_handover_id'
  prerequest=['if (!pm.environment.get("business_idempotency_key")) pm.environment.set("business_idempotency_key", pm.variables.replaceIn("{{$guid}}"));']
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
- resource={'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
+ resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
+ if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
+ if response=='Node':tests.append('if(pm.response.code<300){pm.environment.set("business_node_id",body.data.id);pm.environment.set("business_tree_version",body.data.tree_version);}')
  if resource and method=='POST':tests.append(f'if (pm.response.code===201) {{ pm.test("Created identifier",()=>pm.expect(body.data.id).to.match(/^[0-9a-f-]{{36}}$/)); pm.environment.set("business_{resource}",body.data.id); }}')
  if path.endswith('/auth/register'):tests.append('if (pm.response.code===201) pm.test("Draft organisation only",()=>{ pm.expect(body.data.organisation_state).to.eql("DRAFT"); pm.expect(body.data.account_id).to.be.a("string"); pm.expect(body.data.organisation_id).to.be.a("string"); });')
  if response=='ApprovalResult':tests.append('if (pm.response.code<300) pm.test("Approval identity and state",()=>{pm.expect(body.data.approval.id).to.be.a("string");pm.expect(["DRAFT","PENDING","APPROVED","REJECTED","CANCELLED","EXPIRED"]).to.include(body.data.approval.state);pm.environment.set("business_approval_version",body.data.version);});')
@@ -317,12 +422,13 @@ for r in R:
  examples=[]
  for code,res in responses.items():examples.append({'name':res['description'],'originalRequest':copy.deepcopy(request),'status':res['description'],'code':int(code),'header':[{'key':'Content-Type','value':'application/json'}],'body':json.dumps(res['content']['application/json']['example'],indent=2)})
  folder='00 Auth & Security' if any(path.startswith('/api/v1/business/'+p) for p in ('auth','account','sessions','devices','memberships')) else ('02 Roles, Permissions & Approvals' if any('/'+p in path for p in ('roles','permissions','approval','delegations','break-glass','audit-events')) else '01 Organisation & Staff')
+ if any(path.startswith('/api/v1/business/'+p) for p in tuple(node_kinds)+('inventory-nodes','imports')):folder='03 Portfolio & Property Hierarchy'
  folders[folder]['item'].append({'name':name,'request':request,'response':examples,'event':[{'listen':'prerequest','script':{'type':'text/javascript','exec':prerequest}},{'listen':'test','script':{'type':'text/javascript','exec':tests}}]})
 O['components']['schemas']={k:S[k] for k in sorted(used)}
 collection_path=ROOT/'postman/CosmicForge_RealEstate.postman_collection.json'
 collection=json.loads(collection_path.read_text(encoding='utf-8-sig'))
 folder=next(x for x in collection['item'] if x['name']=='03 Business Operations');folder['description']=O['info']['description'];folder['item']=list(folders.values())
-for name in ('_Internal','_Webhooks','_Admin'):folders[name]['description']='No Section 3 frontend operations. Internal events are broker-only; provider operations are described in the owning service contracts. No public callback or administration bypass is exposed.'
+for name in ('_Internal','_Webhooks','_Admin'):folders[name]['description']='No Section 3–4 frontend operations. Internal events are broker-only; provider operations are described in the owning service contracts. No public callback or administration bypass is exposed.'
 existing={v['key'] for v in collection.setdefault('variable',[])}
 for key,value in {'business_access_token':'','business_refresh_token':'','business_email':'','business_password':'','business_current_password':'','business_new_password':'','business_mfa_token':'','business_code':'','business_invitation_token':'','business_idempotency_key':'','business_id':'','business_session_id':'','business_organisation_id':'','business_role_id':'','business_approval_id':'','business_policy_id':'','business_version':''}.items():
  if key not in existing:collection['variable'].append({'key':key,'value':value,'type':'string'})

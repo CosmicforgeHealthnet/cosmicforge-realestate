@@ -11,8 +11,10 @@ import (
 	"time"
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/workforce"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
@@ -24,6 +26,7 @@ import (
 )
 
 type Handler struct {
+	Media                   media.API
 	Auth                    *businessauth.Handler
 	Verification            verification.API
 	Notification            notification.Sender
@@ -31,6 +34,7 @@ type Handler struct {
 	CapacityAuthority       verification.CapacityAuthority
 	RepresentativeAuthority verification.RepresentativeAuthority
 	ClosureReadiness        verification.ClosureReadiness
+	InventoryDependencies   portfolio.DependencyGuard
 }
 type tenant struct {
 	Account, Organisation, Member, Role ids.ID
@@ -147,7 +151,7 @@ func resolve(ctx context.Context, q database.Querier, org ids.ID, kind string, i
 	case "TEAM":
 		err = q.QueryRow(ctx, `SELECT t.department_id,d.branch_id,b.region_id FROM teams t JOIN departments d ON d.id=t.department_id AND d.organisation_id=t.organisation_id JOIN branches b ON b.id=d.branch_id AND b.organisation_id=d.organisation_id WHERE t.organisation_id=$1 AND t.id=$2`, org, id).Scan(&department, &branch, &region)
 	default:
-		return target, apperrors.PermissionDenied("The owning resource graph is not available for this scope.")
+		return portfolio.Resolve(ctx, q, org, kind, id)
 	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return target, apperrors.NotFound("RESOURCE_NOT_FOUND", "Resource not found.")

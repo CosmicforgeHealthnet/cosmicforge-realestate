@@ -18,7 +18,7 @@ import (
 
 func highRiskAction(action string) bool {
 	switch action {
-	case "ORGANISATION_STATE_CHANGE", "REPRESENTATIVE_CHANGE", approvals.ActionPayoutDestinationChange, approvals.ActionHighValueRefund, approvals.ActionVerifiedPropertyPublication, approvals.ActionExceptionalRateChange, approvals.ActionInventoryConflictOverride, approvals.ActionDeliberateOverbooking, approvals.ActionExceptionalCheckIn, approvals.ActionNightAuditExceptionClosure, approvals.ActionExternalManagerAccess, approvals.ActionProfessionalDataRoomGrant, approvals.ActionStaffRoleChange, approvals.ActionStaffScopeChange, approvals.ActionBreakGlassAccess, approvals.ActionBulkDisposalOrSale:
+	case approvals.ActionInventoryRestructure, approvals.ActionInventoryMapping, "ORGANISATION_STATE_CHANGE", "REPRESENTATIVE_CHANGE", approvals.ActionPayoutDestinationChange, approvals.ActionHighValueRefund, approvals.ActionVerifiedPropertyPublication, approvals.ActionExceptionalRateChange, approvals.ActionInventoryConflictOverride, approvals.ActionDeliberateOverbooking, approvals.ActionExceptionalCheckIn, approvals.ActionNightAuditExceptionClosure, approvals.ActionExternalManagerAccess, approvals.ActionProfessionalDataRoomGrant, approvals.ActionStaffRoleChange, approvals.ActionStaffScopeChange, approvals.ActionBreakGlassAccess, approvals.ActionBulkDisposalOrSale:
 		return true
 	}
 	return false

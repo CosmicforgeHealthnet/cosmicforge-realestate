@@ -25,7 +25,7 @@ func (s Scope) Valid() bool {
 	switch s.Kind {
 	case "COMPANY":
 		return s.ID == s.Organisation
-	case "REGION", "BRANCH", "DEPARTMENT", "TEAM", "PORTFOLIO", "PROPERTY", "DEVELOPMENT", "UNIT", "FACILITY":
+	case "REGION", "BRANCH", "DEPARTMENT", "TEAM", "PORTFOLIO", "PROPERTY", "DEVELOPMENT", "UNIT", "FACILITY", "DEVELOPMENT_PHASE", "PARCEL", "BUILDING", "BLOCK", "FLOOR", "ROOM_TYPE", "ROOM", "COMMON_AREA", "ASSET":
 		return true
 	}
 	return false
