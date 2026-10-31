@@ -57,8 +57,8 @@ func TestOutboxMigrationFromEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if version != 5 {
-		t.Fatalf("version=%d want=5", version)
+	if version != 6 {
+		t.Fatalf("version=%d want=6", version)
 	}
 	var exists bool
 	if err := testDB.QueryRowContext(ctx, "SELECT to_regclass('public.outbox_events') IS NOT NULL").Scan(&exists); err != nil {

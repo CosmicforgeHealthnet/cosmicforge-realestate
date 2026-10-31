@@ -77,3 +77,7 @@ exact approvals, provider references and bounded import commands. The existing
 worker runs those commands without account JWT signing keys. Physical context
 and trusted database ancestry replace the former resource-scope placeholders.
 See [graph/data/event boundaries](BUSINESS_OPERATIONS_SECTION4_GRAPH.md).
+
+## Sections 5–7 commercial implementation
+
+The [commercial supply architecture](BUSINESS_OPERATIONS_COMMERCIAL_SUPPLY.md) records implemented stock/rate/content/distribution ownership, signed contracts, state fencing and unavailable live dependencies. The complete database catalogue and Sections 5–7 reports distinguish present schemas from future workflow ownership.

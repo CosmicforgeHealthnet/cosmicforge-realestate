@@ -11,6 +11,7 @@ import (
 	"time"
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
@@ -26,6 +27,7 @@ import (
 )
 
 type Handler struct {
+	ChannelAdapters         map[string]distribution.Adapter
 	Media                   media.API
 	Auth                    *businessauth.Handler
 	Verification            verification.API

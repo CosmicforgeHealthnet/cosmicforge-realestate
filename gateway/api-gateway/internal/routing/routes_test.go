@@ -55,3 +55,28 @@ func TestWebhookValidation(t *testing.T) {
 		t.Fatal("webhook to domain service accepted")
 	}
 }
+
+func TestBusinessSupplyWebhookExplicitRegistrationAndInternalIsolation(t *testing.T) {
+	ups := map[platform.Service]*url.URL{platform.BusinessOperationsService: u("http://business:8080")}
+	routes, err := Build(ups, map[string]platform.Service{"business-channels": platform.BusinessOperationsService})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, ok := Match(routes, "/webhooks/v1/business-channels/COSMICFORGE_MARKETPLACE/connection")
+	if !ok || r.Auth != AuthNone || r.ForwardUserToken || r.Service != platform.BusinessOperationsService || r.Category != CategoryWebhook || r.MaxBodyBytes != 64<<10 {
+		t.Fatal("Business provider callback policy")
+	}
+	if _, ok = Match(routes, "/internal/v1/business-supply/channel-receipts"); ok {
+		t.Fatal("Internal supply contract exposed through gateway")
+	}
+	if _, err = Build(ups, map[string]platform.Service{"arbitrary": platform.BusinessOperationsService}); err == nil {
+		t.Fatal("Arbitrary business webhook prefix accepted")
+	}
+	routes, err = Build(ups, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok = Match(routes, "/webhooks/v1/business-channels/x/y"); ok {
+		t.Fatal("Unconfigured callback should not route")
+	}
+}

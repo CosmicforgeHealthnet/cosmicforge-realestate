@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/business/listing.withdrawn.v1.schema.json",
+  "title": "listing.withdrawn.v1",
+  "description": "Producer business-operations-service. Canonical subject realestate.business.listing.withdrawn.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "listing.withdrawn.v1"
+    },
+    "producer": {
+      "const": "business-operations-service"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "target_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "action": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "expired_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "property_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "snapshot": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "organisation_id",
+        "property_id",
+        "target_id",
+        "operation",
+        "version",
+        "snapshot"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

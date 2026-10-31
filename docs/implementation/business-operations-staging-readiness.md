@@ -80,3 +80,13 @@ extended graph/import/container certificate. Implementation image digest:
 The final delivery correction/evidence commit builds its own digest, verified
 separately in the delivery response. Neither image publication nor these tests
 establish an actual staging deployment.
+
+## Sections 5–7 rollout addition
+
+Apply additive migration 00006 then updated runtime grants using the existing authorised migrator before replacing API/worker. Retain previous compatible immutable digest; do not drop stock/rate/quote/provider histories. Provider registry/capability certification is operator-owned and unavailable by frontend API. Configure independent pricing/rate/publication/channel reviewers and exact high-risk policies.
+
+Set `MARKETPLACE_SERVICE_URL` identically for API and worker only after the real Marketplace consumer validates business-supply.v1, reciprocal service keys, delegated organisation, idempotent projection commit and readback. Preserve `MEDIA_SERVICE_URL` and public Media authority. Preserve Business-only NATS subjects including `realestate.business.inventory.*`, `realestate.business.rate_plan.*`, `realestate.business.listing.*`, `realestate.business.channel.*`; do not change Owner root stream subjects.
+
+Real CapacityAuthority is still unavailable; current commercial use must remain fail-closed until its owning Verification operation is provided/certified. OTA adapters remain disabled pending actual partner access and contract evidence. Section 9 reservation receipt quarantine is intentional dependency gating, not a live reservation engine.
+
+Audit on 2026-10-31 again found no GitHub environments, no self-hosted runners and no deployments. No deployment transport, secret or VPS access was introduced. Final SHA/image/CI evidence is in the Sections 5–7 combined certificate and delivery response. Operator must prove actual staging DB/ACL/migration status, signed commercial smoke, provider pause/readback, worker recovery and compatible rollback via the existing approved automation. Image publication alone never establishes deployment.

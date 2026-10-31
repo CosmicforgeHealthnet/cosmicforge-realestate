@@ -23,6 +23,12 @@ func NewRouter(h *health.Handler, business ...http.Handler) http.Handler {
 		r.Mount("/api/v1/business", business[0])
 		r.Mount("/api/v1/business-operations", business[0])
 	}
+	if len(business) > 1 && business[1] != nil {
+		r.Mount("/internal/v1/business-supply", business[1])
+	}
+	if len(business) > 2 && business[2] != nil {
+		r.Mount("/webhooks/v1/business-channels", business[2])
+	}
 	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
 		httpx.WriteError(w, req, apperrors.NotFound(apperrors.CodeRouteNotFound, "Route not found."))
 	})

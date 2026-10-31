@@ -7,7 +7,7 @@ uuid={'type':'string','format':'uuid','pattern':'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a
 string={'type':'string'}
 events=set()
 for p in (SERVICE/'internal').rglob('*.go'):
- if not p.name.endswith('_test.go'):events.update(re.findall(r'"((?:business|property)\.[a-z_.]+\.v[1-9][0-9]*)"',p.read_text()))
+ if not p.name.endswith('_test.go'):events.update(re.findall(r'"((?:business|property|inventory|rate_plan|listing|channel)\.[a-z_.]+\.v[1-9][0-9]*)"',p.read_text(encoding='utf-8')))
 changed=[]
 for name in sorted(events):
  props={'organisation_id':uuid,'target_id':uuid,'action':string,'reason':string,'expired_at':{'type':'string','format':'date-time'}};required=['organisation_id']
@@ -16,14 +16,16 @@ for name in sorted(events):
  elif name=='business.staff.updated.v1':props.update(staff_id=uuid,account_id=uuid,status=string,version={'type':'integer','minimum':1});required+=['staff_id','account_id','status','version']
  elif name=='business.capacity.changed.v1':props.update(capacity_id=uuid,code=string,status={'enum':['DECLARED','PENDING','ACTIVE','RESTRICTED','SUSPENDED','EXPIRED']},expires_at={'type':['string','null'],'format':'date-time'});required+=['capacity_id','code','status']
  elif name in ('business.verified.v1','business.restricted.v1','business.organisation.verification_pending.v1'):props.update(verification_id=uuid,state={'enum':['ACTIVE','RESTRICTED','KYB_PENDING']},expires_at={'type':['string','null'],'format':'date-time'});required+=['state'];
+ elif name.startswith(('inventory.','rate_plan.','listing.','channel.')):
+  props.update(property_id=uuid,operation=string,version={'type':'integer','minimum':1},snapshot={'type':'object'});required+=['property_id','target_id','operation','version','snapshot']
  elif name.startswith('business.approval.'):
   props.update(approval_id=uuid,requester_id=uuid,state={'enum':['DRAFT','PENDING','APPROVED','REJECTED','EXPIRED','CANCELLED']},level={'type':'integer','minimum':0},policy_id=uuid,policy_version={'type':'integer','minimum':1});required+=['approval_id','state','policy_id','policy_version']
  else:required+=['target_id']
- schema={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'https://contracts.cosmicforge.realestate/events/business/'+name+'.schema.json','title':name,'description':'Producer business-operations-service. Canonical subject realestate.'+('business.' if name.startswith('property.') else '')+name+'. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.','allOf':[{'$ref':'../../schemas/event-envelope.schema.json'}],'properties':{'event_type':{'const':name},'producer':{'const':'business-operations-service'},'payload':{'type':'object','properties':props,'required':required,'additionalProperties':True}}}
+ schema={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'https://contracts.cosmicforge.realestate/events/business/'+name+'.schema.json','title':name,'description':'Producer business-operations-service. Canonical subject realestate.'+('' if name.startswith('business.') else 'business.')+name+'. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.','allOf':[{'$ref':'../../schemas/event-envelope.schema.json'}],'properties':{'event_type':{'const':name},'producer':{'const':'business-operations-service'},'payload':{'type':'object','properties':props,'required':required,'additionalProperties':True}}}
  path=ROOT/'contracts/events/business'/f'{name}.schema.json';text=json.dumps(schema,indent=2)+'\n'
- if not path.exists() or path.read_text()!=text:
+ if not path.exists() or path.read_text(encoding='utf-8')!=text:
   changed.append(str(path.relative_to(ROOT)))
-  if '--check'not in sys.argv:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text)
+  if '--check'not in sys.argv:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8',newline='\n')
 existing={p.name.removesuffix('.schema.json') for p in (ROOT/'contracts/events/business').glob('*.schema.json')}
 if existing-events:raise SystemExit('Unreferenced Business schemas: '+str(existing-events))
 if '--check'in sys.argv and changed:raise SystemExit('Business event schema drift: '+','.join(changed))

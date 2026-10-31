@@ -21,6 +21,7 @@ jobs:
         run: |
           python scripts/contracts/generate_business_operations.py --check --validate
           python scripts/contracts/generate_business_events.py --check
+          python scripts/contracts/generate_business_database_catalogue.py --check
       - name: OpenAPI documents are valid
         run: |
           set -euo pipefail

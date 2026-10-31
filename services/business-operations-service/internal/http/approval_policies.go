@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/approvals"
@@ -17,11 +18,30 @@ import (
 )
 
 func highRiskAction(action string) bool {
+	if strings.HasPrefix(action, "COMMERCIAL_") {
+		return commercialApprovalCapability(action) != ""
+	}
 	switch action {
 	case approvals.ActionInventoryRestructure, approvals.ActionInventoryMapping, "ORGANISATION_STATE_CHANGE", "REPRESENTATIVE_CHANGE", approvals.ActionPayoutDestinationChange, approvals.ActionHighValueRefund, approvals.ActionVerifiedPropertyPublication, approvals.ActionExceptionalRateChange, approvals.ActionInventoryConflictOverride, approvals.ActionDeliberateOverbooking, approvals.ActionExceptionalCheckIn, approvals.ActionNightAuditExceptionClosure, approvals.ActionExternalManagerAccess, approvals.ActionProfessionalDataRoomGrant, approvals.ActionStaffRoleChange, approvals.ActionStaffScopeChange, approvals.ActionBreakGlassAccess, approvals.ActionBulkDisposalOrSale:
 		return true
 	}
 	return false
+}
+
+func commercialApprovalCapability(action string) string {
+	switch action {
+	case "COMMERCIAL_RATE_ACTIVATION", "COMMERCIAL_BULK_RATE_CHANGE", "COMMERCIAL_BULK_RATE_ROLLBACK":
+		return "rates:approve"
+	case "COMMERCIAL_PRODUCT_CHANGE", "COMMERCIAL_RESTRICTION_RELAXATION", "COMMERCIAL_OFFER_ACTIVATION", "COMMERCIAL_FISCAL_POLICY_CHANGE", "COMMERCIAL_CURRENCY_POLICY_CHANGE", "COMMERCIAL_COMPLIANCE_RELEASE":
+		return "pricing:approve"
+	case "COMMERCIAL_CHANNEL_CHANGE", "COMMERCIAL_CHANNEL_MAPPING_CHANGE", "COMMERCIAL_CHANNEL_FIELD_OVERRIDE", "COMMERCIAL_CHANNEL_CONFLICT_RESOLUTION":
+		return "channels:approve"
+	case approvals.ActionExceptionalRateChange:
+		return "rates:approve"
+	case approvals.ActionVerifiedPropertyPublication:
+		return "publication:approve"
+	}
+	return ""
 }
 
 type policyCommand struct {
@@ -64,6 +84,16 @@ func (h *Handler) writePolicy(w http.ResponseWriter, r *http.Request, update boo
 	}
 	if in.ScopeKind == "" {
 		in.ScopeKind = "COMPANY"
+	}
+	if required := commercialApprovalCapability(in.Action); required != "" {
+		found := false
+		for _, level := range in.Levels {
+			found = found || string(level.Capability) == required
+		}
+		if !found {
+			reply(w, r, 0, nil, apperrors.InvalidRequest("This commercial action requires an independent "+required+" approval level."))
+			return
+		}
 	}
 	for _, level := range in.Levels {
 		if !level.RequireMFA {

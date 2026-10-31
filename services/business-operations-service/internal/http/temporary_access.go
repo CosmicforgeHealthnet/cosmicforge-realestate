@@ -24,6 +24,10 @@ func temporaryCapability(code string, emergency bool) bool {
 	switch code {
 	case "hierarchy:read", "staff:read", "portfolio:read", "development:read", "parcel:read", "property:read", "structure:read", "assets:read", "imports:read":
 		return true
+	case "products:read", "pools:read", "calendar:read", "holds:read", "allotments:read", "rates:read", "restrictions:read", "promotions:read", "pricing:read", "content:read", "channels:read", "channels:report", "tax:read":
+		return true
+	case "products:write", "pools:write", "calendar:write", "holds:write", "allotments:write", "rates:write", "restrictions:write", "promotions:write", "pricing:write", "content:write", "publication:write", "channels:write", "channels:mappings", "channels:override", "tax:write", "rates:approve", "pricing:approve", "publication:approve", "channels:approve":
+		return !emergency
 	case "hierarchy:write", "portfolio:write", "development:write", "parcel:write", "property:write", "structure:write", "assets:write", "inventory:approve":
 		return !emergency
 	case "approvals:read", "approvals:decide", "staff:approve", "roles:approve":

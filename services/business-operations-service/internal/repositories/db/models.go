@@ -8,7 +8,22 @@ import (
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type AddOn struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	Name           string
+	Definition     []byte
+	State          string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ApprovalID     *ids.ID
+}
 
 type ApprovalDecision struct {
 	ID                  ids.ID
@@ -133,6 +148,31 @@ type Building struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type BulkRateCommand struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	State              string
+	Command            []byte
+	Snapshot           []byte
+	ExecutionSessionID *ids.ID
+	ExecutionAction    *string
+	AvailableAt        time.Time
+	LastError          *string
+	ExpiresAt          time.Time
+	Version            int64
+	ApprovalID         *ids.ID
+	CreatedBy          ids.ID
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type BulkRateScopeLink struct {
+	OrganisationID ids.ID
+	CommandID      ids.ID
+	PropertyID     ids.ID
 }
 
 type BusinessAccount struct {
@@ -271,10 +311,373 @@ type CapabilityPack struct {
 	CreatedAt          time.Time
 }
 
+type ChannelCapability struct {
+	ProviderID        ids.ID
+	Capability        string
+	Status            string
+	EvidenceReference *string
+	Version           int64
+}
+
+type ChannelCommissionRule struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	ConnectionID    ids.ID
+	Currency        string
+	CommissionBps   int32
+	FixedMinor      int64
+	EffectiveAt     time.Time
+	ExpiresAt       *time.Time
+	SourceReference string
+	Version         int64
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
+}
+
+type ChannelConflict struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ConnectionID     ids.ID
+	JobID            *ids.ID
+	Classification   string
+	Severity         string
+	SourceObject     string
+	CanonicalVersion *int64
+	ProviderVersion  *string
+	Evidence         []byte
+	State            string
+	RequiredAction   string
+	Version          int64
+	FirstSeenAt      time.Time
+	LastSeenAt       time.Time
+	ResolvedAt       *time.Time
+}
+
+type ChannelConflictDecision struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	ConflictID     ids.ID
+	Action         string
+	Reason         string
+	ActorID        ids.ID
+	CreatedAt      time.Time
+}
+
+type ChannelConnection struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	PropertyID           ids.ID
+	ProviderID           ids.ID
+	ProviderAccountID    string
+	State                string
+	CredentialReference  string
+	CredentialKeyID      *string
+	EncryptedCredentials []byte
+	CredentialExpiresAt  *time.Time
+	ValidationReference  *string
+	ValidatedAt          *time.Time
+	Version              int64
+	CreatedBy            ids.ID
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type ChannelContentOverride struct {
+	OrganisationID ids.ID
+	ConnectionID   ids.ID
+	ListingID      ids.ID
+	Content        []byte
+	Reason         string
+	ExpiresAt      *time.Time
+	Version        int64
+	EditedBy       ids.ID
+	UpdatedAt      time.Time
+	LastSyncedAt   *time.Time
+}
+
+type ChannelEventDeliveryKey struct {
+	OrganisationID  ids.ID
+	ConnectionID    ids.ID
+	ProviderEventID string
+	ReceiptID       ids.ID
+	PayloadHash     string
+}
+
+type ChannelEventReceipt struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ConnectionID     ids.ID
+	ProviderEventID  string
+	ExternalObjectID string
+	ExternalVersion  string
+	PayloadHash      string
+	Normalized       []byte
+	State            string
+	Reason           string
+	ReceivedAt       time.Time
+	ProcessedAt      *time.Time
+	DuplicateCount   int64
+}
+
+type ChannelFieldAuthority struct {
+	OrganisationID  ids.ID
+	ConnectionID    ids.ID
+	Field           string
+	Mode            string
+	Value           []byte
+	Reason          string
+	SourceReference string
+	ExpiresAt       *time.Time
+	LastSyncedAt    *time.Time
+	Version         int64
+	EditedBy        ids.ID
+	UpdatedAt       time.Time
+}
+
+type ChannelFinancialInput struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ConnectionID      ids.ID
+	ProductID         *ids.ID
+	RatePlanID        *ids.ID
+	PromotionID       *ids.ID
+	Component         string
+	AmountMinor       int64
+	Currency          string
+	PeriodFrom        pgtype.Date
+	PeriodTo          pgtype.Date
+	SourceService     string
+	SourceReference   string
+	ObservedAt        time.Time
+	ExpiresAt         time.Time
+	Reconciled        bool
+	CreatedAt         time.Time
+	SourcePayloadHash string
+}
+
+type ChannelMappingPreview struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ConnectionID      ids.ID
+	ConnectionVersion int64
+	Entries           []byte
+	Proofs            []byte
+	Digest            string
+	CreatedBy         ids.ID
+	ExpiresAt         time.Time
+	CreatedAt         time.Time
+}
+
+type ChannelMetricsSnapshot struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	ConnectionID   ids.ID
+	Snapshot       []byte
+	ObservedAt     time.Time
+}
+
+type ChannelProductMapping struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ConnectionID   ids.ID
+	ProductID      ids.ID
+	ExternalID     string
+	State          string
+	Provenance     string
+	Version        int64
+	ValidatedAt    *time.Time
+	LastSyncedAt   *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ChannelPropertyMapping struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	ConnectionID   ids.ID
+	PropertyID     ids.ID
+	ExternalID     string
+	State          string
+	Provenance     string
+	Version        int64
+	ValidatedAt    *time.Time
+	LastSyncedAt   *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ChannelProvider struct {
+	ID                     ids.ID
+	Code                   string
+	Name                   string
+	Kind                   string
+	Status                 string
+	Mechanisms             []string
+	ContractVersion        string
+	RateLimitPerMinute     int32
+	Regions                []string
+	Currencies             []string
+	ObjectTypes            []string
+	CertificationReference *string
+	Version                int64
+	CreatedAt              time.Time
+}
+
+type ChannelProviderDispatch struct {
+	ProviderID     ids.ID
+	NextAt         time.Time
+	LeaseOwner     *string
+	LeaseExpiresAt *time.Time
+}
+
+type ChannelRateMapping struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ConnectionID   ids.ID
+	RatePlanID     ids.ID
+	ExternalID     string
+	State          string
+	Provenance     string
+	Version        int64
+	ValidatedAt    *time.Time
+	LastSyncedAt   *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ChannelReservationRef struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	ConnectionID           ids.ID
+	ReceiptID              ids.ID
+	ExternalReservationID  string
+	ExternalVersion        string
+	HoldID                 *ids.ID
+	CanonicalReservationID *ids.ID
+	AcceptanceReference    *string
+	State                  string
+	CreatedAt              time.Time
+}
+
+type ChannelSyncCursor struct {
+	OrganisationID          ids.ID
+	ConnectionID            ids.ID
+	PollCursor              string
+	LastCanonicalVersion    int64
+	LastPublishedVersion    int64
+	LastAcknowledgedVersion int64
+	ReadbackVersion         int64
+	LastSuccessAt           *time.Time
+	LastFailureAt           *time.Time
+	LastPollAt              *time.Time
+	Version                 int64
+	LastHistorySequence     int64
+	LastMaintenanceAt       *time.Time
+}
+
+type ChannelSyncFailure struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	ConnectionID   ids.ID
+	JobID          *ids.ID
+	Classification string
+	Evidence       []byte
+	Attempt        int32
+	CreatedAt      time.Time
+}
+
+type ChannelSyncJob struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ConnectionID        ids.ID
+	PublicationID       *ids.ID
+	Kind                string
+	CanonicalVersion    int64
+	Payload             []byte
+	PayloadHash         string
+	IdempotencyKey      string
+	State               string
+	ActorID             ids.ID
+	SessionID           *ids.ID
+	Attempts            int32
+	AvailableAt         time.Time
+	LeaseOwner          *string
+	LeaseExpiresAt      *time.Time
+	LeaseGeneration     int64
+	ProviderRequestID   *string
+	AcknowledgedVersion *int64
+	ReadbackVersion     *int64
+	LastError           string
+	LastSuccessAt       *time.Time
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	CorrelationContext  []byte
+	ProviderCommandKey  string
+}
+
+type CommercialHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	EntityType     string
+	EntityID       ids.ID
+	Operation      string
+	Version        int64
+	ActorID        *ids.ID
+	CorrelationID  string
+	Snapshot       []byte
+	CreatedAt      time.Time
+	Sequence       *int64
+}
+
 type CommonArea struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type ComplianceHold struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	Reason          string
+	SourceReference string
+	SourceService   string
+	EffectiveAt     time.Time
+	ExpiresAt       *time.Time
+	RevokedAt       *time.Time
+	Version         int64
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
+}
+
+type ContentQualityScore struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	ListingVersionID ids.ID
+	Score            int32
+	Issues           []byte
+	CreatedAt        time.Time
+}
+
+type CurrencyPolicy struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	Currency        string
+	PrecisionDigits int32
+	Rounding        string
+	Version         int64
+	SourceReference string
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
 }
 
 type DelegationGrant struct {
@@ -368,6 +771,46 @@ type IdempotencyRecord struct {
 	ExpiresAt      time.Time
 }
 
+type InventoryAllotment struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	PoolID         ids.ID
+	Channel        string
+	DateFrom       pgtype.Date
+	DateTo         pgtype.Date
+	Quantity       int32
+	ReleaseAt      time.Time
+	State          string
+	Version        int64
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type InventoryAllotmentDay struct {
+	OrganisationID ids.ID
+	AllotmentID    ids.ID
+	PoolID         ids.ID
+	Day            pgtype.Date
+	Channel        string
+	Quantity       int32
+	ReleasedAt     *time.Time
+}
+
+type InventoryCalendar struct {
+	OrganisationID ids.ID
+	PoolID         ids.ID
+	Day            pgtype.Date
+	Capacity       int32
+	Blocked        int32
+	Committed      int32
+	Version        int64
+	Reason         string
+	UpdatedBy      ids.ID
+	UpdatedAt      time.Time
+}
+
 type InventoryEdge struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -427,6 +870,36 @@ type InventoryHistory struct {
 	AfterSnapshot  []byte
 	CorrelationID  string
 	CreatedAt      time.Time
+}
+
+type InventoryHold struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ProductID        ids.ID
+	PoolID           ids.ID
+	QuoteID          ids.ID
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	Quantity         int32
+	Channel          string
+	State            string
+	ExpiresAt        time.Time
+	Version          int64
+	HandoffReference *string
+	CreatedBy        ids.ID
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type InventoryHoldDay struct {
+	OrganisationID   ids.ID
+	HoldID           ids.ID
+	PoolID           ids.ID
+	Day              pgtype.Date
+	Quantity         int32
+	AllotmentID      *ids.ID
+	AllottedQuantity int32
 }
 
 type InventoryImportJob struct {
@@ -526,6 +999,30 @@ type InventoryNode struct {
 	UpdatedBy      ids.ID
 }
 
+type InventoryPool struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	NodeID            ids.ID
+	Name              string
+	Kind              string
+	Capacity          int32
+	State             string
+	Version           int64
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	SourceNodeVersion int64
+}
+
+type InventoryPoolMember struct {
+	OrganisationID ids.ID
+	PoolID         ids.ID
+	NodeID         ids.ID
+	Capacity       int32
+	NodeVersion    int64
+}
+
 type InventoryVerificationLink struct {
 	ID                ids.ID
 	OrganisationID    ids.ID
@@ -537,6 +1034,70 @@ type InventoryVerificationLink struct {
 	ExpiresAt         *time.Time
 	CheckedAt         time.Time
 	Version           int64
+}
+
+type Listing struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProductID      ids.ID
+	TemplateID     *ids.ID
+	State          string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ListingApproval struct {
+	OrganisationID   ids.ID
+	ListingVersionID ids.ID
+	ApprovalID       ids.ID
+	CreatedAt        time.Time
+}
+
+type ListingMediaLink struct {
+	OrganisationID   ids.ID
+	ListingVersionID ids.ID
+	MediaLinkID      ids.ID
+}
+
+type ListingPublication struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	ListingID           ids.ID
+	ListingVersionID    ids.ID
+	ConnectionID        ids.ID
+	DesiredState        string
+	DeliveryState       string
+	CanonicalVersion    int64
+	AcknowledgedVersion *int64
+	ReadbackVersion     *int64
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type ListingTemplate struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	Name           string
+	Definition     []byte
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type ListingVersion struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	ListingID       ids.ID
+	Version         int64
+	Content         []byte
+	PropertyVersion int64
+	Reason          string
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
 }
 
 type NotificationAcceptance struct {
@@ -602,6 +1163,28 @@ type OutboxEvent struct {
 	CreatedAt      time.Time
 }
 
+type Package struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProductID      ids.ID
+	Name           string
+	Definition     []byte
+	State          string
+	Version        int64
+	ApprovalID     *ids.ID
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type PackageComponent struct {
+	OrganisationID ids.ID
+	PackageID      ids.ID
+	AddOnID        ids.ID
+	Quantity       int32
+}
+
 type Parcel struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -619,6 +1202,22 @@ type Portfolio struct {
 	Kind           string
 }
 
+type PriceQuote struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProductID      ids.ID
+	RateVersionID  ids.ID
+	DateFrom       pgtype.Date
+	DateTo         pgtype.Date
+	AmountMinor    int64
+	Currency       string
+	ExpiresAt      time.Time
+	Snapshot       []byte
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
 type ProcessedEvent struct {
 	Consumer    string
 	EventID     ids.ID
@@ -626,10 +1225,88 @@ type ProcessedEvent struct {
 	ProcessedAt time.Time
 }
 
+type Promotion struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	Code           string
+	Definition     []byte
+	State          string
+	Version        int64
+	ApprovalID     *ids.ID
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type Property struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type RatePlan struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	Name           string
+	Kind           string
+	State          string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type RatePlanVersion struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	RatePlanID     ids.ID
+	Version        int64
+	Currency       string
+	AmountMinor    int64
+	Definition     []byte
+	EffectiveFrom  pgtype.Date
+	EffectiveTo    pgtype.Date
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type RateRelation struct {
+	OrganisationID  ids.ID
+	ChildVersionID  ids.ID
+	ParentVersionID ids.ID
+	Adjustments     []byte
+}
+
+type RateRestriction struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	PoolID         *ids.ID
+	ProductID      *ids.ID
+	RatePlanID     *ids.ID
+	Channel        string
+	DateFrom       pgtype.Date
+	DateTo         pgtype.Date
+	Definition     []byte
+	State          string
+	Version        int64
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type RateRule struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	RateVersionID  ids.ID
+	Priority       int32
+	Definition     []byte
 }
 
 type Region struct {
@@ -679,6 +1356,26 @@ type SecurityEvent struct {
 	CorrelationID  string
 	Context        []byte
 	OccurredAt     time.Time
+}
+
+type SellableProduct struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	NodeID         ids.ID
+	PoolID         ids.ID
+	RatePlanID     *ids.ID
+	Name           string
+	State          string
+	MinGuests      int32
+	MaxGuests      int32
+	PolicyCode     string
+	PolicyVersion  int64
+	Channels       []string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type SpaceGraph struct {
@@ -778,6 +1475,22 @@ type StaffScopeGrant struct {
 	Currency         *string
 	RequireMfa       bool
 	CreatedAt        time.Time
+}
+
+type TaxProfile struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	PolicyKey       ids.ID
+	Version         int64
+	Currency        string
+	Definition      []byte
+	SourceReference string
+	ApprovalID      *ids.ID
+	EffectiveAt     time.Time
+	ExpiresAt       *time.Time
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
 }
 
 type Team struct {

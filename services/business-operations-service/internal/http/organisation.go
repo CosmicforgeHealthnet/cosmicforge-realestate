@@ -29,6 +29,7 @@ func Register(authHandler *auth.Handler, verifier verification.API, notify notif
 		r.Use(authHandler.Authenticate)
 		h.registerHierarchy(r)
 		h.registerInventory(r)
+		h.registerCommercial(r)
 		h.registerApprovals(r)
 		h.registerRoles(r)
 		h.registerStaff(r)

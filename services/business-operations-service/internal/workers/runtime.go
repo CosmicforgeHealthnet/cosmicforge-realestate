@@ -7,6 +7,7 @@ import (
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth/credentials"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
@@ -70,6 +71,15 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 	}
 	projection := &portfolio.VerificationProjector{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}
 	inventory := &businesshttp.Handler{Auth: &businessauth.Handler{Service: &businessauth.Service{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Sealer: sealer, Now: time.Now}}}
+	inventory.ChannelAdapters = map[string]distribution.Adapter{"BOOKING_COM": distribution.DisabledAdapter{Provider: "BOOKING_COM"}, "AIRBNB": distribution.DisabledAdapter{Provider: "AIRBNB"}}
+	if endpoint := l.String("MARKETPLACE_SERVICE_URL", ""); endpoint != "" {
+		adapter, e := distribution.NewMarketplace(endpoint, identity.Signer)
+		if e != nil {
+			consumer.Stop()
+			return nil, e
+		}
+		inventory.ChannelAdapters[distribution.Marketplace] = adapter
+	}
 	refs := &InventoryReferences{Projection: *projection, Verification: verify}
 	if mediaURL := l.String("MEDIA_SERVICE_URL", ""); mediaURL != "" {
 		client, err := media.New(mediaURL, identity.Signer, 5*time.Second)
@@ -78,6 +88,7 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 			return nil, err
 		}
 		refs.Media = client
+		inventory.Media = client
 	}
 	return &Runtime{Inventory: inventory, InventoryReferences: refs, Notifications: worker, Lifecycle: &Lifecycle{Pool: pool, Outbox: outbox.NewStore(pool, prefix)}, consumer: consumer, log: log, conn: conn, prefix: prefix, Verification: &Verification{Inventory: projection, Projection: organisation.Projection{Sealer: sealer, Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}, API: verify}}, nil
 }
@@ -101,9 +112,29 @@ func (r *Runtime) Run(ctx context.Context) error {
 			if err != nil && ctx.Err() == nil {
 				r.log.Error("inventory import batch failed", "error", err.Error())
 			}
+			call, cancel = context.WithTimeout(ctx, 20*time.Second)
+			err = r.Inventory.ProcessCommercialRates(call, 5)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("commercial rate batch failed", "error", err.Error())
+			}
+			call, cancel = context.WithTimeout(ctx, 20*time.Second)
+			err = r.Inventory.ProcessChannelSync(call, 5)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("channel sync batch failed", "error", err.Error())
+			}
 		}
 		if !time.Now().Before(nextMaintenance) {
 			nextMaintenance = time.Now().Add(time.Minute)
+			if r.Inventory != nil {
+				call, cancel := context.WithTimeout(ctx, 30*time.Second)
+				err := r.Inventory.ProcessCommercialMaintenance(call, 50)
+				cancel()
+				if err != nil && ctx.Err() == nil {
+					r.log.Error("commercial supply maintenance failed", "error", err.Error())
+				}
+			}
 			if r.verificationConsumer == nil {
 				consumer, err := r.conn.Consume(ctx, jetstream.ConsumerConfig{Stream: jetstream.StreamName(r.prefix, "verification"), Durable: VerificationConsumer, FilterSubjects: []string{r.prefix + ".verification.>"}, AckWait: 30 * time.Second, HandlerTimeout: 15 * time.Second, MaxDeliver: 12, OnFailure: r.Notifications.Quarantine}, r.Verification.Handle)
 				if err == nil {

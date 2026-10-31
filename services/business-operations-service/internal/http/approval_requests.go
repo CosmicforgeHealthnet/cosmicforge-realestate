@@ -686,6 +686,15 @@ func (h *Handler) approvalEvent(ctx context.Context, tx pgx.Tx, view approvals.V
 // first activation, with recent MFA and immutable audit. After activation an
 // approved, unexpired, unused authorization must bind the exact operation.
 func (h *Handler) requirePrivilegeChange(ctx context.Context, tx pgx.Tx, t tenant, action string, target workforce.Scope, approvalID ids.ID, operation any) error {
+	return h.requirePrivilegeChangeBound(ctx, tx, t, action, target, approvalID, operation, "", nil, "", false)
+}
+
+// Commercial amounts and channels come from owning records/calculations. An
+// approval request cannot select a weaker threshold by omitting its exposure.
+func (h *Handler) requireCommercialApproval(ctx context.Context, tx pgx.Tx, t tenant, action string, target workforce.Scope, approvalID ids.ID, operation any, channel string, amount *int64, currency string) error {
+	return h.requirePrivilegeChangeBound(ctx, tx, t, action, target, approvalID, operation, channel, amount, currency, true)
+}
+func (h *Handler) requirePrivilegeChangeBound(ctx context.Context, tx pgx.Tx, t tenant, action string, target workforce.Scope, approvalID ids.ID, operation any, expectedChannel string, expectedAmount *int64, expectedCurrency string, commercial bool) error {
 	now := h.Auth.Service.Now().UTC()
 	if !workforce.RecentMFA(t.MFAAt, now, 5*time.Minute) {
 		return apperrors.PermissionDenied("Recent MFA is required.")
@@ -694,7 +703,7 @@ func (h *Handler) requirePrivilegeChange(ctx context.Context, tx pgx.Tx, t tenan
 	if err := tx.QueryRow(ctx, `SELECT activated_at FROM organisations WHERE id=$1`, t.Organisation).Scan(&activated); err != nil {
 		return err
 	}
-	if action != approvals.ActionInventoryRestructure && action != approvals.ActionInventoryMapping && activated == nil && (t.State == "DRAFT" || t.State == "KYB_PENDING") && t.Account == t.Representative {
+	if action != approvals.ActionInventoryRestructure && action != approvals.ActionInventoryMapping && action != approvals.ActionExceptionalRateChange && action != approvals.ActionVerifiedPropertyPublication && !strings.HasPrefix(action, "COMMERCIAL_") && activated == nil && (t.State == "DRAFT" || t.State == "KYB_PENDING") && t.Account == t.Representative {
 		var governed bool
 		if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM approval_policies WHERE organisation_id=$1 AND action=$2)`, t.Organisation, action).Scan(&governed); err != nil {
 			return err
@@ -716,15 +725,37 @@ func (h *Handler) requirePrivilegeChange(ctx context.Context, tx pgx.Tx, t tenan
 	var requester, scope ids.ID
 	var deadline time.Time
 	var consumed *time.Time
-	err = tx.QueryRow(ctx, `SELECT action,scope_kind,scope_id,requester_id,operation_digest,state,deadline,consumed_at,channel FROM approval_requests WHERE organisation_id=$1 AND id=$2 FOR UPDATE`, t.Organisation, approvalID).Scan(&approvedAction, &kind, &scope, &requester, &storedDigest, &state, &deadline, &consumed, &channel)
+	var amount *int64
+	var currency string
+	var policyRaw []byte
+	err = tx.QueryRow(ctx, `SELECT action,scope_kind,scope_id,requester_id,operation_digest,state,deadline,consumed_at,channel,amount_minor,coalesce(currency,''),policy_snapshot FROM approval_requests WHERE organisation_id=$1 AND id=$2 FOR UPDATE`, t.Organisation, approvalID).Scan(&approvedAction, &kind, &scope, &requester, &storedDigest, &state, &deadline, &consumed, &channel, &amount, &currency, &policyRaw)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return apperrors.PermissionDenied("Approval authorization denied.")
 	}
 	if err != nil {
 		return err
 	}
-	if channel != "" || approvedAction != action || requester != t.Account || kind != target.Kind || scope != target.ID || storedDigest != digest || state != "APPROVED" || consumed != nil || !now.Before(deadline) {
+	if channel != expectedChannel || approvedAction != action || requester != t.Account || kind != target.Kind || scope != target.ID || storedDigest != digest || state != "APPROVED" || consumed != nil || !now.Before(deadline) {
 		return apperrors.PermissionDenied("Approval authorization does not match this operation or has expired.")
+	}
+	if commercial {
+		if (amount == nil) != (expectedAmount == nil) || amount != nil && *amount != *expectedAmount || currency != expectedCurrency {
+			return apperrors.PermissionDenied("Approval amount/currency must match server-derived commercial exposure.")
+		}
+		var policy approvals.Policy
+		if err = json.Unmarshal(policyRaw, &policy); err != nil {
+			return err
+		}
+		required := commercialApprovalCapability(action)
+		found := false
+		for _, level := range policy.Levels {
+			if string(level.Capability) == required && level.RequireMFA {
+				found = true
+			}
+		}
+		if required == "" || !found || !policy.SeparationOfDuties || !policy.DistinctAcrossLevels {
+			return apperrors.PermissionDenied("Independent commercial approval capability and MFA are required in the frozen policy.")
+		}
 	}
 	if _, err := tx.Exec(ctx, `UPDATE approval_requests SET consumed_at=$3,consumed_by_account_id=$4 WHERE organisation_id=$1 AND id=$2`, t.Organisation, approvalID, now, t.Account); err != nil {
 		return err

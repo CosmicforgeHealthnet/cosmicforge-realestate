@@ -1,4 +1,4 @@
-"""Generate Sections 3–4 OpenAPI/Postman together. No runtime secrets or network IO.
+"""Generate Sections 3–7 OpenAPI/Postman together. No runtime secrets or network IO.
 Run from repository root: python scripts/contracts/generate_business_operations.py
 --check compares generated artifacts without changing them.
 """
@@ -30,7 +30,7 @@ def typ(t):
 S={}
 for p in (SERVICE/'internal').rglob('*.go'):
  if '_test.go' in p.name or 'repositories' in p.parts:continue
- text=p.read_text()
+ text=p.read_text(encoding='utf-8')
  for m in re.finditer(r'type (\w+) struct \{([^}]+)\}',text,re.S):
   props={};required=[]
   for fm in re.finditer(r'\w+\s+([^\n`]+)\s+`json:"([^",]+)([^"`]*)"`',m[2]):
@@ -259,10 +259,16 @@ for action in ('commit','pause','resume','cancel'):route('POST','/imports/{id}/'
 route('GET','/imports/{id}/recovery-plan','imports:read',res='ImportRecovery')
 route('POST','/imports/{id}/rollback','imports:write','ImportControl','RecoveryResult',200,True,True,notes='At most 20 reverse-order recovery actions per command. Repeat with new key/current version for further batches. Only unchanged never-active draft identities are restored/soft-archived. Changed versions, authority loss or acquired dependencies produce reconciliation tasks; mappings retain traceability, never delete valid data.')
 # Request examples are syntactically representative, not seeded demo records.
+from business_commercial_routes import register_commercial,commercial_queries
+register_commercial(ROOT,S,route,obj,arr,ref,typ)
+
 def example(schema,depth=0):
  if depth>20:return {}
  if "example" in schema:return copy.deepcopy(schema["example"])
+ if "enum" in schema:return copy.deepcopy(schema["enum"][0])
+ if 'const'in schema:return copy.deepcopy(schema['const'])
  if 'oneOf'in schema:return example(schema['oneOf'][0],depth+1)
+ if 'anyOf'in schema:return example(schema['anyOf'][0],depth+1)
  if '$ref'in schema:return example(S[schema['$ref'].split('/')[-1]],depth+1)
  t=schema.get('type','object');t=t[0] if isinstance(t,list) else t
  if t=='object':return {k:example(v,depth+1) for k,v in schema.get('properties',{}).items() if k in schema.get('required',schema.get('properties',{}))}
@@ -317,6 +323,16 @@ EXAMPLES.update({
  'InventoryImportInput':{'branch_id':UID,'provider':'legacy-pms','format':'JSON','records':[{'source_key':'property-42','kind':'PROPERTY','create':{'code':'PROP-42','name':'Imported Property','attributes':{'classification':'HOTEL'}}}]},
  'ImportControl':{'version':1,'allow_partial':False,'reason':'Reviewed migration lifecycle operation'},
 })
+EXAMPLES.update({
+ 'CommercialPoolCreate':{'property_id':UID,'node_id':UID,'name':'Verified apartment nightly stock','member_ids':[UID]},
+ 'CommercialProductCreate':{'property_id':UID,'node_id':UID,'pool_id':UID,'rate_plan_id':UID,'name':'Apartment nights','min_guests':1,'max_guests':2,'policy_code':'STANDARD','policy_version':1,'channels':[]},
+ 'CommercialQuoteCommand':{'product_id':UID,'date_from':'2026-12-01','date_to':'2026-12-03','adults':2,'children':0,'quantity':1,'channel':''},
+ 'CommercialStateChange':{'version':1,'state':'ACTIVE','reason':'Verified prerequisites independently reviewed'},
+ 'CommercialChannelCreate':{'property_id':UID,'provider_code':'COSMICFORGE_MARKETPLACE','provider_account_id':'operator-configured-provider-account','reason':'Configure a signed supply integration'},
+ 'CommercialMappingPreview':{'version':1,'entries':[{'kind':'PROPERTY','external_id':'external-property-42','canonical_id':UID,'canonical_version':1,'expected_mapping_version':0}],'reason':'Inspect actual provider object ownership before confirmation'},
+ 'CommercialConflictDecision':{'version':1,'action':'RECONCILE','reason':'Read back the immutable provider command after investigation','approval_id':UID},
+ 'CommercialFieldAuthority':{'field':'title','mode':'MANUAL_OVERRIDE','value':'Reviewed channel title','source_reference':'operator:review-42','expires_at':'2026-12-01T12:00:00Z','version':0,'reason':'Apply independently reviewed channel text','approval_id':UID},
+})
 # Exclude implementation-only structs and ensure no dangling references.
 used=set()
 def include(s):
@@ -328,8 +344,8 @@ def include(s):
   for v in s.values():include(v)
  elif isinstance(s,list):
   for v in s:include(v)
-O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations — Sections 3–4','version':'1.2.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
-folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','_Internal','_Webhooks','_Admin')}
+O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations — Sections 3–7','version':'1.3.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
+folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','05 Listings & Content','06 Inventory & Availability','07 Rate Plans, Restrictions & Promotions','08 Channel Manager','_Internal','_Webhooks','_Admin')}
 error_defs={'400':('VALIDATION_ERROR','Invalid request fields.'),'401':('AUTHENTICATION_REQUIRED','Authentication required.'),'403':('PERMISSION_DENIED','Capability or scope denied.'),'404':('RESOURCE_NOT_FOUND','Resource not found.'),'409':('VERSION_CONFLICT','Version changed or idempotency conflicts.'),'429':('RATE_LIMITED','Try again later.'),'503':('SERVICE_UNAVAILABLE','Required provider is unavailable.')}
 for r in R:
  method,path=r['method'],r['path'];name=method+' '+path
@@ -348,6 +364,9 @@ for r in R:
  if method=='GET' and path.removeprefix('/api/v1/business/').split('/')[0] in node_kinds and response=='List:Node':
   parameters += [{'name':'branch_id','in':'query','schema':typ('ids.ID')},{'name':'state','in':'query','schema':{'type':'string','enum':['DRAFT','ACTIVE','INACTIVE','RETIRED','ARCHIVED']}},{'name':'q','in':'query','schema':{'type':'string','maxLength':200}}]
  parameters.append({'name':'X-Request-ID','in':'header','required':False,'schema':{'type':'string','maxLength':128}})
+ for key,kind,required in commercial_queries(r.get('handler','')):
+  querySchema={'type':'integer','minimum':0} if kind=='integer' else typ('ids.ID') if kind=='uuid' else {'type':'string','format':'date'} if kind=='date' else {'type':'string'}
+  parameters.append({'name':key,'in':'query','required':required,'schema':querySchema})
  if r['idempotent']:parameters.append({'name':'Idempotency-Key','in':'header','required':True,'schema':{'type':'string','minLength':8,'maxLength':128}})
  desc='Authentication: '+('public account entry through authenticated Gateway' if r['public'] else 'business access JWT plus live account/session')+'. '
  desc+='Permission: '+(r['capability'] or 'own account / current membership')+'. Scope: trusted organisation and resolved resource hierarchy. '
@@ -363,6 +382,13 @@ for r in R:
  for code,(err,msg) in error_defs.items():responses[code]={'description':msg,'content':{'application/json':{'schema':ref('Error'),'example':{'error':{'code':err,'message':msg,'request_id':'example-request'}}}}}
  op={'operationId':re.sub('[^a-zA-Z0-9]+','_',name).strip('_'),'summary':name,'description':desc,'x-permission':r['capability'] or 'self','x-step-up':r['step_up'],'x-idempotency-key':r['idempotent'],'parameters':parameters,'responses':responses}
  if r['public']:op['security']=[]
+ if r.get('transport')=='internal':
+  O['components']['securitySchemes']['ServiceBearer']={'type':'http','scheme':'bearer','bearerFormat':'Short-lived signed service JWT'}
+  op['security']=[{'ServiceBearer':[]}];op['description']='Private service network only. '+r['capability']+'. Signed organisation delegation must match the owning connection. '+r['notes']
+ if r.get('transport')=='webhook':
+  O['components']['securitySchemes']['SupplyCallbackSignature']={'type':'apiKey','in':'header','name':'X-CF-Signature','description':'v1=HMAC-SHA256(timestamp + newline + canonical request path + newline + raw body), per-connection 32-byte key.'}
+  op['security']=[{'SupplyCallbackSignature':[]}];op['description']='Provider callback via the configured Gateway. Per-connection signature and timestamp, certified capability and durable event/object-version dedupe required. '+r['notes'];parameters.extend([{'name':'X-CF-Timestamp','in':'header','required':True,'schema':{'type':'string','description':'Unix seconds; at most five minutes old or one minute ahead.'}}])
+
  body=None
  if r['request']:
   body=copy.deepcopy(EXAMPLES.get(r['request'],example(ref(r['request']))));
@@ -382,10 +408,21 @@ for r in R:
  headers=[{'key':'X-Request-ID','value':'{{$guid}}'},{'key':'Content-Type','value':'application/json'}]
  if r['idempotent']:headers.append({'key':'Idempotency-Key','value':'{{business_idempotency_key}}','description':'Set a new stable value per intended command; reuse only for exact retries.'})
  request={'method':method,'header':headers,'url':{'raw':rawurl,'host':['{{base_url}}'],'path':rawurl.split('}}',1)[1].strip('/').split('/')},'description':desc,'auth':({'type':'noauth'} if r['public'] else {'type':'bearer','bearer':[{'key':'token','value':'{{business_access_token}}','type':'string'}]})}
+ if r.get('transport')=='internal':
+  rawurl=rawurl.replace('{{base_url}}','{{business_internal_url}}');request['url']['raw']=rawurl;request['url']['host']=['{{business_internal_url}}'];request['auth']={'type':'bearer','bearer':[{'key':'token','value':'{{business_service_token}}','type':'string'}]}
+ if r.get('transport')=='webhook':
+  request['auth']={'type':'noauth'};headers.extend([{'key':'X-CF-Timestamp','value':'{{business_callback_timestamp}}'},{'key':'X-CF-Signature','value':'{{business_callback_signature}}'}])
+ query=[]
+ for parameter in parameters:
+  if parameter['in']=='query':
+   key=parameter['name'];value=('2027-01-02' if key=='date_from' else '2027-01-04' if key=='date_to' else 'NGN' if key=='currency' else '{{business_'+key+'}}')
+   query.append({'key':key,'value':value,'disabled':not parameter.get('required',False)})
+ if query:
+  request['url']['query']=query;request['url']['raw']+=('?' if any(not q['disabled'] for q in query) else '')+ '&'.join(q['key']+'='+q['value'] for q in query if not q['disabled'])
  if body is not None:
   body=copy.deepcopy(body)
   for k in list(body):
-   if k in ('password','current_password','new_password','invitation_token','refresh_token','mfa_token') or (k=='code' and r['request'] in ('Code','MFAVerify')):body[k]='{{business_'+k+'}}'
+   if k in ('password','current_password','new_password','invitation_token','refresh_token','mfa_token','key_base64') or (k=='code' and r['request'] in ('Code','MFAVerify')):body[k]='{{business_'+k+'}}'
   if 'email' in body:body['email']='{{business_email}}'
   def interpolate(value):
    if isinstance(value,dict):
@@ -412,6 +449,12 @@ for r in R:
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
  resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
+ commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
+ if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if response=='CommercialRateResult':tests.append('if(pm.response.code<300){pm.environment.set("business_rate_plan_id",body.data.rate_plan.id);if(body.data.rate_version)pm.environment.set("business_rate_version_id",body.data.rate_version.id);}')
+ if response=='CommercialListingDetail':tests.append('if(pm.response.code<300){pm.environment.set("business_listing_id",body.data.listing.id);pm.environment.set("business_listing_version_id",body.data.current_version.id);}')
+ if response=='QuoteSnapshot':tests.append('if(pm.response.code<300){pm.environment.set("business_quote_id",body.data.quote_id);pm.test("Quote is not a reservation",()=>pm.expect(body.data.is_reservation).to.eql(false));}')
+ if response=='CommercialReceiptResult':tests.append('if(pm.response.code<300) pm.test("No fabricated reservation acceptance",()=>pm.expect(body.data.canonical_reservation_accepted).to.eql(false));')
  if response=='Node':tests.append('if(pm.response.code<300){pm.environment.set("business_node_id",body.data.id);pm.environment.set("business_tree_version",body.data.tree_version);}')
  if resource and method=='POST':tests.append(f'if (pm.response.code===201) {{ pm.test("Created identifier",()=>pm.expect(body.data.id).to.match(/^[0-9a-f-]{{36}}$/)); pm.environment.set("business_{resource}",body.data.id); }}')
  if path.endswith('/auth/register'):tests.append('if (pm.response.code===201) pm.test("Draft organisation only",()=>{ pm.expect(body.data.organisation_state).to.eql("DRAFT"); pm.expect(body.data.account_id).to.be.a("string"); pm.expect(body.data.organisation_id).to.be.a("string"); });')
@@ -423,14 +466,22 @@ for r in R:
  for code,res in responses.items():examples.append({'name':res['description'],'originalRequest':copy.deepcopy(request),'status':res['description'],'code':int(code),'header':[{'key':'Content-Type','value':'application/json'}],'body':json.dumps(res['content']['application/json']['example'],indent=2)})
  folder='00 Auth & Security' if any(path.startswith('/api/v1/business/'+p) for p in ('auth','account','sessions','devices','memberships')) else ('02 Roles, Permissions & Approvals' if any('/'+p in path for p in ('roles','permissions','approval','delegations','break-glass','audit-events')) else '01 Organisation & Staff')
  if any(path.startswith('/api/v1/business/'+p) for p in tuple(node_kinds)+('inventory-nodes','imports')):folder='03 Portfolio & Property Hierarchy'
+ if any(path.startswith('/api/v1/business/'+p) for p in ('listings','listing-templates')):folder='05 Listings & Content'
+ if any(path.startswith('/api/v1/business/'+p) for p in ('inventory-pools','sellable-products','holds','allotments','calendar','availability','compliance-holds')) or path=='/api/v1/business/inventory':folder='06 Inventory & Availability'
+ if any(path.startswith('/api/v1/business/'+p) for p in ('rate-plans','rate-plan-versions','rate-quotes','rates/','restrictions','promotions','packages','add-ons','tax-profiles','currency-policy')):folder='07 Rate Plans, Restrictions & Promotions'
+ if path.startswith(('/api/v1/business/channels','/api/v1/business/channel-conflicts')):folder='08 Channel Manager'
+ if path.startswith('/internal/'):folder='_Internal'
+ if path.startswith('/webhooks/'):folder='_Webhooks'
  folders[folder]['item'].append({'name':name,'request':request,'response':examples,'event':[{'listen':'prerequest','script':{'type':'text/javascript','exec':prerequest}},{'listen':'test','script':{'type':'text/javascript','exec':tests}}]})
 O['components']['schemas']={k:S[k] for k in sorted(used)}
 collection_path=ROOT/'postman/CosmicForge_RealEstate.postman_collection.json'
 collection=json.loads(collection_path.read_text(encoding='utf-8-sig'))
 folder=next(x for x in collection['item'] if x['name']=='03 Business Operations');folder['description']=O['info']['description'];folder['item']=list(folders.values())
-for name in ('_Internal','_Webhooks','_Admin'):folders[name]['description']='No Section 3–4 frontend operations. Internal events are broker-only; provider operations are described in the owning service contracts. No public callback or administration bypass is exposed.'
+folders['_Internal']['description']='Signed service-only supply receipts and authoritative financial inputs. Service audience, caller allowlist and organisation delegation required; never routed by the public Gateway.'
+folders['_Webhooks']['description']='Gateway-authenticated Marketplace business-supply.v1 HMAC callbacks. Exact raw body/path/timestamp signature and configured connection required. Booking.com and Airbnb callback signature contracts remain unavailable.'
+folders['_Admin']['description']='No frontend administration bypass. Provider certification and least-privilege provisioning remain authorised operator actions.'
 existing={v['key'] for v in collection.setdefault('variable',[])}
-for key,value in {'business_access_token':'','business_refresh_token':'','business_email':'','business_password':'','business_current_password':'','business_new_password':'','business_mfa_token':'','business_code':'','business_invitation_token':'','business_idempotency_key':'','business_id':'','business_session_id':'','business_organisation_id':'','business_role_id':'','business_approval_id':'','business_policy_id':'','business_version':''}.items():
+for key,value in {'business_access_token':'','business_refresh_token':'','business_email':'','business_password':'','business_current_password':'','business_new_password':'','business_mfa_token':'','business_code':'','business_invitation_token':'','business_idempotency_key':'','business_id':'','business_session_id':'','business_organisation_id':'','business_role_id':'','business_approval_id':'','business_policy_id':'','business_version':'','business_internal_url':'http://localhost:8080','business_service_token':'','business_key_base64':'','business_callback_timestamp':'','business_callback_signature':''}.items():
  if key not in existing:collection['variable'].append({'key':key,'value':value,'type':'string'})
 outputs={ROOT/'contracts/public/openapi/business-operations.yaml':json.dumps(O,indent=2)+'\n',collection_path:json.dumps(collection,indent=2,ensure_ascii=False)+'\n',SERVICE/'contracts/routes.json':json.dumps(R,indent=2)+'\n'}
 changed=[]

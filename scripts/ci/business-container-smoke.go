@@ -225,7 +225,7 @@ func run(image string) error {
 		if err != nil {
 			return fmt.Errorf("migration %s failed", command)
 		}
-		if command == "version" && out != "5" {
+		if command == "version" && out != "6" {
 			return fmt.Errorf("unexpected migration version %s", out)
 		}
 	}

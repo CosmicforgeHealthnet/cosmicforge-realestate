@@ -50,6 +50,24 @@ func TestBusinessRegisteredRoutesMatchOpenAPIAndOfficialPostman(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Private supply contracts and signed provider callbacks are walked as
+	// separate routers, so documenting them cannot silently expose them through
+	// the browser router or weaken its account authentication.
+	for _, surface := range []struct {
+		prefix string
+		router http.Handler
+	}{{"/internal/v1/business-supply", h.domain.InternalDistributionRouter(nil)}, {"/webhooks/v1/business-channels", h.domain.DistributionWebhookRouter(nil)}} {
+		routes, ok := surface.router.(chi.Routes)
+		if !ok {
+			t.Fatal("private contract router is not inspectable")
+		}
+		if err := chi.Walk(routes, func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
+			registered = append(registered, method+" "+surface.prefix+route)
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	type item struct {
 		Name    string `json:"name"`
 		Request *struct {
@@ -75,7 +93,8 @@ func TestBusinessRegisteredRoutesMatchOpenAPIAndOfficialPostman(t *testing.T) {
 			}
 			if i.Request != nil {
 				postman = append(postman, i.Name)
-				if i.Name != i.Request.Method+" "+regexp.MustCompile(`\{\{business_([^}]+)\}\}`).ReplaceAllString(strings.TrimPrefix(i.Request.URL.Raw, "{{base_url}}"), "{$1}") {
+				requestPath, _, _ := strings.Cut(strings.TrimPrefix(strings.TrimPrefix(i.Request.URL.Raw, "{{business_internal_url}}"), "{{base_url}}"), "?")
+				if i.Name != i.Request.Method+" "+regexp.MustCompile(`\{\{business_([^}]+)\}\}`).ReplaceAllString(requestPath, "{$1}") {
 					t.Fatalf("Postman request name/path drift: %s", i.Name)
 				}
 			}

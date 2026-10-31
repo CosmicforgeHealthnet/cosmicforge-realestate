@@ -164,6 +164,10 @@ func Build(upstreams map[platform.Service]*url.URL, webhooks map[string]platform
 		if !validProvider(p) {
 			return nil, fmt.Errorf("routing: invalid webhook provider name %q", p)
 		}
+		if svc == platform.BusinessOperationsService && p == "business-channels" {
+			_ = add(Route{Name: "webhook-business-channels", Prefix: "/webhooks/v1/business-channels/", Service: svc, Auth: AuthNone, Category: CategoryWebhook, MaxBodyBytes: 64 << 10})
+			continue
+		}
 		if svc == platform.PaymentService || svc == platform.VerificationService || svc == platform.NotificationService || svc == platform.MediaDocumentService {
 			_ = add(Route{Name: "webhook-" + p, Prefix: "/webhooks/v1/" + p + "/", Service: svc, Auth: AuthNone,
 				Category: CategoryWebhook, MaxBodyBytes: 256 << 10})

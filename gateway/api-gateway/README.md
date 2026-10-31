@@ -35,7 +35,7 @@ Proxied operations are documented in each service's own contract.
 | `GATEWAY_TOKEN_AUDIENCE` | | default `cosmicforge-realestate-api` |
 | `SERVICE_AUTH_KEY_ID`, `SERVICE_AUTH_PRIVATE_KEY[_FILE]` | ✓ | gateway service identity (Ed25519) |
 | `GATEWAY_UPSTREAM_<SERVICE>_URL` | per service | e.g. `GATEWAY_UPSTREAM_VERIFICATION_SERVICE_URL=http://verification-service:8080` |
-| `GATEWAY_WEBHOOK_ROUTES` | | `provider=service,...` (shared/payment services only) |
+| `GATEWAY_WEBHOOK_ROUTES` | | `provider=service,...` (shared/payment services; reserved `business-channels=business-operations-service` supply callback only) |
 | `GATEWAY_RATE_LIMIT_{PUBLIC,AUTHENTICATED,AUTH_SENSITIVE,UPLOAD_INITIATION,WEBHOOK}` | | e.g. `120/1m`, `10/1m:burst=5` |
 | `GATEWAY_CORS_ALLOWED_ORIGINS` | | comma-separated https origins |
 | `GATEWAY_TRUSTED_PROXIES` | | CIDRs whose `X-Forwarded-For` is honoured |

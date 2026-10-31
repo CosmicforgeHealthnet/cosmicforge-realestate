@@ -22,12 +22,13 @@ import (
 )
 
 type businessHarness struct {
-	t       *testing.T
-	service *businessauth.Service
-	db      *testkit.Database
-	server  *httptest.Server
-	signer  *serviceauth.Signer
-	domain  *businesshttp.Handler
+	t        *testing.T
+	service  *businessauth.Service
+	db       *testkit.Database
+	server   *httptest.Server
+	signer   *serviceauth.Signer
+	domain   *businesshttp.Handler
+	registry *serviceauth.Registry
 }
 type businessUser struct {
 	registered      businessauth.Registered
@@ -61,10 +62,10 @@ func newBusinessHTTP(t *testing.T, provider verification.API) *businessHarness {
 	}
 	domain := businesshttp.Register(handler, provider, nil)
 	domain.InvitationAcceptURL = "https://business.example.test/invitations/accept"
-	server := httptest.NewServer(app.NewRouter(health.New("business-operations-service", "test", 0), handler.Router))
+	server := httptest.NewServer(app.NewRouter(health.New("business-operations-service", "test", 0), handler.Router, domain.InternalDistributionRouter(verifier), domain.DistributionWebhookRouter(verifier)))
 	t.Cleanup(server.Close)
 	t.Cleanup(func() { validateStoredBusinessEvents(t, db.Pool) })
-	return &businessHarness{t: t, service: service, db: db, server: server, signer: signer, domain: domain}
+	return &businessHarness{t: t, service: service, db: db, server: server, signer: signer, domain: domain, registry: registry}
 }
 func (h *businessHarness) user() *businessUser {
 	h.t.Helper()

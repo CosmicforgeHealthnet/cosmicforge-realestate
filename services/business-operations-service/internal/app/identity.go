@@ -2,6 +2,7 @@ package app
 
 import (
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
@@ -35,6 +36,14 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		return err
 	}
 	domain := businesshttp.Register(handler, verify, notify)
+	domain.ChannelAdapters = map[string]distribution.Adapter{"BOOKING_COM": distribution.DisabledAdapter{Provider: "BOOKING_COM"}, "AIRBNB": distribution.DisabledAdapter{Provider: "AIRBNB"}}
+	if endpoint := loader.String("MARKETPLACE_SERVICE_URL", ""); endpoint != "" {
+		adapter, e := distribution.NewMarketplace(endpoint, identity.Signer)
+		if e != nil {
+			return e
+		}
+		domain.ChannelAdapters[distribution.Marketplace] = adapter
+	}
 	if mediaURL := loader.String("MEDIA_SERVICE_URL", ""); mediaURL != "" {
 		client, err := media.New(mediaURL, identity.Signer, 5*time.Second)
 		if err != nil {
@@ -43,6 +52,6 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		domain.Media = client
 	}
 	domain.InvitationAcceptURL = loader.String("BUSINESS_INVITATION_ACCEPT_URL", "")
-	a.Router = NewRouter(a.Health, handler.Router)
+	a.Router = NewRouter(a.Health, handler.Router, domain.InternalDistributionRouter(identity.Verifier), domain.DistributionWebhookRouter(identity.Verifier))
 	return nil
 }

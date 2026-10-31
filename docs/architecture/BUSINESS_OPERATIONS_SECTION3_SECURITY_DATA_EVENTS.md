@@ -99,3 +99,7 @@ provider operations and fail closed. Activated organisation closure requires
 downstream readiness evidence. Actual SSO needs configured IdP, while adapter
 contracts are ready. Actual deployment requires the operator-owned staging
 transport/secrets and live smoke checks described in the staging runbook.
+
+## Commercial authorization extension
+
+Migration 00006 versions eligible initial Owner roles and adds explicit commercial grants. Pricing, publication, mapping, field override, tax/currency and conflict decisions bind exact operation/scope/channel/amount/currency and require independent recent-MFA approval. There is no onboarding-bootstrap or break-glass write bypass. Worker commands preserve original session and revalidate current grants; a narrow system pause may only reduce remote supply. Marketplace financial/receipt APIs require signed caller plus organisation delegation. Callback keys are sealed with tenant/connection AAD; only reviewed fingerprints enter approval/audit/idempotent responses. See [commercial contracts and events](BUSINESS_OPERATIONS_COMMERCIAL_SUPPLY.md).
