@@ -99066,7 +99066,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                  "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -99120,7 +99120,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99183,7 +99183,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99246,7 +99246,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99309,7 +99309,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99372,7 +99372,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99435,7 +99435,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99498,7 +99498,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -99561,7 +99561,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY_MANAGEMENT\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101256,7 +101256,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                  "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -101310,7 +101310,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101373,7 +101373,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101436,7 +101436,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101499,7 +101499,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101562,7 +101562,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101625,7 +101625,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101688,7 +101688,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -101751,7 +101751,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
+                      "raw": "{\n  \"code\": \"MANAGEMENT_OPERATIONS\",\n  \"required_capacities\": [\n    \"PROPERTY_MANAGEMENT\"\n  ],\n  \"enabled\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132335,7 +132335,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -132388,7 +132388,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132450,7 +132450,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132512,7 +132512,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132574,7 +132574,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132636,7 +132636,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132698,7 +132698,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132760,7 +132760,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -132822,7 +132822,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PORTFOLIO-001\",\n  \"name\": \"Example Portfolio\",\n  \"attributes\": {\n    \"classification\": \"PORTFOLIO\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134403,7 +134403,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -134456,7 +134456,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134518,7 +134518,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134580,7 +134580,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134642,7 +134642,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134704,7 +134704,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134766,7 +134766,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134828,7 +134828,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -134890,7 +134890,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT-001\",\n  \"name\": \"Example Development\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136471,7 +136471,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -136524,7 +136524,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136586,7 +136586,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136648,7 +136648,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136710,7 +136710,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136772,7 +136772,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136834,7 +136834,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136896,7 +136896,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -136958,7 +136958,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138539,7 +138539,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -138592,7 +138592,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138654,7 +138654,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138716,7 +138716,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138778,7 +138778,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138840,7 +138840,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138902,7 +138902,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -138964,7 +138964,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -139026,7 +139026,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PARCEL-001\",\n  \"name\": \"Example Parcel\",\n  \"attributes\": {\n    \"classification\": \"PARCEL\",\n    \"area_square_metres\": \"1250.25\",\n    \"geometry\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [\n            3,\n            6\n          ],\n          [\n            4,\n            6\n          ],\n          [\n            4,\n            7\n          ],\n          [\n            3,\n            7\n          ],\n          [\n            3,\n            6\n          ]\n        ]\n      ]\n    }\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140607,7 +140607,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -140660,7 +140660,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140722,7 +140722,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140784,7 +140784,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140846,7 +140846,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140908,7 +140908,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -140970,7 +140970,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -141032,7 +141032,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -141094,7 +141094,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"PROPERTY-001\",\n  \"name\": \"Example Property\",\n  \"attributes\": {\n    \"classification\": \"MIXED_USE\"\n  },\n  \"branch_id\": \"{{business_branch_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -142675,7 +142675,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -142728,7 +142728,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -142790,7 +142790,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -142852,7 +142852,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -142914,7 +142914,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -142976,7 +142976,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -143038,7 +143038,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -143100,7 +143100,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -143162,7 +143162,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BUILDING-001\",\n  \"name\": \"Example Building\",\n  \"attributes\": {\n    \"classification\": \"BUILDING\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -144743,7 +144743,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -144796,7 +144796,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -144858,7 +144858,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -144920,7 +144920,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -144982,7 +144982,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -145044,7 +145044,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -145106,7 +145106,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -145168,7 +145168,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -145230,7 +145230,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"BLOCK-001\",\n  \"name\": \"Example Block\",\n  \"attributes\": {\n    \"classification\": \"BLOCK\"\n  },\n  \"parent_id\": \"{{business_building_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -146811,7 +146811,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -146864,7 +146864,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -146926,7 +146926,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -146988,7 +146988,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -147050,7 +147050,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -147112,7 +147112,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -147174,7 +147174,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -147236,7 +147236,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -147298,7 +147298,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FLOOR-001\",\n  \"name\": \"Example Floor\",\n  \"attributes\": {\n    \"floor_number\": 1\n  },\n  \"parent_id\": \"{{business_block_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -148879,7 +148879,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -148932,7 +148932,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -148994,7 +148994,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149056,7 +149056,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149118,7 +149118,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149180,7 +149180,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149242,7 +149242,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149304,7 +149304,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -149366,7 +149366,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -150947,7 +150947,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -151000,7 +151000,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151062,7 +151062,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151124,7 +151124,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151186,7 +151186,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151248,7 +151248,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151310,7 +151310,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151372,7 +151372,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -151434,7 +151434,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153015,7 +153015,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -153068,7 +153068,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153130,7 +153130,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153192,7 +153192,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153254,7 +153254,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153316,7 +153316,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153378,7 +153378,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153440,7 +153440,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -153502,7 +153502,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155083,7 +155083,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -155136,7 +155136,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155198,7 +155198,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155260,7 +155260,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155322,7 +155322,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155384,7 +155384,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155446,7 +155446,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155508,7 +155508,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -155570,7 +155570,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157151,7 +157151,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -157204,7 +157204,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157266,7 +157266,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157328,7 +157328,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157390,7 +157390,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157452,7 +157452,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157514,7 +157514,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157576,7 +157576,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -157638,7 +157638,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"COMMON_AREA-001\",\n  \"name\": \"Example Common Area\",\n  \"attributes\": {\n    \"classification\": \"NON_SELLABLE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159219,7 +159219,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -159272,7 +159272,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159334,7 +159334,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159396,7 +159396,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159458,7 +159458,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159520,7 +159520,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159582,7 +159582,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159644,7 +159644,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -159706,7 +159706,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ASSET-001\",\n  \"name\": \"Example Asset\",\n  \"attributes\": {\n    \"classification\": \"AIR_CONDITIONER\"\n  },\n  \"parent_id\": \"{{business_room_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161308,7 +161308,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -161363,7 +161363,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161427,7 +161427,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161491,7 +161491,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161555,7 +161555,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161619,7 +161619,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161683,7 +161683,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161747,7 +161747,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -161811,7 +161811,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"UNIT-001\",\n  \"name\": \"Example Unit\",\n  \"attributes\": {\n    \"classification\": \"APARTMENT\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162370,7 +162370,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -162425,7 +162425,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162489,7 +162489,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162553,7 +162553,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162617,7 +162617,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162681,7 +162681,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162745,7 +162745,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162809,7 +162809,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -162873,7 +162873,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM_TYPE-001\",\n  \"name\": \"Example Room Type\",\n  \"attributes\": {\n    \"classification\": \"ROOM_TYPE\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163432,7 +163432,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -163487,7 +163487,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163551,7 +163551,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163615,7 +163615,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163679,7 +163679,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163743,7 +163743,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163807,7 +163807,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163871,7 +163871,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -163935,7 +163935,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"ROOM-001\",\n  \"name\": \"Example Room\",\n  \"attributes\": {\n    \"classification\": \"ROOM\"\n  },\n  \"parent_id\": \"{{business_floor_id}}\",\n  \"room_type_id\": \"{{business_room_type_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164494,7 +164494,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -164549,7 +164549,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164613,7 +164613,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164677,7 +164677,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164741,7 +164741,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164805,7 +164805,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164869,7 +164869,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164933,7 +164933,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -164997,7 +164997,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"FACILITY-001\",\n  \"name\": \"Example Facility\",\n  \"attributes\": {\n    \"classification\": \"FACILITY\"\n  },\n  \"parent_id\": \"{{business_property_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165556,7 +165556,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                  "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -165611,7 +165611,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165675,7 +165675,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165739,7 +165739,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165803,7 +165803,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165867,7 +165867,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165931,7 +165931,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -165995,7 +165995,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -166059,7 +166059,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"code\": \"{{business_code}}\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
+                      "raw": "{\n  \"code\": \"DEVELOPMENT_PHASE-001\",\n  \"name\": \"Example Development Phase\",\n  \"attributes\": {\n    \"classification\": \"DEVELOPMENT_PHASE\"\n  },\n  \"parent_id\": \"{{business_development_id}}\"\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -168727,7 +168727,7 @@
                     "relationships"
                   ]
                 },
-                "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                 "auth": {
                   "type": "bearer",
                   "bearer": [
@@ -168782,7 +168782,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -168846,7 +168846,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -168910,7 +168910,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -168974,7 +168974,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -169038,7 +169038,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -169102,7 +169102,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -169166,7 +169166,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -169230,7 +169230,7 @@
                         "relationships"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:restructure. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [

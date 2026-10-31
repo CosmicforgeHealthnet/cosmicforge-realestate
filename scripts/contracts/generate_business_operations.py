@@ -240,7 +240,7 @@ route('GET','/inventory-nodes/{id}/summary','structure:read',res='InventorySumma
 route('GET','/inventory-nodes/{id}/history','structure:read',res='List:InventoryHistory')
 route('POST','/inventory-nodes/{id}/move','inventory:restructure','InventoryMove','Node',200,True,True,notes='Exact independent INVENTORY_RESTRUCTURE approval, source and destination scope, snapshot versions and dependency safety. Approval operation is {node_id,command:<body without approval_id>}. Never-active draft subtrees need no external dependency assertion; prior-active structures fail closed without a complete current assertion.')
 route('POST','/inventory-nodes/{id}/lifecycle','inventory:restructure','InventoryLifecycle','Node',200,True,True,notes='Activation requires current KYB, supported verified capacity and applicable property authority. Destructive prior-active transitions require exact approval and dependency assertions. Draft archival preserves canonical IDs; cascade must be explicit.')
-route('POST','/inventory-nodes/{id}/relationships','inventory:restructure','InventoryMembership','Node',200,True,True,notes='Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent.')
+route('POST','/inventory-nodes/{id}/relationships','inventory:restructure','InventoryMembership','Node',200,True,True,notes='Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required.')
 route('GET','/inventory-nodes/{id}/mappings','structure:read',res='List:MappingResult')
 route('POST','/inventory-nodes/{id}/mappings','inventory:mappings','InventoryMapping','MappingResult',200,True,True,notes='Provider+object_type+external_id is tenant-unique. Remapping requires expected_node_id, mapping version, node_version/tree_version and previous_node_version/previous_tree_version plus exact INVENTORY_MAPPING_CHANGE approval, both resource scopes and applicable dependency assertions.')
 route('GET','/inventory-nodes/{id}/verification','structure:read',res='VerificationProjection')
@@ -385,7 +385,7 @@ for r in R:
  if body is not None:
   body=copy.deepcopy(body)
   for k in list(body):
-   if k in ('password','current_password','new_password','invitation_token','refresh_token','mfa_token','code'):body[k]='{{business_'+k+'}}'
+   if k in ('password','current_password','new_password','invitation_token','refresh_token','mfa_token') or (k=='code' and r['request'] in ('Code','MFAVerify')):body[k]='{{business_'+k+'}}'
   if 'email' in body:body['email']='{{business_email}}'
   def interpolate(value):
    if isinstance(value,dict):

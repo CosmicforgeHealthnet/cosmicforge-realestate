@@ -8,8 +8,8 @@ Started from and repeatedly fetched/confirmed origin/staging at
 workflows were green. The complete authoritative specification (Sections 1–27,
 Annexes D–J) and supplied full Section 4 request were read before implementation.
 
-Implementation/final delivery commits and Actions evidence are recorded in the
-certificate appended after execution. A report cannot contain its own future
+Implementation commit: `cc29eebb8f2d265d2636b0b68347c4e7c07c16cd`.
+Observed Actions evidence is recorded in the certificate below. A report cannot contain its own future
 commit hash; the delivery response identifies the final pushed documentation SHA
 and its independently observed Actions/digest.
 
@@ -47,13 +47,13 @@ all 96 prior routes and all 25 prior business event schemas are retained.
 | 18 Section 3 authorization/approvals | PASS | actual graph ancestry, current deny/date/grant/delegation rules, exact frozen independent approvals; branch/tenant/revocation tests plus full prior suite |
 | 19 public APIs | PASS | 188 method/path pairs; every registered handler matches OpenAPI and official Postman |
 | 20 events/outbox | PASS disposable broker | 33 schemas; actual stored envelope validation, canonical graph rollback, two producer namespaces, real broker outage/restart/duplicates; prior quarantine/consumer tests retained |
-| 21 workers | PASS component tests | existing scheduler, import checkpoint/claim fencing, reference reconciliation; actual container process certificate remains a CI gate |
+| 21 workers | PASS component tests | existing scheduler, import checkpoint/claim fencing, reference reconciliation; actual container process certificate PASS at cc29eeb |
 | 22 security/concurrency | PASS local suite | tenant/branch/header isolation, direct DB invariants, immediate revocation, stale preview/approval, concurrent edits/workers, provider boundaries |
 | 23 E2E journeys | PASS executable test infrastructure | detailed mapping below; live providers/staging excluded |
 | 24 OpenAPI/Postman | PASS | 188 routes / 107 typed schemas, populated folder 03 Portfolio & Property Hierarchy, per-entity examples/ID captures, drift/example/schema validation |
-| 25 quality/security/CI | PASS local; CI pending | gofmt/vet/staticcheck/tidy/SQLC/architecture/contract checks; govulncheck; CI certificate appended when observed |
+| 25 quality/security/CI | PASS local and implementation CI | gofmt/vet/staticcheck/tidy/SQLC/architecture/contract checks; govulncheck; implementation CI certificate below; final delivery SHA checked independently |
 | 26 documentation | PASS | this report, service README, graph/security/data/events architecture, staging runbook/config examples |
-| 27 staging commit/push | pending execution | only origin/staging authorised; final certificate records observed SHA/runs |
+| 27 staging commit/push | PASS implementation push | only origin/staging; implementation certificate below; final delivery SHA checked in response |
 
 A real preexisting Section 3 timing defect was found by the graph delegation
 journey: an omitted effective date was defaulted to now+1 second, causing an
@@ -171,10 +171,10 @@ databases, real disk-backed JetStream and a dedicated Redis 8.8 instance:
 
 | Command / check | Result |
 |---|---|
-| go test -json -p 2 -count=1 -timeout=15m ./services/business-operations-service/... | 119 test/subtest results PASS, 56 top-level tests, 0 FAIL, 0 SKIP |
+| go test -json -p 2 -count=1 -timeout=15m ./services/business-operations-service/... | 120 test/subtest results PASS, 57 top-level tests, 0 FAIL, 0 SKIP |
 | go test ./shared/go/... (combined isolated run) | 140 tests PASS, 0 FAIL/SKIP |
 | go test ./gateway/api-gateway/... with CF_TEST_REDIS_ADDR | 24 tests PASS, 0 FAIL/SKIP |
-| targeted reviewed move/descendant revision/common-area checks | PASS after final added assertions |
+| targeted reviewed move/descendant revision/common-area/atomic portfolio transfer checks | PASS after final added assertions |
 | gofmt, go vet ./..., staticcheck ./..., go mod tidy | PASS; no module dependency change |
 | sqlc generate and sqlc diff -f sql/sqlc.yaml | PASS |
 | architecture self-test, architecture and Business boundaries scripts | PASS |
@@ -186,8 +186,10 @@ The first combined Gateway run failed because CF_TEST_REDIS_ADDR was absent.
 A native disposable Redis process was then configured and all Gateway tests
 passed; no test was disabled. Native Windows Redis required its real executable
 and relative configuration path; unsuccessful setup attempts are not counted as
-passing evidence. Local Docker/CGO race execution is unavailable; Linux Actions
-runs the required race, full Backend matrix, image/container and security checks.
+passing evidence. Local Docker/CGO race execution is unavailable; Linux Actions executed the
+required race, full Backend matrix, image/container and security checks at cc29eeb.
+The final atomic-transfer correction adds one top-level test (120 local results);
+its final delivery SHA is independently rechecked in Actions.
 
 Executable journey mapping:
 
@@ -195,7 +197,7 @@ Executable journey mapping:
 |---|---|
 | 1 portfolio / 2 estate / 3 residential / 4 hotel / 5 commercial | TestBusinessEnterpriseCanonicalStructures: all 14 kinds plus three standalone property classes, nested APIs and context/typed-anchor checks |
 | 6 tenant/staff/branch isolation | TestBusinessInventoryTrustedScopeRevocationAndBranchIsolation; TestBusinessInventoryDatabaseIntegrityAndConcurrentEdits |
-| 7 hierarchy move | TestBusinessInventoryReviewedMoveVersionsAndImmutableHistory: SoD, exact review, retry, stale versions/descendants, immutable edge history |
+| 7 hierarchy move | TestBusinessInventoryReviewedMoveVersionsAndImmutableHistory: SoD, exact review, retry, stale versions/descendants, immutable edge history; AtomicReviewedPortfolioTransfer proves successful transfer and rollback of an invalid destination without losing the source membership |
 | 8 bulk import | PreviewResumeDedupeAndSafeRecovery; CSVGroupingValidationAndExplicitPartialExecution; StalePreviewPausesAndWorkersFenceConcurrentClaims; SessionRevocation |
 | 9 external IDs | TestBusinessInventoryExternalMappingNamespacesAndCollision; exact import replay retains canonical identities |
 | 10 verification/Media | AuthoritativeVerificationActivationAndExpiry; MediaOwnershipAccessAndConfirmedSpaces; signed Media adapter contract |
@@ -238,7 +240,7 @@ certification are deliberately separate.
 
 | Area | Current certificate |
 |---|---|
-| Sections 1–3 regression | PASS local; final Linux Backend/CI certificate pending |
+| Sections 1–3 regression | PASS local and complete cc29eeb Linux Backend certificate |
 | Graph / hierarchy / property identity / scoped CRUD | PASS executable tests |
 | Lifecycle / approval / restructuring / audit | PASS fail-closed framework |
 | Import preview / execution / resume / dedupe / safe recovery | PASS executable tests |
@@ -246,9 +248,55 @@ certification are deliberately separate.
 | Events / outbox / recovery | PASS real disposable JetStream |
 | Verification / capacity / Media | PASS contract/control tests; live PARTIAL |
 | OpenAPI / Postman / route drift | PASS |
-| Security / concurrency | PASS local; Linux race/container/security pending Actions |
-| Final pushed CI / immutable image digest | pending observed execution certificate |
+| Security / concurrency | PASS local and cc29eeb Linux race/container/security |
+| Implementation CI / immutable image digest | PASS cc29eeb certificate below; final delivery SHA/digest independently checked in response |
 | Actual staging rollout / real database/provider connection | PARTIAL / NOT EXECUTED: operator dependencies above |
 
 Overall live operational status remains **PARTIAL** until the external operator
 and provider checks succeed. No scaffold is counted as executable completion.
+
+## Executed implementation CI certificate
+
+Observed **2026-10-31 04:46 UTC** for
+`cc29eebb8f2d265d2636b0b68347c4e7c07c16cd`:
+
+| Required workflow | Result / evidence |
+|---|---|
+| Backend | [41169209592](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209592) PASS: all 20 jobs successful, zero skipped jobs, including Individual Owner, Payment and final process-level foundation E2E |
+| Architecture structure | [41169209607](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209607) PASS |
+| Contracts | [41169209645](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209645) PASS, generated drift/examples, OpenAPI, schema metaschemas and Postman |
+| Security | [41169209590](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209590) PASS, complete-history/working-tree Gitleaks, configured govulncheck and IaC scans |
+| Images | [41169209593](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209593) PASS, all components and immutable digest artifact |
+
+Business Linux race job [124443302007](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209592/job/124443302007),
+artifact `backend-tests-7`: **119 test/subtest results PASS, 56 top-level tests,
+0 FAIL, 0 SKIP**, using PostgreSQL 16 and real disk-backed JetStream. This count
+precedes the final atomic portfolio-transfer test; the complete local delivery
+rerun has **120 PASS / 57 top-level / 0 FAIL / 0 SKIP**. Conditional infrastructure
+steps that do not apply to a component do not substitute for required tests.
+
+Business image job [124443302024](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41169209593/job/124443302024)
+executed the actual Gateway/Redis and non-root API/worker/migration containers,
+fresh/repeated migrations and runtime grants, registration/login/TOTP,
+property/unit creation, CSV preview and committed import across worker restart,
+signed Notification acceptance, broker outage/recovery, health/readiness and
+SIGTERM. Trivy: **0 fixable HIGH / 0 CRITICAL** under the existing scan policy.
+The provider in this certificate is a signed contract fake, not live delivery.
+
+Certified implementation image:
+
+`ghcr.io/cosmicforgehealthnet/cosmicforge-realestate/business-operations-service@sha256:ce45c0e440ecb2a91321f19bc0084a9c00ecf89522c562f91282c9fc28f84ba5`
+
+Closing review adds an atomic reviewed portfolio-membership replacement to the
+existing relationship command (both old/new scopes and subtree versions, source
+edge restored on insertion failure), and corrects Postman domain codes that had
+been overwritten by the MFA OTP variable. No additional route or future-domain
+execution is introduced. The final delivery commit includes those corrections
+and this evidence. Its full five-workflow status and its own image digest are
+observed separately and recorded in the delivery response; a new build embeds
+its own commit and must not reuse this older digest as evidence for another SHA.
+
+Final deployment re-audit still found **0 staging deployments, 0 self-hosted
+runners and 0 configured GitHub environments**. No live database/provider or
+staging rollout certification is claimed. After the final evidence push, the
+working tree is expected to contain only the original unrelated user files.

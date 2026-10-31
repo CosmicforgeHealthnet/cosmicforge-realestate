@@ -72,3 +72,11 @@ provider test case. Draft creation is not proof of KYB, operating-capacity,
 property-authority or downstream reservation/lease/sale dependency certification.
 The repository still has no preauthorised staging transport/environment; rollout
 and real connectivity remain operator-owned and unverified.
+
+Section 4 implementation certificate: all five workflows passed at `cc29eeb`
+(Backend 41169209592; Images 41169209593), including all 20 Backend jobs and the
+extended graph/import/container certificate. Implementation image digest:
+`sha256:ce45c0e440ecb2a91321f19bc0084a9c00ecf89522c562f91282c9fc28f84ba5`.
+The final delivery correction/evidence commit builds its own digest, verified
+separately in the delivery response. Neither image publication nor these tests
+establish an actual staging deployment.

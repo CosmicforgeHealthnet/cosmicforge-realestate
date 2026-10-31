@@ -2013,7 +2013,7 @@
     "idempotent": true,
     "step_up": true,
     "public": false,
-    "notes": "Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent."
+    "notes": "Typed MEMBERSHIP or ASSOCIATES only; CONTAINS changes use move. Independent approval binds the exact node/command; group membership never replaces a physical parent. Optional previous_parent_id + previous_parent_version atomically transfers a collection membership; both portfolio scopes and subtree revisions are required."
   },
   {
     "method": "GET",

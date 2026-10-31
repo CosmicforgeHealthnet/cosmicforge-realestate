@@ -176,3 +176,52 @@ func TestBusinessInventoryReviewedMoveVersionsAndImmutableHistory(t *testing.T) 
 		t.Fatalf("descendant revision bypass %d %s", status, raw)
 	}
 }
+
+func TestBusinessInventoryAtomicReviewedPortfolioTransfer(t *testing.T) {
+	h := newBusinessHTTP(t, nil)
+	owner, approver := h.user(), h.user()
+	h.secure(owner)
+	h.secure(approver)
+	h.join(approver, owner, []string{"approvals:decide", "inventory:approve"})
+	branch := h.inventoryBranch(owner)
+	groups := []portfolio.Node{}
+	for _, code := range []string{"SOURCE", "EXISTING", "DESTINATION"} {
+		groups = append(groups, h.inventoryNode(owner, "/portfolios", map[string]any{"branch_id": branch, "code": code, "name": code, "attributes": map[string]any{}}))
+	}
+	p := h.inventoryNode(owner, "/properties", map[string]any{"branch_id": branch, "portfolio_ids": []ids.ID{groups[0].ID, groups[1].ID}, "code": "TRANSFER", "name": "Transferred property", "attributes": map[string]any{}})
+	if status, raw := h.call(owner, "POST", "/approval-policies", map[string]any{"action": "INVENTORY_RESTRUCTURE", "risk": "HIGH", "scope_kind": "COMPANY", "levels": []map[string]any{{"capability": "inventory:approve", "count": 1, "require_mfa": true}}}, nil); status != 201 {
+		t.Fatalf("policy %d %s", status, raw)
+	}
+	for _, destination := range []int{1, 2} {
+		p, e := portfolio.Get(t.Context(), h.db.Pool, owner.registered.OrganisationID, p.ID)
+		if e != nil {
+			t.Fatal(e)
+		}
+		source, e := portfolio.Get(t.Context(), h.db.Pool, owner.registered.OrganisationID, groups[0].ID)
+		if e != nil {
+			t.Fatal(e)
+		}
+		target, e := portfolio.Get(t.Context(), h.db.Pool, owner.registered.OrganisationID, groups[destination].ID)
+		if e != nil {
+			t.Fatal(e)
+		}
+		command := map[string]any{"version": p.Version, "tree_version": p.TreeVersion, "parent_id": target.ID, "parent_version": target.TreeVersion, "previous_parent_id": source.ID, "previous_parent_version": source.TreeVersion, "relation": "MEMBERSHIP", "remove": false, "reason": "Atomic reviewed transfer retaining independent memberships"}
+		approval := h.inventoryApproval(owner, approver, p, command, "INVENTORY_RESTRUCTURE")
+		command["approval_id"] = approval
+		status, raw := h.call(owner, "POST", "/inventory-nodes/"+p.ID.String()+"/relationships", command, nil)
+		want := 200
+		if destination == 1 {
+			want = 409
+		}
+		if status != want {
+			t.Fatalf("transfer %d want %d %s", status, want, raw)
+		}
+		var oldCount, newCount, total int
+		if e = h.db.Pool.QueryRow(t.Context(), `SELECT count(*) FILTER(WHERE parent_id=$3),count(*) FILTER(WHERE parent_id=$4),count(*) FROM inventory_edges WHERE organisation_id=$1 AND child_id=$2 AND relation='MEMBERSHIP'`, owner.registered.OrganisationID, p.ID, source.ID, target.ID).Scan(&oldCount, &newCount, &total); e != nil {
+			t.Fatal(e)
+		}
+		if total != 2 || newCount != 1 || (destination == 1 && oldCount != 1) || (destination == 2 && oldCount != 0) {
+			t.Fatalf("non-atomic transfer old=%d new=%d total=%d", oldCount, newCount, total)
+		}
+	}
+}

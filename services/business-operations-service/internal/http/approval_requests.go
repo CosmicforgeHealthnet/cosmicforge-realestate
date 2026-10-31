@@ -128,7 +128,7 @@ func normalizedOperation(operation any) (json.RawMessage, error) {
 		switch object := value.(type) {
 		case map[string]any:
 			if command, ok := object["command"].(map[string]any); ok && object["node_id"] != nil {
-				for _, key := range []string{"parent_id", "branch_id", "room_type_id", "expected_node_id"} {
+				for _, key := range []string{"parent_id", "previous_parent_id", "branch_id", "room_type_id", "expected_node_id"} {
 					if command[key] == nil || command[key] == ids.Nil.String() {
 						delete(command, key)
 					}

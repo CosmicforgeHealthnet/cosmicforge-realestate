@@ -45,7 +45,10 @@ INVENTORY_MAPPING_CHANGE, without the initial onboarding privilege exception.
 Both source/destination scopes and all affected physical descendants are checked.
 
 Moves preserve IDs, update physical context atomically, and record node plus edge
-history. Group membership changes do not physically move member properties.
+history. Group membership changes do not physically move member properties. Optional
+previous_parent_id/previous_parent_version on the relationship command atomically
+remove the reviewed old collection and add the reviewed destination; both scopes
+and subtree revisions are checked, and any insertion failure restores the old edge.
 Lifecycle is DRAFT -> ACTIVE -> INACTIVE/RETIRED, with permitted draft/inactive
 archival and explicit cascades. Activation requires current KYB, supported verified
 capacity, active physical parents/category and applicable current property/parcel

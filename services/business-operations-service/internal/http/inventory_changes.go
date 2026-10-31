@@ -43,14 +43,16 @@ type InventoryLifecycle struct {
 	ApprovalID  ids.ID `json:"approval_id,omitempty"`
 }
 type InventoryMembership struct {
-	TreeVersion   int64  `json:"tree_version"`
-	ParentVersion int64  `json:"parent_version"`
-	Version       int64  `json:"version"`
-	ParentID      ids.ID `json:"parent_id"`
-	Relation      string `json:"relation"`
-	Remove        bool   `json:"remove"`
-	Reason        string `json:"reason"`
-	ApprovalID    ids.ID `json:"approval_id"`
+	PreviousParentID      ids.ID `json:"previous_parent_id,omitempty"`
+	PreviousParentVersion int64  `json:"previous_parent_version,omitempty"`
+	TreeVersion           int64  `json:"tree_version"`
+	ParentVersion         int64  `json:"parent_version"`
+	Version               int64  `json:"version"`
+	ParentID              ids.ID `json:"parent_id"`
+	Relation              string `json:"relation"`
+	Remove                bool   `json:"remove"`
+	Reason                string `json:"reason"`
+	ApprovalID            ids.ID `json:"approval_id"`
 }
 
 func (h *Handler) registerInventoryChanges(r chi.Router) {
@@ -414,6 +416,10 @@ func (h *Handler) inventoryMembership(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.InvalidRequest("Use a valid grouping/association relationship and current version."))
 		return
 	}
+	if !in.PreviousParentID.IsZero() && (in.PreviousParentID.ValidateV7() != nil || in.PreviousParentVersion < 1 || in.Remove || in.Relation != "MEMBERSHIP" || in.PreviousParentID == in.ParentID) {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("A portfolio transfer requires distinct current source/destination portfolios and their subtree versions."))
+		return
+	}
 	command := in
 	command.ApprovalID = ids.Nil
 	operation := inventoryOperation(n.ID, command)
@@ -444,6 +450,18 @@ func (h *Handler) inventoryMembership(w http.ResponseWriter, r *http.Request) {
 		if !portfolio.LegalEdge(parent.Kind, n.Kind, in.Relation) {
 			return 0, nil, apperrors.InvalidRequest("Invalid grouping/association types.")
 		}
+		if !in.PreviousParentID.IsZero() {
+			previous, e := portfolio.Get(ctx, tx, t.Organisation, in.PreviousParentID)
+			if e != nil {
+				return 0, nil, e
+			}
+			if previous.Kind != portfolio.Portfolio || previous.TreeVersion != in.PreviousParentVersion {
+				return 0, nil, apperrors.Conflict("SOURCE_COLLECTION_CHANGED", "Source portfolio changed since review.")
+			}
+			if _, _, e = h.authorize(ctx, tx, "inventory:restructure", string(previous.Kind), previous.ID, true); e != nil {
+				return 0, nil, e
+			}
+		}
 		current, e := portfolio.Get(ctx, tx, t.Organisation, n.ID)
 		if e != nil {
 			return 0, nil, e
@@ -460,6 +478,15 @@ func (h *Handler) inventoryMembership(w http.ResponseWriter, r *http.Request) {
 		}
 		if tag.RowsAffected() != 1 {
 			return 0, nil, apperrors.Conflict("VERSION_CONFLICT", "Inventory version changed.")
+		}
+		if !in.PreviousParentID.IsZero() {
+			count, e := portfolio.RemoveEdges(ctx, tx, t.Organisation, in.PreviousParentID, n.ID, "MEMBERSHIP", t.Account)
+			if e != nil {
+				return 0, nil, e
+			}
+			if count != 1 {
+				return 0, nil, apperrors.Conflict("SOURCE_MEMBERSHIP_CHANGED", "Source portfolio no longer contains this identity.")
+			}
 		}
 		if in.Remove {
 			count, removeErr := portfolio.RemoveEdges(ctx, tx, t.Organisation, in.ParentID, n.ID, in.Relation, t.Account)
