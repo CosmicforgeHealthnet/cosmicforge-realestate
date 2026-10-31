@@ -41138,10 +41138,15 @@
               },
               "example": {
                 "pool_id": "019a5fb0-0000-7000-8000-000000000001",
-                "date_from": "example",
-                "date_to": "example",
-                "expected_versions": {},
-                "reason": "example"
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
+                "capacity": 1,
+                "blocked": 0,
+                "expected_versions": {
+                  "2027-01-02": 0,
+                  "2027-01-03": 0
+                },
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -41988,7 +41993,9 @@
               },
               "example": {
                 "version": 1,
-                "reason": "example"
+                "state": "ACTIVE",
+                "reason": "Independent commercial evidence and current versions reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -43512,10 +43519,10 @@
                 "quote_id": "019a5fb0-0000-7000-8000-000000000001",
                 "product_version": 1,
                 "pool_version": 1,
-                "date_from": "example",
-                "date_to": "example",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
                 "quantity": 1,
-                "duration_seconds": 1
+                "duration_seconds": 120
               }
             }
           }
@@ -44139,7 +44146,8 @@
               },
               "example": {
                 "version": 1,
-                "reason": "example"
+                "duration_seconds": 120,
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -44353,7 +44361,8 @@
               },
               "example": {
                 "version": 1,
-                "reason": "example"
+                "duration_seconds": 120,
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -44928,12 +44937,12 @@
               "example": {
                 "pool_id": "019a5fb0-0000-7000-8000-000000000001",
                 "pool_version": 1,
-                "channel": "example",
-                "date_from": "example",
-                "date_to": "example",
+                "channel": "COSMICFORGE_MARKETPLACE",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
                 "quantity": 1,
-                "release_at": "2026-10-30T12:00:00Z",
-                "reason": "example"
+                "release_at": "2027-01-01T00:00:00Z",
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -45337,16 +45346,16 @@
                 "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                 "connection_id": "019a5fb0-0000-7000-8000-000000000001",
                 "receipt": {
-                  "provider_event_id": "example",
-                  "external_object_id": "example",
-                  "external_version": "example",
-                  "kind": "example",
-                  "occurred_at": "2026-10-30T12:00:00Z",
+                  "provider_event_id": "provider-delivery-reference",
+                  "external_object_id": "external-reservation-reference",
+                  "external_version": "v1",
+                  "kind": "RESERVATION_CREATED",
+                  "occurred_at": "2026-10-01T00:00:00Z",
                   "product_id": "019a5fb0-0000-7000-8000-000000000001",
-                  "date_from": "example",
-                  "date_to": "example",
+                  "date_from": "2027-01-02",
+                  "date_to": "2027-01-04",
                   "quantity": 1,
-                  "reference": "example"
+                  "reference": "opaque-provider-source-reference"
                 }
               }
             }
@@ -45533,16 +45542,16 @@
               "example": {
                 "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                 "connection_id": "019a5fb0-0000-7000-8000-000000000001",
-                "period_from": "example",
-                "period_to": "example",
+                "period_from": "2026-10-29",
+                "period_to": "2026-10-31",
                 "input": {
-                  "component": "example",
-                  "amount_minor": 1,
-                  "currency": "example",
-                  "source_service": "example",
-                  "source_reference": "example",
-                  "observed_at": "2026-10-30T12:00:00Z",
-                  "expires_at": "2026-10-30T12:00:00Z",
+                  "component": "GROSS_REVENUE",
+                  "amount_minor": 20000,
+                  "currency": "NGN",
+                  "source_service": "payment-service",
+                  "source_reference": "reconciled-period-source-reference",
+                  "observed_at": "2026-10-31T00:00:00Z",
+                  "expires_at": "2026-11-15T00:00:00Z",
                   "reconciled": true
                 }
               }
@@ -45766,16 +45775,16 @@
                 "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
                 "connection_id": "019a5fb0-0000-7000-8000-000000000001",
                 "receipt": {
-                  "provider_event_id": "example",
-                  "external_object_id": "example",
-                  "external_version": "example",
-                  "kind": "example",
-                  "occurred_at": "2026-10-30T12:00:00Z",
+                  "provider_event_id": "provider-delivery-reference",
+                  "external_object_id": "external-reservation-reference",
+                  "external_version": "v1",
+                  "kind": "RESERVATION_CREATED",
+                  "occurred_at": "2026-10-01T00:00:00Z",
                   "product_id": "019a5fb0-0000-7000-8000-000000000001",
-                  "date_from": "example",
-                  "date_to": "example",
+                  "date_from": "2027-01-02",
+                  "date_to": "2027-01-04",
                   "quantity": 1,
-                  "reference": "example"
+                  "reference": "opaque-provider-source-reference"
                 }
               }
             }
@@ -45979,8 +45988,8 @@
               },
               "example": {
                 "version": 1,
-                "key_base64": "example",
-                "reason": "example",
+                "key_base64": "{{business_key_base64}}",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -46966,7 +46975,7 @@
               },
               "example": {
                 "version": 1,
-                "state": "ACTIVE",
+                "state": "SUSPENDED",
                 "reason": "Verified prerequisites independently reviewed"
               }
             }
@@ -47179,8 +47188,8 @@
               },
               "example": {
                 "version": 1,
-                "credential_reference": "example",
-                "reason": "example",
+                "credential_reference": "vault:business/channel/credential-reference",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -47576,9 +47585,9 @@
               },
               "example": {
                 "preview_id": "019a5fb0-0000-7000-8000-000000000001",
-                "digest": "example",
+                "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "version": 1,
-                "reason": "example",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -48185,7 +48194,7 @@
                 "mode": "MANUAL_OVERRIDE",
                 "value": "Reviewed channel title",
                 "source_reference": "operator:review-42",
-                "expires_at": "2026-12-01T12:00:00Z",
+                "expires_at": "2026-11-15T12:00:00Z",
                 "version": 0,
                 "reason": "Apply independently reviewed channel text",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
@@ -48579,25 +48588,25 @@
                 "$ref": "#/components/schemas/CommercialContentOverride"
               },
               "example": {
-                "version": 1,
+                "version": 0,
                 "content": {
-                  "title": "example",
-                  "description": "example",
-                  "language": "example",
+                  "title": "Verified apartment accommodation",
+                  "description": "Reviewed canonical property description and amenities for the published accommodation offer.",
+                  "language": "en-NG",
                   "amenities": [
-                    "example"
+                    "WIFI"
                   ],
                   "house_rules": [
-                    "example"
+                    "No smoking"
                   ],
-                  "check_in_local": "example",
-                  "check_out_local": "example",
+                  "check_in_local": "15:00",
+                  "check_out_local": "11:00",
                   "media_link_ids": [
                     "019a5fb0-0000-7000-8000-000000000001"
                   ]
                 },
-                "expires_at": "2026-10-30T12:00:00Z",
-                "reason": "example",
+                "expires_at": "2026-11-15T00:00:00Z",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -50400,12 +50409,12 @@
                 "$ref": "#/components/schemas/CommercialCommissionCommand"
               },
               "example": {
-                "currency": "example",
-                "commission_bps": 1,
-                "fixed_minor": 1,
-                "effective_at": "2026-10-30T12:00:00Z",
-                "source_reference": "example",
-                "reason": "example",
+                "currency": "NGN",
+                "commission_bps": 1200,
+                "fixed_minor": 0,
+                "effective_at": "2026-10-01T00:00:00Z",
+                "source_reference": "provider-contract-reference:v1",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -51400,15 +51409,16 @@
                 "$ref": "#/components/schemas/CommercialTemplateCommand"
               },
               "example": {
-                "name": "example",
+                "name": "Reviewed accommodation template",
                 "definition": {
                   "required_fields": [
-                    "example"
+                    "description",
+                    "media"
                   ],
-                  "minimum_quality": 1,
-                  "language": "example"
+                  "minimum_quality": 80,
+                  "language": "en-NG"
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -51619,15 +51629,17 @@
                 "$ref": "#/components/schemas/CommercialTemplateCommand"
               },
               "example": {
-                "name": "example",
+                "name": "Reviewed accommodation template",
                 "definition": {
                   "required_fields": [
-                    "example"
+                    "description",
+                    "media"
                   ],
-                  "minimum_quality": 1,
-                  "language": "example"
+                  "minimum_quality": 80,
+                  "language": "en-NG"
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed",
+                "version": 1
               }
             }
           }
@@ -52097,22 +52109,22 @@
                 "product_id": "019a5fb0-0000-7000-8000-000000000001",
                 "property_version": 1,
                 "content": {
-                  "title": "example",
-                  "description": "example",
-                  "language": "example",
+                  "title": "Verified apartment accommodation",
+                  "description": "Reviewed canonical property description and amenities for the published accommodation offer.",
+                  "language": "en-NG",
                   "amenities": [
-                    "example"
+                    "WIFI"
                   ],
                   "house_rules": [
-                    "example"
+                    "No smoking"
                   ],
-                  "check_in_local": "example",
-                  "check_out_local": "example",
+                  "check_in_local": "15:00",
+                  "check_out_local": "11:00",
                   "media_link_ids": [
                     "019a5fb0-0000-7000-8000-000000000001"
                   ]
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -52559,22 +52571,23 @@
                 "product_id": "019a5fb0-0000-7000-8000-000000000001",
                 "property_version": 1,
                 "content": {
-                  "title": "example",
-                  "description": "example",
-                  "language": "example",
+                  "title": "Verified apartment accommodation",
+                  "description": "Reviewed canonical property description and amenities for the published accommodation offer.",
+                  "language": "en-NG",
                   "amenities": [
-                    "example"
+                    "WIFI"
                   ],
                   "house_rules": [
-                    "example"
+                    "No smoking"
                   ],
-                  "check_in_local": "example",
-                  "check_out_local": "example",
+                  "check_in_local": "15:00",
+                  "check_out_local": "11:00",
                   "media_link_ids": [
                     "019a5fb0-0000-7000-8000-000000000001"
                   ]
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed",
+                "version": 1
               }
             }
           }
@@ -53419,9 +53432,9 @@
                 "pool_version": 1,
                 "rate_plan_version": 1,
                 "connection_id": "019a5fb0-0000-7000-8000-000000000001",
-                "date_from": "example",
-                "date_to": "example",
-                "reason": "example",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -54538,29 +54551,30 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "name": "example",
-                "kind": "example",
-                "date_from": "example",
-                "date_to": "example",
+                "name": "Flexible accommodation",
+                "kind": "REFUNDABLE",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
                 "definition": {
-                  "currency": "example",
-                  "amount_minor": 1,
-                  "included_adults": 1,
-                  "extra_adult_minor": 1,
-                  "child_minor": 1,
+                  "currency": "NGN",
+                  "amount_minor": 10000,
+                  "included_adults": 2,
+                  "extra_adult_minor": 1500,
+                  "child_minor": 500,
                   "min_guests": 1,
-                  "max_guests": 1,
+                  "max_guests": 4,
                   "min_nights": 1,
-                  "max_nights": 1,
-                  "cancellation_reference": "example",
-                  "prepayment_reference": "example",
-                  "policy_code": "example",
+                  "max_nights": 30,
+                  "cancellation_reference": "FLEXIBLE-24H:v1",
+                  "prepayment_reference": "PAYMENT-TERMS:v1",
+                  "policy_code": "STANDARD",
                   "policy_version": 1,
-                  "floor_minor": 1,
-                  "ceiling_minor": 1,
-                  "max_change_bps": 1
+                  "floor_minor": 1000,
+                  "ceiling_minor": 20000,
+                  "max_change_bps": 1000,
+                  "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001"
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -54986,7 +55000,9 @@
               },
               "example": {
                 "version": 1,
-                "reason": "example"
+                "state": "ACTIVE",
+                "reason": "Independent commercial evidence and current versions reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -55886,24 +55902,12 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "date_from": "example",
-                "date_to": "example",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
                 "definition": {
-                  "stop_sell": true,
-                  "closed_to_arrival": true,
-                  "closed_to_departure": true,
-                  "min_nights": 1,
-                  "max_nights": 1,
-                  "min_advance_days": 1,
-                  "max_advance_days": 1,
-                  "cutoff_local": "example",
-                  "min_guests": 1,
-                  "max_guests": 1,
-                  "weekdays": [
-                    1
-                  ]
+                  "stop_sell": true
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -56126,8 +56130,9 @@
               },
               "example": {
                 "version": 1,
-                "state": "ACTIVE",
-                "reason": "Verified prerequisites independently reviewed"
+                "state": "REVOKED",
+                "reason": "Verified prerequisites independently reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -56582,31 +56587,29 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "code": "example",
+                "code": "ADVANCE-10",
                 "definition": {
-                  "currency": "example",
+                  "currency": "NGN",
                   "discount": {
-                    "kind": "example"
+                    "kind": "PERCENT",
+                    "basis_points": -1000,
+                    "amount_minor": 0
                   },
-                  "max_discount_bps": 1,
-                  "max_discount_minor": 1,
-                  "date_from": "example",
-                  "date_to": "example",
-                  "effective_at": "2026-10-30T12:00:00Z",
-                  "expires_at": "2026-10-30T12:00:00Z",
+                  "max_discount_bps": 1000,
+                  "max_discount_minor": 5000,
+                  "date_from": "2027-01-02",
+                  "date_to": "2027-01-04",
+                  "effective_at": "2026-10-01T00:00:00Z",
+                  "expires_at": "2027-02-01T00:00:00Z",
                   "min_nights": 1,
-                  "max_nights": 1,
-                  "channels": [
-                    "example"
-                  ],
-                  "rate_plan_ids": [
-                    "019a5fb0-0000-7000-8000-000000000001"
-                  ],
-                  "stackable": true,
-                  "priority": 1,
-                  "policy_reference": "example"
+                  "max_nights": 30,
+                  "channels": [],
+                  "rate_plan_ids": [],
+                  "stackable": false,
+                  "priority": 10,
+                  "policy_reference": "ADVANCE-PROMOTION:v1"
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -56836,7 +56839,8 @@
               "example": {
                 "version": 1,
                 "state": "ACTIVE",
-                "reason": "Verified prerequisites independently reviewed"
+                "reason": "Verified prerequisites independently reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -57259,15 +57263,15 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "name": "example",
+                "name": "Optional breakfast reference",
                 "definition": {
-                  "currency": "example",
-                  "amount_minor": 1,
+                  "currency": "NGN",
+                  "amount_minor": 2000,
                   "per_night": true,
-                  "max_quantity": 1,
-                  "execution_reference": "example"
+                  "max_quantity": 4,
+                  "execution_reference": "FUTURE_HOSPITALITY_FULFILMENT_REQUIRED"
                 },
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -57481,7 +57485,8 @@
               "example": {
                 "version": 1,
                 "state": "ACTIVE",
-                "reason": "Verified prerequisites independently reviewed"
+                "reason": "Verified prerequisites independently reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -57939,21 +57944,21 @@
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
                 "product_id": "019a5fb0-0000-7000-8000-000000000001",
-                "name": "example",
+                "name": "Two-night package",
                 "definition": {
-                  "max_discount_minor": 1,
-                  "max_discount_bps": 1,
-                  "allow_promotions": true,
-                  "currency": "example",
+                  "currency": "NGN",
                   "discount": {
-                    "kind": "example"
+                    "kind": "PERCENT",
+                    "basis_points": -1000,
+                    "amount_minor": 0
                   },
-                  "min_nights": 1,
-                  "max_nights": 1,
-                  "channels": [
-                    "example"
-                  ],
-                  "policy_reference": "example"
+                  "max_discount_bps": 1000,
+                  "max_discount_minor": 5000,
+                  "allow_promotions": false,
+                  "min_nights": 2,
+                  "max_nights": 30,
+                  "channels": [],
+                  "policy_reference": "PACKAGE:v1"
                 },
                 "components": [
                   {
@@ -57961,7 +57966,7 @@
                     "quantity": 1
                   }
                 ],
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -58184,7 +58189,8 @@
               "example": {
                 "version": 1,
                 "state": "ACTIVE",
-                "reason": "Verified prerequisites independently reviewed"
+                "reason": "Verified prerequisites independently reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }
@@ -58991,13 +58997,18 @@
                 "$ref": "#/components/schemas/CommercialBulkRateCommand"
               },
               "example": {
-                "plan_versions": {},
-                "date_from": "example",
-                "date_to": "example",
-                "adjustment": {
-                  "kind": "example"
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "plan_versions": {
+                  "019a5fb0-0000-7000-8000-000000000001": 1
                 },
-                "reason": "example"
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
+                "adjustment": {
+                  "kind": "PERCENT",
+                  "basis_points": 500,
+                  "amount_minor": 0
+                },
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -59271,9 +59282,9 @@
               "example": {
                 "preview_id": "019a5fb0-0000-7000-8000-000000000001",
                 "version": 1,
-                "snapshot_digest": "example",
+                "snapshot_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001",
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -59547,7 +59558,7 @@
               "example": {
                 "command_id": "019a5fb0-0000-7000-8000-000000000001",
                 "version": 1,
-                "reason": "example"
+                "reason": "Independent commercial evidence and current versions reviewed"
               }
             }
           }
@@ -60260,30 +60271,17 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "currency": "example",
+                "currency": "NGN",
                 "definition": {
-                  "display_mode": "example",
-                  "taxes": [
-                    {
-                      "code": "example",
-                      "basis_points": 1,
-                      "included": true
-                    }
-                  ],
-                  "fees": [
-                    {
-                      "code": "example",
-                      "amount_minor": 1,
-                      "per_night": true,
-                      "included": true
-                    }
-                  ],
-                  "fiscal_reference": "example",
+                  "display_mode": "INCLUSIVE",
+                  "taxes": [],
+                  "fees": [],
+                  "fiscal_reference": "operator-approved-explicit-zero-tax:v1",
                   "policy_version": 1
                 },
-                "source_reference": "example",
-                "effective_at": "2026-10-30T12:00:00Z",
-                "reason": "example",
+                "source_reference": "approved-fiscal-policy-reference",
+                "effective_at": "2026-10-01T00:00:00Z",
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -60670,12 +60668,12 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "currency": "example",
-                "precision_digits": 1,
-                "rounding": "example",
-                "source_reference": "example",
-                "version": 1,
-                "reason": "example",
+                "currency": "NGN",
+                "precision_digits": 2,
+                "rounding": "HALF_AWAY_FROM_ZERO",
+                "source_reference": "ISO4217:NGN",
+                "version": 0,
+                "reason": "Independent commercial evidence and current versions reviewed",
                 "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
@@ -61089,9 +61087,9 @@
               },
               "example": {
                 "property_id": "019a5fb0-0000-7000-8000-000000000001",
-                "reason": "example",
-                "source_reference": "example",
-                "effective_at": "2026-10-30T12:00:00Z"
+                "reason": "Independent commercial evidence and current versions reviewed",
+                "source_reference": "internal-compliance-case-reference",
+                "effective_at": "2026-10-01T00:00:00Z"
               }
             }
           }
@@ -61300,7 +61298,8 @@
               "example": {
                 "version": 1,
                 "state": "ACTIVE",
-                "reason": "Verified prerequisites independently reviewed"
+                "reason": "Verified prerequisites independently reviewed",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001"
               }
             }
           }

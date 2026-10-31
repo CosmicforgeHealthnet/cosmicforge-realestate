@@ -1,0 +1,347 @@
+{
+  "implementation_sha": "cd03e9e19886ae762451334961279428a2870b62",
+  "branch": "staging",
+  "business_race_tests": {
+    "passed": 152,
+    "failed": 0,
+    "skipped": 0,
+    "integration_seconds": 172.941,
+    "artifact": "backend-tests-7",
+    "run_id": 41209649373
+  },
+  "business_image_digest": "sha256:23a740645bbe1be8017aa84ca86404003d9caaf4def0224041fac9cce5bfdf09",
+  "schema_version": 7,
+  "live_staging_deployed": false,
+  "external_dependencies": [
+    "Verification operating-capacity assertion",
+    "Marketplace live supply consumer/readback",
+    "Section 9 reservation acceptance",
+    "OTA partner access/provider adapters/certification",
+    "Authorised staging deployment workflow/transport/secrets"
+  ],
+  "workflows": [
+    {
+      "conclusion": "success",
+      "id": 41209649302,
+      "jobs": [
+        {
+          "conclusion": "success",
+          "id": 124561765992,
+          "name": "structure",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649302/job/124561765992"
+        }
+      ],
+      "name": "Repository structure",
+      "sha": "cd03e9e19886ae762451334961279428a2870b62",
+      "status": "completed",
+      "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649302"
+    },
+    {
+      "conclusion": "success",
+      "id": 41209649337,
+      "jobs": [
+        {
+          "conclusion": "success",
+          "id": 124561766161,
+          "name": "secret scan (gitleaks, full history)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766161"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766289,
+          "name": "IaC / Dockerfile misconfiguration scan",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766289"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766349,
+          "name": "govulncheck (services/media-document-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766349"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766384,
+          "name": "govulncheck (shared/go)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766384"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766434,
+          "name": "govulncheck (services/verification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766434"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766446,
+          "name": "govulncheck (services/business-operations-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766446"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766450,
+          "name": "govulncheck (gateway/api-gateway)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766450"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766461,
+          "name": "govulncheck (services/individual-owner-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766461"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561766463,
+          "name": "govulncheck (services/notification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337/job/124561766463"
+        }
+      ],
+      "name": "Security",
+      "sha": "cd03e9e19886ae762451334961279428a2870b62",
+      "status": "completed",
+      "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337"
+    },
+    {
+      "conclusion": "success",
+      "id": 41209649345,
+      "jobs": [
+        {
+          "conclusion": "success",
+          "id": 124561766197,
+          "name": "validate",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649345/job/124561766197"
+        }
+      ],
+      "name": "Contracts",
+      "sha": "cd03e9e19886ae762451334961279428a2870b62",
+      "status": "completed",
+      "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649345"
+    },
+    {
+      "conclusion": "success",
+      "id": 41209649308,
+      "jobs": [
+        {
+          "conclusion": "success",
+          "id": 124561913881,
+          "name": "image (individual-owner-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561913881"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914005,
+          "name": "image (payment-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914005"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914020,
+          "name": "image (media-document-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914020"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914068,
+          "name": "image (api-gateway)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914068"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914080,
+          "name": "image (business-operations-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914080"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914162,
+          "name": "image (notification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914162"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561914255,
+          "name": "image (verification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124561914255"
+        },
+        {
+          "conclusion": "success",
+          "id": 124562699578,
+          "name": "image digests (deployment input)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308/job/124562699578"
+        }
+      ],
+      "name": "Images",
+      "sha": "cd03e9e19886ae762451334961279428a2870b62",
+      "status": "completed",
+      "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308"
+    },
+    {
+      "conclusion": "success",
+      "id": 41209649373,
+      "jobs": [
+        {
+          "conclusion": "success",
+          "id": 124561844027,
+          "name": "architecture",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844027"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844219,
+          "name": "lint (tests/e2e)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844219"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844228,
+          "name": "lint (services/payment-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844228"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844241,
+          "name": "test (services/business-operations-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844241"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844256,
+          "name": "sqlc generated code is current",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844256"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844257,
+          "name": "test (shared/go)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844257"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844271,
+          "name": "lint (services/individual-owner-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844271"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844279,
+          "name": "test (services/individual-owner-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844279"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844291,
+          "name": "test (services/media-document-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844291"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844294,
+          "name": "lint (shared/go)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844294"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844302,
+          "name": "lint (services/verification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844302"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844309,
+          "name": "lint (services/business-operations-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844309"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844316,
+          "name": "lint (gateway/api-gateway)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844316"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844325,
+          "name": "lint (services/notification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844325"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844326,
+          "name": "test (services/verification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844326"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844361,
+          "name": "test (gateway/api-gateway)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844361"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844364,
+          "name": "test (services/notification-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844364"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844385,
+          "name": "lint (services/media-document-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844385"
+        },
+        {
+          "conclusion": "success",
+          "id": 124561844549,
+          "name": "test (services/payment-service)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124561844549"
+        },
+        {
+          "conclusion": "success",
+          "id": 124563293362,
+          "name": "end-to-end (all foundation components as processes)",
+          "status": "completed",
+          "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373/job/124563293362"
+        }
+      ],
+      "name": "Backend",
+      "sha": "cd03e9e19886ae762451334961279428a2870b62",
+      "status": "completed",
+      "url": "https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373"
+    }
+  ]
+}

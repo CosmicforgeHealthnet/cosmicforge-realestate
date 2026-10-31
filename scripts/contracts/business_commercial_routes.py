@@ -173,3 +173,43 @@ def commercial_queries(handler):
       'channelProfitability':[('date_from','date',True),('date_to','date',True),('currency','string',True),('product_id','uuid',False),('rate_plan_id','uuid',False),('promotion_id','uuid',False)],
     }
     return sets.get(handler,[])
+
+
+def commercial_examples(uid):
+    """Domain-valid request shapes; real IDs/approvals/digests come from prior operations."""
+    reason='Independent commercial evidence and current versions reviewed'
+    start,end='2027-01-02','2027-01-04'
+    effective,expires='2026-10-01T00:00:00Z','2027-02-01T00:00:00Z'
+    rate={'currency':'NGN','amount_minor':10000,'included_adults':2,'extra_adult_minor':1500,'child_minor':500,'min_guests':1,'max_guests':4,'min_nights':1,'max_nights':30,'cancellation_reference':'FLEXIBLE-24H:v1','prepayment_reference':'PAYMENT-TERMS:v1','policy_code':'STANDARD','policy_version':1,'floor_minor':1000,'ceiling_minor':20000,'max_change_bps':1000,'tax_profile_id':uid}
+    tax={'display_mode':'INCLUSIVE','taxes':[],'fees':[],'fiscal_reference':'operator-approved-explicit-zero-tax:v1','policy_version':1}
+    content={'title':'Verified apartment accommodation','description':'Reviewed canonical property description and amenities for the published accommodation offer.','language':'en-NG','amenities':['WIFI'],'house_rules':['No smoking'],'check_in_local':'15:00','check_out_local':'11:00','media_link_ids':[uid]}
+    discount={'kind':'PERCENT','basis_points':-1000,'amount_minor':0}
+    return {
+      'CommercialRateCreate':{'property_id':uid,'name':'Flexible accommodation','kind':'REFUNDABLE','date_from':start,'date_to':end,'definition':rate,'reason':reason},
+      'CommercialRatePatch':{'version':1,'state':'ACTIVE','reason':reason,'approval_id':uid},
+      'CommercialTaxCreate':{'property_id':uid,'currency':'NGN','definition':tax,'source_reference':'approved-fiscal-policy-reference','effective_at':effective,'reason':reason,'approval_id':uid},
+      'CommercialCurrencyCommand':{'property_id':uid,'currency':'NGN','precision_digits':2,'rounding':'HALF_AWAY_FROM_ZERO','source_reference':'ISO4217:NGN','version':0,'reason':reason,'approval_id':uid},
+      'CommercialComplianceCreate':{'property_id':uid,'reason':reason,'source_reference':'internal-compliance-case-reference','effective_at':effective},
+      'CommercialCalendarCommand':{'pool_id':uid,'date_from':start,'date_to':end,'capacity':1,'blocked':0,'expected_versions':{start:0,'2027-01-03':0},'reason':reason},
+      'HoldCommand':{'product_id':uid,'quote_id':uid,'product_version':1,'pool_version':1,'date_from':start,'date_to':end,'quantity':1,'duration_seconds':120},
+      'CommercialHoldChange':{'version':1,'duration_seconds':120,'reason':reason},
+      'CommercialAllotmentCreate':{'pool_id':uid,'pool_version':1,'channel':'COSMICFORGE_MARKETPLACE','date_from':start,'date_to':end,'quantity':1,'release_at':'2027-01-01T00:00:00Z','reason':reason},
+      'CommercialProductPatch':{'version':1,'state':'ACTIVE','reason':reason,'approval_id':uid},
+      'CommercialRestrictionCreate':{'property_id':uid,'date_from':start,'date_to':end,'definition':{'stop_sell':True},'reason':reason},
+      'CommercialPromotionCreate':{'property_id':uid,'code':'ADVANCE-10','definition':{'currency':'NGN','discount':discount,'max_discount_bps':1000,'max_discount_minor':5000,'date_from':start,'date_to':end,'effective_at':effective,'expires_at':expires,'min_nights':1,'max_nights':30,'channels':[],'rate_plan_ids':[],'stackable':False,'priority':10,'policy_reference':'ADVANCE-PROMOTION:v1'},'reason':reason},
+      'CommercialAddOnCreate':{'property_id':uid,'name':'Optional breakfast reference','definition':{'currency':'NGN','amount_minor':2000,'per_night':True,'max_quantity':4,'execution_reference':'FUTURE_HOSPITALITY_FULFILMENT_REQUIRED'},'reason':reason},
+      'CommercialPackageCreate':{'property_id':uid,'product_id':uid,'name':'Two-night package','definition':{'currency':'NGN','discount':discount,'max_discount_bps':1000,'max_discount_minor':5000,'allow_promotions':False,'min_nights':2,'max_nights':30,'channels':[],'policy_reference':'PACKAGE:v1'},'components':[{'add_on_id':uid,'quantity':1}],'reason':reason},
+      'CommercialBulkRateCommand':{'property_id':uid,'plan_versions':{uid:1},'date_from':start,'date_to':end,'adjustment':{'kind':'PERCENT','basis_points':500,'amount_minor':0},'reason':reason},
+      'CommercialBulkApply':{'preview_id':uid,'version':1,'snapshot_digest':'a'*64,'approval_id':uid,'reason':reason},
+      'CommercialBulkRollback':{'command_id':uid,'version':1,'reason':reason},
+      'CommercialTemplateCommand':{'name':'Reviewed accommodation template','definition':{'required_fields':['description','media'],'minimum_quality':80,'language':'en-NG'},'reason':reason},
+      'CommercialListingCommand':{'property_id':uid,'product_id':uid,'property_version':1,'content':content,'reason':reason},
+      'CommercialContentOverride':{'version':0,'content':content,'expires_at':'2026-11-15T00:00:00Z','reason':reason,'approval_id':uid},
+      'CommercialPublishCommand':{'version':1,'listing_version_id':uid,'property_version':1,'product_version':1,'pool_version':1,'rate_plan_version':1,'connection_id':uid,'date_from':start,'date_to':end,'reason':reason,'approval_id':uid},
+      'CommercialWebhookKeyCommand':{'version':1,'key_base64':'{{business_key_base64}}','reason':reason,'approval_id':uid},
+      'CommercialChannelAuthorize':{'version':1,'credential_reference':'vault:business/channel/credential-reference','reason':reason,'approval_id':uid},
+      'CommercialMappingConfirm':{'preview_id':uid,'digest':'a'*64,'version':1,'reason':reason,'approval_id':uid},
+      'CommercialCommissionCommand':{'currency':'NGN','commission_bps':1200,'fixed_minor':0,'effective_at':effective,'source_reference':'provider-contract-reference:v1','reason':reason,'approval_id':uid},
+      'CommercialReceiptCommand':{'organisation_id':uid,'connection_id':uid,'receipt':{'provider_event_id':'provider-delivery-reference','external_object_id':'external-reservation-reference','external_version':'v1','kind':'RESERVATION_CREATED','occurred_at':effective,'product_id':uid,'date_from':start,'date_to':end,'quantity':1,'reference':'opaque-provider-source-reference'}},
+      'CommercialFinancialInputCommand':{'organisation_id':uid,'connection_id':uid,'period_from':'2026-10-29','period_to':'2026-10-31','input':{'component':'GROSS_REVENUE','amount_minor':20000,'currency':'NGN','source_service':'payment-service','source_reference':'reconciled-period-source-reference','observed_at':'2026-10-31T00:00:00Z','expires_at':'2026-11-15T00:00:00Z','reconciled':True}},
+    }

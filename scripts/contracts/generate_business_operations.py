@@ -259,7 +259,7 @@ for action in ('commit','pause','resume','cancel'):route('POST','/imports/{id}/'
 route('GET','/imports/{id}/recovery-plan','imports:read',res='ImportRecovery')
 route('POST','/imports/{id}/rollback','imports:write','ImportControl','RecoveryResult',200,True,True,notes='At most 20 reverse-order recovery actions per command. Repeat with new key/current version for further batches. Only unchanged never-active draft identities are restored/soft-archived. Changed versions, authority loss or acquired dependencies produce reconciliation tasks; mappings retain traceability, never delete valid data.')
 # Request examples are syntactically representative, not seeded demo records.
-from business_commercial_routes import register_commercial,commercial_queries
+from business_commercial_routes import register_commercial, commercial_examples,commercial_queries
 register_commercial(ROOT,S,route,obj,arr,ref,typ)
 
 def example(schema,depth=0):
@@ -331,8 +331,9 @@ EXAMPLES.update({
  'CommercialChannelCreate':{'property_id':UID,'provider_code':'COSMICFORGE_MARKETPLACE','provider_account_id':'operator-configured-provider-account','reason':'Configure a signed supply integration'},
  'CommercialMappingPreview':{'version':1,'entries':[{'kind':'PROPERTY','external_id':'external-property-42','canonical_id':UID,'canonical_version':1,'expected_mapping_version':0}],'reason':'Inspect actual provider object ownership before confirmation'},
  'CommercialConflictDecision':{'version':1,'action':'RECONCILE','reason':'Read back the immutable provider command after investigation','approval_id':UID},
- 'CommercialFieldAuthority':{'field':'title','mode':'MANUAL_OVERRIDE','value':'Reviewed channel title','source_reference':'operator:review-42','expires_at':'2026-12-01T12:00:00Z','version':0,'reason':'Apply independently reviewed channel text','approval_id':UID},
+ 'CommercialFieldAuthority':{'field':'title','mode':'MANUAL_OVERRIDE','value':'Reviewed channel title','source_reference':'operator:review-42','expires_at':'2026-11-15T12:00:00Z','version':0,'reason':'Apply independently reviewed channel text','approval_id':UID},
 })
+EXAMPLES.update(commercial_examples(UID))
 # Exclude implementation-only structs and ensure no dangling references.
 used=set()
 def include(s):
@@ -402,6 +403,11 @@ for r in R:
   if method=='POST' and path.endswith('/departments'):body['branch_id']=UID
   if method=='POST' and path.endswith('/teams'):body['department_id']=UID
   if method=='PATCH' and r['request']=='hierarchyCommand':body['version']=1
+  if r.get('handler') in ('templatePatch','listingPatch'):body['version']=1
+  if r.get('handler')=='complianceHoldRevoke':body['approval_id']=UID
+  if r.get('handler')=='restrictionPatch':body.update({'state':'REVOKED','approval_id':UID})
+  if r.get('handler')=='channelPatch':body['state']='SUSPENDED'
+  if r.get('handler') in ('promotionPatch','addOnPatch','packagePatch'):body['approval_id']=UID
   op['requestBody']={'required':True,'content':{'application/json':{'schema':ref(r['request']),'example':body}}}
  O['paths'].setdefault(path,{})[method.lower()]=op;include(op)
  rawurl='{{base_url}}'+re.sub(r'\{([^}]+)\}',lambda m:'{{business_'+m[1]+'}}',path)
@@ -451,6 +457,8 @@ for r in R:
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
  commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if response=='CommercialMappingPreviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_mapping_preview_id",body.data.preview_id);pm.environment.set("business_mapping_digest",body.data.digest);}')
+ if response=='CommercialBulkView':tests.append('if(pm.response.code<300){pm.environment.set("business_bulk_snapshot_digest",body.data.snapshot.digest);pm.environment.set("business_bulk_version",body.data.version);}')
  if response=='CommercialRateResult':tests.append('if(pm.response.code<300){pm.environment.set("business_rate_plan_id",body.data.rate_plan.id);if(body.data.rate_version)pm.environment.set("business_rate_version_id",body.data.rate_version.id);}')
  if response=='CommercialListingDetail':tests.append('if(pm.response.code<300){pm.environment.set("business_listing_id",body.data.listing.id);pm.environment.set("business_listing_version_id",body.data.current_version.id);}')
  if response=='QuoteSnapshot':tests.append('if(pm.response.code<300){pm.environment.set("business_quote_id",body.data.quote_id);pm.test("Quote is not a reservation",()=>pm.expect(body.data.is_reservation).to.eql(false));}')

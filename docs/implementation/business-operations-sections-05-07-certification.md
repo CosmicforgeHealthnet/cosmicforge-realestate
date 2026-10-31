@@ -10,17 +10,21 @@ Authoritative inputs: full v1.0 specification Sections 1–27 and Annexes D–J,
 
 ## Delivery evidence
 
-Initial implementation SHA: `0edf2adcd892ce7d0684720c121fec983e2a0bd9`. Its Repository structure, Contracts, Security and Images workflows passed; Business Operations Linux race tests passed **151/151**, with no skips/failures. Backend including all 20 jobs and process E2E also passed. The correction adds migration 00007, not a rewrite of migration 00006. Its local focused tests passed **24/24**. Final delivery SHA is the committed report revision and is independently checked in the delivery response; all five workflows must be verified for that SHA before final CI PASS.
+Runtime implementation SHA: **`cd03e9e19886ae762451334961279428a2870b62`**. All five required workflows and every required job passed. [Machine-readable workflow/job evidence](business-operations-sections-05-07-ci-evidence.json) records exact IDs, conclusions, source SHA, image and test counts. Final handoff/examples documentation is committed separately; its exact latest SHA and all five workflow results are independently verified in the delivery response. This report's revision is discoverable with `git log -1 --format=%H -- docs/implementation/business-operations-sections-05-07-certification.md`.
 
-| Initial implementation workflow | Run | Observed result |
+| Runtime implementation workflow | Run | Result |
 |---|---|---|
-| Repository structure | [41208841411](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841411) | PASS |
-| Contracts | [41208841440](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841440) | PASS |
-| Security | [41208841516](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841516) | PASS |
-| Images | [41208841526](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841526) | PASS |
-| Backend | [41208841404](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41208841404) | PASS (20 jobs, including process E2E) |
+| Repository structure | [41209649302](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649302) | PASS (1 job) |
+| Contracts | [41209649345](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649345) | PASS (1 job) |
+| Security | [41209649337](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649337) | PASS (9 jobs) |
+| Images | [41209649308](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649308) | PASS (8 jobs) |
+| Backend | [41209649373](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/41209649373) | PASS (20 jobs, including process E2E) |
 
-Initial implementation Business digest: `sha256:926301dc00a993e07ef918725e68ceef275334e80f6cfee8444d757b6407c824`. Images certified API/worker/migrator non-root startup, real PostgreSQL/NATS/Redis and Gateway processes, migration/runtime grants, health, restart/broker recovery and SIGTERM. Trivy image HIGH/CRITICAL fixed findings: 0. This initial digest is **not** the final correction's image and not evidence of deployment.
+Business race-enabled tests: **152 passed, 0 failed, 0 skipped**, integration package 172.941 s, durable artifact `backend-tests-7`. This includes Sections 1–4 regression tests and the final credential authority test. Schema version **7** passed fresh/repeated migration, populated upgrade, SQLC and actual runtime-grant/container checks.
+
+Runtime implementation Business digest: `sha256:23a740645bbe1be8017aa84ca86404003d9caaf4def0224041fac9cce5bfdf09`. Images certified API/worker/migrator non-root startup, real PostgreSQL/NATS/Redis and Gateway processes, migration/runtime grants, health, restart/broker recovery and SIGTERM. Trivy image HIGH/CRITICAL fixed findings: 0. The final handoff commit publishes its own independently verified digest. **Neither digest is evidence of deployment.**
+
+Initial implementation `0edf2adcd892ce7d0684720c121fec983e2a0bd9` also passed all five workflows, with 151 race tests. Two corrections were applied and recertified: per-connection credential grants in additive migration 00007 and canonical mapping/sync-history API conformance. No failing test was weakened and no unrelated service was rewritten.
 
 Live staging audit on 2026-10-31: GitHub repository environments `[]`, self-hosted runners count `0`, deployments `[]`. No staging deployment workflow or preauthorised runtime transport exists; only Images publication and staging Compose are present. The production promotion workflow was neither changed nor invoked. A published image is not a rollout. Actual staging DB/ACLs/secrets/provider connectivity, smoke and rollback are **PARTIAL / unverified**.
 
@@ -56,9 +60,9 @@ PASS below denotes implemented repository behavior verified with the listed disp
 | 23–24 pipeline and Section 3 scope/approval integration | PASS | canonical graph → reviewed content/price → durable distribution; self approval/revocation/amount and multitenant tests |
 | 25–26 public/private APIs and contract drift | PASS | 283 routes total, 95 added, 214 typed schemas; actual Chi walk vs OpenAPI/Postman; service-only intake isolated |
 | 27 events/workers/recovery | PASS | seven new versioned event types, shared outbox, increasing source checkpoints, existing scheduler; actual JetStream recovery/inbox dedupe |
-| 28–31 DB/domain/channel/security journeys | PASS | local service suite 150 tests passed (0 skipped); focused later reconciliation changes passed; initial Linux CI passed 151/151; corrected final source is verified separately |
+| 28–31 DB/domain/channel/security journeys | PASS | local service suite 150 tests passed (0 skipped); focused later reconciliation changes passed; corrected Linux CI passed 152/152, no skips/failures |
 | 32 local quality/architecture/vulnerability checks | PASS | gofmt, tidy, vet, staticcheck, architecture checks, Gateway routing; govulncheck: 0 reachable findings |
-| 32 secret scan / 34 Docker, race, Trivy and all five Actions | PARTIAL | candidate secret scan and initial Images/Trivy passed; initial Business race 151/151 passed; exact corrected-SHA CI pending |
+| 32 secret scan / 34 Docker, race, Trivy and all five Actions | PASS | Candidate and full-history secrets, all scans/images, 152 race tests, SQLC and all 20 Backend jobs passed at the certified runtime SHA; final handoff SHA verified separately |
 | 33 OpenAPI/Postman | PASS | generated schema-valid examples and handler drift gate; preserved old folders, new frontend/private folders |
 | 35 reports | PASS | three section reports, this certificate, full machine/human database catalogue, architecture/contract docs |
 | 36–39 live verification/capacity and staging | PARTIAL | authoritative CapacityAuthority operation is missing; runtime commercial activation remains 503/fail-closed; staging transport/secrets unverified |
@@ -87,13 +91,13 @@ PASS below denotes implemented repository behavior verified with the listed disp
 ## Executed commands and evidence boundaries
 
 - Go 1.26.10; PostgreSQL 18 at isolated loopback test cluster. Integration CI uses PostgreSQL 16 container. Tests create/drop unique databases. Disk-backed embedded real nats-server exercises actual JetStream.
-- `go test ./... -count=1 -json`: 150 passing test cases, no failures/skips; integration package 137.099 s. Later focused four-test run passed after the new collision test exposed and fixed nil channels; a further three-test run passed with explicit reviewed readback conflict resolution and signed publication/polling. Final source is certified again by Linux Backend CI with `go test -race -json -timeout=20m -count=1`.
+- `go test ./... -count=1 -json`: 150 passing test cases, no failures/skips; integration package 137.099 s. Later focused four-test run passed after the new collision test exposed and fixed nil channels; a further three-test run passed with explicit reviewed readback conflict resolution and signed publication/polling. Runtime source was certified again by Linux Backend CI with `go test -race -json -timeout=20m -count=1`.
 - `go mod tidy`, `go vet ./...`, `staticcheck ./...`; gateway `go test ./internal/routing -count=1`; architecture self-test/main and Business ownership script: passed locally.
 - SQLC generation `sqlc generate -f sql/sqlc.yaml`; generated drift is verified by Backend CI. Fresh/repeated Goose, populated graph/Owner upgrade and actual table/index checks execute in integration tests.
 - `python scripts/contracts/generate_business_operations.py --check --validate`, events/catalogue `--check`: 283 routes / 214 schemas, 40 event schemas, 279 table decisions. Actual handler walk checks private routes independently too.
 - `govulncheck ./...`: zero reachable vulnerabilities. Scanner also reports three non-reachable findings in required modules; do not equate these with executed vulnerable symbols.
-- Full local working-directory Gitleaks scan found 95 findings only in pre-existing ignored .env/Owner build output/tmp evidence, outside the commit candidate. Values were redacted, none read into reports or committed. Exported index scan: PASS, zero findings across 30.87 MB of actual candidate source. Full-history Actions scan remains to be verified below.
-- Local Docker/image/Trivy and CGO race execution are unavailable; exact Linux CI results must be observed before marking them PASS. No test was disabled or bypassed.
+- Full local working-directory Gitleaks scan found 95 findings only in pre-existing ignored .env/Owner build output/tmp evidence, outside the commit candidate. Values were redacted, none read into reports or committed. Exported index scan: PASS, zero findings across 30.87 MB of actual candidate source. Full-history and clean checkout Actions Gitleaks scans passed on the certified runtime SHA.
+- Local Docker/image/Trivy and CGO race execution are unavailable; the exact runtime Linux CI jobs executed them and passed. No test was disabled or bypassed.
 
 Local logs are temporary under the task's TEMP directory and are not committed (may contain request metadata). CI uploads are the durable source for full output/counts. Failed exploratory fixtures and local PostgreSQL restart/connection-startup failures were corrected/re-run; they are not passing evidence. Captured regressions fixed include JSONB-stable payload hashes, exact mapping capability names, nil channel arrays, current checkout restriction fencing, metadata-only last-sync version guards and poison cursor retention.
 
@@ -211,3 +215,11 @@ All public browser paths use `/api/v1/business`; the existing Gateway compatibil
 Connection authority hardening: forward-only migration `00007_channel_connection_authority.sql` persists the operation list from the signed provider credential proof. Every capability requires both provider certification and a grant to that particular connection. Existing connections default to no grants until real revalidation. `TestBusinessCommercialProviderCertificationCannotExpandCredentialAuthority` proves registry certification cannot authorize polling/webhook intake with a narrower credential. Current Goose schema version is **7**; migration 00006 remains unchanged.
 
 API conformance review retained all 188 baseline routes and aligned mapping confirmation with the required canonical `POST /api/v1/business/channels/{id}/mappings`; the additional `/mappings/preview` supplies its immutable reviewed digest. Persisted failure history is available at the scoped, paginated `/channels/{id}/sync-history` endpoint. No second mapping-confirm public API was retained.
+
+## Handoff and final certification
+
+Sections 5/7 repository workflows: PASS on verified disposable infrastructure. Section 6 producer, signed consumer contract, ARI, recovery, conflicts and source-backed reporting: PASS on explicit disposable provider contracts. Live operating-capacity/Marketplace/OTA/reservation acceptance and staging rollout: PARTIAL, with exact owner actions listed above. Future Section 8+ workflows: NOT APPLICABLE. All five runtime-SHA workflows: PASS; final handoff commit and image are checked separately before delivery.
+
+The official Postman collection preserves every original service and Business folder. Commercial examples now use exact currency/rate/fiscal policy shapes, real lifecycle/action names and bounded quantities; IDs, approvals, digests, secrets and current effective dates must come from the operator's actual environment. Empty taxes/fees demonstrate an explicitly approved zero-tax policy, not a jurisdictional default. Postman captures mapping/quote/bulk/listing/rate IDs and digests, and asserts that quotes/blocked receipts do not become reservations. OpenAPI and Postman share the deterministic generator and schema validation.
+
+Working tree after task commits retains only the user's unrelated Owner frontend/documentation changes; generated Python cache is removed at handoff. No main or production changes, no VPS access, no actual staging rollout.
