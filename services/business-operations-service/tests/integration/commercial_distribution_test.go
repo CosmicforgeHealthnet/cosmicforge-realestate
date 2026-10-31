@@ -185,7 +185,7 @@ func (c *commercialHarness) connectMarketplace(client distribution.Adapter) busi
 	}](c.t, c.must(c.owner, "POST", "/channels/"+conn.ID.String()+"/mappings/preview", businesshttp.CommercialMappingPreview{Version: conn.Version, Entries: entries, Reason: "Inspect canonical and provider object bindings"}, 201))
 	confirm := businesshttp.CommercialMappingConfirm{PreviewID: preview.ID, Digest: preview.Digest, Version: conn.Version, Reason: "Confirm independently reviewed provider object mappings"}
 	confirm.ApprovalID = c.approval("COMMERCIAL_CHANNEL_MAPPING_CHANGE", "channels:approve", distribution.Marketplace, nil, "", map[string]any{"connection_id": conn.ID, "command": confirm})
-	c.must(c.owner, "POST", "/channels/"+conn.ID.String()+"/mappings/confirm", confirm, 200)
+	c.must(c.owner, "POST", "/channels/"+conn.ID.String()+"/mappings", confirm, 200)
 	return commercialData[businesshttp.CommercialChannelConnection](c.t, c.must(c.owner, "GET", "/channels/"+conn.ID.String(), nil, 200))
 }
 func (c *commercialHarness) publishListing(conn businesshttp.CommercialChannelConnection) (businesshttp.CommercialListing, ids.ID) {

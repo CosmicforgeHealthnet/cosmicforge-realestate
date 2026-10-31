@@ -54,7 +54,7 @@ PASS below denotes implemented repository behavior verified with the listed disp
 | 21 contribution and explicit missingness | PASS | signed owning-source facts, period/hash/currency/freshness/reconciliation; exact contribution + missing input tests |
 | 22 optional provider capabilities | PASS | registry/contracts explicit unsupported/certification states; no fabricated messaging/reviews/payment execution |
 | 23–24 pipeline and Section 3 scope/approval integration | PASS | canonical graph → reviewed content/price → durable distribution; self approval/revocation/amount and multitenant tests |
-| 25–26 public/private APIs and contract drift | PASS | 282 routes total, 94 added, 213 typed schemas; actual Chi walk vs OpenAPI/Postman; service-only intake isolated |
+| 25–26 public/private APIs and contract drift | PASS | 283 routes total, 95 added, 214 typed schemas; actual Chi walk vs OpenAPI/Postman; service-only intake isolated |
 | 27 events/workers/recovery | PASS | seven new versioned event types, shared outbox, increasing source checkpoints, existing scheduler; actual JetStream recovery/inbox dedupe |
 | 28–31 DB/domain/channel/security journeys | PASS | local service suite 150 tests passed (0 skipped); focused later reconciliation changes passed; initial Linux CI passed 151/151; corrected final source is verified separately |
 | 32 local quality/architecture/vulnerability checks | PASS | gofmt, tidy, vet, staticcheck, architecture checks, Gateway routing; govulncheck: 0 reachable findings |
@@ -90,7 +90,7 @@ PASS below denotes implemented repository behavior verified with the listed disp
 - `go test ./... -count=1 -json`: 150 passing test cases, no failures/skips; integration package 137.099 s. Later focused four-test run passed after the new collision test exposed and fixed nil channels; a further three-test run passed with explicit reviewed readback conflict resolution and signed publication/polling. Final source is certified again by Linux Backend CI with `go test -race -json -timeout=20m -count=1`.
 - `go mod tidy`, `go vet ./...`, `staticcheck ./...`; gateway `go test ./internal/routing -count=1`; architecture self-test/main and Business ownership script: passed locally.
 - SQLC generation `sqlc generate -f sql/sqlc.yaml`; generated drift is verified by Backend CI. Fresh/repeated Goose, populated graph/Owner upgrade and actual table/index checks execute in integration tests.
-- `python scripts/contracts/generate_business_operations.py --check --validate`, events/catalogue `--check`: 282 routes / 213 schemas, 40 event schemas, 279 table decisions. Actual handler walk checks private routes independently too.
+- `python scripts/contracts/generate_business_operations.py --check --validate`, events/catalogue `--check`: 283 routes / 214 schemas, 40 event schemas, 279 table decisions. Actual handler walk checks private routes independently too.
 - `govulncheck ./...`: zero reachable vulnerabilities. Scanner also reports three non-reachable findings in required modules; do not equate these with executed vulnerable symbols.
 - Full local working-directory Gitleaks scan found 95 findings only in pre-existing ignored .env/Owner build output/tmp evidence, outside the commit candidate. Values were redacted, none read into reports or committed. Exported index scan: PASS, zero findings across 30.87 MB of actual candidate source. Full-history Actions scan remains to be verified below.
 - Local Docker/image/Trivy and CGO race execution are unavailable; exact Linux CI results must be observed before marking them PASS. No test was disabled or bypassed.
@@ -145,11 +145,12 @@ All public browser paths use `/api/v1/business`; the existing Gateway compatibil
 | POST | `/api/v1/business/channels/{id}/authorize` | `channels:credentials` | `CommercialChannelAuthorize` → `CommercialChannelConnection` | 200 | True |
 | GET | `/api/v1/business/channels/{id}/mappings` | `channels:read` | `—` → `CommercialMappingList` | 200 | False |
 | POST | `/api/v1/business/channels/{id}/mappings/preview` | `channels:mappings` | `CommercialMappingPreview` → `CommercialMappingPreviewResult` | 201 | True |
-| POST | `/api/v1/business/channels/{id}/mappings/confirm` | `channels:mappings` | `CommercialMappingConfirm` → `CommercialMappingResult` | 200 | True |
+| POST | `/api/v1/business/channels/{id}/mappings` | `channels:mappings` | `CommercialMappingConfirm` → `CommercialMappingResult` | 200 | True |
 | GET | `/api/v1/business/channels/{id}/field-authority` | `channels:read` | `—` → `CommercialRawList` | 200 | False |
 | GET | `/api/v1/business/channels/{id}/content-overrides` | `channels:read` | `—` → `CommercialRawList` | 200 | False |
 | PUT | `/api/v1/business/channels/{id}/field-authority` | `channels:override` | `CommercialFieldAuthority` → `CommercialFieldAuthorityResult` | 200 | True |
 | PUT | `/api/v1/business/channels/{id}/content-overrides/{listing_id}` | `channels:override` | `CommercialContentOverride` → `CommercialOverrideResult` | 200 | True |
+| GET | `/api/v1/business/channels/{id}/sync-history` | `channels:read` | `—` → `List:CommercialSyncFailure` | 200 | False |
 | GET | `/api/v1/business/channels/{id}/sync-health` | `channels:read` | `—` → `CommercialChannelHealth` | 200 | False |
 | POST | `/api/v1/business/channels/{id}/resync` | `channels:write` | `CommercialStateChange` → `CommercialResyncResult` | 202 | True |
 | GET | `/api/v1/business/channels/{id}/sync-jobs` | `channels:read` | `—` → `CommercialRawList` | 200 | False |
@@ -208,3 +209,5 @@ All public browser paths use `/api/v1/business`; the existing Gateway compatibil
 | POST | `/api/v1/business/compliance-holds/{id}/revoke` | `restrictions:write` | `CommercialStateChange` → `CommercialComplianceHold` | 200 | True |
 
 Connection authority hardening: forward-only migration `00007_channel_connection_authority.sql` persists the operation list from the signed provider credential proof. Every capability requires both provider certification and a grant to that particular connection. Existing connections default to no grants until real revalidation. `TestBusinessCommercialProviderCertificationCannotExpandCredentialAuthority` proves registry certification cannot authorize polling/webhook intake with a narrower credential. Current Goose schema version is **7**; migration 00006 remains unchanged.
+
+API conformance review retained all 188 baseline routes and aligned mapping confirmation with the required canonical `POST /api/v1/business/channels/{id}/mappings`; the additional `/mappings/preview` supplies its immutable reviewed digest. Persisted failure history is available at the scoped, paginated `/channels/{id}/sync-history` endpoint. No second mapping-confirm public API was retained.

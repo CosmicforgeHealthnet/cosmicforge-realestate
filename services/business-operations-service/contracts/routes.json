@@ -2689,7 +2689,7 @@
   },
   {
     "method": "POST",
-    "path": "/api/v1/business/channels/{id}/mappings/confirm",
+    "path": "/api/v1/business/channels/{id}/mappings",
     "capability": "channels:mappings",
     "request": "CommercialMappingConfirm",
     "response": "CommercialMappingResult",
@@ -2790,6 +2790,19 @@
     "public": false,
     "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
     "handler": "channelJobs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/channels/{id}/sync-history",
+    "capability": "channels:read",
+    "request": null,
+    "response": "List:CommercialSyncFailure",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+    "handler": "channelSyncHistory"
   },
   {
     "method": "GET",

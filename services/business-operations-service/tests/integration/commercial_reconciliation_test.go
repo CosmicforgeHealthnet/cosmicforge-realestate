@@ -54,6 +54,13 @@ func TestBusinessCommercialARIOverrideOutageRecoveryHealthAndPeriodicReadback(t 
 	if health["status"] != "DEGRADED" {
 		t.Fatalf("Outage health %#v", health)
 	}
+	history := commercialData[struct {
+		Items []businesshttp.CommercialSyncFailure `json:"items"`
+	}](t, c.must(c.owner, "GET", "/channels/"+conn.ID.String()+"/sync-history?limit=10&offset=0", nil, 200))
+	if len(history.Items) == 0 || history.Items[0].Classification == "" || history.Items[0].Attempt < 1 {
+		t.Fatal("Missing immutable sync failure history")
+	}
+
 	consumer.mu.Lock()
 	consumer.offline = false
 	consumer.mu.Unlock()

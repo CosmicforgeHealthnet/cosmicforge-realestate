@@ -121,6 +121,7 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
       'channelHealth':('channels:read',None,'CommercialChannelHealth',200,False),
       'channelResync':('channels:write','CommercialStateChange','CommercialResyncResult',202,True),
       'channelJobs':('channels:read',None,'CommercialRawList',200,False),
+      'channelSyncHistory':('channels:read',None,'List:CommercialSyncFailure',200,False),
       'channelReceipts':('channels:read',None,'CommercialRawList',200,False),
       'channelMetrics':('channels:report',None,'CommercialChannelMetrics',200,False),
       'channelProfitability':('channels:report',None,'CommercialChannelProfitability',200,False),

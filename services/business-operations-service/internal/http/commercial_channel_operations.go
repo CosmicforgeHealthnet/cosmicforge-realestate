@@ -20,6 +20,21 @@ import (
 func (h *Handler) channelJobs(w http.ResponseWriter, r *http.Request) {
 	h.channelCollection(w, r, "jobs")
 }
+
+type CommercialSyncFailure struct {
+	ID             ids.ID          `json:"id"`
+	OrganisationID ids.ID          `json:"organisation_id"`
+	ConnectionID   ids.ID          `json:"connection_id"`
+	JobID          *ids.ID         `json:"job_id,omitempty"`
+	Classification string          `json:"classification"`
+	Evidence       json.RawMessage `json:"evidence"`
+	Attempt        int             `json:"attempt"`
+	CreatedAt      time.Time       `json:"created_at"`
+}
+
+func (h *Handler) channelSyncHistory(w http.ResponseWriter, r *http.Request) {
+	h.channelCollection(w, r, "history")
+}
 func (h *Handler) channelReceipts(w http.ResponseWriter, r *http.Request) {
 	h.channelCollection(w, r, "receipts")
 }
@@ -33,6 +48,7 @@ func (h *Handler) channelCollection(w http.ResponseWriter, r *http.Request, coll
 		return
 	}
 	queries := map[string]string{
+		"history":    `SELECT to_jsonb(j) FROM channel_sync_failures j WHERE organisation_id=$1 AND connection_id=$2 ORDER BY created_at DESC,id DESC LIMIT $3 OFFSET $4`,
 		"jobs":       `SELECT to_jsonb(j)-'payload'-'session_id'-'actor_id'-'lease_owner' FROM channel_sync_jobs j WHERE organisation_id=$1 AND connection_id=$2 ORDER BY created_at DESC,id DESC LIMIT $3 OFFSET $4`,
 		"receipts":   `SELECT to_jsonb(j)-'normalized' FROM channel_event_receipts j WHERE organisation_id=$1 AND connection_id=$2 ORDER BY received_at DESC,id DESC LIMIT $3 OFFSET $4`,
 		"commission": `SELECT to_jsonb(j)-'created_by' FROM channel_commission_rules j WHERE organisation_id=$1 AND connection_id=$2 ORDER BY created_at DESC,id DESC LIMIT $3 OFFSET $4`}
