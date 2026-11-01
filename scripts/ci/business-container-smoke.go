@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -47,6 +48,10 @@ func main() {
 	}
 }
 func run(image string) error {
+	expectedVersion, err := businessSourceMigrationVersion()
+	if err != nil {
+		return err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 	containers := []string{}
@@ -225,8 +230,8 @@ func run(image string) error {
 		if err != nil {
 			return fmt.Errorf("migration %s failed", command)
 		}
-		if command == "version" && out != "7" {
-			return fmt.Errorf("unexpected migration version %s", out)
+		if command == "version" && out != expectedVersion {
+			return fmt.Errorf("unexpected image migration version %s; checked-out source requires %s", out, expectedVersion)
 		}
 	}
 	if err = applySQL("../../scripts/database/business-operations-runtime-grants.sql"); err != nil {
@@ -574,4 +579,31 @@ func run(image string) error {
 	}
 	fmt.Println("PASS: actual Gateway process with Redis, signed user/service identity and canonical/compatibility/internal routing; real PostgreSQL/NATS containers; fresh/repeated migrations/version; non-root API/worker startup; registration/login/TOTP; property/unit graph; CSV preview and committed import across worker restart; authenticated notification acceptance; broker outage/recovery; health/readiness; graceful SIGTERM. Provider is a signed contract fake, not staging delivery.")
 	return nil
+}
+
+// The image must contain the exact migration sequence of its checked-out source.
+// Run from tests/e2e as documented; missing/malformed source fails before Docker.
+func businessSourceMigrationVersion() (string, error) {
+	files, err := filepath.Glob("../../services/business-operations-service/migrations/*.sql")
+	if err != nil {
+		return "", err
+	}
+	var latest int64
+	for _, file := range files {
+		prefix, _, ok := strings.Cut(filepath.Base(file), "_")
+		if !ok {
+			return "", fmt.Errorf("unversioned Business migration %s", filepath.Base(file))
+		}
+		version, err := strconv.ParseInt(prefix, 10, 64)
+		if err != nil || version < 1 {
+			return "", fmt.Errorf("invalid Business migration version %s", filepath.Base(file))
+		}
+		if version > latest {
+			latest = version
+		}
+	}
+	if latest == 0 {
+		return "", errors.New("Business source migrations unavailable; run from tests/e2e")
+	}
+	return strconv.FormatInt(latest, 10), nil
 }

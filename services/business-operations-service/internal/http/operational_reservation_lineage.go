@@ -95,6 +95,13 @@ func (h *Handler) reservationLineage(w http.ResponseWriter, r *http.Request, mer
 			if destination.ID == v.ID || destination.Version != in.TargetVersion || destination.PropertyID != v.PropertyID || destination.State != v.State || destination.AllocationState != "ACTIVE" || destination.Currency != v.Currency || destination.Channel != v.Channel || destination.PaymentResponsibility != v.PaymentResponsibility || destination.PolicyID != v.PolicyID || hashCommercialPayload(marshalCommercial(destination.PolicySnapshot)) != hashCommercialPayload(marshalCommercial(v.PolicySnapshot)) {
 				return 0, nil, apperrors.Conflict("RESERVATION_MERGE_INCOMPATIBLE", "Target version, lifecycle, property, channel, currency and accepted governing terms must match.")
 			}
+			var sameSource bool
+			if e = tx.QueryRow(ctx, `WITH RECURSIVE origins(side,id) AS (VALUES(0,$2::uuid),(1,$3::uuid) UNION SELECT o.side,l.source_reservation_id FROM origins o JOIN reservation_lineage l ON l.organisation_id=$1 AND l.target_reservation_id=o.id), keys AS (SELECT DISTINCT o.side,s.connection_id::text||':'||s.external_reservation_id AS key FROM origins o JOIN reservation_source_refs s ON s.organisation_id=$1 AND s.reservation_id=o.id) SELECT coalesce((SELECT array_agg(key ORDER BY key) FROM keys WHERE side=0),ARRAY[]::text[])=coalesce((SELECT array_agg(key ORDER BY key) FROM keys WHERE side=1),ARRAY[]::text[])`, t.Organisation, v.ID, destination.ID).Scan(&sameSource); e != nil {
+				return 0, nil, e
+			}
+			if !sameSource {
+				return 0, nil, apperrors.Conflict("RESERVATION_SOURCE_MERGE_DENIED", "Independent external bookings/connections cannot be merged into one source acceptance. Reconcile their original source contracts separately.")
+			}
 			if _, _, e = h.authorize(ctx, tx, "reservations:modify", "PROPERTY", destination.PropertyID, true); e != nil {
 				return 0, nil, e
 			}

@@ -24,7 +24,9 @@ func TestBusinessReservationSignedChannelAcceptanceDedupeAndCancellation(t *test
 		t.Fatal(e)
 	}
 	headers := map[string]string{"Authorization": "Bearer " + token}
-	q := commercialData[revenue.QuoteSnapshot](t, c.must(c.owner, "POST", "/rate-quotes", businesshttp.CommercialQuoteCommand{ProductID: c.product.ID, DateFrom: c.dates.DateFrom, DateTo: c.dates.DateTo, Adults: 2, Quantity: 1, Channel: distribution.Marketplace}, 201))
+	arrival, _ := time.Parse(time.DateOnly, c.dates.DateFrom)
+	middle := arrival.AddDate(0, 0, 1).Format(time.DateOnly)
+	q := commercialData[revenue.QuoteSnapshot](t, c.must(c.owner, "POST", "/rate-quotes", businesshttp.CommercialQuoteCommand{ProductID: c.product.ID, DateFrom: c.dates.DateFrom, DateTo: middle, Adults: 2, Quantity: 1, Channel: distribution.Marketplace}, 201))
 	booking := reservations.Create{PropertyID: c.property.ID, Source: "MARKETPLACE", SourceReference: "marketplace-canonical-test-booking", Channel: distribution.Marketplace, State: "HOLD", PaymentResponsibility: "PLATFORM_COLLECT", Rooms: []reservations.RoomCommand{{ProductID: c.product.ID, QuoteID: q.QuoteID, ProductVersion: c.product.Version, PoolVersion: c.pool.Version, DateFrom: q.DateFrom, DateTo: q.DateTo, Quantity: 1}}, Guests: []reservations.GuestCommand{{SourceKind: "MARKETPLACE", SourceReference: "typed-marketplace-guest-reference", IsPrimary: true}}, Reason: "Signed source accepts the exact canonical quote"}
 	event := distribution.Receipt{ProviderEventID: "canonical-create-1", ExternalObjectID: booking.SourceReference, ExternalVersion: "v1", Kind: "RESERVATION_CREATED", OccurredAt: time.Now().UTC(), ProductID: c.product.ID, DateFrom: q.DateFrom, DateTo: q.DateTo, Quantity: 1, QuoteID: &q.QuoteID, Booking: &booking}
 	command := businesshttp.CommercialReceiptCommand{OrganisationID: org, ConnectionID: connection.ID, Receipt: event}
@@ -91,6 +93,25 @@ func TestBusinessReservationSignedChannelAcceptanceDedupeAndCancellation(t *test
 	if _, e = c.db.Pool.Exec(t.Context(), `DELETE FROM reservation_conflict_decisions WHERE conflict_id=$1`, conflictID); e == nil {
 		t.Fatal("source decision history mutable")
 	}
+	// Independent source bookings retain independent acceptance and cancellation
+	// contracts even when their local property, dates and payment terms match.
+	secondQuote := commercialData[revenue.QuoteSnapshot](t, c.must(c.owner, "POST", "/rate-quotes", businesshttp.CommercialQuoteCommand{ProductID: c.product.ID, DateFrom: middle, DateTo: c.dates.DateTo, Adults: 2, Quantity: 1, Channel: distribution.Marketplace}, 201))
+	secondBooking := booking
+	secondBooking.SourceReference = "marketplace-independent-second-booking"
+	secondBooking.Rooms = []reservations.RoomCommand{{ProductID: c.product.ID, QuoteID: secondQuote.QuoteID, ProductVersion: secondQuote.ProductVersion, PoolVersion: secondQuote.PoolVersion, DateFrom: secondQuote.DateFrom, DateTo: secondQuote.DateTo, Quantity: 1}}
+	secondCommand := businesshttp.CommercialReceiptCommand{OrganisationID: org, ConnectionID: connection.ID, Receipt: distribution.Receipt{ProviderEventID: "independent-second-booking", ExternalObjectID: secondBooking.SourceReference, ExternalVersion: "v1", Kind: "RESERVATION_CREATED", OccurredAt: time.Now().UTC(), ProductID: c.product.ID, DateFrom: secondQuote.DateFrom, DateTo: secondQuote.DateTo, Quantity: 1, Booking: &secondBooking}}
+	status, raw = c.rootCall(path, secondCommand, headers)
+	secondAccepted := commercialData[businesshttp.CommercialReceiptResult](t, raw)
+	if status != 202 || !secondAccepted.CanonicalReservationAccepted || secondAccepted.CanonicalReservationID == nil {
+		t.Fatalf("second source booking %d %s", status, raw)
+	}
+	var activeRoom ids.ID
+	for _, room := range canonical.Rooms {
+		if room.State == "ACTIVE" {
+			activeRoom = room.ID
+		}
+	}
+	c.must(c.owner, "POST", "/reservations/"+id.String()+"/merge", reservations.Command{Version: canonical.Reservation.Version, TargetReservationID: secondAccepted.CanonicalReservationID, TargetVersion: 1, RoomIDs: []ids.ID{activeRoom}, Reason: "A local approval cannot erase independent provider booking identities"}, 409)
 	command.Receipt = distribution.Receipt{ProviderEventID: "canonical-cancel-1", ExternalObjectID: booking.SourceReference, ExternalVersion: "v3", Kind: "RESERVATION_CANCELLED", OccurredAt: time.Now().UTC(), ProductID: c.product.ID, DateFrom: q.DateFrom, DateTo: q.DateTo, Quantity: 1, ExpectedReservationVersion: canonical.Reservation.Version, Reference: "Guest cancelled through the authenticated provider"}
 	status, raw = c.rootCall(path, command, headers)
 	cancelled := commercialData[businesshttp.CommercialReceiptResult](t, raw)
@@ -98,7 +119,7 @@ func TestBusinessReservationSignedChannelAcceptanceDedupeAndCancellation(t *test
 		t.Fatalf("source cancellation %d %s", status, raw)
 	}
 	var roots, refs int
-	if e = c.db.Pool.QueryRow(t.Context(), `SELECT (SELECT count(*) FROM reservations),(SELECT count(*) FROM reservation_source_refs)`).Scan(&roots, &refs); e != nil || roots != 1 || refs != 3 {
+	if e = c.db.Pool.QueryRow(t.Context(), `SELECT (SELECT count(*) FROM reservations),(SELECT count(*) FROM reservation_source_refs)`).Scan(&roots, &refs); e != nil || roots != 2 || refs != 4 {
 		t.Fatalf("source lineage %d/%d %v", roots, refs, e)
 	}
 	// Neither a browser route nor a user token can call internal source status.

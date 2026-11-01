@@ -25,7 +25,7 @@ Goose `00008_canonical_reservations.sql` adds 25 reservation/waitlist/supporting
 
 `sql/queries/reservations.sql` and generated SQLC output provide canonical root/source/locking/expiry queries alongside typed domain repositories. Normal `sqlc diff` verifies drift; a temporary-output atomic replacement was used for generation around Windows mapped-file write restrictions.
 
-Current generated contracts: **319 routes, 246 typed schemas, 43 Business event schemas**. Only registered executable routes are documented. OpenAPI, route manifest and the existing `03 Business Operations` Postman collection are generated together; example schemas are validated. RMS/PMS/CRM folders reserve the requested handoff structure and are not represented as completed APIs. Public base remains `/api/v1/business`; source status is signed internal-only. See `BUSINESS_OPERATIONS_CANONICAL_RESERVATIONS.md` for transaction, source and financial contracts.
+The first pushed checkpoint (`1d8558cd00e0a8b72d4276559e1cc18c892c9485`) generated **319 routes, 246 typed schemas, 43 Business event schemas**. Its follow-up adds waitlist offer rejection and lifecycle events, bringing the current catalogue to **320 routes, 248 typed schemas, 44 Business event schemas**. Only registered executable routes are documented. OpenAPI, route manifest and the existing `03 Business Operations` Postman collection are generated together; example schemas are validated. RMS/PMS/CRM folders reserve the requested handoff structure and are not represented as completed APIs. Public base remains `/api/v1/business`; source status is signed internal-only. See `BUSINESS_OPERATIONS_CANONICAL_RESERVATIONS.md` for transaction, source and financial contracts.
 
 Payment's existing receipt has two additive fields, generated into its contracts: `remedy_version` and `remedy_review_required`. Real Payment repository tests prove successful original collection remains restricted after refund. No collection, refund, ledger or provider authority was moved into Business.
 
@@ -47,8 +47,8 @@ Read-only GitHub environment inventory returned no configured environments and n
 2. Quantity-level fragmentation for partial cancellation/split; current tested operations transfer whole accepted room lines.
 3. In-house extension/early departure, room assignment/room-level arrival and completion lifecycle, folio and operational outcomes through Section 10.
 4. Corporate contract and canonical guest identity validation through Section 11; corporate bindings currently fail closed.
-5. Waitlist offer rejection, release-triggered offering and Notification-owned delivery workflow.
-6. Additional external lineage merge constraints and operational reconciliation coverage.
+5. Release-triggered waitlist offering and Notification-owned guest delivery workflow. Versioned offer rejection and atomic waitlist lifecycle audit/outbox events are implemented in the follow-up.
+6. Additional operational reconciliation coverage. Cross-source merge guards now forbid combining independent external booking/connection identities while preserving legitimate split-family merges.
 7. Actual authorised Business-to-Admin refund handoff and refund outcome references; Payment's existing submission requires Admin identity. No fake refund success is supplied.
 8. Live Marketplace/OTA/Payment-provider integration and authorised automated staging deployment certification. Disposable tests do not certify these systems.
 
@@ -57,3 +57,12 @@ RMS (Section 8), PMS (Section 10) and CRM/loyalty/recovery (Section 11) remain u
 ## CI and deployment
 
 The milestone must be committed/pushed exclusively to `origin/staging` and every required workflow checked for that exact SHA. Local Windows tests do not substitute for Linux race/image/container checks. Images publication alone is not deployment. No preauthorised live staging deployment path or credentials have been established by this checkpoint; live deployment remains unverified.
+
+
+## Follow-up validation and CI repair
+
+The first checkpoint's Images run `41287808897`, Business image job `124792582869`, failed at the real container migration/recovery smoke step: `unexpected migration version 8`. The image migrated successfully to 8; the smoke script still hard-coded 7. The script now derives the required version from the checked-out migration filenames, fails on missing/invalid source, and compares the actual image version to it. This preserves the migration check and catches stale images. The corrected smoke program builds locally; actual Docker execution remains a Linux CI check.
+
+Follow-up integration evidence: both waitlist tests passed in 9.238 seconds, including concurrent offer rejection (one accepted/one conflict), preserved waiting request, released physical stock and exactly one audit/event transition. Three source/split/financial tests passed in 10.369 seconds, including denial of a merge across independent provider bookings and conservation of legitimate split/merge. No migration already pushed in the first checkpoint was edited.
+
+Architecture structure, Contracts and Security passed on `1d8558c`. Backend run `41287808918` completed successfully, including all service lint/race tests and process E2E jobs. This also executes the Payment cross-service race consumer that could not run on the local Windows host. Images remained failed on that earlier SHA until the correction is pushed. Required workflows must be checked again for the follow-up SHA, not inferred from these earlier checks.

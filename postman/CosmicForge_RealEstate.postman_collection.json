@@ -253857,6 +253857,617 @@
               ]
             },
             {
+              "name": "POST /api/v1/business/waitlist/{id}/offers/{offer_id}/reject",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{business_idempotency_key}}",
+                    "description": "Set a new stable value per intended command; reuse only for exact retries."
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "waitlist",
+                    "{{business_id}}",
+                    "offers",
+                    "{{business_offer_id}}",
+                    "reject"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"offer_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"state\": \"WAITING\",\n    \"offer_state\": \"REJECTED\",\n    \"version\": 1\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/waitlist/{{business_id}}/offers/{{business_offer_id}}/reject",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "waitlist",
+                        "{{business_id}}",
+                        "offers",
+                        "{{business_offer_id}}",
+                        "reject"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: reservations:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 2,\n  \"offer_version\": 1,\n  \"continue_waiting\": true,\n  \"reason\": \"Decline this offer and keep the original request waiting\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));",
+                      "if (pm.environment.get(\"business_waitlist_id\")) pm.variables.set(\"business_id\",pm.environment.get(\"business_waitlist_id\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "GET /api/v1/business/reservation-policies",
               "request": {
                 "method": "GET",

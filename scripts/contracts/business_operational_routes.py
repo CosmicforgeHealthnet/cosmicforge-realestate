@@ -5,6 +5,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  shape('ReservationConflictDecisionResult',id=typ('ids.ID'),state={'enum':['RESOLVED','REJECTED']},version={'type':'integer'},canonical_reservation_id={'type':['string','null']},canonical_reservation_accepted={'type':'boolean'})
  shape('ReservationConflictDetail',conflict=ref('ReservationConflictView'),decisions=arr({'type':'object','additionalProperties':True}))
+ shape('ReservationWaitlistRejected',id=typ('ids.ID'),offer_id=typ('ids.ID'),state={'enum':['WAITING','CANCELLED']},offer_state={'const':'REJECTED'},version={'type':'integer'})
  shape('ReservationRawList',items=arr({'type':'object','additionalProperties':True}),limit={'type':'integer'},offset={'type':'integer'})
  shape('ReservationLineageResult',source=ref('Reservation'),target=ref('ReservationDetail'),action={'enum':['SPLIT','MERGED']})
  shape('ReservationRiskResult',reservation_id=typ('ids.ID'),status={'enum':['UNREVIEWED','CLEAR','REVIEW','RESTRICTED']},assessments=arr({'type':'object'}))
@@ -51,6 +52,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  'reservationPaymentRequests':('reservations:read',None,'ReservationRawList',200,False),
  'reservationFinancialRetry':('reservations:write','ReservationFinancialRetry','ReservationFinancialRetryResult',202,True),
  'reservationPaymentReadback':('reservations:write','ReservationPaymentReadbackCommand','ReservationFinancialQueued',202,False),
+ 'reservationWaitlistOfferReject':('reservations:write','ReservationWaitlistRejection','ReservationWaitlistRejected',200,False),
  'reservationWaitlistList':('reservations:read',None,'List:ReservationWaitlist',200,False),
  'reservationWaitlistCreate':('reservations:write','ReservationWaitlistCreate','ReservationWaitlist',201,False),
  'reservationWaitlistOffers':('reservations:read',None,'ReservationRawList',200,False),
@@ -92,6 +94,7 @@ def operational_examples(uid):
  policy={'allowed_payment_policy_ids':[uid],'allow_source_cancellation':False,'max_guarantee_minor':100000,'allowed_sources':['DIRECT','MARKETPLACE'],'allowed_guarantees':['PAY_AT_PROPERTY'],'hold_seconds':600,'require_approval':False,'require_risk_clear':True,'cancellation_hours':24,'cancellation_penalty_bps':5000,'no_show_grace_hours':2,'no_show_retain_nights':1,'check_in_local':'14:00','check_out_local':'11:00','policy_reference':'operator-approved-hotel-terms:v1'}
  return {
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
+ 'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},
  'ReservationCreate':booking,
  'ReservationPolicyCommand':{'property_id':uid,'expected_version':0,'definition':policy,'effective_at':'2026-10-31T00:00:00Z','approval_id':uid,'reason':'Independently approved reservation acceptance policy'},
  'ReservationMutation':{'version':1,'reason':'Versioned reservation command with current evidence'},

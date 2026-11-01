@@ -350,3 +350,68 @@ func TestBusinessReservationNoShowChecksEveryFrozenRoomArrival(t *testing.T) {
 		t.Fatal("early no-show modified a future room")
 	}
 }
+
+func TestBusinessReservationWaitlistRejectionIsConcurrentSafeAndAudited(t *testing.T) {
+	c := newCommercialHTTP(t)
+	reservationPolicyFixture(c, false)
+	entry := commercialData[businesshttp.ReservationWaitlist](t, c.must(c.owner, "POST", "/waitlist", businesshttp.ReservationWaitlist{PropertyID: c.property.ID, ProductID: c.product.ID, DateFrom: c.dates.DateFrom, DateTo: c.dates.DateTo, Adults: 2, Quantity: 1, GuestReference: "direct-rejected-offer-reference", ExpiresAt: time.Now().Add(time.Hour), Reason: "Retain a waiting request after an unsuitable offer"}, 201))
+	q := c.quote()
+	offer := commercialData[businesshttp.ReservationWaitlistOffer](t, c.must(c.owner, "POST", "/waitlist/"+entry.ID.String()+"/offers", businesshttp.ReservationWaitlistOfferCommand{Version: entry.Version, QuoteID: q.QuoteID, ProductVersion: c.product.Version, PoolVersion: c.pool.Version, Reason: "Offer real canonical stock to the original waiting guest"}, 201))
+	command := businesshttp.ReservationWaitlistRejection{Version: entry.Version + 1, OfferVersion: offer.Version, ContinueWaiting: true, Reason: "Guest declined this offer and asked to remain on the waitlist"}
+	path := "/waitlist/" + entry.ID.String() + "/offers/" + offer.ID.String() + "/reject"
+	limited := c.user()
+	c.join(limited, c.owner, []string{"reservations:read"})
+	c.must(limited, "POST", path, command, 403)
+	var wg sync.WaitGroup
+	statuses := make(chan int, 2)
+	for range 2 {
+		wg.Add(1)
+		go func() { defer wg.Done(); status, _ := c.call(c.owner, "POST", path, command, nil); statuses <- status }()
+	}
+	wg.Wait()
+	close(statuses)
+	ok, conflict := 0, 0
+	for status := range statuses {
+		switch status {
+		case 200:
+			ok++
+		case 409:
+			conflict++
+		default:
+			t.Fatalf("rejection status %d", status)
+		}
+	}
+	if ok != 1 || conflict != 1 {
+		t.Fatalf("duplicate rejection accepted %d/%d", ok, conflict)
+	}
+	var state string
+	var version int64
+	if e := c.db.Pool.QueryRow(t.Context(), `SELECT state,version FROM waitlist_entries WHERE id=$1`, entry.ID).Scan(&state, &version); e != nil || state != "WAITING" || version != 3 {
+		t.Fatalf("waitlist state %s/%d %v", state, version, e)
+	}
+	var audits, events int
+	if e := c.db.Pool.QueryRow(t.Context(), `SELECT (SELECT count(*) FROM audit_events WHERE target_id=$1 AND action='WAITLIST_OFFER_REJECTED'),(SELECT count(*) FROM outbox_events WHERE aggregate_id=$1 AND event_type='reservation.waitlist.changed.v1')`, entry.ID).Scan(&audits, &events); e != nil || audits != 1 || events != 3 {
+		t.Fatalf("non-atomic waitlist history %d/%d %v", audits, events, e)
+	}
+	days, e := inventory.Calendar(t.Context(), c.db.Pool, c.owner.registered.OrganisationID, c.pool.ID, c.dates, c.property.Timezone, "", time.Now(), false)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, day := range days {
+		if day.Held != 0 || day.Available != 1 {
+			t.Fatalf("rejected offer retained inventory %+v", day)
+		}
+	}
+	q = c.quote()
+	second := commercialData[businesshttp.ReservationWaitlistOffer](t, c.must(c.owner, "POST", "/waitlist/"+entry.ID.String()+"/offers", businesshttp.ReservationWaitlistOfferCommand{Version: version, QuoteID: q.QuoteID, ProductVersion: c.product.Version, PoolVersion: c.pool.Version, Reason: "A new offer revalidates the released canonical stock"}, 201))
+	c.service.Now = func() time.Time { return second.ExpiresAt.Add(time.Second) }
+	if e = c.domain.ProcessReservationMaintenance(t.Context(), 20); e != nil {
+		t.Fatal(e)
+	}
+	if e = c.db.Pool.QueryRow(t.Context(), `SELECT state FROM waitlist_entries WHERE id=$1`, entry.ID).Scan(&state); e != nil || state != "WAITING" {
+		t.Fatalf("offer expiry removed the waiting request %s %v", state, e)
+	}
+	if e = c.db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM outbox_events WHERE aggregate_id=$1 AND event_type='reservation.waitlist.changed.v1'`, entry.ID).Scan(&events); e != nil || events != 5 {
+		t.Fatalf("expiry lost its event %d %v", events, e)
+	}
+}

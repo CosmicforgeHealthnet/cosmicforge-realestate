@@ -8,7 +8,7 @@ This checkpoint extends Sections 1–7. Business Operations owns canonical reser
 
 The common organisation fence precedes expected-version reads. Calendar rows lock in date order. Acceptance, immutable accepted prices/policy, hold provenance, reservation history, audit and transactional outbox commit together. Confirmation exchanges the exact live hold for committed inventory days. Committed allotted stock remains charged against its original allotment. Cancel/reject/expiry release only actual allocation provenance. A failed multi-line command rolls back every stock and financial effect.
 
-Accepted room prices cannot be edited. Amendments supersede old room lines and append new accepted snapshots. Immutable financial credits conserve already collected backing without charging the original gross amount again. Whole-line split/merge transfers ownership of the same price, hold and financial references. Quantity fragmentation remains open work.
+Accepted room prices cannot be edited. Amendments supersede old room lines and append new accepted snapshots. Immutable financial credits conserve already collected backing without charging the original gross amount again. Whole-line split/merge transfers ownership of the same price, hold and financial references. Quantity fragmentation remains open work. Merging independent external source booking/connection identities is forbidden; legitimate split-family merges retain their shared source lineage.
 
 The database rejects a root version without its matching immutable snapshot, audit and outbox record. Runtime grants separately deny mutation of immutable histories. This is defence in depth; PostgreSQL administrators remain an operator boundary.
 
@@ -32,7 +32,7 @@ Conflict decisions require current versions, property-scoped resolution capabili
 
 Only the server's private cancellation context permits scoped protective exit under a restricted/suspended/closing organisation. Live account/session/membership, explicit capability, deny, scope and effective-date rules remain enforced. Requests cannot construct this context. Growth operations remain restricted.
 
-Reservation lists and command-center views resolve permitted properties before pagination. Arrivals/departures use room-line dates and property-local civil days. No-show checks each selected room's frozen local deadline. Confirmation rechecks current product/channel, restrictions, capacity, risk and actual financial backing without repricing accepted history.
+Reservation lists and command-center views resolve permitted properties before pagination. Arrivals/departures use room-line dates and property-local civil days. No-show checks each selected room's frozen local deadline. Waitlist offer rejection is version-fenced and may preserve the waiting request. Creation, offer, acceptance, rejection, cancellation and expiry commit immutable commercial/audit history and `reservation.waitlist.changed.v1` outbox records atomically. Confirmation rechecks current product/channel, restrictions, capacity, risk and actual financial backing without repricing accepted history.
 
 ## Delivery boundary
 

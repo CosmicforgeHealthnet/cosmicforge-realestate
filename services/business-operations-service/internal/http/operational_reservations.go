@@ -55,6 +55,7 @@ func (h *Handler) registerReservations(r chi.Router) {
 	h.registerReservationCommands(r)
 	h.registerReservationPayments(r)
 	h.registerReservationWaitlist(r)
+	h.registerReservationWaitlistRejection(r)
 	h.registerReservationAmendments(r)
 	h.registerReservationLineage(r)
 	h.registerReservationConflicts(r)

@@ -116,7 +116,7 @@ func (h *Handler) reservationWaitlistCreate(w http.ResponseWriter, r *http.Reque
 		if e != nil {
 			return 0, nil, e
 		}
-		e = h.commercialCommit(ctx, tx, t, p.PropertyID, id, "waitlist", "WAITLIST_CREATED", "", 1, map[string]any{"product_id": p.ID, "date_from": in.DateFrom, "date_to": in.DateTo, "reason": in.Reason})
+		e = h.commercialCommit(ctx, tx, t, p.PropertyID, id, "waitlist", "WAITLIST_CREATED", "reservation.waitlist.changed.v1", 1, map[string]any{"product_id": p.ID, "date_from": in.DateFrom, "date_to": in.DateTo, "reason": in.Reason})
 		return 201, out, e
 	})
 }
@@ -206,6 +206,10 @@ func (h *Handler) reservationWaitlistOfferCreate(w http.ResponseWriter, r *http.
 			return 0, nil, e
 		}
 		out, e := reservations.Load[ReservationWaitlistOffer](ctx, tx, `SELECT to_jsonb(o) FROM waitlist_offers o WHERE organisation_id=$1 AND id=$2`, t.Organisation, id)
+		if e != nil {
+			return 0, nil, e
+		}
+		e = h.commercialCommit(ctx, tx, t, v.PropertyID, v.ID, "waitlist", "WAITLIST_OFFERED", "reservation.waitlist.changed.v1", v.Version+1, map[string]any{"offer_id": id, "state": "OFFERED", "expires_at": hold.ExpiresAt, "reason": in.Reason})
 		return 201, out, e
 	})
 }
@@ -254,6 +258,9 @@ func (h *Handler) reservationWaitlistAccept(w http.ResponseWriter, r *http.Reque
 		if _, e = tx.Exec(ctx, `UPDATE waitlist_entries SET state='ACCEPTED',version=version+1,updated_at=$3 WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, now); e != nil {
 			return 0, nil, e
 		}
+		if e = h.commercialCommit(ctx, tx, t, v.PropertyID, v.ID, "waitlist", "WAITLIST_ACCEPTED", "reservation.waitlist.changed.v1", v.Version+1, map[string]any{"offer_id": offer.ID, "reservation_id": out.Reservation.ID, "state": "ACCEPTED"}); e != nil {
+			return 0, nil, e
+		}
 		return 201, out, nil
 	})
 }
@@ -286,7 +293,10 @@ func (h *Handler) reservationWaitlistCancel(w http.ResponseWriter, r *http.Reque
 		if e = h.releaseWaitlistOffers(ctx, tx, t.Organisation, v.ID, "REJECTED"); e != nil {
 			return 0, nil, e
 		}
-		_, e = tx.Exec(ctx, `UPDATE waitlist_entries SET state='CANCELLED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID)
+		if _, e = tx.Exec(ctx, `UPDATE waitlist_entries SET state='CANCELLED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID); e != nil {
+			return 0, nil, e
+		}
+		e = h.commercialCommit(ctx, tx, t, v.PropertyID, v.ID, "waitlist", "WAITLIST_CANCELLED", "reservation.waitlist.changed.v1", v.Version+1, map[string]any{"state": "CANCELLED", "reason": in.Reason})
 		return 200, map[string]any{"id": v.ID, "state": "CANCELLED", "version": v.Version + 1}, e
 	})
 }
@@ -433,8 +443,10 @@ func (h *Handler) expireReservationWaitlist(ctx context.Context, limit int, now 
 			if !now.Before(entry.ExpiresAt) {
 				state = "EXPIRED"
 			}
-			_, e = tx.Exec(ctx, `UPDATE waitlist_entries SET state=$3,version=version+1,updated_at=$4 WHERE organisation_id=$1 AND id=$2`, v.org, v.id, state, now)
-			return e
+			if _, e = tx.Exec(ctx, `UPDATE waitlist_entries SET state=$3,version=version+1,updated_at=$4 WHERE organisation_id=$1 AND id=$2`, v.org, v.id, state, now); e != nil {
+				return e
+			}
+			return h.commercialCommit(ctx, tx, tenant{Organisation: v.org}, entry.PropertyID, entry.ID, "waitlist", "WAITLIST_EXPIRY_RECONCILED", "reservation.waitlist.changed.v1", entry.Version+1, map[string]any{"state": state, "reason": "Waitlist entry or its current offer expired"})
 		})
 		if e != nil {
 			return e

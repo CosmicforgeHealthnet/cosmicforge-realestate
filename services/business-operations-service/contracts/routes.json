@@ -3845,6 +3845,19 @@
     "handler": "reservationWaitlistCancel"
   },
   {
+    "method": "POST",
+    "path": "/api/v1/business/waitlist/{id}/offers/{offer_id}/reject",
+    "capability": "reservations:write",
+    "request": "ReservationWaitlistRejection",
+    "response": "ReservationWaitlistRejected",
+    "status": 200,
+    "idempotent": true,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. ",
+    "handler": "reservationWaitlistOfferReject"
+  },
+  {
     "method": "GET",
     "path": "/api/v1/business/reservation-policies",
     "capability": "reservations:read",
