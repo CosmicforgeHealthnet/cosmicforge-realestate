@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/repositories/db"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/revenue"
@@ -249,6 +250,9 @@ func (h *Handler) rmsRecommendationCreate(w http.ResponseWriter, r *http.Request
 			return 0, nil, e
 		}
 		if e = h.commercialCommit(ctx, tx, t, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "revenue.recommendation.changed.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
+			return 0, nil, e
+		}
+		if e = businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "pricing.recommendation.created.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
 			return 0, nil, e
 		}
 		out, e := loadRMSRecommendation(ctx, tx, t.Organisation, id)

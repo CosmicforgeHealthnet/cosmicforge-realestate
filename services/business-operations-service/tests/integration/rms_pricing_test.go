@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -8,6 +9,58 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/revenue"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 )
+
+func TestBusinessRMSOverrideRejectionIsolationAndSimulationReplay(t *testing.T) {
+	c, f := rmsOwnedHistoryFixture(t)
+	p := rmsPolicyFixture(c, f)
+	original := rmsRecommendationFixture(c, p, f)
+	amount := int64(9600)
+	replacement := commercialData[businesshttp.RMSRecommendation](t, c.must(c.owner, "POST", "/revenue/recommendations", businesshttp.RMSRecommendationCommand{PolicyID: p.ID, ForecastID: f.ID, ProposedAmountMinor: &amount, Reason: "Retain an explicit operator override as a new immutable identity"}, 201))
+	if original.ID == replacement.ID || original.ChangeDigest == replacement.ChangeDigest {
+		t.Fatal("override rewrote existing identity")
+	}
+	overridden := commercialData[businesshttp.RMSRecommendation](t, c.must(c.owner, "POST", "/revenue/recommendations/"+original.ID.String()+"/decision", businesshttp.RMSDecisionCommand{Version: original.Version, Action: "OVERRIDE", ReplacementID: &replacement.ID, Reason: "Supersede the old proposal using the exact retained replacement"}, 200))
+	if overridden.State != "OVERRIDDEN" {
+		t.Fatalf("override %+v", overridden)
+	}
+	c.must(c.owner, "POST", "/revenue/recommendations/"+original.ID.String()+"/decision", businesshttp.RMSDecisionCommand{Version: overridden.Version, Action: "SUBMIT", Reason: "An overridden proposal cannot be reactivated"}, 409)
+	key := "same-retained-rms-simulation"
+	command := businesshttp.RMSVersionCommand{Version: replacement.Version, Reason: "Replay the same retained simulation without duplicate side effects"}
+	var simulationID ids.ID
+	for i := 0; i < 2; i++ {
+		status, raw := c.call(c.owner, "POST", "/revenue/recommendations/"+replacement.ID.String()+"/simulate", command, map[string]string{"Idempotency-Key": key})
+		if status != 201 {
+			t.Fatalf("simulation replay %d %s", status, raw)
+		}
+		out := commercialData[struct {
+			ID ids.ID `json:"id"`
+		}](t, raw)
+		if i == 0 {
+			simulationID = out.ID
+		} else if out.ID != simulationID {
+			t.Fatal("simulation retry created a second identity")
+		}
+	}
+	currentClock := c.service.Now
+	c.service.Now = time.Now
+	outsider := c.user()
+	c.service.Now = currentClock
+	c.must(outsider, "GET", "/revenue/recommendations/"+replacement.ID.String(), nil, 404)
+	c.must(outsider, "GET", "/revenue/policies/"+p.ID.String(), nil, 404)
+	c.must(c.approver, "GET", "/revenue/recommendations/"+replacement.ID.String(), nil, 403)
+	listed := commercialData[struct {
+		Items []json.RawMessage `json:"items"`
+	}](t, c.must(c.approver, "GET", "/revenue/recommendations?limit=1", nil, 200))
+	if len(listed.Items) != 0 {
+		t.Fatal("unauthorized recommendation exposed before pagination")
+	}
+	replacement = rmsDecision(c, replacement, "SUBMIT", ids.Nil)
+	replacement = rmsDecision(c, replacement, "REJECT", ids.Nil)
+	if replacement.State != "REJECTED" {
+		t.Fatalf("rejection %+v", replacement)
+	}
+	c.must(c.owner, "POST", "/revenue/recommendations/"+replacement.ID.String()+"/decision", businesshttp.RMSDecisionCommand{Version: replacement.Version, Action: "APPLY", Reason: "Rejected proposal cannot apply prices"}, 409)
+}
 
 func rmsPolicyFixture(c *commercialHarness, f businesshttp.RMSForecastRun) businesshttp.RMSPolicy {
 	c.t.Helper()
@@ -93,6 +146,12 @@ func TestBusinessRMSGovernedApplicationSimulationAndCompensatingRollback(t *test
 	}
 	if decisions != 4 || versions != 3 {
 		t.Fatalf("immutable lineage decisions=%d versions=%d", decisions, versions)
+	}
+	for _, eventType := range []string{"pricing.recommendation.created.v1", "pricing.applied.v1"} {
+		var count int
+		if e = c.db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM outbox_events WHERE event_type=$1`, eventType).Scan(&count); e != nil || count != 1 {
+			t.Fatalf("canonical RMS event %s count=%d err=%v", eventType, count, e)
+		}
 	}
 	if _, e = c.db.Pool.Exec(t.Context(), `UPDATE pricing_recommendations SET snapshot='{}',version=version+1 WHERE id=$1`, v.ID); e == nil {
 		t.Fatal("proposal mutated")

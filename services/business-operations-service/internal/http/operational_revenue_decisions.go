@@ -292,7 +292,14 @@ func (h *Handler) rmsRecordDecision(ctx context.Context, tx pgx.Tx, t tenant, v 
 	if _, e := tx.Exec(ctx, `UPDATE pricing_recommendations SET state=$3,approval_id=$4,applied_versions=$5,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, state, approval, marshalCommercial(applied)); e != nil {
 		return e
 	}
-	return h.commercialCommit(ctx, tx, t, v.PropertyID, v.ID, "pricing_recommendation", "RMS_RECOMMENDATION_DECIDED", "revenue.recommendation.changed.v1", v.Version+1, map[string]any{"state": state, "prior_state": v.State, "action": action, "reason": reason, "change_digest": v.ChangeDigest, "approval_id": approval, "evidence": evidence})
+	snapshot := map[string]any{"state": state, "prior_state": v.State, "action": action, "reason": reason, "change_digest": v.ChangeDigest, "approval_id": approval, "evidence": evidence}
+	if e := h.commercialCommit(ctx, tx, t, v.PropertyID, v.ID, "pricing_recommendation", "RMS_RECOMMENDATION_DECIDED", "revenue.recommendation.changed.v1", v.Version+1, snapshot); e != nil {
+		return e
+	}
+	if state == "APPLIED" {
+		return businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, v.PropertyID, v.ID, "pricing_recommendation", "RMS_RECOMMENDATION_DECIDED", "pricing.applied.v1", v.Version+1, snapshot)
+	}
+	return nil
 }
 
 // Count absolute canonical movements, including manual changes and reversals,

@@ -100,7 +100,7 @@ func (h *Handler) rmsPolicySave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if in.State == "ACTIVE" && (in.Definition.Mode == "APPROVAL_AUTOMATION" || in.Definition.Mode == "AUTOPILOT_WITH_LIMITS") {
-		reply(w, r, 0, nil, apperrors.Unavailable("Automatic mode activation requires the not-yet-composed bounded worker authority; retain a paused policy or use a reviewed manual/recommendation policy."))
+		reply(w, r, 0, nil, apperrors.Unavailable("Automatic mode activation is unavailable. Save a paused configuration or use MANUAL/RECOMMEND_ONLY."))
 		return
 	}
 	h.execute(w, r, "revenue:policy:"+in.RatePlanID.String(), in, "rms:write", "PROPERTY", in.PropertyID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {

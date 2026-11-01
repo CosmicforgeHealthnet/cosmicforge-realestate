@@ -43,6 +43,13 @@ func CommercialCommit(ctx context.Context, tx pgx.Tx, store *outbox.Store, org, 
 	if eventType == "" {
 		return nil
 	}
+	return PublishCommercial(ctx, tx, store, org, property, target, kind, operation, eventType, version, snapshot)
+}
+
+// PublishCommercial appends an additional canonical event in the same owning
+// transaction. Audit/history remain a single write when compatibility and
+// specification event names describe the same operation.
+func PublishCommercial(ctx context.Context, tx pgx.Tx, store *outbox.Store, org, property, target ids.ID, kind, operation, eventType string, version int64, snapshot any) error {
 	envelope, err := shared.New(ctx, platform.BusinessOperationsService, eventType, kind, target, map[string]any{"organisation_id": org, "property_id": property, "target_id": target, "operation": operation, "version": version, "snapshot": snapshot})
 	if err != nil {
 		return err
