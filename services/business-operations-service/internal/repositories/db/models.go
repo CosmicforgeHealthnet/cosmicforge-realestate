@@ -114,6 +114,18 @@ type Block struct {
 	Kind           string
 }
 
+type BookingPaceSnapshot struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	PoolID             ids.ID
+	CurrentSnapshotID  ids.ID
+	PreviousSnapshotID *ids.ID
+	State              string
+	Result             []byte
+	CreatedAt          time.Time
+}
+
 type Branch struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -700,6 +712,23 @@ type DelegationGrant struct {
 	CreatedAt             time.Time
 }
 
+type DemandSnapshot struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	PoolID           ids.ID
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	AsOf             time.Time
+	Currency         string
+	SourceDigest     string
+	Dataset          []byte
+	Provenance       []byte
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
 type Department struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -751,6 +780,34 @@ type Floor struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type ForecastModel struct {
+	ID         ids.ID
+	ModelKey   string
+	Version    int32
+	Definition []byte
+	CreatedAt  time.Time
+}
+
+type ForecastRun struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	PoolID           ids.ID
+	ModelID          ids.ID
+	SourceSnapshotID ids.ID
+	SourceAsOf       time.Time
+	SourceDigest     string
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	Configuration    []byte
+	Result           []byte
+	Status           string
+	SupersedesID     *ids.ID
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
 }
 
 type IdempotencyRecord struct {

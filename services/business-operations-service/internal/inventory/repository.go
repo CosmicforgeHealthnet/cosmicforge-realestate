@@ -61,6 +61,15 @@ func CheckStockAuthority(ctx context.Context, q database.Querier, pool Pool) err
 // Calendar locks in civil-date order, the same order used by multi-day holds.
 // Expired holds/allotments cease to consume stock independently of worker uptime.
 func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRange DateRange, timezone, channel string, now time.Time, lock bool) ([]Day, error) {
+	return calendar(ctx, q, org, pool, dateRange, timezone, channel, now, lock, true)
+}
+
+// CalendarObserved reads only configured dates for analytical snapshots. It
+// never fills missing history with zeroes; sale/hold callers use Calendar.
+func CalendarObserved(ctx context.Context, q database.Querier, org, pool ids.ID, dateRange DateRange, timezone, channel string, now time.Time) ([]Day, error) {
+	return calendar(ctx, q, org, pool, dateRange, timezone, channel, now, false, false)
+}
+func calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRange DateRange, timezone, channel string, now time.Time, lock, complete bool) ([]Day, error) {
 	days, err := dateRange.Days(timezone)
 	if err != nil || !ValidChannel(channel) {
 		return nil, apperrors.InvalidRequest("Valid checkout-exclusive dates and channel are required.")
@@ -108,7 +117,7 @@ func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	if len(result) != len(days) {
+	if complete && len(result) != len(days) {
 		return nil, apperrors.Conflict("CALENDAR_INCOMPLETE", "Every requested civil date must be configured before quoting or holding inventory.")
 	}
 	return result, nil

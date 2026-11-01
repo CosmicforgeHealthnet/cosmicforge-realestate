@@ -31,3 +31,7 @@ DO $$ BEGIN
  OR has_table_privilege('cf_business_runtime','reservation_overbooking_releases','UPDATE')
  THEN RAISE EXCEPTION 'Runtime least-privilege check failed'; END IF;
 END $$;
+
+-- RMS observations and model governance: retained evidence is append-only.
+REVOKE UPDATE,DELETE,TRUNCATE ON demand_snapshots,booking_pace_snapshots,forecast_runs FROM cf_business_runtime;
+REVOKE INSERT,UPDATE,DELETE,TRUNCATE ON forecast_models FROM cf_business_runtime;

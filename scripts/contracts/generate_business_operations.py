@@ -2,10 +2,21 @@
 Run from repository root: python scripts/contracts/generate_business_operations.py
 --check compares generated artifacts without changing them.
 """
-import json,re,sys,copy
+import json,re,sys,copy,os,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 SERVICE=ROOT/'services/business-operations-service'
+def write_contract(path,text):
+ path.parent.mkdir(parents=True,exist_ok=True)
+ if not path.resolve().is_relative_to(ROOT.resolve()):raise RuntimeError('Contract output outside repository')
+ temporary=None
+ try:
+  with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',newline='\n',dir=path.parent,prefix='.business-contract-',suffix='.tmp',delete=False) as output:
+   temporary=Path(output.name);output.write(text)
+  os.replace(temporary,path)
+ finally:
+  if temporary is not None:temporary.unlink(missing_ok=True)
+
 UID='019a5fb0-0000-7000-8000-000000000001'
 DATE='2026-10-30T12:00:00Z'
 def ref(n):return {'$ref':'#/components/schemas/'+n}
@@ -464,6 +475,8 @@ for r in R:
  if graph_kind and '{id}' in path:
   target='business_'+('property_id' if '/properties/{id}/' in path else 'development_id' if '/developments/{id}/' in path else graph_kind.lower()+'_id')
  if '/inventory-nodes/{id}' in path:target='business_node_id'
+ if '/revenue/demand-snapshots/{id}' in path:target='business_snapshot_id'
+ if '/revenue/forecasts/{id}' in path:target='business_forecast_id'
  if '/imports/{id}' in path:target='business_import_id'
  if '/reservations/{id}' in path:target='business_reservation_id'
  if '/waitlist/{id}' in path:target='business_waitlist_id'
@@ -472,8 +485,9 @@ for r in R:
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
  resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
- commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
+ commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if response=='RMSDemandSnapshot':tests.append('if(pm.response.code<300){pm.environment.set("business_snapshot_id",body.data.id);pm.environment.set("business_source_digest",body.data.source_digest);}')
  if response=='ReservationOverbookingPolicy':tests.append('if(pm.response.code<300)pm.environment.set("business_overbooking_policy_version",body.data.version);')
  if response=='CommercialMappingPreviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_mapping_preview_id",body.data.preview_id);pm.environment.set("business_mapping_digest",body.data.digest);}')
  if response=='CommercialBulkView':tests.append('if(pm.response.code<300){pm.environment.set("business_bulk_snapshot_digest",body.data.snapshot.digest);pm.environment.set("business_bulk_version",body.data.version);}')
@@ -497,6 +511,7 @@ for r in R:
  if any(path.startswith('/api/v1/business/'+p) for p in ('inventory-pools','sellable-products','holds','allotments','calendar','availability','compliance-holds')) or path=='/api/v1/business/inventory':folder='06 Inventory & Availability'
  if any(path.startswith('/api/v1/business/'+p) for p in ('rate-plans','rate-plan-versions','rate-quotes','rates/','restrictions','promotions','packages','add-ons','tax-profiles','currency-policy')):folder='07 Rate Plans, Restrictions & Promotions'
  if path.startswith(('/api/v1/business/channels','/api/v1/business/channel-conflicts')):folder='08 Channel Manager'
+ if path.startswith('/api/v1/business/revenue'):folder='09 Revenue Management'
  if path.startswith(('/api/v1/business/reservations','/api/v1/business/reservation-','/api/v1/business/waitlist')):folder='10 Reservations'
  if path.startswith('/internal/'):folder='_Internal'
  if path.startswith('/webhooks/'):folder='_Webhooks'
@@ -516,7 +531,7 @@ changed=[]
 for p,text in outputs.items():
  if not p.exists() or p.read_text(encoding='utf-8-sig')!=text:
   changed.append(str(p.relative_to(ROOT)))
-  if '--check' not in sys.argv:p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8',newline='\n')
+  if '--check' not in sys.argv:write_contract(p,text)
 if '--check'in sys.argv and changed:raise SystemExit('Contract drift: '+', '.join(changed))
 if '--validate' in sys.argv:
  from jsonschema import Draft202012Validator,RefResolver

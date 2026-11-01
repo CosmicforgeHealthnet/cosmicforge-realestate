@@ -73132,6 +73132,1615 @@
         }
       }
     },
+    "/api/v1/business/revenue/forecasts": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_forecasts",
+        "summary": "GET /api/v1/business/revenue/forecasts",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSRawList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_revenue_forecasts",
+        "summary": "POST /api/v1/business/revenue/forecasts",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:write",
+        "x-step-up": false,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSForecastRun"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "model_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "source_snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "source_as_of": "2026-10-30T12:00:00Z",
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "configuration": {
+                      "history_days": 21,
+                      "minimum_comparable_days": 3,
+                      "minimum_history_coverage_bps": 5000
+                    },
+                    "result": {
+                      "model": "canonical-weekday-demand-v1",
+                      "algorithm_version": 1,
+                      "status": "BASELINE_READY",
+                      "history_coverage_bps": 1,
+                      "confidence_method": "example",
+                      "is_calibrated_probability": false,
+                      "days": [
+                        {
+                          "day": "example",
+                          "physical_capacity": 1,
+                          "current_confirmed_nights": 1,
+                          "comparable_days": 1,
+                          "potential_demand_milli_nights": 1,
+                          "projected_sold_milli_nights": 1,
+                          "status": "BASELINE_READY",
+                          "explanation": "example"
+                        }
+                      ],
+                      "missing_inputs": [
+                        "example"
+                      ],
+                      "assumptions": [
+                        "example"
+                      ]
+                    },
+                    "status": "BASELINE_READY"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RMSForecastCommand"
+              },
+              "example": {
+                "snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                "configuration": {
+                  "history_days": 56,
+                  "minimum_comparable_days": 3,
+                  "minimum_history_coverage_bps": 8000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/revenue/forecasts/{id}": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_forecasts_id",
+        "summary": "GET /api/v1/business/revenue/forecasts/{id}",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSForecastRun"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "model_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "source_snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "source_as_of": "2026-10-30T12:00:00Z",
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "configuration": {
+                      "history_days": 21,
+                      "minimum_comparable_days": 3,
+                      "minimum_history_coverage_bps": 5000
+                    },
+                    "result": {
+                      "model": "canonical-weekday-demand-v1",
+                      "algorithm_version": 1,
+                      "status": "BASELINE_READY",
+                      "history_coverage_bps": 1,
+                      "confidence_method": "example",
+                      "is_calibrated_probability": false,
+                      "days": [
+                        {
+                          "day": "example",
+                          "physical_capacity": 1,
+                          "current_confirmed_nights": 1,
+                          "comparable_days": 1,
+                          "potential_demand_milli_nights": 1,
+                          "projected_sold_milli_nights": 1,
+                          "status": "BASELINE_READY",
+                          "explanation": "example"
+                        }
+                      ],
+                      "missing_inputs": [
+                        "example"
+                      ],
+                      "assumptions": [
+                        "example"
+                      ]
+                    },
+                    "status": "BASELINE_READY"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/revenue/demand-snapshots": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_demand_snapshots",
+        "summary": "GET /api/v1/business/revenue/demand-snapshots",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSRawList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_revenue_demand_snapshots",
+        "summary": "POST /api/v1/business/revenue/demand-snapshots",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:write",
+        "x-step-up": false,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSDemandSnapshot"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "as_of": "2026-10-30T12:00:00Z",
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "dataset": {
+                      "currency": "NGN",
+                      "timezone": "example",
+                      "basis": "CONFIRMED_COMMITTED_DEMAND",
+                      "as_of": "2026-10-30T12:00:00Z",
+                      "days": [
+                        {
+                          "day": "example",
+                          "capacity": 1,
+                          "blocked": 1,
+                          "confirmed_nights": 1,
+                          "held_nights": 1,
+                          "overbooked_nights": 1,
+                          "sellable_nights": 1,
+                          "calendar_version": 1,
+                          "accommodation_minor": 1
+                        }
+                      ],
+                      "missing_inputs": [
+                        "example"
+                      ]
+                    },
+                    "provenance": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RMSDemandCommand"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                "date_from": "2027-01-02",
+                "date_to": "2027-01-04",
+                "history_days": 56
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/revenue/demand-snapshots/{id}": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_demand_snapshots_id",
+        "summary": "GET /api/v1/business/revenue/demand-snapshots/{id}",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSDemandSnapshot"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "as_of": "2026-10-30T12:00:00Z",
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "dataset": {
+                      "currency": "NGN",
+                      "timezone": "example",
+                      "basis": "CONFIRMED_COMMITTED_DEMAND",
+                      "as_of": "2026-10-30T12:00:00Z",
+                      "days": [
+                        {
+                          "day": "example",
+                          "capacity": 1,
+                          "blocked": 1,
+                          "confirmed_nights": 1,
+                          "held_nights": 1,
+                          "overbooked_nights": 1,
+                          "sellable_nights": 1,
+                          "calendar_version": 1,
+                          "accommodation_minor": 1
+                        }
+                      ],
+                      "missing_inputs": [
+                        "example"
+                      ]
+                    },
+                    "provenance": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/revenue/demand-snapshots/{id}/pace": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_demand_snapshots_id_pace",
+        "summary": "GET /api/v1/business/revenue/demand-snapshots/{id}/pace",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSPaceResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "state": "COMPARABLE",
+                    "current_snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "previous_snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "observation_seconds": 1,
+                    "days": [
+                      {
+                        "day": "example",
+                        "current_confirmed_nights": 1,
+                        "previous_confirmed_nights": 1,
+                        "pickup_nights": 1,
+                        "contractual_revenue_change_minor": 1
+                      }
+                    ],
+                    "basis": "example"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/revenue/metrics": {
+      "get": {
+        "operationId": "GET_api_v1_business_revenue_metrics",
+        "summary": "GET /api/v1/business/revenue/metrics",
+        "description": "Authentication: business access JWT plus live account/session. Permission: rms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+        "x-permission": "rms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "snapshot_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RMSMetricsResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "snapshot_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "as_of": "2026-10-30T12:00:00Z",
+                    "metrics": {
+                      "basis": "CONFIRMED_COMMITTED_DEMAND",
+                      "currency": "NGN",
+                      "known_calendar_days": 1,
+                      "applicable_room_nights": 1,
+                      "confirmed_room_nights": 1,
+                      "outstanding_overbooked_nights": 1,
+                      "booked_occupancy_bps": 1,
+                      "accepted_accommodation_minor": 1,
+                      "contractual_adr_minor": 1,
+                      "contractual_revpar_minor": 1,
+                      "realized_occupancy_bps": 1,
+                      "realized_adr_minor": 1,
+                      "net_revenue_minor": 1,
+                      "contribution_minor": 1,
+                      "conversion_bps": 1,
+                      "missing_inputs": [
+                        "example"
+                      ],
+                      "definitions": [
+                        "example"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/v1/business-supply/reservations/{id}": {
       "get": {
         "operationId": "GET_internal_v1_business_supply_reservations_id",
@@ -77230,6 +78839,165 @@
           "expires_at"
         ]
       },
+      "DemandDataset": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "example": "NGN"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string",
+            "const": "CONFIRMED_COMMITTED_DEMAND"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DemandDay"
+            }
+          },
+          "missing_inputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "currency",
+          "timezone",
+          "basis",
+          "as_of",
+          "days",
+          "missing_inputs"
+        ]
+      },
+      "DemandDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "blocked": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "confirmed_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "held_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "overbooked_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellable_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "calendar_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accommodation_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "day",
+          "capacity",
+          "blocked",
+          "confirmed_nights",
+          "held_nights",
+          "overbooked_nights",
+          "sellable_nights",
+          "calendar_version",
+          "accommodation_minor"
+        ]
+      },
+      "DemandForecast": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "const": "canonical-weekday-demand-v1"
+          },
+          "algorithm_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "BASELINE_READY",
+              "INSUFFICIENT_DATA"
+            ]
+          },
+          "history_coverage_bps": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "confidence_method": {
+            "type": "string"
+          },
+          "is_calibrated_probability": {
+            "type": "boolean",
+            "const": false
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ForecastDay"
+            }
+          },
+          "missing_inputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "model",
+          "algorithm_version",
+          "status",
+          "history_coverage_bps",
+          "confidence_method",
+          "is_calibrated_probability",
+          "days",
+          "missing_inputs",
+          "assumptions"
+        ]
+      },
       "Device": {
         "type": "object",
         "properties": {
@@ -77531,6 +79299,90 @@
           "amount_minor",
           "per_night",
           "included"
+        ]
+      },
+      "ForecastConfiguration": {
+        "type": "object",
+        "properties": {
+          "history_days": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 21,
+            "maximum": 366
+          },
+          "minimum_comparable_days": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 3,
+            "maximum": 52
+          },
+          "minimum_history_coverage_bps": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 5000,
+            "maximum": 10000
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "history_days",
+          "minimum_comparable_days",
+          "minimum_history_coverage_bps"
+        ]
+      },
+      "ForecastDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "physical_capacity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "current_confirmed_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "comparable_days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "potential_demand_milli_nights": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "projected_sold_milli_nights": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "BASELINE_READY",
+              "INSUFFICIENT_DATA"
+            ]
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "day",
+          "physical_capacity",
+          "current_confirmed_nights",
+          "comparable_days",
+          "potential_demand_milli_nights",
+          "projected_sold_milli_nights",
+          "status",
+          "explanation"
         ]
       },
       "Geometry": {
@@ -80332,6 +82184,493 @@
           "expires_at",
           "calculated_at",
           "is_reservation"
+        ]
+      },
+      "RMSDemandCommand": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "history_days": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "pool_id",
+          "date_from",
+          "date_to",
+          "history_days"
+        ]
+      },
+      "RMSDemandSnapshot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "dataset": {
+            "$ref": "#/components/schemas/DemandDataset"
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "property_id",
+          "pool_id",
+          "date_from",
+          "date_to",
+          "as_of",
+          "source_digest",
+          "dataset",
+          "provenance"
+        ]
+      },
+      "RMSForecastCommand": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/ForecastConfiguration"
+          },
+          "supersedes_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "snapshot_id",
+          "configuration"
+        ]
+      },
+      "RMSForecastRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "model_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/ForecastConfiguration"
+          },
+          "result": {
+            "$ref": "#/components/schemas/DemandForecast"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "BASELINE_READY",
+              "INSUFFICIENT_DATA"
+            ]
+          },
+          "supersedes_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "property_id",
+          "pool_id",
+          "model_id",
+          "source_snapshot_id",
+          "source_as_of",
+          "source_digest",
+          "date_from",
+          "date_to",
+          "configuration",
+          "result",
+          "status"
+        ]
+      },
+      "RMSMetrics": {
+        "type": "object",
+        "properties": {
+          "basis": {
+            "type": "string",
+            "const": "CONFIRMED_COMMITTED_DEMAND"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "example": "NGN"
+          },
+          "known_calendar_days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "applicable_room_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "confirmed_room_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outstanding_overbooked_nights": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "booked_occupancy_bps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "accepted_accommodation_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "contractual_adr_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "contractual_revpar_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "realized_occupancy_bps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "realized_adr_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "net_revenue_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "contribution_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "conversion_bps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "missing_inputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "definitions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "basis",
+          "currency",
+          "known_calendar_days",
+          "applicable_room_nights",
+          "confirmed_room_nights",
+          "outstanding_overbooked_nights",
+          "booked_occupancy_bps",
+          "accepted_accommodation_minor",
+          "contractual_adr_minor",
+          "contractual_revpar_minor",
+          "realized_occupancy_bps",
+          "realized_adr_minor",
+          "net_revenue_minor",
+          "contribution_minor",
+          "conversion_bps",
+          "missing_inputs",
+          "definitions"
+        ]
+      },
+      "RMSMetricsResult": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/RMSMetrics"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "snapshot_id",
+          "source_digest",
+          "date_from",
+          "date_to",
+          "as_of",
+          "metrics"
+        ]
+      },
+      "RMSPaceDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "current_confirmed_nights": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "previous_confirmed_nights": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "pickup_nights": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "contractual_revenue_change_minor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "day",
+          "current_confirmed_nights",
+          "previous_confirmed_nights",
+          "pickup_nights",
+          "contractual_revenue_change_minor"
+        ]
+      },
+      "RMSPaceResult": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "COMPARABLE",
+              "NO_EARLIER_OBSERVATION"
+            ]
+          },
+          "current_snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "previous_snapshot_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "observation_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RMSPaceDay"
+            }
+          },
+          "basis": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "state",
+          "current_snapshot_id",
+          "previous_snapshot_id",
+          "observation_seconds",
+          "days",
+          "basis"
+        ]
+      },
+      "RMSRawList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "limit",
+          "offset"
         ]
       },
       "RateDefinition": {

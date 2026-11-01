@@ -1,5 +1,5 @@
-// Package revenue implements exact, versioned commercial pricing. Prediction,
-// autopilot and financial execution belong to their later owning contexts.
+// Package revenue implements exact versioned commercial pricing and explainable
+// demand analytics. Payment execution remains owned by Payment Service.
 package revenue
 
 import (

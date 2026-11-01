@@ -1,5 +1,7 @@
 # Sections 8–11 baseline audit and execution matrix
 
+Current progress: canonical reservation/overbooking checkpoint `67557e69c3177d2166d4a8d86cf52ac1da19486a` passed all five exact-SHA workflows. Subsequent RMS observations/forecasts are implemented and passed 188 Business tests with real disposable PostgreSQL/JetStream; see [Section 8 evidence](business-operations-section-08-report.md). The Sections 8–11 task remains incomplete; pending RMS governance, PMS and CRM work is not external-provider certification.
+
 Baseline/fetched origin/staging: `19eb01f456d3cd40217e4ecd0e70a7a8073e1307`. Branch staging only. Verified current generated contracts: **283 routes, 214 schemas, 40 event schemas**, Goose **7**. Previous exact-SHA all five workflows passed (Backend 41210542440, Repository structure 41210542393, Contracts 41210542384, Security 41210542509, Images 41210542453). Business race artifact: 152 passed, no failure/skip. Baseline image: `sha256:2dcad286fba7ddffa4d182d6db506b9067a2e5dade131e21f5793fc28849f184`.
 
 Preserved unrelated work: Owner web .gitignore/next-env.d.ts, README_FIRST.md, Owner master-plan document/generator and its Word lock file. No main/production/VPS operation authorised. All new migrations follow 00007; previously published files remain unchanged.
