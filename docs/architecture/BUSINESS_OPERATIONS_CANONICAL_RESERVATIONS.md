@@ -37,3 +37,16 @@ Reservation lists and command-center views resolve permitted properties before p
 ## Delivery boundary
 
 The current checkpoint includes the reservation core and authenticated disposable integration tests. It is not full Section 9 or Sections 8–11 certification. Overbooking commands, quantity fragmentation, additional waitlist automation, PMS, RMS and CRM remain tracked in the implementation matrix. Real OTA/Marketplace, Payment-provider and staging deployment certification require their actual supported integrations and authorised deployment infrastructure.
+
+
+## Approved overbooking exception (Goose 9)
+
+An explicit staff-only policy applies to one verified property/pool, with an effective window, absolute quantity bound and capacity-basis-point bound. Percentage authority rounds down. Policy creation/version changes and accepting excess demand require current property capability, recent MFA and an exact independent amount/currency-bound approval. Ordinary booking/quote/hold paths continue to refuse unavailable stock. A specialized managerial price quote does not reserve inventory; an independently guaranteed priced inquiry is the input to the approved exception transition.
+
+`inventory_calendar.capacity` is never increased. `committed` records all accepted demand; `overbooked` separately identifies demand lacking physical backing. Goose 9 atomically replaces the previous physical-budget check with `blocked + committed <= capacity + overbooked`, preserves the previous invariant for every existing row (`overbooked=0`), and adds exact approved provenance, quota and immutable adjustment guards. No table or data is discarded. Active permits snapshot their independently approved policy version and expire as authorization windows; expiration does not silently cancel an already accepted customer obligation. New exceptions cannot use expired or suspended policy authority.
+
+Every committed night names its accepted room/pool/date/quantity and any exception permit. At commit, the aggregate excess counter must equal its outstanding canonical provenance; a copied counter cannot create stock. `reservation_overbooking_releases` appends conversion/cancellation facts and cannot be rewritten. Existing physical holds/allotments retain their budget. Cancellation removes only the actual outstanding exposure. Reconciliation requires real unheld/unallotted physical backing for every affected night, keeps accepted prices and committed demand, and reduces the excess counter. No fake room or capacity is created.
+
+Reservation detail exposes outstanding excess nights. `reservations.RequirePhysicalBacking` rejects assignment while any requested night lacks committed physical backing; Section 10 must combine this necessary guard with actual room IDs, readiness, finance/risk and assignment uniqueness. This helper is not certification of an unimplemented PMS.
+
+Acceptance opens a durable overbooking reconciliation/recovery case and queues a narrow safety pause for published listings backed by that pool. Delivery remains UNKNOWN until signed owning-provider readback confirms the pause. Restoring backing does not publish a listing again or claim the customer's recovery/remedy is complete. Actual CRM recovery composition and live channel certification remain separate work.

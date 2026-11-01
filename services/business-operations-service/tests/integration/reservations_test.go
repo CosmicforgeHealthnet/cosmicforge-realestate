@@ -36,6 +36,13 @@ func TestBusinessReservationHoldConfirmCancelConservesStockAndHistory(t *testing
 	c := newCommercialHTTP(t)
 	reservationPolicyFixture(c, false)
 	in := reservationCommandFixture(c, true)
+	unknownGuest := in
+	unknownGuest.PaymentResponsibility = "PLATFORM_COLLECT"
+	unknownGuest.GuaranteeApprovalID = ids.Nil
+	unknownGuest.Guests = append([]reservations.GuestCommand(nil), in.Guests...)
+	unowned := ids.New()
+	unknownGuest.Guests[0].GuestID = &unowned
+	c.must(c.owner, "POST", "/reservations", unknownGuest, 503)
 	key := ids.New().String()
 	status, raw := c.call(c.owner, http.MethodPost, "/reservations", in, map[string]string{"Idempotency-Key": key})
 	if status != 201 {

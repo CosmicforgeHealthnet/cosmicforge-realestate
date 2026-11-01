@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00008_canonical_reservations.sql",
+  "latest_migration": "00009_reservation_overbooking.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -1660,7 +1660,8 @@
         "unique_constraint_count": 1,
         "check_constraint_count": 4,
         "altered_in": [
-          "00008_canonical_reservations.sql"
+          "00008_canonical_reservations.sql",
+          "00009_reservation_overbooking.sql"
         ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
@@ -5711,7 +5712,9 @@
         "immutable": false,
         "unique_constraint_count": 0,
         "check_constraint_count": 3,
-        "altered_in": []
+        "altered_in": [
+          "00009_reservation_overbooking.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5769,7 +5772,9 @@
         "immutable": true,
         "unique_constraint_count": 2,
         "check_constraint_count": 3,
-        "altered_in": []
+        "altered_in": [
+          "00009_reservation_overbooking.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -5793,11 +5798,43 @@
         "versioned": true,
         "lifecycle": true,
         "indexes": [
+          "overbooking_policy_active_pool",
           "reservation_overbooking_policies_scope"
         ],
         "immutable": false,
         "unique_constraint_count": 2,
         "check_constraint_count": 3,
+        "altered_in": [
+          "00009_reservation_overbooking.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_overbooking_releases",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00009_reservation_overbooking.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "overbooking_release_day"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 4,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",

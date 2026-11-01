@@ -22,6 +22,9 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  s['Reservation']['properties']['allocation_state']['enum']=['ACTIVE','SPLIT_SOURCE','MERGED_SOURCE']
  s['Reservation']['properties']['risk_status']['enum']=['UNREVIEWED','CLEAR','REVIEW','RESTRICTED']
  s['ReservationPolicy']['properties']['acceptance_timezone'].update(readOnly=True,description='Set by the service on accepted reservation snapshots, preserving the contractual civil-time context.')
+ s['OverbookingDay']['properties']['day'].update(format='date',example='2027-01-02')
+ s['OverbookingPolicy']['properties']['max_quantity'].update(minimum=1,maximum=1000)
+ s['OverbookingPolicy']['properties']['max_capacity_bps'].update(minimum=1,maximum=10000)
  s['ReservationPolicy']['properties']['hold_seconds'].update(minimum=60,maximum=900)
  s['ReservationFinancialGroupView']['properties']['allocation_relationship']['enum']=['ACTIVE_ALLOCATION','HISTORICAL_BACKING']
  for name in ('Reservation','ReservationRoom','ReservationRoomCommand','ReservationWaitlist'):
@@ -31,6 +34,11 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  'reservationConflicts':('reservations:read',None,'ReservationRawList',200,False),
  'reservationConflictGet':('reservations:read',None,'ReservationConflictDetail',200,False),
  'reservationConflictDecision':('reservations:resolve','ReservationConflictDecision','ReservationConflictDecisionResult',200,True),
+ 'reservationOverbookingPolicies':('reservations:read',None,'ReservationRawList',200,False),
+ 'reservationOverbookingPolicySave':('reservations:overbook','ReservationOverbookingPolicyCommand','ReservationOverbookingPolicy',201,True),
+ 'reservationOverbookingQuote':('reservations:overbook','ReservationOverbookingQuote','QuoteSnapshot',201,True),
+ 'reservationOverbook':('reservations:overbook','ReservationOverbookingCommand','ReservationDetail',200,True),
+ 'reservationOverbookingReconcile':('reservations:overbook','ReservationOverbookingCommand','ReservationDetail',200,True),
  'reservationPolicies':('reservations:read',None,'List:ReservationPolicyView',200,False),
  'reservationPolicyCreate':('reservations:approve','ReservationPolicyCommand','ReservationPolicyView',201,True),
  'reservationList':('reservations:read',None,'List:Reservation',200,False),
@@ -74,9 +82,12 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler in ('reservationCreate','reservationConfirm'):note+='Canonical acceptance is separate from confirmation. Confirmation requires fresh bound Payment collection or an independently approved guarantee, exact held nights and risk eligibility. '
    if handler in ('reservationAmend','reservationSplit','reservationMerge'):note+='Exact independent amount/currency/channel-bound approval and MFA. Prices remain immutable. Stock and financial backing conserve through append-only versions/lineage. '
    if handler in ('reservationCollectionRequest','reservationPaymentReadback'):note+='202 means a durable request only. Worker uses existing authenticated Payment policy/locked-quote/receipt/intent APIs. Unknown outcomes remain pending; collection, settlement and refunds are distinct. '
+   if handler.startswith('reservationOverbook'):note+='Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. '
    if handler.startswith('reservationWaitlist'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
-   route.__globals__['R'][-1]['handler']=handler;found.add(handler)
+   route.__globals__['R'][-1]['handler']=handler
+   if handler=='reservationOverbookingPolicySave':route.__globals__['R'][-1]['success_statuses']=[200]
+   found.add(handler)
  if found!=set(data):raise RuntimeError('Unregistered operational contracts: '+str(set(data)-found))
  route('GET','/reservations/{id}','signed:marketplace-service',None,'ReservationSourceStatus',200,notes='Signed Marketplace caller and matching organisation delegation, certified readback capability and exact source connection ownership. No guest/private profile is exposed.')
  route.__globals__['R'][-1].update(path='/internal/v1/business-supply/reservations/{id}',transport='internal',handler='internalReservationStatus')
@@ -95,6 +106,9 @@ def operational_examples(uid):
  return {
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
  'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},
+ 'ReservationOverbookingPolicyCommand':{'property_id':uid,'pool_id':uid,'expected_version':0,'definition':{'max_quantity':1,'max_capacity_bps':10000,'allowed_sources':['DIRECT'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-10T00:00:00Z','policy_reference':'approved-exception-policy:v1'},'state':'ACTIVE','approval_id':uid,'reason':'Explicit independent property overbooking policy'},
+ 'ReservationOverbookingQuote':{'policy_id':uid,'policy_version':1,'quote':{'product_id':uid,'date_from':'2027-01-02','date_to':'2027-01-04','adults':2,'children':0,'quantity':1,'channel':''}},
+ 'ReservationOverbookingCommand':{'version':1,'policy_id':uid,'policy_version':1,'approval_id':uid,'recovery_reference':'operator-recovery-case-reference','reason':'Independent review of an explicit constrained excess-demand obligation'},
  'ReservationCreate':booking,
  'ReservationPolicyCommand':{'property_id':uid,'expected_version':0,'definition':policy,'effective_at':'2026-10-31T00:00:00Z','approval_id':uid,'reason':'Independently approved reservation acceptance policy'},
  'ReservationMutation':{'version':1,'reason':'Versioned reservation command with current evidence'},

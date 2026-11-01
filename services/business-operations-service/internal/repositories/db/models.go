@@ -811,6 +811,7 @@ type InventoryCalendar struct {
 	UpdatedBy        *ids.ID
 	UpdatedAt        time.Time
 	UpdatedByService string
+	Overbooked       int32
 }
 
 type InventoryEdge struct {
@@ -1522,15 +1523,17 @@ type ReservationHold struct {
 }
 
 type ReservationInventoryDay struct {
-	OrganisationID   ids.ID
-	PropertyID       ids.ID
-	RoomID           ids.ID
-	PoolID           ids.ID
-	Day              pgtype.Date
-	Quantity         int32
-	AllotmentID      *ids.ID
-	AllottedQuantity int32
-	ReleasedAt       *time.Time
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	RoomID              ids.ID
+	PoolID              ids.ID
+	Day                 pgtype.Date
+	Quantity            int32
+	AllotmentID         *ids.ID
+	AllottedQuantity    int32
+	ReleasedAt          *time.Time
+	OverbookedQuantity  int32
+	OverbookingPermitID *ids.ID
 }
 
 type ReservationLineage struct {
@@ -1579,6 +1582,8 @@ type ReservationOverbookingPermit struct {
 	CreatedBy         *ids.ID
 	CreatedByService  string
 	CreatedAt         time.Time
+	PolicyVersion     int64
+	PolicySnapshot    []byte
 }
 
 type ReservationOverbookingPolicy struct {
@@ -1590,6 +1595,22 @@ type ReservationOverbookingPolicy struct {
 	ApprovalID       ids.ID
 	Version          int64
 	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+	PoolID           *ids.ID
+}
+
+type ReservationOverbookingRelease struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RoomID           ids.ID
+	PoolID           ids.ID
+	Day              pgtype.Date
+	Quantity         int32
+	Kind             string
+	Reason           string
 	CreatedBy        *ids.ID
 	CreatedByService string
 	CreatedAt        time.Time

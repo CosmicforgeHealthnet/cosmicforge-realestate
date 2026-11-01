@@ -253,7 +253,7 @@ func (q *Queries) GetSellableProduct(ctx context.Context, db DBTX, arg GetSellab
 }
 
 const lockCommercialCalendar = `-- name: LockCommercialCalendar :many
-SELECT organisation_id, pool_id, day, capacity, blocked, committed, version, reason, updated_by, updated_at, updated_by_service FROM inventory_calendar WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date ORDER BY day FOR UPDATE
+SELECT organisation_id, pool_id, day, capacity, blocked, committed, version, reason, updated_by, updated_at, updated_by_service, overbooked FROM inventory_calendar WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date ORDER BY day FOR UPDATE
 `
 
 type LockCommercialCalendarParams struct {
@@ -289,6 +289,7 @@ func (q *Queries) LockCommercialCalendar(ctx context.Context, db DBTX, arg LockC
 			&i.UpdatedBy,
 			&i.UpdatedAt,
 			&i.UpdatedByService,
+			&i.Overbooked,
 		); err != nil {
 			return nil, err
 		}

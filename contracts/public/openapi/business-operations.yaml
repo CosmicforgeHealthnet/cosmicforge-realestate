@@ -40995,11 +40995,13 @@
                         "day": "example",
                         "capacity": 1,
                         "committed": 1,
+                        "overbooked": 1,
                         "held": 1,
                         "blocked": 1,
                         "allotted": 1,
                         "channel_allotted": 1,
                         "available": 1,
+                        "physical_available": 1,
                         "version": 1,
                         "updated_at": "2026-10-30T12:00:00Z"
                       }
@@ -42910,11 +42912,13 @@
                         "day": "example",
                         "capacity": 1,
                         "committed": 1,
+                        "overbooked": 1,
                         "held": 1,
                         "blocked": 1,
                         "allotted": 1,
                         "channel_allotted": 1,
                         "available": 1,
+                        "physical_available": 1,
                         "version": 1,
                         "updated_at": "2026-10-30T12:00:00Z"
                       }
@@ -43179,11 +43183,13 @@
                             "day": "example",
                             "capacity": 1,
                             "committed": 1,
+                            "overbooked": 1,
                             "held": 1,
                             "blocked": 1,
                             "allotted": 1,
                             "channel_allotted": 1,
                             "available": 1,
+                            "physical_available": 1,
                             "version": 1,
                             "updated_at": "2026-10-30T12:00:00Z"
                           }
@@ -44428,6 +44434,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -61901,6 +61916,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -62266,6 +62290,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -62629,6 +62662,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -63006,6 +63048,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -63383,6 +63434,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -63760,6 +63820,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -64137,6 +64206,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -64514,6 +64592,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -64891,6 +64978,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -66316,6 +66412,15 @@
                       "updated_at": "2026-10-30T12:00:00Z"
                     },
                     "target": {
+                      "outstanding_overbooking": [
+                        {
+                          "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "day": "2027-01-02",
+                          "outstanding_quantity": 1,
+                          "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                        }
+                      ],
                       "reservation": {
                         "id": "019a5fb0-0000-7000-8000-000000000001",
                         "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -66739,6 +66844,15 @@
                       "updated_at": "2026-10-30T12:00:00Z"
                     },
                     "target": {
+                      "outstanding_overbooking": [
+                        {
+                          "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "day": "2027-01-02",
+                          "outstanding_quantity": 1,
+                          "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                        }
+                      ],
                       "reservation": {
                         "id": "019a5fb0-0000-7000-8000-000000000001",
                         "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -67234,6 +67348,1489 @@
                     "request_id": "example-request"
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/reservation-overbooking-policies": {
+      "get": {
+        "operationId": "GET_api_v1_business_reservation_overbooking_policies",
+        "summary": "GET /api/v1/business/reservation-overbooking-policies",
+        "description": "Authentication: business access JWT plus live account/session. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+        "x-permission": "reservations:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationRawList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_reservation_overbooking_policies",
+        "summary": "POST /api/v1/business/reservation-overbooking-policies",
+        "description": "Authentication: business access JWT plus live account/session. Permission: reservations:overbook. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+        "x-permission": "reservations:overbook",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationOverbookingPolicy"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "definition": {
+                      "max_quantity": 1,
+                      "max_capacity_bps": 1,
+                      "allowed_sources": [
+                        "example"
+                      ],
+                      "effective_at": "2026-10-30T12:00:00Z",
+                      "expires_at": "2026-10-30T12:00:00Z",
+                      "policy_reference": "example"
+                    },
+                    "state": "example",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Committed new version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationOverbookingPolicy"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "definition": {
+                      "max_quantity": 1,
+                      "max_capacity_bps": 1,
+                      "allowed_sources": [
+                        "example"
+                      ],
+                      "effective_at": "2026-10-30T12:00:00Z",
+                      "expires_at": "2026-10-30T12:00:00Z",
+                      "policy_reference": "example"
+                    },
+                    "state": "example",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationOverbookingPolicyCommand"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                "expected_version": 0,
+                "definition": {
+                  "max_quantity": 1,
+                  "max_capacity_bps": 10000,
+                  "allowed_sources": [
+                    "DIRECT"
+                  ],
+                  "effective_at": "2026-11-01T00:00:00Z",
+                  "expires_at": "2026-11-10T00:00:00Z",
+                  "policy_reference": "approved-exception-policy:v1"
+                },
+                "state": "ACTIVE",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reason": "Explicit independent property overbooking policy"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/reservation-overbooking-quotes": {
+      "post": {
+        "operationId": "POST_api_v1_business_reservation_overbooking_quotes",
+        "summary": "POST /api/v1/business/reservation-overbooking-quotes",
+        "description": "Authentication: business access JWT plus live account/session. Permission: reservations:overbook. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+        "x-permission": "reservations:overbook",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/QuoteSnapshot"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "product_version": 1,
+                    "pool_version": 1,
+                    "rate_plan_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "rate_plan_version": 1,
+                    "date_from": "example",
+                    "date_to": "example",
+                    "adults": 1,
+                    "children": 1,
+                    "quantity": 1,
+                    "channel": "example",
+                    "nights": [
+                      {
+                        "calendar_version": 1,
+                        "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "cancellation_reference": "example",
+                        "prepayment_reference": "example",
+                        "day": "example",
+                        "rate_version_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "parent_version_ids": [
+                          "019a5fb0-0000-7000-8000-000000000001"
+                        ],
+                        "amount_minor": 1
+                      }
+                    ],
+                    "base_amount_minor": 1,
+                    "discount_minor": 1,
+                    "add_ons_minor": 1,
+                    "components": [
+                      {
+                        "code": "example",
+                        "amount_minor": 1,
+                        "included": true
+                      }
+                    ],
+                    "amount_minor": 1,
+                    "currency": "example",
+                    "currency_precision": 1,
+                    "rounding": "example",
+                    "restrictions": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "channel": "example",
+                        "date_from": "example",
+                        "date_to": "example",
+                        "definition": {
+                          "stop_sell": true,
+                          "closed_to_arrival": true,
+                          "closed_to_departure": true,
+                          "min_nights": 1,
+                          "max_nights": 1,
+                          "min_advance_days": 1,
+                          "max_advance_days": 1,
+                          "cutoff_local": "example",
+                          "min_guests": 1,
+                          "max_guests": 1,
+                          "weekdays": [
+                            1
+                          ]
+                        },
+                        "state": "example",
+                        "version": 1
+                      }
+                    ],
+                    "cancellation_reference": "example",
+                    "prepayment_reference": "example",
+                    "policy_code": "example",
+                    "policy_version": 1,
+                    "tax_profile_ids": [
+                      "019a5fb0-0000-7000-8000-000000000001"
+                    ],
+                    "promotion_versions": {},
+                    "add_on_versions": {},
+                    "expires_at": "2026-10-30T12:00:00Z",
+                    "calculated_at": "2026-10-30T12:00:00Z",
+                    "is_reservation": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationOverbookingQuote"
+              },
+              "example": {
+                "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                "policy_version": 1,
+                "quote": {
+                  "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                  "date_from": "2027-01-02",
+                  "date_to": "2027-01-04",
+                  "adults": 2,
+                  "children": 0,
+                  "quantity": 1,
+                  "channel": ""
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/reservations/{id}/overbook": {
+      "post": {
+        "operationId": "POST_api_v1_business_reservations_id_overbook",
+        "summary": "POST /api/v1/business/reservations/{id}/overbook",
+        "description": "Authentication: business access JWT plus live account/session. Permission: reservations:overbook. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+        "x-permission": "reservations:overbook",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationDetail"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
+                    "reservation": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "source": "example",
+                      "channel": "example",
+                      "source_reference": "example",
+                      "state": "HOLD",
+                      "allocation_state": "ACTIVE",
+                      "version": 1,
+                      "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "policy_snapshot": {
+                        "allow_source_cancellation": true,
+                        "max_guarantee_minor": 1,
+                        "allowed_sources": [
+                          "example"
+                        ],
+                        "allowed_guarantees": [
+                          "example"
+                        ],
+                        "hold_seconds": 60,
+                        "require_approval": true,
+                        "require_risk_clear": true,
+                        "cancellation_hours": 1,
+                        "cancellation_penalty_bps": 1,
+                        "no_show_grace_hours": 1,
+                        "no_show_retain_nights": 1,
+                        "check_in_local": "example",
+                        "check_out_local": "example",
+                        "policy_reference": "example"
+                      },
+                      "payment_responsibility": "example",
+                      "financial_state": "PENDING",
+                      "amount_minor": 1,
+                      "currency": "example",
+                      "date_from": "2027-01-02",
+                      "date_to": "2027-01-04",
+                      "risk_status": "UNREVIEWED",
+                      "reason": "example",
+                      "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                      "created_at": "2026-10-30T12:00:00Z",
+                      "updated_at": "2026-10-30T12:00:00Z"
+                    },
+                    "rooms": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "financial_group_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "date_from": "2027-01-02",
+                        "date_to": "2027-01-04",
+                        "quantity": 1,
+                        "adults": 1,
+                        "children": 1,
+                        "amount_minor": 1,
+                        "currency": "example",
+                        "snapshot": {
+                          "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_version": 1,
+                          "pool_version": 1,
+                          "rate_plan_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "rate_plan_version": 1,
+                          "date_from": "example",
+                          "date_to": "example",
+                          "adults": 1,
+                          "children": 1,
+                          "quantity": 1,
+                          "channel": "example",
+                          "nights": [
+                            {
+                              "calendar_version": 1,
+                              "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "cancellation_reference": "example",
+                              "prepayment_reference": "example",
+                              "day": "example",
+                              "rate_version_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "parent_version_ids": [
+                                "019a5fb0-0000-7000-8000-000000000001"
+                              ],
+                              "amount_minor": 1
+                            }
+                          ],
+                          "base_amount_minor": 1,
+                          "discount_minor": 1,
+                          "add_ons_minor": 1,
+                          "components": [
+                            {
+                              "code": "example",
+                              "amount_minor": 1,
+                              "included": true
+                            }
+                          ],
+                          "amount_minor": 1,
+                          "currency": "example",
+                          "currency_precision": 1,
+                          "rounding": "example",
+                          "restrictions": [
+                            {
+                              "id": "019a5fb0-0000-7000-8000-000000000001",
+                              "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "channel": "example",
+                              "date_from": "example",
+                              "date_to": "example",
+                              "definition": {
+                                "stop_sell": true,
+                                "closed_to_arrival": true,
+                                "closed_to_departure": true,
+                                "min_nights": 1,
+                                "max_nights": 1,
+                                "min_advance_days": 1,
+                                "max_advance_days": 1,
+                                "cutoff_local": "example",
+                                "min_guests": 1,
+                                "max_guests": 1,
+                                "weekdays": [
+                                  1
+                                ]
+                              },
+                              "state": "example",
+                              "version": 1
+                            }
+                          ],
+                          "cancellation_reference": "example",
+                          "prepayment_reference": "example",
+                          "policy_code": "example",
+                          "policy_version": 1,
+                          "tax_profile_ids": [
+                            "019a5fb0-0000-7000-8000-000000000001"
+                          ],
+                          "promotion_versions": {},
+                          "add_on_versions": {},
+                          "expires_at": "2026-10-30T12:00:00Z",
+                          "calculated_at": "2026-10-30T12:00:00Z",
+                          "is_reservation": false
+                        },
+                        "accepted_at": "2026-10-30T12:00:00Z",
+                        "state": "example",
+                        "version": 1,
+                        "overbooked_quantity": 1
+                      }
+                    ],
+                    "guests": [
+                      {
+                        "source_kind": "example",
+                        "source_reference": "example",
+                        "is_primary": true
+                      }
+                    ],
+                    "financial_groups": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "amount_minor": 1,
+                        "required_amount_minor": 1,
+                        "currency": "example",
+                        "policy_reference": "example",
+                        "agreement_version": 1,
+                        "state": "example",
+                        "responsibility": "example",
+                        "version": 1,
+                        "allocated_amount_minor": 1,
+                        "credits_applied_minor": 1,
+                        "credits_forwarded_minor": 1,
+                        "allocation_relationship": "ACTIVE_ALLOCATION"
+                      }
+                    ],
+                    "history": [
+                      {}
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationOverbookingCommand"
+              },
+              "example": {
+                "version": 1,
+                "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                "policy_version": 1,
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "recovery_reference": "operator-recovery-case-reference",
+                "reason": "Independent review of an explicit constrained excess-demand obligation"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/reservations/{id}/overbooking/reconcile": {
+      "post": {
+        "operationId": "POST_api_v1_business_reservations_id_overbooking_reconcile",
+        "summary": "POST /api/v1/business/reservations/{id}/overbooking/reconcile",
+        "description": "Authentication: business access JWT plus live account/session. Permission: reservations:overbook. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+        "x-permission": "reservations:overbook",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationDetail"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
+                    "reservation": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "source": "example",
+                      "channel": "example",
+                      "source_reference": "example",
+                      "state": "HOLD",
+                      "allocation_state": "ACTIVE",
+                      "version": 1,
+                      "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "policy_snapshot": {
+                        "allow_source_cancellation": true,
+                        "max_guarantee_minor": 1,
+                        "allowed_sources": [
+                          "example"
+                        ],
+                        "allowed_guarantees": [
+                          "example"
+                        ],
+                        "hold_seconds": 60,
+                        "require_approval": true,
+                        "require_risk_clear": true,
+                        "cancellation_hours": 1,
+                        "cancellation_penalty_bps": 1,
+                        "no_show_grace_hours": 1,
+                        "no_show_retain_nights": 1,
+                        "check_in_local": "example",
+                        "check_out_local": "example",
+                        "policy_reference": "example"
+                      },
+                      "payment_responsibility": "example",
+                      "financial_state": "PENDING",
+                      "amount_minor": 1,
+                      "currency": "example",
+                      "date_from": "2027-01-02",
+                      "date_to": "2027-01-04",
+                      "risk_status": "UNREVIEWED",
+                      "reason": "example",
+                      "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                      "created_at": "2026-10-30T12:00:00Z",
+                      "updated_at": "2026-10-30T12:00:00Z"
+                    },
+                    "rooms": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "financial_group_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "date_from": "2027-01-02",
+                        "date_to": "2027-01-04",
+                        "quantity": 1,
+                        "adults": 1,
+                        "children": 1,
+                        "amount_minor": 1,
+                        "currency": "example",
+                        "snapshot": {
+                          "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_version": 1,
+                          "pool_version": 1,
+                          "rate_plan_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "rate_plan_version": 1,
+                          "date_from": "example",
+                          "date_to": "example",
+                          "adults": 1,
+                          "children": 1,
+                          "quantity": 1,
+                          "channel": "example",
+                          "nights": [
+                            {
+                              "calendar_version": 1,
+                              "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "cancellation_reference": "example",
+                              "prepayment_reference": "example",
+                              "day": "example",
+                              "rate_version_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "parent_version_ids": [
+                                "019a5fb0-0000-7000-8000-000000000001"
+                              ],
+                              "amount_minor": 1
+                            }
+                          ],
+                          "base_amount_minor": 1,
+                          "discount_minor": 1,
+                          "add_ons_minor": 1,
+                          "components": [
+                            {
+                              "code": "example",
+                              "amount_minor": 1,
+                              "included": true
+                            }
+                          ],
+                          "amount_minor": 1,
+                          "currency": "example",
+                          "currency_precision": 1,
+                          "rounding": "example",
+                          "restrictions": [
+                            {
+                              "id": "019a5fb0-0000-7000-8000-000000000001",
+                              "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "channel": "example",
+                              "date_from": "example",
+                              "date_to": "example",
+                              "definition": {
+                                "stop_sell": true,
+                                "closed_to_arrival": true,
+                                "closed_to_departure": true,
+                                "min_nights": 1,
+                                "max_nights": 1,
+                                "min_advance_days": 1,
+                                "max_advance_days": 1,
+                                "cutoff_local": "example",
+                                "min_guests": 1,
+                                "max_guests": 1,
+                                "weekdays": [
+                                  1
+                                ]
+                              },
+                              "state": "example",
+                              "version": 1
+                            }
+                          ],
+                          "cancellation_reference": "example",
+                          "prepayment_reference": "example",
+                          "policy_code": "example",
+                          "policy_version": 1,
+                          "tax_profile_ids": [
+                            "019a5fb0-0000-7000-8000-000000000001"
+                          ],
+                          "promotion_versions": {},
+                          "add_on_versions": {},
+                          "expires_at": "2026-10-30T12:00:00Z",
+                          "calculated_at": "2026-10-30T12:00:00Z",
+                          "is_reservation": false
+                        },
+                        "accepted_at": "2026-10-30T12:00:00Z",
+                        "state": "example",
+                        "version": 1,
+                        "overbooked_quantity": 1
+                      }
+                    ],
+                    "guests": [
+                      {
+                        "source_kind": "example",
+                        "source_reference": "example",
+                        "is_primary": true
+                      }
+                    ],
+                    "financial_groups": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "amount_minor": 1,
+                        "required_amount_minor": 1,
+                        "currency": "example",
+                        "policy_reference": "example",
+                        "agreement_version": 1,
+                        "state": "example",
+                        "responsibility": "example",
+                        "version": 1,
+                        "allocated_amount_minor": 1,
+                        "credits_applied_minor": 1,
+                        "credits_forwarded_minor": 1,
+                        "allocation_relationship": "ACTIVE_ALLOCATION"
+                      }
+                    ],
+                    "history": [
+                      {}
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservationOverbookingCommand"
+              },
+              "example": {
+                "version": 1,
+                "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                "policy_version": 1,
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "recovery_reference": "operator-recovery-case-reference",
+                "reason": "Independent review of an explicit constrained excess-demand obligation"
               }
             }
           }
@@ -68937,6 +70534,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -70555,6 +72161,15 @@
                 },
                 "example": {
                   "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
                     "reservation": {
                       "id": "019a5fb0-0000-7000-8000-000000000001",
                       "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
@@ -75403,6 +77018,10 @@
             "type": "integer",
             "format": "int64"
           },
+          "overbooked": {
+            "type": "integer",
+            "format": "int64"
+          },
           "held": {
             "type": "integer",
             "format": "int64"
@@ -75420,6 +77039,10 @@
             "format": "int64"
           },
           "available": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "physical_available": {
             "type": "integer",
             "format": "int64"
           },
@@ -75444,11 +77067,13 @@
           "day",
           "capacity",
           "committed",
+          "overbooked",
           "held",
           "blocked",
           "allotted",
           "channel_allotted",
           "available",
+          "physical_available",
           "version",
           "updated_at"
         ]
@@ -77640,6 +79265,91 @@
         },
         "additionalProperties": true
       },
+      "OverbookingDay": {
+        "type": "object",
+        "properties": {
+          "room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "example": "2027-01-02"
+          },
+          "outstanding_quantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permit_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "room_id",
+          "pool_id",
+          "day",
+          "outstanding_quantity",
+          "permit_id"
+        ]
+      },
+      "OverbookingPolicy": {
+        "type": "object",
+        "properties": {
+          "max_quantity": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "max_capacity_bps": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "allowed_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "policy_reference": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "max_quantity",
+          "max_capacity_bps",
+          "allowed_sources",
+          "effective_at",
+          "expires_at",
+          "policy_reference"
+        ]
+      },
       "Pack": {
         "type": "object",
         "properties": {
@@ -79626,6 +81336,12 @@
       "ReservationDetail": {
         "type": "object",
         "properties": {
+          "outstanding_overbooking": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverbookingDay"
+            }
+          },
           "reservation": {
             "$ref": "#/components/schemas/Reservation"
           },
@@ -79657,6 +81373,7 @@
         },
         "additionalProperties": false,
         "required": [
+          "outstanding_overbooking",
           "reservation",
           "rooms",
           "guests",
@@ -79939,6 +81656,158 @@
         "required": [
           "version",
           "reason"
+        ]
+      },
+      "ReservationOverbookingCommand": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "policy_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "recovery_reference": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "policy_id",
+          "policy_version",
+          "approval_id",
+          "recovery_reference",
+          "reason"
+        ]
+      },
+      "ReservationOverbookingPolicy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/OverbookingPolicy"
+          },
+          "state": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "property_id",
+          "pool_id",
+          "definition",
+          "state",
+          "version"
+        ]
+      },
+      "ReservationOverbookingPolicyCommand": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "pool_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "expected_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/OverbookingPolicy"
+          },
+          "state": {
+            "type": "string"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "pool_id",
+          "expected_version",
+          "definition",
+          "state",
+          "approval_id",
+          "reason"
+        ]
+      },
+      "ReservationOverbookingQuote": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "policy_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quote": {
+            "$ref": "#/components/schemas/CommercialQuoteCommand"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "policy_id",
+          "policy_version",
+          "quote"
         ]
       },
       "ReservationPaymentReadbackCommand": {

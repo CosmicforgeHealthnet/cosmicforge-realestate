@@ -78,7 +78,7 @@ func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 			return nil, e
 		}
 	}
-	rows, err := q.Query(ctx, `SELECT c.day::text,c.capacity,c.committed,c.blocked,c.version,c.updated_at,
+	rows, err := q.Query(ctx, `SELECT c.day::text,c.capacity,c.committed,c.overbooked,c.blocked,c.version,c.updated_at,
  (SELECT coalesce(sum(d.quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.state='ACTIVE' AND h.expires_at>$6),
  (SELECT coalesce(sum(d.quantity),0) FROM inventory_allotment_days d JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.released_at IS NULL AND a.state='ACTIVE' AND a.release_at>$6),
  (SELECT coalesce(sum(d.allotted_quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.state='ACTIVE' AND h.expires_at>$6 AND a.state='ACTIVE' AND a.release_at>$6),
@@ -96,12 +96,13 @@ func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 	for rows.Next() {
 		var d Day
 		var usedAllotted, ownAllotted, ownUsed, committedAllotted, ownCommitted int
-		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Blocked, &d.Version, &d.UpdatedAt, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed, &committedAllotted, &ownCommitted); err != nil {
+		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Overbooked, &d.Blocked, &d.Version, &d.UpdatedAt, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed, &committedAllotted, &ownCommitted); err != nil {
 			return nil, err
 		}
 		d.Allotted = max(0, d.Allotted-committedAllotted)
 		d.ChannelAllotted = max(0, ownAllotted-ownUsed-ownCommitted)
 		d.Available = max(0, d.Capacity-d.Committed-d.Blocked-d.Held-d.Allotted+usedAllotted) + d.ChannelAllotted
+		d.PhysicalAvailable = max(0, d.Capacity-d.Committed+d.Overbooked-d.Blocked-d.Held-d.Allotted+usedAllotted) + d.ChannelAllotted
 		result = append(result, d)
 	}
 	if err = rows.Err(); err != nil {

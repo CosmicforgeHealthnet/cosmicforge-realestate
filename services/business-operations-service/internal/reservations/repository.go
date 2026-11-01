@@ -128,18 +128,19 @@ func CommitHold(ctx context.Context, tx pgx.Tx, org, actor ids.ID, room Room, no
 // Release never edits a historical price. A retained night remains committed
 // explicitly; cancellation/refund obligations are separate financial references.
 func Release(ctx context.Context, tx pgx.Tx, org, actor ids.ID, room Room, from string, now time.Time) error {
-	rows, e := tx.Query(ctx, `SELECT d.day::text,d.quantity FROM reservation_inventory_days d JOIN inventory_calendar c ON c.organisation_id=d.organisation_id AND c.pool_id=d.pool_id AND c.day=d.day WHERE d.organisation_id=$1 AND d.room_id=$2 AND d.released_at IS NULL AND d.day>=$3::date ORDER BY d.day FOR UPDATE OF c`, org, room.ID, from)
+	rows, e := tx.Query(ctx, `SELECT d.day::text,d.quantity,d.overbooked_quantity-coalesce((SELECT sum(j.quantity) FROM reservation_overbooking_releases j WHERE j.organisation_id=d.organisation_id AND j.room_id=d.room_id AND j.day=d.day),0) FROM reservation_inventory_days d JOIN inventory_calendar c ON c.organisation_id=d.organisation_id AND c.pool_id=d.pool_id AND c.day=d.day WHERE d.organisation_id=$1 AND d.room_id=$2 AND d.released_at IS NULL AND d.day>=$3::date ORDER BY d.day FOR UPDATE OF c`, org, room.ID, from)
 	if e != nil {
 		return e
 	}
 	type day struct {
-		day      string
-		quantity int
+		day        string
+		quantity   int
+		overbooked int
 	}
 	days := []day{}
 	for rows.Next() {
 		var d day
-		if e = rows.Scan(&d.day, &d.quantity); e != nil {
+		if e = rows.Scan(&d.day, &d.quantity, &d.overbooked); e != nil {
 			break
 		}
 		days = append(days, d)
@@ -153,10 +154,15 @@ func Release(ctx context.Context, tx pgx.Tx, org, actor ids.ID, room Room, from 
 		return rowErr
 	}
 	for _, d := range days {
+		if d.overbooked > 0 {
+			if _, e = tx.Exec(ctx, `INSERT INTO reservation_overbooking_releases(id,organisation_id,property_id,room_id,pool_id,day,quantity,kind,reason,created_by) VALUES($1,$2,$3,$4,$5,$6::date,$7,'CANCELLED','Canonical reservation release',$8)`, ids.New(), org, room.PropertyID, room.ID, room.PoolID, d.day, d.overbooked, actor); e != nil {
+				return e
+			}
+		}
 		if _, e = tx.Exec(ctx, `UPDATE reservation_inventory_days SET released_at=$4 WHERE organisation_id=$1 AND room_id=$2 AND day=$3::date AND released_at IS NULL`, org, room.ID, d.day, now); e != nil {
 			return e
 		}
-		tag, err := tx.Exec(ctx, `UPDATE inventory_calendar SET updated_by_service=coalesce(nullif(current_setting('business.actor_service',true),''),''),committed=committed-$4,version=version+1,updated_by=$5,updated_at=$6 WHERE organisation_id=$1 AND pool_id=$2 AND day=$3::date AND committed>=$4`, org, room.PoolID, d.day, d.quantity, actor, now)
+		tag, err := tx.Exec(ctx, `UPDATE inventory_calendar SET updated_by_service=coalesce(nullif(current_setting('business.actor_service',true),''),''),committed=committed-$4,overbooked=overbooked-$7,version=version+1,updated_by=$5,updated_at=$6 WHERE organisation_id=$1 AND pool_id=$2 AND day=$3::date AND committed>=$4`, org, room.PoolID, d.day, d.quantity, actor, now, d.overbooked)
 		if err != nil {
 			return err
 		}

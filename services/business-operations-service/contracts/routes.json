@@ -3715,6 +3715,74 @@
     "handler": "reservationLineageGet"
   },
   {
+    "method": "GET",
+    "path": "/api/v1/business/reservation-overbooking-policies",
+    "capability": "reservations:read",
+    "request": null,
+    "response": "ReservationRawList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+    "handler": "reservationOverbookingPolicies"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/reservation-overbooking-policies",
+    "capability": "reservations:overbook",
+    "request": "ReservationOverbookingPolicyCommand",
+    "response": "ReservationOverbookingPolicy",
+    "status": 201,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+    "handler": "reservationOverbookingPolicySave",
+    "success_statuses": [
+      200
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/reservation-overbooking-quotes",
+    "capability": "reservations:overbook",
+    "request": "ReservationOverbookingQuote",
+    "response": "QuoteSnapshot",
+    "status": 201,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+    "handler": "reservationOverbookingQuote"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/reservations/{id}/overbook",
+    "capability": "reservations:overbook",
+    "request": "ReservationOverbookingCommand",
+    "response": "ReservationDetail",
+    "status": 200,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+    "handler": "reservationOverbook"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/reservations/{id}/overbooking/reconcile",
+    "capability": "reservations:overbook",
+    "request": "ReservationOverbookingCommand",
+    "response": "ReservationDetail",
+    "status": 200,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. ",
+    "handler": "reservationOverbookingReconcile"
+  },
+  {
     "method": "POST",
     "path": "/api/v1/business/reservations/{id}/payment-requests",
     "capability": "reservations:write",

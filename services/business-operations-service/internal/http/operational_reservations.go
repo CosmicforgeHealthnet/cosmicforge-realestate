@@ -59,6 +59,7 @@ func (h *Handler) registerReservations(r chi.Router) {
 	h.registerReservationAmendments(r)
 	h.registerReservationLineage(r)
 	h.registerReservationConflicts(r)
+	h.registerReservationOverbooking(r)
 }
 func (h *Handler) reservationPolicies(w http.ResponseWriter, r *http.Request) {
 	h.listCommercial(w, r, "reservation_policies", "reservations:read", func(ctx context.Context, org, id ids.ID) (any, error) {
@@ -260,6 +261,11 @@ func (h *Handler) createReservationTx(ctx context.Context, tx pgx.Tx, t tenant, 
 	if in.Source == "CORPORATE" && (in.CorporateID == nil || in.CorporateContractID == nil) {
 		return out, apperrors.InvalidRequest("Corporate reservations require the current authorised corporate customer and contract.")
 	}
+	for _, guest := range in.Guests {
+		if guest.GuestID != nil {
+			return out, apperrors.Unavailable("Canonical guest identity ownership validation is not yet composed; use a typed source reference until the owning CRM workflow is available.")
+		}
+	}
 	// Corporate bindings are supplied only after their owning Section 11 contract is installed.
 	if in.CorporateID != nil {
 		return out, apperrors.Unavailable("Corporate contract validation is not yet composed.")
@@ -393,6 +399,18 @@ func (h *Handler) reservationDetail(ctx context.Context, q database.Querier, org
 		out.FinancialGroups = append(out.FinancialGroups, group)
 	}
 
+	stock, e := commercialJSONRows(ctx, q, `SELECT jsonb_build_object('room_id',d.room_id,'pool_id',d.pool_id,'day',d.day::text,'outstanding_quantity',d.overbooked_quantity-coalesce((SELECT sum(j.quantity) FROM reservation_overbooking_releases j WHERE j.organisation_id=d.organisation_id AND j.room_id=d.room_id AND j.day=d.day),0),'permit_id',d.overbooking_permit_id) FROM reservation_inventory_days d JOIN reservation_rooms r ON r.organisation_id=d.organisation_id AND r.id=d.room_id WHERE d.organisation_id=$1 AND r.reservation_id=$2 AND r.state='ACTIVE' AND d.released_at IS NULL AND d.overbooked_quantity>coalesce((SELECT sum(j.quantity) FROM reservation_overbooking_releases j WHERE j.organisation_id=d.organisation_id AND j.room_id=d.room_id AND j.day=d.day),0) ORDER BY d.day,d.room_id`, org, id)
+	if e != nil {
+		return out, e
+	}
+	out.OutstandingOverbooking = []reservations.OverbookingDay{}
+	for _, raw := range stock {
+		var d reservations.OverbookingDay
+		if e = json.Unmarshal(raw, &d); e != nil {
+			return out, e
+		}
+		out.OutstandingOverbooking = append(out.OutstandingOverbooking, d)
+	}
 	out.History = []json.RawMessage{}
 	return out, nil
 }

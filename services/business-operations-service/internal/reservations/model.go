@@ -215,12 +215,20 @@ func (c Create) Validate() error {
 	return nil
 }
 
+type OverbookingDay struct {
+	RoomID              ids.ID `json:"room_id"`
+	PoolID              ids.ID `json:"pool_id"`
+	Day                 string `json:"day"`
+	OutstandingQuantity int    `json:"outstanding_quantity"`
+	PermitID            ids.ID `json:"permit_id"`
+}
 type Detail struct {
-	Reservation     Reservation          `json:"reservation"`
-	Rooms           []Room               `json:"rooms"`
-	Guests          []GuestCommand       `json:"guests"`
-	FinancialGroups []FinancialGroupView `json:"financial_groups"`
-	History         []json.RawMessage    `json:"history"`
+	OutstandingOverbooking []OverbookingDay     `json:"outstanding_overbooking"`
+	Reservation            Reservation          `json:"reservation"`
+	Rooms                  []Room               `json:"rooms"`
+	Guests                 []GuestCommand       `json:"guests"`
+	FinancialGroups        []FinancialGroupView `json:"financial_groups"`
+	History                []json.RawMessage    `json:"history"`
 }
 type Command struct {
 	Version             int64         `json:"version"`

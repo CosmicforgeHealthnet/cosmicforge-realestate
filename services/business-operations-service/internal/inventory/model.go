@@ -79,17 +79,19 @@ type Product struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 type Day struct {
-	Day             string    `json:"day"`
-	Capacity        int       `json:"capacity"`
-	Committed       int       `json:"committed"`
-	Held            int       `json:"held"`
-	Blocked         int       `json:"blocked"`
-	Allotted        int       `json:"allotted"`
-	ChannelAllotted int       `json:"channel_allotted"`
-	Available       int       `json:"available"`
-	Version         int64     `json:"version"`
-	AllotmentID     *ids.ID   `json:"allotment_id,omitempty"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	Day               string    `json:"day"`
+	Capacity          int       `json:"capacity"`
+	Committed         int       `json:"committed"`
+	Overbooked        int       `json:"overbooked"`
+	Held              int       `json:"held"`
+	Blocked           int       `json:"blocked"`
+	Allotted          int       `json:"allotted"`
+	ChannelAllotted   int       `json:"channel_allotted"`
+	Available         int       `json:"available"`
+	PhysicalAvailable int       `json:"physical_available"`
+	Version           int64     `json:"version"`
+	AllotmentID       *ids.ID   `json:"allotment_id,omitempty"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 type Hold struct {
 	ID             ids.ID    `json:"id"`
