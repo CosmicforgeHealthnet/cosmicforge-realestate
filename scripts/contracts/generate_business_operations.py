@@ -477,6 +477,8 @@ for r in R:
  if '/inventory-nodes/{id}' in path:target='business_node_id'
  if '/revenue/demand-snapshots/{id}' in path:target='business_snapshot_id'
  if '/revenue/forecasts/{id}' in path:target='business_forecast_id'
+ if '/revenue/policies/{id}' in path:target='business_rms_policy_id'
+ if '/revenue/recommendations/{id}' in path:target='business_recommendation_id'
  if '/imports/{id}' in path:target='business_import_id'
  if '/reservations/{id}' in path:target='business_reservation_id'
  if '/waitlist/{id}' in path:target='business_waitlist_id'
@@ -485,8 +487,10 @@ for r in R:
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
  resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
- commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
+ commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','RMSPolicy':'rms_policy_id','RMSRecommendation':'recommendation_id','RMSSimulationRecord':'simulation_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if response=='RMSRecommendation':tests.append('if(pm.response.code<300){pm.environment.set("business_change_digest",body.data.change_digest);pm.environment.set("business_recommendation_version",body.data.version);}')
+ if response=='RMSPolicy':tests.append('if(pm.response.code<300)pm.environment.set("business_rms_policy_version",body.data.version);')
  if response=='RMSDemandSnapshot':tests.append('if(pm.response.code<300){pm.environment.set("business_snapshot_id",body.data.id);pm.environment.set("business_source_digest",body.data.source_digest);}')
  if response=='ReservationOverbookingPolicy':tests.append('if(pm.response.code<300)pm.environment.set("business_overbooking_policy_version",body.data.version);')
  if response=='CommercialMappingPreviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_mapping_preview_id",body.data.preview_id);pm.environment.set("business_mapping_digest",body.data.digest);}')

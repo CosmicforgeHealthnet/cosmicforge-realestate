@@ -35,3 +35,5 @@ END $$;
 -- RMS observations and model governance: retained evidence is append-only.
 REVOKE UPDATE,DELETE,TRUNCATE ON demand_snapshots,booking_pace_snapshots,forecast_runs FROM cf_business_runtime;
 REVOKE INSERT,UPDATE,DELETE,TRUNCATE ON forecast_models FROM cf_business_runtime;
+REVOKE UPDATE,DELETE,TRUNCATE ON rms_policies,pricing_decisions,pricing_simulations FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON pricing_recommendations FROM cf_business_runtime;

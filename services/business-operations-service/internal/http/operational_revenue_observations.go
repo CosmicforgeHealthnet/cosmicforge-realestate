@@ -42,6 +42,7 @@ func (h *Handler) registerRMSObservations(r chi.Router) {
 	r.Get("/revenue/demand-snapshots/{id}/pace", h.rmsPaceGet)
 	r.Get("/revenue/metrics", h.rmsMetricsGet)
 	h.registerRMSForecasts(r)
+	h.registerRMSPolicies(r)
 }
 func (h *Handler) rmsDemandCreate(w http.ResponseWriter, r *http.Request) {
 	var in RMSDemandCommand

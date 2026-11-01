@@ -14,6 +14,18 @@ import (
 	"time"
 )
 
+func decodeRMSRecord[T any](raw []byte, err error) (T, error) {
+	var out T
+	if errors.Is(err, pgx.ErrNoRows) {
+		return out, apperrors.NotFound("RMS_RECORD_NOT_FOUND", "RMS record not found.")
+	}
+	if err != nil {
+		return out, err
+	}
+	err = json.Unmarshal(raw, &out)
+	return out, err
+}
+
 func loadRMSDemandSnapshot(ctx context.Context, q database.Querier, org, id ids.ID) (RMSDemandSnapshot, error) {
 	var out RMSDemandSnapshot
 	raw, e := db.New().GetRMSDemandSnapshot(ctx, q, db.GetRMSDemandSnapshotParams{OrganisationID: org, ID: id})

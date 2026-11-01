@@ -147,6 +147,9 @@ func (r *Runtime) Run(ctx context.Context) error {
 				if err == nil {
 					err = r.Inventory.ProcessCommercialMaintenance(call, 50)
 				}
+				if err == nil {
+					err = r.Inventory.ProcessRMSMaintenance(call, 50)
+				}
 				cancel()
 				if err != nil && ctx.Err() == nil {
 					r.log.Error("commercial supply maintenance failed", "error", err.Error())

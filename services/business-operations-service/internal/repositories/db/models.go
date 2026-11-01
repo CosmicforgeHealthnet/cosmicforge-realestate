@@ -1280,6 +1280,58 @@ type PriceQuote struct {
 	CreatedByService string
 }
 
+type PricingDecision struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RecommendationID ids.ID
+	PreviousVersion  int64
+	PriorState       string
+	State            string
+	Action           string
+	ActorID          *ids.ID
+	ActorService     string
+	ApprovalID       *ids.ID
+	Reason           string
+	Evidence         []byte
+	CreatedAt        time.Time
+}
+
+type PricingRecommendation struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	PoolID            ids.ID
+	RatePlanID        ids.ID
+	PolicyID          ids.ID
+	ForecastID        ids.ID
+	DateFrom          pgtype.Date
+	DateTo            pgtype.Date
+	TargetPlanVersion int64
+	ChangeDigest      string
+	Snapshot          []byte
+	ExpiresAt         time.Time
+	State             string
+	Version           int64
+	ApprovalID        *ids.ID
+	AppliedVersions   []byte
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type PricingSimulation struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RecommendationID ids.ID
+	ChangeDigest     string
+	ForecastID       ids.ID
+	Result           []byte
+	CreatedBy        ids.ID
+	CreatedAt        time.Time
+}
+
 type ProcessedEvent struct {
 	Consumer    string
 	EventID     ids.ID
@@ -1824,6 +1876,22 @@ type ReservationVersion struct {
 	CreatedBy          *ids.ID
 	CreatedByService   string
 	CreatedAt          time.Time
+}
+
+type RmsPolicy struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	BranchID       ids.ID
+	PoolID         ids.ID
+	RatePlanID     ids.ID
+	Version        int64
+	State          string
+	Definition     []byte
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
 }
 
 type RolePermission struct {

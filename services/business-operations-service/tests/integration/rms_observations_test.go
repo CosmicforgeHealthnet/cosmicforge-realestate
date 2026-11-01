@@ -14,7 +14,7 @@ func rmsSnapshotCommand(c *commercialHarness) businesshttp.RMSDemandCommand {
 	return businesshttp.RMSDemandCommand{PropertyID: c.property.ID, PoolID: c.pool.ID, DateFrom: c.dates.DateFrom, DateTo: c.dates.DateTo, HistoryDays: 56}
 }
 
-func TestBusinessRMSBaselineForecastUsesActualOwnedBookingHistory(t *testing.T) {
+func rmsOwnedHistoryFixture(t *testing.T) (*commercialHarness, businesshttp.RMSForecastRun) {
 	c := newCommercialHTTP(t)
 	reservationPolicyFixture(c, false)
 	loc, e := time.LoadLocation(c.property.Timezone)
@@ -63,6 +63,10 @@ func TestBusinessRMSBaselineForecastUsesActualOwnedBookingHistory(t *testing.T) 
 	}
 	snapshot := commercialData[businesshttp.RMSDemandSnapshot](t, c.must(c.owner, "POST", "/revenue/demand-snapshots", businesshttp.RMSDemandCommand{PropertyID: c.property.ID, PoolID: c.pool.ID, DateFrom: asOfDate.Format(time.DateOnly), DateTo: history.DateTo, HistoryDays: 56}, 201))
 	forecast := commercialData[businesshttp.RMSForecastRun](t, c.must(c.owner, "POST", "/revenue/forecasts", rmsForecastCommand(snapshot), 201))
+	return c, forecast
+}
+func TestBusinessRMSBaselineForecastUsesActualOwnedBookingHistory(t *testing.T) {
+	_, forecast := rmsOwnedHistoryFixture(t)
 	if forecast.Status != "BASELINE_READY" || forecast.Result.HistoryCoverageBPS != 10000 || forecast.Result.IsCalibratedProbability || len(forecast.Result.Days) != 1 {
 		t.Fatalf("owned historical forecast %+v", forecast)
 	}

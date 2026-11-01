@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00010_rms_observations_forecasts.sql",
+  "latest_migration": "00011_rms_pricing_governance.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -195,11 +195,25 @@
       "category": "Analytics/RMS/AI",
       "owner_package": "internal/revenue",
       "owning_section": "8 / D.23 / D.30 / D.34",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/revenue repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00011_rms_pricing_governance.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "pricing_recommendations",
@@ -208,11 +222,27 @@
       "category": "Analytics/RMS/AI",
       "owner_package": "internal/revenue",
       "owning_section": "8 / D.23 / D.30 / D.34",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/revenue repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00011_rms_pricing_governance.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "pricing_recommendation_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 7,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "action_cards",
@@ -5533,6 +5563,35 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "pricing_simulations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/revenue",
+      "owning_section": "8",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00011_rms_pricing_governance.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "pricing_simulation_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "regions",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -6088,6 +6147,35 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "rms_policies",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/revenue",
+      "owning_section": "8",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00011_rms_pricing_governance.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "rms_policy_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },

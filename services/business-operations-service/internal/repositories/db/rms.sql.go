@@ -58,3 +58,35 @@ func (q *Queries) GetRMSForecastRun(ctx context.Context, db DBTX, arg GetRMSFore
 	err := row.Scan(&to_jsonb)
 	return to_jsonb, err
 }
+
+const getRMSPolicy = `-- name: GetRMSPolicy :one
+SELECT to_jsonb(p) FROM rms_policies p WHERE organisation_id=$1 AND id=$2
+`
+
+type GetRMSPolicyParams struct {
+	OrganisationID ids.ID
+	ID             ids.ID
+}
+
+func (q *Queries) GetRMSPolicy(ctx context.Context, db DBTX, arg GetRMSPolicyParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getRMSPolicy, arg.OrganisationID, arg.ID)
+	var to_jsonb []byte
+	err := row.Scan(&to_jsonb)
+	return to_jsonb, err
+}
+
+const getRMSRecommendation = `-- name: GetRMSRecommendation :one
+SELECT to_jsonb(p) FROM pricing_recommendations p WHERE organisation_id=$1 AND id=$2
+`
+
+type GetRMSRecommendationParams struct {
+	OrganisationID ids.ID
+	ID             ids.ID
+}
+
+func (q *Queries) GetRMSRecommendation(ctx context.Context, db DBTX, arg GetRMSRecommendationParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getRMSRecommendation, arg.OrganisationID, arg.ID)
+	var to_jsonb []byte
+	err := row.Scan(&to_jsonb)
+	return to_jsonb, err
+}

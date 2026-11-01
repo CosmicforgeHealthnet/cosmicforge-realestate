@@ -3,6 +3,15 @@ import re
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
+ shape('RMSSimulationRecord',id=typ('ids.ID'),recommendation_id=typ('ids.ID'),change_digest={'type':'string','pattern':'^[a-f0-9]{64}$','example':'a'*64},result=ref('PricingSimulation'))
+ for field in ['projected_occupancy_bps','projected_adr_minor','projected_revpar_minor','projected_channel_commission_minor','projected_promotion_cost_minor','projected_payment_fee_minor','projected_operational_cost_minor','projected_net_contribution_minor']:
+  s['PricingSimulation']['properties'][field]['type']=['integer','null']
+ s['PricingSimulation']['properties']['basis']['const']='PROJECTED_FIXED_DEMAND_BASE_RATE_SCENARIO'
+ s['PricingPolicy']['properties']['mode']['enum']=['MANUAL','RECOMMEND_ONLY','APPROVAL_AUTOMATION','AUTOPILOT_WITH_LIMITS']
+ for field in ['blackout_dates','channels','mandatory_inputs']:s['PricingPolicy']['properties'][field]['type']=['array','null']
+ s['RMSPolicyCommand']['properties']['state']['enum']=['ACTIVE','PAUSED']
+ s['RMSDecisionCommand']['properties']['action']['enum']=['SUBMIT','APPROVE','APPLY','REJECT','EXPIRE','OVERRIDE','ROLLBACK']
+ s['RMSRecommendation']['properties']['state']['enum']=['DRAFT','PENDING_APPROVAL','APPROVED','APPLIED','REJECTED','EXPIRED','OVERRIDDEN','ROLLED_BACK']
  shape('RMSRawList',items=arr({'type':'object','additionalProperties':True}),limit={'type':'integer'},offset={'type':'integer'})
  for name,fields in {'ForecastDay':['potential_demand_milli_nights','projected_sold_milli_nights'],'RMSMetrics':['booked_occupancy_bps','accepted_accommodation_minor','contractual_adr_minor','contractual_revpar_minor','realized_occupancy_bps','realized_adr_minor','net_revenue_minor','contribution_minor','conversion_bps'],'RMSPaceDay':['current_confirmed_nights','previous_confirmed_nights','pickup_nights','contractual_revenue_change_minor'],'RMSPaceResult':['observation_seconds','previous_snapshot_id'],'DemandDay':['accommodation_minor']}.items():
   for field in fields:
@@ -56,6 +65,16 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  'reservationOverbookingQuote':('reservations:overbook','ReservationOverbookingQuote','QuoteSnapshot',201,True),
  'reservationOverbook':('reservations:overbook','ReservationOverbookingCommand','ReservationDetail',200,True),
  'reservationOverbookingReconcile':('reservations:overbook','ReservationOverbookingCommand','ReservationDetail',200,True),
+ 'rmsPolicyList':('rms:read',None,'RMSRawList',200,False),
+ 'rmsPolicySave':('rms:write','RMSPolicyCommand','RMSPolicy',201,True),
+ 'rmsPolicyGet':('rms:read',None,'RMSPolicy',200,False),
+ 'rmsRecommendationList':('rms:read',None,'RMSRawList',200,False),
+ 'rmsRecommendationCreate':('rms:write','RMSRecommendationCommand','RMSRecommendation',201,False),
+ 'rmsRecommendationGet':('rms:read',None,'RMSRecommendation',200,False),
+ 'rmsRecommendationDecide':('rms:write','RMSDecisionCommand','RMSRecommendation',200,True),
+ 'rmsRecommendationDecisions':('rms:read',None,'RMSRawList',200,False),
+ 'rmsRecommendationSimulate':('rms:write','RMSVersionCommand','RMSSimulationRecord',201,False),
+ 'rmsSimulationList':('rms:read',None,'RMSRawList',200,False),
  'rmsDemandList':('rms:read',None,'RMSRawList',200,False),
  'rmsDemandCreate':('rms:write','RMSDemandCommand','RMSDemandSnapshot',201,False),
  'rmsDemandGet':('rms:read',None,'RMSDemandSnapshot',200,False),
@@ -108,7 +127,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler in ('reservationAmend','reservationSplit','reservationMerge'):note+='Exact independent amount/currency/channel-bound approval and MFA. Prices remain immutable. Stock and financial backing conserve through append-only versions/lineage. '
    if handler in ('reservationCollectionRequest','reservationPaymentReadback'):note+='202 means a durable request only. Worker uses existing authenticated Payment policy/locked-quote/receipt/intent APIs. Unknown outcomes remain pending; collection, settlement and refunds are distinct. '
    if handler.startswith('reservationOverbook'):note+='Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. '
-   if handler.startswith('rms'):note+='Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. '
+   if handler.startswith('rms'):note+='Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. '
    if handler.startswith('reservationWaitlist'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
    route.__globals__['R'][-1]['handler']=handler
@@ -136,6 +155,10 @@ def operational_examples(uid):
  'ReservationOverbookingPolicyCommand':{'property_id':uid,'pool_id':uid,'expected_version':0,'definition':{'max_quantity':1,'max_capacity_bps':10000,'allowed_sources':['DIRECT'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-10T00:00:00Z','policy_reference':'approved-exception-policy:v1'},'state':'ACTIVE','approval_id':uid,'reason':'Explicit independent property overbooking policy'},
  'ReservationOverbookingQuote':{'policy_id':uid,'policy_version':1,'quote':{'product_id':uid,'date_from':'2027-01-02','date_to':'2027-01-04','adults':2,'children':0,'quantity':1,'channel':''}},
  'ReservationOverbookingCommand':{'version':1,'policy_id':uid,'policy_version':1,'approval_id':uid,'recovery_reference':'operator-recovery-case-reference','reason':'Independent review of an explicit constrained excess-demand obligation'},
+ 'RMSPolicyCommand':{'property_id':uid,'pool_id':uid,'rate_plan_id':uid,'expected_version':0,'state':'ACTIVE','definition':{'mode':'RECOMMEND_ONLY','currency':'NGN','floor_minor':9000,'ceiling_minor':11000,'max_daily_change_bps':500,'max_cumulative_change_bps':1000,'cumulative_days':7,'approval_threshold_bps':100,'target_occupancy_bps':7500,'feedback_gain_bps':1000,'minimum_history_coverage_bps':8000,'max_source_age_seconds':3600,'recommendation_ttl_seconds':3600,'blackout_dates':[],'channels':[],'mandatory_inputs':['canonical_confirmed_nights','physical_calendar'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-02T00:00:00Z'},'approval_id':uid,'reason':'Exact independent approval of bounded operator feedback policy'},
+ 'RMSRecommendationCommand':{'policy_id':uid,'forecast_id':uid,'reason':'Retain an explainable bounded canonical rate proposal'},
+ 'RMSVersionCommand':{'version':1,'reason':'Inspect the retained projected fixed-demand scenario'},
+ 'RMSDecisionCommand':{'version':1,'action':'SUBMIT','reason':'Submit the exact proposal for independent approval'},
  'RMSDemandCommand':{'property_id':uid,'pool_id':uid,'date_from':'2027-01-02','date_to':'2027-01-04','history_days':56},
  'RMSForecastCommand':{'snapshot_id':uid,'configuration':{'history_days':56,'minimum_comparable_days':3,'minimum_history_coverage_bps':8000}},
  'ReservationCreate':booking,

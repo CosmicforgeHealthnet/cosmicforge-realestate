@@ -4039,7 +4039,7 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsForecastList"
   },
   {
@@ -4052,7 +4052,7 @@
     "idempotent": true,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsForecastCreate"
   },
   {
@@ -4065,7 +4065,7 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsForecastGet"
   },
   {
@@ -4078,7 +4078,7 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsDemandList"
   },
   {
@@ -4091,7 +4091,7 @@
     "idempotent": true,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsDemandCreate"
   },
   {
@@ -4104,7 +4104,7 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsDemandGet"
   },
   {
@@ -4117,7 +4117,7 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsPaceGet"
   },
   {
@@ -4130,8 +4130,138 @@
     "idempotent": false,
     "step_up": false,
     "public": false,
-    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. This operation does not apply rates, create capacity or authorise autopilot. ",
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
     "handler": "rmsMetricsGet"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/policies",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSRawList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsPolicyList"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/revenue/policies",
+    "capability": "rms:write",
+    "request": "RMSPolicyCommand",
+    "response": "RMSPolicy",
+    "status": 201,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsPolicySave"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/policies/{id}",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSPolicy",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsPolicyGet"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/recommendations",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSRawList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationList"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/revenue/recommendations",
+    "capability": "rms:write",
+    "request": "RMSRecommendationCommand",
+    "response": "RMSRecommendation",
+    "status": 201,
+    "idempotent": true,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationCreate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/recommendations/{id}",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSRecommendation",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationGet"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/revenue/recommendations/{id}/decision",
+    "capability": "rms:write",
+    "request": "RMSDecisionCommand",
+    "response": "RMSRecommendation",
+    "status": 200,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationDecide"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/recommendations/{id}/decisions",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSRawList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationDecisions"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/revenue/recommendations/{id}/simulate",
+    "capability": "rms:write",
+    "request": "RMSVersionCommand",
+    "response": "RMSSimulationRecord",
+    "status": 201,
+    "idempotent": true,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsRecommendationSimulate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/business/revenue/simulations",
+    "capability": "rms:read",
+    "request": null,
+    "response": "RMSRawList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. ",
+    "handler": "rmsSimulationList"
   },
   {
     "method": "GET",
