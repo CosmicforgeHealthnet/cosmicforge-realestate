@@ -123,8 +123,19 @@ func TestBusinessCommercialMigrationUpgradesOnlyUnrestrictedInitialOwner(t *test
 		t.Fatal(e)
 	}
 	defer sqlDB.Close()
+	commercial := fstest.MapFS{}
+	for _, entry := range entries {
+		if entry.Name() >= "00008" {
+			continue
+		}
+		raw, e := fs.ReadFile(migrations.FS, entry.Name())
+		if e != nil {
+			t.Fatal(e)
+		}
+		commercial[entry.Name()] = &fstest.MapFile{Data: raw}
+	}
 	for range 2 {
-		if e = migrate.Up(t.Context(), sqlDB, migrations.FS); e != nil {
+		if e = migrate.Up(t.Context(), sqlDB, commercial); e != nil {
 			t.Fatal(e)
 		}
 	}
@@ -137,6 +148,100 @@ func TestBusinessCommercialMigrationUpgradesOnlyUnrestrictedInitialOwner(t *test
 		t.Fatalf("Limited staff privileges expanded %s %v", unchanged, e)
 	}
 	if e = db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM audit_events WHERE action='SECTIONS567_OWNER_CAPABILITY_MIGRATION'`).Scan(&audits); e != nil || audits != 1 {
+		t.Fatalf("Missing immutable migration audit %d %v", audits, e)
+	}
+}
+
+func TestBusinessReservationMigrationUpgradesOnlyUnrestrictedInitialOwner(t *testing.T) {
+	previous := fstest.MapFS{}
+	entries, e := fs.ReadDir(migrations.FS, ".")
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, entry := range entries {
+		if entry.Name() >= "00008" {
+			continue
+		}
+		raw, e := fs.ReadFile(migrations.FS, entry.Name())
+		if e != nil {
+			t.Fatal(e)
+		}
+		previous[entry.Name()] = &fstest.MapFile{Data: raw}
+	}
+	db := testkit.NewDatabase(t, previous)
+	owner, staff, org, role, limited, member, staffMember := ids.New(), ids.New(), ids.New(), ids.New(), ids.New(), ids.New(), ids.New()
+	for _, item := range []struct {
+		q string
+		a []any
+	}{
+		{`INSERT INTO business_accounts(id,email,display_name) VALUES($1,'owner-upgrade@example.test','Owner'),($2,'staff-upgrade@example.test','Staff')`, []any{owner, staff}},
+		{`INSERT INTO organisations(id,representative_account_id,name) VALUES($1,$2,'Legacy business')`, []any{org, owner}},
+		{`INSERT INTO role_templates(id,organisation_id,role_key,name,version) VALUES($1,$3,$1,'Owner',3),($2,$3,$2,'Limited',1)`, []any{role, limited, org}},
+		{`INSERT INTO permissions(code,description) VALUES('roles:write','Roles'),('staff:read','Staff') ON CONFLICT DO NOTHING`, nil},
+		{`INSERT INTO role_permissions(role_id,permission) VALUES($1,'roles:write'),($2,'staff:read')`, []any{role, limited}},
+		{`INSERT INTO staff_memberships(id,organisation_id,account_id,role_id,kind,status,effective_at,scope_kind,scope_id) VALUES($1,$3,$4,$6,'OWNER','ACTIVE',now(),'COMPANY',$3),($2,$3,$5,$7,'EMPLOYEE','ACTIVE',now(),'COMPANY',$3)`, []any{member, staffMember, org, owner, staff, role, limited}},
+		{`INSERT INTO staff_scope_grants(id,organisation_id,membership_id,capability,scope_kind,scope_id,inherit,effective_at) VALUES($1,$2,$3,'roles:write','COMPANY',$2,true,now())`, []any{ids.New(), org, member}},
+	} {
+		if _, e = db.Pool.Exec(t.Context(), item.q, item.a...); e != nil {
+			t.Fatal(e)
+		}
+	}
+	type blockedOwner struct{ role, member ids.ID }
+	blocked := []blockedOwner{}
+	for _, condition := range []struct {
+		name, accountState, orgState string
+		deny                         bool
+	}{{"disabled", "DISABLED", "DRAFT", false}, {"suspended", "ACTIVE", "SUSPENDED", false}, {"explicit-deny", "ACTIVE", "DRAFT", true}} {
+		account, organisation, roleID, memberID := ids.New(), ids.New(), ids.New(), ids.New()
+		for _, item := range []struct {
+			q string
+			a []any
+		}{
+			{`INSERT INTO business_accounts(id,email,display_name,status) VALUES($1,$2,'Blocked owner fixture',$3)`, []any{account, condition.name + "-owner@example.invalid", condition.accountState}},
+			{`INSERT INTO organisations(id,representative_account_id,name,state) VALUES($1,$2,'Blocked organisation fixture',$3)`, []any{organisation, account, condition.orgState}},
+			{`INSERT INTO role_templates(id,organisation_id,role_key,name,version) VALUES($1,$2,$1,'Owner',3)`, []any{roleID, organisation}},
+			{`INSERT INTO role_permissions(role_id,permission) VALUES($1,'roles:write')`, []any{roleID}},
+			{`INSERT INTO staff_memberships(id,organisation_id,account_id,role_id,kind,status,effective_at,scope_kind,scope_id) VALUES($1,$2,$3,$4,'OWNER','ACTIVE',now(),'COMPANY',$2)`, []any{memberID, organisation, account, roleID}},
+			{`INSERT INTO staff_scope_grants(id,organisation_id,membership_id,capability,scope_kind,scope_id,inherit,effective_at) VALUES($1,$2,$3,'roles:write','COMPANY',$2,true,now())`, []any{ids.New(), organisation, memberID}},
+		} {
+			if _, e = db.Pool.Exec(t.Context(), item.q, item.a...); e != nil {
+				t.Fatal(e)
+			}
+		}
+		if condition.deny {
+			if _, e = db.Pool.Exec(t.Context(), `INSERT INTO staff_scope_grants(id,organisation_id,membership_id,capability,scope_kind,scope_id,inherit,deny,effective_at) VALUES($1,$2,$3,'roles:write','COMPANY',$2,true,true,now())`, ids.New(), organisation, memberID); e != nil {
+				t.Fatal(e)
+			}
+		}
+		blocked = append(blocked, blockedOwner{roleID, memberID})
+	}
+	sqlDB, e := migrate.Open(db.URL)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer sqlDB.Close()
+	for range 2 {
+		if e = migrate.Up(t.Context(), sqlDB, migrations.FS); e != nil {
+			t.Fatal(e)
+		}
+	}
+	for _, v := range blocked {
+		var roleID ids.ID
+		var operational int
+		if e = db.Pool.QueryRow(t.Context(), `SELECT role_id,(SELECT count(*) FROM staff_scope_grants WHERE membership_id=$1 AND capability='reservations:write') FROM staff_memberships WHERE id=$1`, v.member).Scan(&roleID, &operational); e != nil || roleID != v.role || operational != 0 {
+			t.Fatalf("restricted owner gained operational authority: %s %d %v", roleID, operational, e)
+		}
+	}
+
+	var next, unchanged ids.ID
+	var version, caps, audits int
+	if e = db.Pool.QueryRow(t.Context(), `SELECT m.role_id,r.version,(SELECT count(*) FROM role_permissions WHERE role_id=m.role_id AND permission IN (SELECT code FROM permissions WHERE code LIKE 'reservations:%' OR code LIKE 'reservation_risk:%' OR code LIKE 'rms:%' OR code LIKE 'pms:%' OR code LIKE 'room_status:%' OR code LIKE 'folios:%' OR code LIKE 'cashier:%' OR code LIKE 'night_audit:%' OR code LIKE 'guests:%' OR code LIKE 'guest_private:%' OR code LIKE 'guest_privacy:%' OR code LIKE 'corporate:%' OR code LIKE 'loyalty:%' OR code LIKE 'recovery:%')) FROM staff_memberships m JOIN role_templates r ON r.id=m.role_id WHERE m.id=$1`, member).Scan(&next, &version, &caps); e != nil || next == role || version != 4 || caps != 42 {
+		t.Fatalf("Owner upgrade %s %d %d %v", next, version, caps, e)
+	}
+	if e = db.Pool.QueryRow(t.Context(), `SELECT role_id FROM staff_memberships WHERE id=$1`, staffMember).Scan(&unchanged); e != nil || unchanged != limited {
+		t.Fatalf("Limited staff privileges expanded %s %v", unchanged, e)
+	}
+	if e = db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM audit_events WHERE action='SECTIONS811_OWNER_CAPABILITY_MIGRATION'`).Scan(&audits); e != nil || audits != 1 {
 		t.Fatalf("Missing immutable migration audit %d %v", audits, e)
 	}
 }

@@ -63,7 +63,7 @@ func TestBusinessCommercialQuoteAtomicHoldRaceReleaseAndTenantIsolation(t *testi
 	if status, _ := c.call(outsider, "GET", "/sellable-products/"+c.product.ID.String(), nil, map[string]string{"X-Organisation-ID": c.owner.registered.OrganisationID.String()}); status != 404 {
 		t.Fatalf("tenant override accepted %d", status)
 	}
-	c.must(c.owner, "POST", "/holds/"+hold.ID.String()+"/handoff", map[string]any{}, 503)
+	c.must(c.owner, "POST", "/holds/"+hold.ID.String()+"/handoff", map[string]any{}, 400)
 	c.must(c.owner, "DELETE", "/holds/"+hold.ID.String(), businesshttp.CommercialHoldChange{Version: hold.Version, Reason: "Customer abandoned checkout"}, 200)
 	retry := commercialData[inventory.Hold](t, c.must(c.owner, "POST", "/holds", command, 201))
 	if _, e := c.db.Pool.Exec(t.Context(), `UPDATE inventory_holds SET expires_at=now()-interval '1 second',version=version+1 WHERE id=$1`, retry.ID); e != nil {

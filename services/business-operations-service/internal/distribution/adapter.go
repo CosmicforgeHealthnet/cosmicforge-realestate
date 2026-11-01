@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"net/http"
 	"net/url"
 	"time"
@@ -55,18 +56,20 @@ type Acknowledgement struct {
 	ObservedAt        time.Time `json:"observed_at"`
 }
 type Receipt struct {
-	ProviderEventID  string    `json:"provider_event_id"`
-	ExternalObjectID string    `json:"external_object_id"`
-	ExternalVersion  string    `json:"external_version"`
-	Kind             string    `json:"kind"`
-	OccurredAt       time.Time `json:"occurred_at"`
-	ProductID        ids.ID    `json:"product_id"`
-	DateFrom         string    `json:"date_from"`
-	DateTo           string    `json:"date_to"`
-	Quantity         int       `json:"quantity"`
-	QuoteID          *ids.ID   `json:"quote_id,omitempty"`
-	HoldID           *ids.ID   `json:"hold_id,omitempty"`
-	Reference        string    `json:"reference"`
+	Booking                    *reservations.Create `json:"booking,omitempty"`
+	ExpectedReservationVersion int64                `json:"expected_reservation_version,omitempty"`
+	ProviderEventID            string               `json:"provider_event_id"`
+	ExternalObjectID           string               `json:"external_object_id"`
+	ExternalVersion            string               `json:"external_version"`
+	Kind                       string               `json:"kind"`
+	OccurredAt                 time.Time            `json:"occurred_at"`
+	ProductID                  ids.ID               `json:"product_id"`
+	DateFrom                   string               `json:"date_from"`
+	DateTo                     string               `json:"date_to"`
+	Quantity                   int                  `json:"quantity"`
+	QuoteID                    *ids.ID              `json:"quote_id,omitempty"`
+	HoldID                     *ids.ID              `json:"hold_id,omitempty"`
+	Reference                  string               `json:"reference"`
 }
 type PollResult struct {
 	Cursor     string    `json:"cursor"`

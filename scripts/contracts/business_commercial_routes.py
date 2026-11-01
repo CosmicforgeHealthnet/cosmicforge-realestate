@@ -1,4 +1,4 @@
-"""Reviewed Sections 6–7 route metadata; each entry must match a real registration."""
+"""Reviewed Sections 6Ã¢â‚¬â€œ7 route metadata; each entry must match a real registration."""
 import re
 
 
@@ -55,7 +55,7 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
       'holdGet':('holds:read',None,'Hold',200,False),
       'holdCancel':('holds:write','CommercialHoldChange','Hold',200,False),
       'holdExtend':('holds:write','CommercialHoldChange','Hold',200,True),
-      'holdHandoff':('holds:write',None,'Error',503,True),
+      'holdHandoff':('holds:write','ReservationCreate','ReservationDetail',201,True),
       'allotmentList':('allotments:read',None,'List:CommercialAllotment',200,False),
       'allotmentCreate':('allotments:write','CommercialAllotmentCreate','CommercialAllotment',201,True),
       'allotmentRelease':('allotments:write','CommercialStateChange','CommercialAllotment',200,True),
@@ -137,23 +137,24 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
     shape('CommercialPackageDetail', **{'package':'Package','components':arr(ref('CommercialPackageComponent'))})
     shape('CommercialTemplateView',id=typ('ids.ID'),organisation_id=typ('ids.ID'),name={'type':'string'},definition='CommercialTemplateDefinition',version={'type':'integer'},created_at=typ('time.Time'))
     shape('CommercialFieldAuthorityResult',field={'type':'string'},mode={'type':'string'},version={'type':'integer'},resync_required={'const':True})
-    s['CommercialReceiptResult']['properties']['canonical_reservation_accepted']={'const':False}
+    s['CommercialReceiptResult']['properties']['canonical_reservation_accepted']={'type':'boolean','description':'Canonical acceptance is separate from financial verification and booking confirmation.'}
     s['QuoteSnapshot']['properties']['is_reservation']={'const':False}
     found=set()
     for path in sorted((root/'services/business-operations-service/internal/http').glob('commercial*.go')):
         source=path.read_text(encoding='utf-8')
         for method, suffix, handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',source):
+            if handler=='internalReservationStatus':continue
             if handler not in data:raise RuntimeError('Commercial handler lacks reviewed contract: '+handler)
             cap,request,response,status,mfa=data[handler]
             private=handler.startswith('internal');webhook=handler=='channelProviderWebhook'
             note='Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. '
-            if handler=='holdHandoff':note='Dependency-gated: returns 503 because canonical Section 9 reservation acceptance is unavailable. No hold is consumed and no reservation is fabricated.'
+            if handler=='holdHandoff':note='Requires both holds:write and reservations:write, recent MFA, complete acceptance details and the exact current hold. Creates a pending canonical reservation; policy, payment and risk gates still govern confirmation.'
             if handler in ('channelAuthorize','channelMappingPreview','listingPublish'):note+='A real authenticated provider operation and certification evidence are required. Unavailable dependencies return 503; test fakes do not certify staging. '
             if handler in ('listingPublish','listingPause','listingWithdraw','channelResync'):note+='202 means durable desired state/job only. Provider sellability remains pending/unknown until acknowledgement AND matching readback. '
             if handler in ('bulkRateApply','bulkRateRollback'):note+='Apply queues the exact approved preview; rollback first creates a new preview requiring its own independent approval. Workers recheck initiating authority and canonical versions. '
             if handler=='channelWebhookKeySet':note+='32-byte callback secret is encrypted with connection/tenant AAD and is never echoed, audited or cached. Approval operation uses secret_fingerprint SHA-256 instead of key_base64. '
-            if handler in ('internalChannelReceipt','channelProviderWebhook'):note+='Durable replay/object-version dedupe; reservation events quarantine with SECTION9_CANONICAL_RESERVATION_AUTHORITY_UNAVAILABLE and never acknowledge a canonical booking.'
-            route(method.upper(),suffix,cap,request,response,status,method!='Get' and not private and not webhook and handler!='holdHandoff',mfa,notes=note)
+            if handler in ('internalChannelReceipt','channelProviderWebhook'):note+='Durable replay/object-version dedupe; eligible complete reservation events create canonical pending bookings atomically; unresolved mappings, changed contracts, source authority or missing details remain durably quarantined. Canonical acceptance is distinct from confirmation.'
+            route(method.upper(),suffix,cap,request,response,status,method!='Get' and not private and not webhook ,mfa,notes=note)
             if private:route_list_path='/internal/v1/business-supply'+suffix
             elif webhook:route_list_path='/webhooks/v1/business-channels'+suffix
             else:route_list_path=None

@@ -30,6 +30,7 @@ func Register(authHandler *auth.Handler, verifier verification.API, notify notif
 		h.registerHierarchy(r)
 		h.registerInventory(r)
 		h.registerCommercial(r)
+		h.registerReservations(r)
 		h.registerApprovals(r)
 		h.registerRoles(r)
 		h.registerStaff(r)

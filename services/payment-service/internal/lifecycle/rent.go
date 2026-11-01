@@ -400,15 +400,17 @@ func (s *Service) RentAllocation(ctx context.Context, id ids.ID, intent ids.ID) 
 // Receipt is a projection of immutable quote/components and confirmed financial
 // states. It never converts a deposit to rent or claims an unconfirmed payout.
 type Receipt struct {
-	Quote            Quote             `json:"quote"`
-	IntentID         *ids.ID           `json:"intent_id,omitempty"`
-	CollectionState  string            `json:"collection_state"`
-	SettlementState  string            `json:"settlement_state"`
-	Allocations      []Allocation      `json:"allocations"`
-	FundingConfirmed bool              `json:"funding_confirmed"`
-	ReversedMinor    int64             `json:"reversed_minor"`
-	AwardAllocations []Allocation      `json:"award_allocations"`
-	PayerContext     QuotePayerContext `json:"payer_context"`
+	Quote                Quote             `json:"quote"`
+	IntentID             *ids.ID           `json:"intent_id,omitempty"`
+	CollectionState      string            `json:"collection_state"`
+	SettlementState      string            `json:"settlement_state"`
+	Allocations          []Allocation      `json:"allocations"`
+	FundingConfirmed     bool              `json:"funding_confirmed"`
+	ReversedMinor        int64             `json:"reversed_minor"`
+	RemedyVersion        int               `json:"remedy_version"`
+	RemedyReviewRequired bool              `json:"remedy_review_required"`
+	AwardAllocations     []Allocation      `json:"award_allocations"`
+	PayerContext         QuotePayerContext `json:"payer_context"`
 }
 
 type QuotePayerContext struct {
@@ -423,7 +425,7 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 	if e != nil {
 		return Receipt{}, e
 	}
-	out := Receipt{Quote: q, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", Allocations: []Allocation{}, AwardAllocations: []Allocation{}}
+	out := Receipt{RemedyVersion: 1, Quote: q, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", Allocations: []Allocation{}, AwardAllocations: []Allocation{}}
 	profile, e := s.WalletProfile(trusted(ctx), q.PayerWalletID)
 	if e != nil {
 		return out, e
@@ -452,6 +454,12 @@ func (s *Service) Receipt(ctx context.Context, quote ids.ID) (Receipt, error) {
 	// Read-only compatibility facts. Owner cannot infer current backing or an
 	// executed deposit award from collection state or a legal decision alone.
 	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM transaction_funding WHERE intent_id=$1),COALESCE((SELECT sum(amount_minor) FROM financial_reversals WHERE intent_id=$1 AND refund_id IS NULL AND payout_id IS NULL),0)::bigint`, intent).Scan(&out.FundingConfirmed, &out.ReversedMinor); e != nil {
+		return out, e
+	}
+	// Collection success is historical. Refund reservations, executed refunds and
+	// contested/awarded value cannot be presented as unencumbered backing. Read
+	// only owning-service facts in this same snapshot; never expose case PII.
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM refund_attempts WHERE intent_id=$1 AND state NOT IN ('CONFIRMED_FAILED','CANCELLED')) OR EXISTS(SELECT 1 FROM financial_cases c JOIN allocation_lines l ON l.line_id=c.line_id JOIN allocation_snapshots a ON a.allocation_id=l.allocation_id WHERE a.intent_id=$1 AND (c.state<>'CLOSED' OR EXISTS(SELECT 1 FROM financial_case_facts f WHERE f.case_id=c.case_id AND f.kind='DECISION' AND (f.snapshot->>'outcome'<>'RELEASE_TO_BENEFICIARY' OR coalesce((f.snapshot->>'award_minor')::bigint,0)>0))))`, intent).Scan(&out.RemedyReviewRequired); e != nil {
 		return out, e
 	}
 	rows, e := tx.Query(ctx, `SELECT allocation_id FROM allocation_snapshots WHERE intent_id=$1 ORDER BY version`, intent)

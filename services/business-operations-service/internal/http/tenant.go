@@ -14,6 +14,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/workforce"
@@ -32,6 +33,7 @@ type Handler struct {
 	Auth                    *businessauth.Handler
 	Verification            verification.API
 	Notification            notification.Sender
+	Payment                 payment.API
 	InvitationAcceptURL     string
 	CapacityAuthority       verification.CapacityAuthority
 	RepresentativeAuthority verification.RepresentativeAuthority
@@ -187,7 +189,7 @@ func (h *Handler) authorize(ctx context.Context, q database.Querier, capability,
 	if err != nil {
 		return t, target, err
 	}
-	restricted := (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify" && capability != "approvals:create" && capability != "approvals:decide" && capability != "break_glass:review"
+	restricted := !reservationExitAllowed(ctx, capability, kind, id) && (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify" && capability != "approvals:create" && capability != "approvals:decide" && capability != "break_glass:review"
 	now := h.Auth.Service.Now().UTC()
 	if stepUp && !workforce.RecentMFA(t.MFAAt, now, 5*time.Minute) {
 		return t, target, apperrors.PermissionDenied("Recent MFA is required.")

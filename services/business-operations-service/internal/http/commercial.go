@@ -115,7 +115,7 @@ func commercialChannelList(channels []string) bool {
 // listCommercial is used only with server-owned, constant table identifiers.
 // Actual scope checks happen before returning each typed/public projection.
 func (h *Handler) listCommercial(w http.ResponseWriter, r *http.Request, table, capability string, projection func(context.Context, ids.ID, ids.ID) (any, error)) {
-	allowed := map[string]bool{"inventory_pools": true, "sellable_products": true, "inventory_holds": true, "inventory_allotments": true, "rate_plans": true, "rate_restrictions": true, "promotions": true, "packages": true, "add_ons": true, "listings": true, "tax_profiles": true, "compliance_holds": true, "channel_connections": true, "channel_sync_jobs": true, "channel_conflicts": true}
+	allowed := map[string]bool{"reservation_policies": true, "reservation_groups": true, "reservation_conflicts": true, "waitlist_entries": true, "inventory_pools": true, "sellable_products": true, "inventory_holds": true, "inventory_allotments": true, "rate_plans": true, "rate_restrictions": true, "promotions": true, "packages": true, "add_ons": true, "listings": true, "tax_profiles": true, "compliance_holds": true, "channel_connections": true, "channel_sync_jobs": true, "channel_conflicts": true}
 	if !allowed[table] {
 		reply(w, r, 0, nil, apperrors.Unavailable("Unknown commercial collection."))
 		return

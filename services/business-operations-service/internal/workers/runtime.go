@@ -12,6 +12,7 @@ import (
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/organisation"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
@@ -71,6 +72,13 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 	}
 	projection := &portfolio.VerificationProjector{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}
 	inventory := &businesshttp.Handler{Auth: &businessauth.Handler{Service: &businessauth.Service{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Sealer: sealer, Now: time.Now}}}
+	if endpoint := l.String("PAYMENT_SERVICE_URL", ""); endpoint != "" {
+		client, e := payment.New(endpoint, identity.Signer, 8*time.Second)
+		if e != nil {
+			return nil, e
+		}
+		inventory.Payment = client
+	}
 	inventory.ChannelAdapters = map[string]distribution.Adapter{"BOOKING_COM": distribution.DisabledAdapter{Provider: "BOOKING_COM"}, "AIRBNB": distribution.DisabledAdapter{Provider: "AIRBNB"}}
 	if endpoint := l.String("MARKETPLACE_SERVICE_URL", ""); endpoint != "" {
 		adapter, e := distribution.NewMarketplace(endpoint, identity.Signer)
@@ -124,12 +132,21 @@ func (r *Runtime) Run(ctx context.Context) error {
 			if err != nil && ctx.Err() == nil {
 				r.log.Error("channel sync batch failed", "error", err.Error())
 			}
+			call, cancel = context.WithTimeout(ctx, 30*time.Second)
+			err = r.Inventory.ProcessReservationFinance(call, 1)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("reservation financial reconciliation failed", "error", err.Error())
+			}
 		}
 		if !time.Now().Before(nextMaintenance) {
 			nextMaintenance = time.Now().Add(time.Minute)
 			if r.Inventory != nil {
 				call, cancel := context.WithTimeout(ctx, 30*time.Second)
-				err := r.Inventory.ProcessCommercialMaintenance(call, 50)
+				err := r.Inventory.ProcessReservationMaintenance(call, 50)
+				if err == nil {
+					err = r.Inventory.ProcessCommercialMaintenance(call, 50)
+				}
 				cancel()
 				if err != nil && ctx.Err() == nil {
 					r.log.Error("commercial supply maintenance failed", "error", err.Error())

@@ -7638,6 +7638,13 @@
             ],
             "type": "object"
           },
+          "remedy_review_required": {
+            "type": "boolean"
+          },
+          "remedy_version": {
+            "format": "int64",
+            "type": "integer"
+          },
           "reversed_minor": {
             "format": "int64",
             "type": "integer"
@@ -7653,6 +7660,8 @@
           "allocations",
           "funding_confirmed",
           "reversed_minor",
+          "remedy_version",
+          "remedy_review_required",
           "award_allocations",
           "payer_context"
         ],

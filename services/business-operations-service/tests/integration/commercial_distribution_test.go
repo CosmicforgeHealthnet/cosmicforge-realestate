@@ -82,7 +82,7 @@ func (s *commercialSupplyConsumer) handle(w http.ResponseWriter, r *http.Request
 			w.WriteHeader(403)
 			return
 		}
-		respond(distribution.Authorization{ProviderAccountID: c.ProviderAccountID, PropertyID: c.PropertyID, Reference: "disposable-signed-provider-authorization", ExpiresAt: time.Now().Add(time.Hour), Capabilities: []string{"ARI", "CONTENT", "PROPERTY_MAPPING", "PRODUCT_MAPPING", "RATE_MAPPING", "READBACK", "PAUSE", "WITHDRAW", "WEBHOOK", "POLLING"}})
+		respond(distribution.Authorization{ProviderAccountID: c.ProviderAccountID, PropertyID: c.PropertyID, Reference: "disposable-signed-provider-authorization", ExpiresAt: time.Now().Add(time.Hour), Capabilities: []string{"ARI", "CONTENT", "PROPERTY_MAPPING", "PRODUCT_MAPPING", "RATE_MAPPING", "READBACK", "PAUSE", "WITHDRAW", "WEBHOOK", "POLLING", "RESERVATION_INGEST", "RESERVATION_CHANGE"}})
 		return
 	}
 	if strings.HasSuffix(r.URL.Path, "/mapping-inspection") {
@@ -171,7 +171,7 @@ func (c *commercialHarness) connectMarketplace(client distribution.Adapter) busi
 	if _, e := c.db.Pool.Exec(c.t.Context(), `UPDATE channel_providers SET status='CERTIFIED',certification_reference='disposable-contract-test-evidence',rate_limit_per_minute=600000 WHERE code='COSMICFORGE_MARKETPLACE'`); e != nil {
 		c.t.Fatal(e)
 	}
-	if _, e := c.db.Pool.Exec(c.t.Context(), `UPDATE channel_capabilities SET status='CERTIFIED',evidence_reference='disposable-contract-test-evidence' WHERE provider_id=(SELECT id FROM channel_providers WHERE code='COSMICFORGE_MARKETPLACE') AND capability IN ('ARI','CONTENT','PROPERTY_MAPPING','PRODUCT_MAPPING','RATE_MAPPING','READBACK','PAUSE','WITHDRAW','WEBHOOK','POLLING')`); e != nil {
+	if _, e := c.db.Pool.Exec(c.t.Context(), `UPDATE channel_capabilities SET status='CERTIFIED',evidence_reference='disposable-contract-test-evidence' WHERE provider_id=(SELECT id FROM channel_providers WHERE code='COSMICFORGE_MARKETPLACE') AND capability IN ('ARI','CONTENT','PROPERTY_MAPPING','PRODUCT_MAPPING','RATE_MAPPING','READBACK','PAUSE','WITHDRAW','WEBHOOK','POLLING','RESERVATION_INGEST','RESERVATION_CHANGE')`); e != nil {
 		c.t.Fatal(e)
 	}
 	conn := commercialData[businesshttp.CommercialChannelConnection](c.t, c.must(c.owner, "POST", "/channels/connections", businesshttp.CommercialChannelCreate{PropertyID: c.property.ID, ProviderCode: distribution.Marketplace, ProviderAccountID: "disposable-provider-account", Reason: "Configure a disposable signed contract consumer"}, 201))

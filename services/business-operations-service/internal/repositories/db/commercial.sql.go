@@ -92,7 +92,7 @@ func (q *Queries) CommercialSyncClaim(ctx context.Context, db DBTX, owner string
 }
 
 const getCommercialHold = `-- name: GetCommercialHold :one
-SELECT id, organisation_id, property_id, product_id, pool_id, quote_id, date_from, date_to, quantity, channel, state, expires_at, version, handoff_reference, created_by, created_at, updated_at FROM inventory_holds WHERE organisation_id=$1 AND id=$2
+SELECT id, organisation_id, property_id, product_id, pool_id, quote_id, date_from, date_to, quantity, channel, state, expires_at, version, handoff_reference, created_by, created_at, updated_at, created_by_service FROM inventory_holds WHERE organisation_id=$1 AND id=$2
 `
 
 type GetCommercialHoldParams struct {
@@ -121,6 +121,7 @@ func (q *Queries) GetCommercialHold(ctx context.Context, db DBTX, arg GetCommerc
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CreatedByService,
 	)
 	return i, err
 }
@@ -156,7 +157,7 @@ func (q *Queries) GetCommercialPool(ctx context.Context, db DBTX, arg GetCommerc
 }
 
 const getCommercialQuote = `-- name: GetCommercialQuote :one
-SELECT id, organisation_id, property_id, product_id, rate_version_id, date_from, date_to, amount_minor, currency, expires_at, snapshot, created_by, created_at FROM price_quotes WHERE organisation_id=$1 AND id=$2
+SELECT id, organisation_id, property_id, product_id, rate_version_id, date_from, date_to, amount_minor, currency, expires_at, snapshot, created_by, created_at, created_by_service FROM price_quotes WHERE organisation_id=$1 AND id=$2
 `
 
 type GetCommercialQuoteParams struct {
@@ -181,6 +182,7 @@ func (q *Queries) GetCommercialQuote(ctx context.Context, db DBTX, arg GetCommer
 		&i.Snapshot,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.CreatedByService,
 	)
 	return i, err
 }
@@ -251,7 +253,7 @@ func (q *Queries) GetSellableProduct(ctx context.Context, db DBTX, arg GetSellab
 }
 
 const lockCommercialCalendar = `-- name: LockCommercialCalendar :many
-SELECT organisation_id, pool_id, day, capacity, blocked, committed, version, reason, updated_by, updated_at FROM inventory_calendar WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date ORDER BY day FOR UPDATE
+SELECT organisation_id, pool_id, day, capacity, blocked, committed, version, reason, updated_by, updated_at, updated_by_service FROM inventory_calendar WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date ORDER BY day FOR UPDATE
 `
 
 type LockCommercialCalendarParams struct {
@@ -286,6 +288,7 @@ func (q *Queries) LockCommercialCalendar(ctx context.Context, db DBTX, arg LockC
 			&i.Reason,
 			&i.UpdatedBy,
 			&i.UpdatedAt,
+			&i.UpdatedByService,
 		); err != nil {
 			return nil, err
 		}

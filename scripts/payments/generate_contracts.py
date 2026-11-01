@@ -115,7 +115,7 @@ extend_universal(SCHEMAS, INTERNAL, PUBLIC, obj, ref, array, TEXT, UUID, DATE, M
 def write(path, data):
     p = ROOT / path
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    p.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8",newline="\n")
 
 
 write("contracts/internal/openapi/payment-service.yaml", spec("Payment Service internal foundation", "/internal/v1", INTERNAL, True))

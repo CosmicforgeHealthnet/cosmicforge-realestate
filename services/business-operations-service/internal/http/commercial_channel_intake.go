@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
@@ -29,6 +30,7 @@ func (h *Handler) InternalDistributionRouter(verifier *serviceauth.Verifier) htt
 	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.MarketplaceService))
 		r.Post("/channel-receipts", h.internalChannelReceipt)
+		r.Get("/reservations/{id}", h.internalReservationStatus)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.PaymentService, platform.AdminService))
@@ -43,11 +45,13 @@ type CommercialReceiptCommand struct {
 	Receipt        distribution.Receipt `json:"receipt"`
 }
 type CommercialReceiptResult struct {
-	ReceiptID                    ids.ID `json:"receipt_id"`
-	State                        string `json:"state"`
-	Reason                       string `json:"reason"`
-	Duplicate                    bool   `json:"duplicate"`
-	CanonicalReservationAccepted bool   `json:"canonical_reservation_accepted"`
+	ReceiptID                    ids.ID  `json:"receipt_id"`
+	State                        string  `json:"state"`
+	Reason                       string  `json:"reason"`
+	Duplicate                    bool    `json:"duplicate"`
+	CanonicalReservationAccepted bool    `json:"canonical_reservation_accepted"`
+	CanonicalReservationID       *ids.ID `json:"canonical_reservation_id,omitempty"`
+	CanonicalReservationState    string  `json:"canonical_reservation_state,omitempty"`
 }
 
 func (h *Handler) internalChannelReceipt(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +93,7 @@ func (h *Handler) internalChannelReceipt(w http.ResponseWriter, r *http.Request)
 	reply(w, r, 202, result, e)
 }
 func validateChannelReceipt(v distribution.Receipt, now time.Time) error {
-	if len(v.ProviderEventID) < 1 || len(v.ProviderEventID) > 200 || len(v.ExternalObjectID) < 1 || len(v.ExternalObjectID) > 200 || len(v.ExternalVersion) < 1 || len(v.ExternalVersion) > 100 || len(v.Reference) > 500 || v.OccurredAt.IsZero() || v.OccurredAt.After(now.Add(time.Minute)) || !slices.Contains([]string{"RESERVATION_CREATED", "RESERVATION_CHANGED", "RESERVATION_CANCELLED", "CONTENT_CHANGED", "ARI_CHANGED", "MAPPING_CHANGED", "CONNECTION_REVOKED"}, v.Kind) {
+	if len(v.ProviderEventID) < 1 || len(v.ProviderEventID) > 200 || len(v.ExternalObjectID) < 1 || len(v.ExternalObjectID) > 200 || len(v.ExternalVersion) < 1 || len(v.ExternalVersion) > 100 || len(v.Reference) > 500 || strings.ContainsRune(v.ProviderEventID+v.ExternalObjectID+v.ExternalVersion+v.Reference, 0) || v.OccurredAt.IsZero() || v.OccurredAt.After(now.Add(time.Minute)) || !slices.Contains([]string{"RESERVATION_CREATED", "RESERVATION_CHANGED", "RESERVATION_CANCELLED", "CONTENT_CHANGED", "ARI_CHANGED", "MAPPING_CHANGED", "CONNECTION_REVOKED"}, v.Kind) {
 		return apperrors.InvalidRequest("Valid bounded provider event identity, object/version, kind and timestamp required.")
 	}
 	if v.Kind == "RESERVATION_CREATED" || v.Kind == "RESERVATION_CHANGED" || v.Kind == "RESERVATION_CANCELLED" {
@@ -107,6 +111,12 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 	if e := validateChannelReceipt(event, h.Auth.Service.Now().UTC()); e != nil {
 		return result, e, nil
 	}
+	current, e := h.loadChannelConnection(ctx, tx, c.OrganisationID, c.ID)
+	if e != nil {
+		return result, nil, e
+	}
+	authorityChanged := current.Version != c.Version || current.ProviderID != c.ProviderID || current.PropertyID != c.PropertyID || current.ProviderAccountID != c.ProviderAccountID
+	c = current
 	event.OccurredAt = event.OccurredAt.UTC()
 	raw, _ := json.Marshal(event)
 	semantic := event
@@ -114,8 +124,11 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 	hash := hashCommercialPayload(marshalCommercial(semantic))
 	var id ids.ID
 	var storedHash, state, reason string
-	e := tx.QueryRow(ctx, `SELECT id,payload_hash,state,reason FROM channel_event_receipts WHERE organisation_id=$1 AND connection_id=$2 AND (id IN (SELECT receipt_id FROM channel_event_delivery_keys WHERE organisation_id=$1 AND connection_id=$2 AND provider_event_id=$3) OR external_object_id=$4 AND external_version=$5) ORDER BY received_at,id LIMIT 1 FOR UPDATE`, c.OrganisationID, c.ID, event.ProviderEventID, event.ExternalObjectID, event.ExternalVersion).Scan(&id, &storedHash, &state, &reason)
+	e = tx.QueryRow(ctx, `SELECT id,payload_hash,state,reason FROM channel_event_receipts WHERE organisation_id=$1 AND connection_id=$2 AND (id IN (SELECT receipt_id FROM channel_event_delivery_keys WHERE organisation_id=$1 AND connection_id=$2 AND provider_event_id=$3) OR external_object_id=$4 AND external_version=$5) ORDER BY received_at,id LIMIT 1 FOR UPDATE`, c.OrganisationID, c.ID, event.ProviderEventID, event.ExternalObjectID, event.ExternalVersion).Scan(&id, &storedHash, &state, &reason)
 	if e == nil {
+		if authorityChanged {
+			return result, apperrors.PermissionDenied("Provider connection authority changed during callback verification; authenticate again against its current version."), nil
+		}
 		if storedHash != hash {
 			failure := h.recordChannelConflict(ctx, tx, c.OrganisationID, c.PropertyID, c.ID, ids.Nil, "PROVIDER_EVENT_IDENTITY_COLLISION", "CRITICAL", "RECEIPT:"+id.String(), map[string]any{"receipt_id": id, "incoming_payload_hash": hash}, "INVESTIGATE_PROVIDER_EVENT_IDENTITY_AND_REPLAY")
 			return result, apperrors.Conflict("PROVIDER_EVENT_IDENTITY_CONFLICT", "An existing provider event/object version has different immutable content."), failure
@@ -124,7 +137,15 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 			return result, nil, e
 		}
 		_, e = tx.Exec(ctx, `UPDATE channel_event_receipts SET duplicate_count=duplicate_count+1 WHERE organisation_id=$1 AND id=$2`, c.OrganisationID, id)
-		return CommercialReceiptResult{ReceiptID: id, State: state, Reason: reason, Duplicate: true}, nil, e
+		result := CommercialReceiptResult{ReceiptID: id, State: state, Reason: reason, Duplicate: true, CanonicalReservationAccepted: state == "ACCEPTED"}
+		if e == nil && state == "ACCEPTED" {
+			var res ids.ID
+			var resState string
+			e = tx.QueryRow(ctx, `SELECT r.id,r.state FROM channel_reservation_refs ref JOIN reservations r ON r.organisation_id=ref.organisation_id AND r.id=ref.canonical_reservation_id WHERE ref.organisation_id=$1 AND ref.receipt_id=$2`, c.OrganisationID, id).Scan(&res, &resState)
+			result.CanonicalReservationID = &res
+			result.CanonicalReservationState = resState
+		}
+		return result, nil, e
 	}
 	if !errors.Is(e, pgx.ErrNoRows) {
 		return result, nil, e
@@ -134,7 +155,7 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 	reason = "PROVIDER_CHANGE_REQUIRES_CANONICAL_RECONCILIATION"
 	reservation := slices.Contains([]string{"RESERVATION_CREATED", "RESERVATION_CHANGED", "RESERVATION_CANCELLED"}, event.Kind)
 	if reservation {
-		reason = "SECTION9_CANONICAL_RESERVATION_AUTHORITY_UNAVAILABLE"
+		reason = "CANONICAL_RESERVATION_DETAILS_REQUIRED"
 		var exists bool
 		if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM sellable_products WHERE organisation_id=$1 AND id=$2 AND property_id=$3)`, c.OrganisationID, event.ProductID, c.PropertyID).Scan(&exists); e != nil {
 			return result, nil, e
@@ -155,6 +176,9 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 			}
 		}
 	}
+	if authorityChanged {
+		reason = "PROVIDER_CONNECTION_AUTHORITY_CHANGED"
+	}
 	if _, e = tx.Exec(ctx, `INSERT INTO channel_event_receipts(id,organisation_id,property_id,connection_id,provider_event_id,external_object_id,external_version,payload_hash,normalized,state,reason,processed_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())`, id, c.OrganisationID, c.PropertyID, c.ID, event.ProviderEventID, event.ExternalObjectID, event.ExternalVersion, hash, raw, state, reason); e != nil {
 		return result, nil, e
 	}
@@ -163,6 +187,46 @@ func (h *Handler) acceptChannelReceipt(ctx context.Context, tx pgx.Tx, c Commerc
 	}
 	if reservation {
 		if _, e = tx.Exec(ctx, `INSERT INTO channel_reservation_refs(id,organisation_id,connection_id,receipt_id,external_reservation_id,external_version,state) VALUES($1,$2,$3,$4,$5,$6,'DEPENDENCY_BLOCKED')`, ids.New(), c.OrganisationID, c.ID, id, event.ExternalObjectID, event.ExternalVersion); e != nil {
+			return result, nil, e
+		}
+	}
+	if reservation && reason == "CANONICAL_RESERVATION_DETAILS_REQUIRED" {
+		nested, e := tx.Begin(ctx)
+		if e != nil {
+			return result, nil, e
+		}
+		acceptance, acceptErr := h.acceptReservationReceipt(ctx, nested, c, event, id, hash)
+		if acceptErr == nil {
+			if e = nested.Commit(ctx); e != nil {
+				return result, nil, e
+			}
+			if _, e = tx.Exec(ctx, `UPDATE channel_event_receipts SET state='ACCEPTED',reason='CANONICAL_RESERVATION_ACCEPTED',processed_at=now() WHERE organisation_id=$1 AND id=$2`, c.OrganisationID, id); e != nil {
+				return result, nil, e
+			}
+			if _, e = tx.Exec(ctx, `UPDATE channel_reservation_refs SET canonical_reservation_id=$3,acceptance_reference=$4,state='CANONICALLY_ACCEPTED' WHERE organisation_id=$1 AND receipt_id=$2`, c.OrganisationID, id, acceptance.ReservationID, acceptance.DurableReference); e != nil {
+				return result, nil, e
+			}
+			e = businessEvents.CommercialCommit(ctx, tx, h.Auth.Service.Outbox, c.OrganisationID, c.PropertyID, id, ids.Nil, "channel_receipt", "CHANNEL_RESERVATION_ACCEPTED", "", 1, map[string]any{"connection_id": c.ID, "reservation_id": acceptance.ReservationID, "reservation_state": acceptance.State, "external_version": event.ExternalVersion})
+			return CommercialReceiptResult{ReceiptID: id, State: "ACCEPTED", Reason: "CANONICAL_RESERVATION_ACCEPTED", CanonicalReservationAccepted: true, CanonicalReservationID: &acceptance.ReservationID, CanonicalReservationState: acceptance.State}, nil, e
+		}
+		if e = nested.Rollback(ctx); e != nil {
+			return result, nil, e
+		}
+		var domain *apperrors.Error
+		if !errors.As(acceptErr, &domain) {
+			return result, nil, acceptErr
+		}
+		reason = domain.Code
+		if event.Booking == nil && event.Kind == "RESERVATION_CREATED" {
+			reason = "CANONICAL_RESERVATION_DETAILS_REQUIRED"
+		}
+		if _, e = tx.Exec(ctx, `UPDATE channel_event_receipts SET reason=$3 WHERE organisation_id=$1 AND id=$2`, c.OrganisationID, id, reason); e != nil {
+			return result, nil, e
+		}
+	}
+
+	if reservation {
+		if _, e = tx.Exec(ctx, `INSERT INTO reservation_conflicts(id,organisation_id,property_id,connection_id,receipt_id,source_reference,classification,evidence,reason,created_by_service) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$7,'business-operations-service')`, ids.New(), c.OrganisationID, c.PropertyID, c.ID, id, "RECEIPT:"+id.String(), reason, marshalCommercial(map[string]any{"receipt_id": id, "external_object_id": event.ExternalObjectID, "external_version": event.ExternalVersion, "payload_hash": hash})); e != nil {
 			return result, nil, e
 		}
 	}

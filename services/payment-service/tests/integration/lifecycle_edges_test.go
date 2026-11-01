@@ -68,7 +68,7 @@ func TestLifecycleDepositSegregationAndPayerReceiptPrivacy(t *testing.T) {
 		t.Fatal(e)
 	}
 	receipt, e := f.l.Receipt(payerCtx, q.ID)
-	if e != nil || receipt.CollectionState != "VERIFIED_SUCCESS" || receipt.Quote.AmountMinor != 10000 || len(receipt.Allocations) != 0 {
+	if e != nil || receipt.CollectionState != "VERIFIED_SUCCESS" || receipt.Quote.AmountMinor != 10000 || len(receipt.Allocations) != 0 || receipt.RemedyVersion != 1 || receipt.RemedyReviewRequired {
 		t.Fatal(receipt, e)
 	}
 	if _, e = f.l.Allocation(payerCtx, a.ID); e == nil {

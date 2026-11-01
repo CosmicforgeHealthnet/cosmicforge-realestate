@@ -6,6 +6,7 @@ import (
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/config"
 	"time"
@@ -36,6 +37,13 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		return err
 	}
 	domain := businesshttp.Register(handler, verify, notify)
+	if endpoint := loader.String("PAYMENT_SERVICE_URL", ""); endpoint != "" {
+		client, e := payment.New(endpoint, identity.Signer, 8*time.Second)
+		if e != nil {
+			return e
+		}
+		domain.Payment = client
+	}
 	domain.ChannelAdapters = map[string]distribution.Adapter{"BOOKING_COM": distribution.DisabledAdapter{Provider: "BOOKING_COM"}, "AIRBNB": distribution.DisabledAdapter{Provider: "AIRBNB"}}
 	if endpoint := loader.String("MARKETPLACE_SERVICE_URL", ""); endpoint != "" {
 		adapter, e := distribution.NewMarketplace(endpoint, identity.Signer)

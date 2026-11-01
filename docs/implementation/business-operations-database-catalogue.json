@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00007_channel_connection_authority.sql",
+  "latest_migration": "00008_canonical_reservations.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -592,12 +592,28 @@
       "canonical_table": "reservation_risk_projection",
       "specification": "D.42 Trust, Reservation Risk and Protection",
       "category": "Annex supplement",
-      "owner_package": "internal/risk",
+      "owner_package": "internal/reservations",
       "owning_section": "D.42 Trust, Reservation Risk and Protection",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_risk_projection_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -1340,7 +1356,9 @@
         "immutable": false,
         "unique_constraint_count": 1,
         "check_constraint_count": 3,
-        "altered_in": []
+        "altered_in": [
+          "00008_canonical_reservations.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/distribution owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1641,7 +1659,9 @@
         "immutable": false,
         "unique_constraint_count": 1,
         "check_constraint_count": 4,
-        "altered_in": []
+        "altered_in": [
+          "00008_canonical_reservations.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -1671,7 +1691,8 @@
         "unique_constraint_count": 1,
         "check_constraint_count": 4,
         "altered_in": [
-          "00006_commercial_inventory_distribution.sql"
+          "00006_commercial_inventory_distribution.sql",
+          "00008_canonical_reservations.sql"
         ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
@@ -3441,11 +3462,27 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_guests_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "reservation_holds",
@@ -3454,11 +3491,27 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_holds_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "reservation_modifications",
@@ -3467,11 +3520,27 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_modifications_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "reservation_rooms",
@@ -3480,11 +3549,28 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 9,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_rooms_parent",
+          "reservation_rooms_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 11,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "reservations",
@@ -3493,11 +3579,29 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_command_center",
+          "reservation_expiry",
+          "reservations_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 12,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "room_assignments",
@@ -3545,11 +3649,28 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "waitlist_entries_scope",
+          "waitlist_pending"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 8,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "agreements",
@@ -5326,7 +5447,8 @@
         "unique_constraint_count": 1,
         "check_constraint_count": 4,
         "altered_in": [
-          "00006_commercial_inventory_distribution.sql"
+          "00006_commercial_inventory_distribution.sql",
+          "00008_canonical_reservations.sql"
         ]
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
@@ -5359,6 +5481,501 @@
         ]
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_cancellation_obligations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_cancellation_obligations_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 8,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_conflict_decisions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_conflict_decisions_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_conflicts",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_conflicts_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_financial_credits",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_financial_credits_target"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_financial_groups",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_financial_groups_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_financial_requests",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_financial_requests_scope",
+          "reservation_financial_work"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_groups",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_groups_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_inventory_days",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          "(room_id,day)"
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_inventory_active"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_lineage",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_lineage_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_overbooking_permits",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_overbooking_permits_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_overbooking_policies",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_overbooking_policies_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_payment_bindings",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_payment_bindings_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 5,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_payment_projections",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_payment_projections_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_policies",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "reservation_policies_scope",
+          "reservation_policy_current"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_price_snapshots",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_price_snapshots_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_source_refs",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_source_refs_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "reservation_versions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "reservation_versions_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },
@@ -5503,6 +6120,35 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "waitlist_offers",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/reservations",
+      "owning_section": "9",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00008_canonical_reservations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "waitlist_offers_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     }

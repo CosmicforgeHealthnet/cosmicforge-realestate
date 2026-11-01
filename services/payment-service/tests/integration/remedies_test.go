@@ -191,6 +191,12 @@ func TestRefundUnknownPartialCapsAndSingleSubmission(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+	// Refunds leave the original collection successful; the owning receipt must
+	// explicitly prevent domains from reusing that historical success as backing.
+	receipt, receiptErr := f.l.Receipt(f.user, f.quote.ID)
+	if receiptErr != nil || receipt.CollectionState != "VERIFIED_SUCCESS" || receipt.ReversedMinor != 0 || receipt.RemedyVersion != 1 || !receipt.RemedyReviewRequired {
+		t.Fatalf("refund disappeared behind historical collection: %+v %v", receipt, receiptErr)
+	}
 	req.AmountMinor = 6000
 	req.Strategy = "ORIGINAL_INSTRUMENT"
 	r2, e := f.l.RequestRefund(admin(), req, "second")

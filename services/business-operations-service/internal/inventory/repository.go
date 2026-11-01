@@ -84,7 +84,9 @@ func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
  (SELECT coalesce(sum(d.allotted_quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.state='ACTIVE' AND h.expires_at>$6 AND a.state='ACTIVE' AND a.release_at>$6),
  (SELECT d.allotment_id FROM inventory_allotment_days d JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.channel=$5 AND d.released_at IS NULL AND a.state='ACTIVE' AND a.release_at>$6),
  (SELECT coalesce(sum(d.quantity),0) FROM inventory_allotment_days d JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.channel=$5 AND d.released_at IS NULL AND a.state='ACTIVE' AND a.release_at>$6),
- (SELECT coalesce(sum(d.allotted_quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.channel=$5 AND h.state='ACTIVE' AND h.expires_at>$6 AND a.state='ACTIVE' AND a.release_at>$6)
+ (SELECT coalesce(sum(d.allotted_quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.channel=$5 AND h.state='ACTIVE' AND h.expires_at>$6 AND a.state='ACTIVE' AND a.release_at>$6),
+ (SELECT coalesce(sum(d.allotted_quantity),0) FROM reservation_inventory_days d JOIN inventory_allotments a ON a.organisation_id=d.organisation_id AND a.id=d.allotment_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.released_at IS NULL AND a.state='ACTIVE' AND a.release_at>$6),
+ (SELECT coalesce(sum(d.allotted_quantity),0) FROM reservation_inventory_days d JOIN inventory_allotments a ON a.organisation_id=d.organisation_id AND a.id=d.allotment_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.released_at IS NULL AND a.channel=$5 AND a.state='ACTIVE' AND a.release_at>$6)
  FROM inventory_calendar c WHERE c.organisation_id=$1 AND c.pool_id=$2 AND c.day>=$3::date AND c.day<$4::date ORDER BY c.day`, org, pool, dateRange.DateFrom, dateRange.DateTo, channel, now)
 	if err != nil {
 		return nil, err
@@ -93,11 +95,12 @@ func Calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 	result := []Day{}
 	for rows.Next() {
 		var d Day
-		var usedAllotted, ownAllotted, ownUsed int
-		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Blocked, &d.Version, &d.UpdatedAt, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed); err != nil {
+		var usedAllotted, ownAllotted, ownUsed, committedAllotted, ownCommitted int
+		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Blocked, &d.Version, &d.UpdatedAt, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed, &committedAllotted, &ownCommitted); err != nil {
 			return nil, err
 		}
-		d.ChannelAllotted = max(0, ownAllotted-ownUsed)
+		d.Allotted = max(0, d.Allotted-committedAllotted)
+		d.ChannelAllotted = max(0, ownAllotted-ownUsed-ownCommitted)
 		d.Available = max(0, d.Capacity-d.Committed-d.Blocked-d.Held-d.Allotted+usedAllotted) + d.ChannelAllotted
 		result = append(result, d)
 	}
@@ -180,7 +183,7 @@ func (r Repository) PlaceHold(ctx context.Context, tx pgx.Tx, org, actor ids.ID,
 			return Hold{}, err
 		}
 	}
-	if _, err = tx.Exec(ctx, `UPDATE inventory_calendar SET version=version+1,updated_at=$5,updated_by=$6 WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date`, org, pool.ID, hold.DateFrom, hold.DateTo, now, actor); err != nil {
+	if _, err = tx.Exec(ctx, `UPDATE inventory_calendar SET updated_by_service=coalesce(nullif(current_setting('business.actor_service',true),''),''),version=version+1,updated_at=$5,updated_by=$6 WHERE organisation_id=$1 AND pool_id=$2 AND day>=$3::date AND day<$4::date`, org, pool.ID, hold.DateFrom, hold.DateTo, now, actor); err != nil {
 		return Hold{}, err
 	}
 	err = businessEvents.CommercialCommit(ctx, tx, r.Outbox, org, p.PropertyID, hold.ID, actor, "inventory_hold", "INVENTORY_HOLD_CREATED", businessEvents.InventoryChanged, 1, hold)

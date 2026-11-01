@@ -57,7 +57,7 @@ func (c *commercialHarness) rootCall(path string, body any, headers map[string]s
 	}
 	return response.StatusCode, result
 }
-func TestBusinessCommercialSignedReceiptDedupeForgedCallerAndUnavailableReservationAuthority(t *testing.T) {
+func TestBusinessCommercialSignedReceiptDedupeForgedCallerAndMissingReservationDetails(t *testing.T) {
 	c := newCommercialHTTP(t)
 	_, adapter := newCommercialSupplyConsumer(t)
 	conn := c.connectMarketplace(adapter)
@@ -94,7 +94,7 @@ func TestBusinessCommercialSignedReceiptDedupeForgedCallerAndUnavailableReservat
 		t.Fatalf("Durable intake %d %s", status, raw)
 	}
 	received := commercialData[businesshttp.CommercialReceiptResult](t, raw)
-	if received.State != "QUARANTINED" || received.Reason != "SECTION9_CANONICAL_RESERVATION_AUTHORITY_UNAVAILABLE" || received.CanonicalReservationAccepted {
+	if received.State != "QUARANTINED" || received.Reason != "CANONICAL_RESERVATION_DETAILS_REQUIRED" || received.CanonicalReservationAccepted {
 		t.Fatalf("Fake reservation acceptance %#v", received)
 	}
 	for _, eventID := range []string{event.ProviderEventID, "provider-event-redelivery-new-id"} {

@@ -800,16 +800,17 @@ type InventoryAllotmentDay struct {
 }
 
 type InventoryCalendar struct {
-	OrganisationID ids.ID
-	PoolID         ids.ID
-	Day            pgtype.Date
-	Capacity       int32
-	Blocked        int32
-	Committed      int32
-	Version        int64
-	Reason         string
-	UpdatedBy      ids.ID
-	UpdatedAt      time.Time
+	OrganisationID   ids.ID
+	PoolID           ids.ID
+	Day              pgtype.Date
+	Capacity         int32
+	Blocked          int32
+	Committed        int32
+	Version          int64
+	Reason           string
+	UpdatedBy        *ids.ID
+	UpdatedAt        time.Time
+	UpdatedByService string
 }
 
 type InventoryEdge struct {
@@ -888,9 +889,10 @@ type InventoryHold struct {
 	ExpiresAt        time.Time
 	Version          int64
 	HandoffReference *string
-	CreatedBy        ids.ID
+	CreatedBy        *ids.ID
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	CreatedByService string
 }
 
 type InventoryHoldDay struct {
@@ -1204,19 +1206,20 @@ type Portfolio struct {
 }
 
 type PriceQuote struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	PropertyID     ids.ID
-	ProductID      ids.ID
-	RateVersionID  ids.ID
-	DateFrom       pgtype.Date
-	DateTo         pgtype.Date
-	AmountMinor    int64
-	Currency       string
-	ExpiresAt      time.Time
-	Snapshot       []byte
-	CreatedBy      ids.ID
-	CreatedAt      time.Time
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ProductID        ids.ID
+	RateVersionID    ids.ID
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	AmountMinor      int64
+	Currency         string
+	ExpiresAt        time.Time
+	Snapshot         []byte
+	CreatedBy        *ids.ID
+	CreatedAt        time.Time
+	CreatedByService string
 }
 
 type ProcessedEvent struct {
@@ -1318,6 +1321,431 @@ type Region struct {
 	Version        int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type Reservation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	Source                string
+	Channel               string
+	SourceReference       string
+	State                 string
+	PriorState            *string
+	AllocationState       string
+	GroupID               *ids.ID
+	ParentReservationID   *ids.ID
+	PolicyID              ids.ID
+	PolicySnapshot        []byte
+	PaymentResponsibility string
+	FinancialState        string
+	AmountMinor           int64
+	Currency              string
+	DateFrom              pgtype.Date
+	DateTo                pgtype.Date
+	HoldExpiresAt         *time.Time
+	ConfirmedAt           *time.Time
+	CancelledAt           *time.Time
+	CompletedAt           *time.Time
+	RiskStatus            string
+	CorporateID           *ids.ID
+	CorporateContractID   *ids.ID
+	Reason                string
+	Version               int64
+	UpdatedAt             time.Time
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+}
+
+type ReservationCancellationObligation struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	PropertyID             ids.ID
+	ReservationID          ids.ID
+	ReservationVersion     int64
+	Kind                   string
+	Currency               string
+	AcceptedAmountMinor    int64
+	PenaltyMinor           int64
+	PlatformCollectedMinor *int64
+	RefundableMinor        *int64
+	FinancialState         string
+	PolicySnapshot         []byte
+	RoomEffects            []byte
+	Reason                 string
+	CreatedBy              *ids.ID
+	CreatedByService       string
+	CreatedAt              time.Time
+}
+
+type ReservationConflict struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ReservationID    *ids.ID
+	ConnectionID     *ids.ID
+	ReceiptID        *ids.ID
+	SourceReference  string
+	Classification   string
+	State            string
+	Evidence         []byte
+	Reason           string
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationConflictDecision struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	ConflictID         ids.ID
+	Action             string
+	Reason             string
+	ApprovalID         ids.ID
+	EvidenceReferences []string
+	CreatedBy          *ids.ID
+	CreatedByService   string
+	CreatedAt          time.Time
+}
+
+type ReservationFinancialCredit struct {
+	ID                       ids.ID
+	OrganisationID           ids.ID
+	PropertyID               ids.ID
+	SourceGroupID            ids.ID
+	TargetGroupID            ids.ID
+	AmountMinor              int64
+	Currency                 string
+	ApprovalID               ids.ID
+	SourceReservationVersion int64
+	CreatedBy                *ids.ID
+	CreatedByService         string
+	CreatedAt                time.Time
+}
+
+type ReservationFinancialGroup struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ReservationID       ids.ID
+	ParentGroupID       *ids.ID
+	AmountMinor         int64
+	RequiredAmountMinor int64
+	Currency            string
+	PolicyReference     string
+	AgreementVersion    int64
+	State               string
+	Responsibility      string
+	GuaranteeApprovalID *ids.ID
+	Version             int64
+	UpdatedAt           time.Time
+	CreatedBy           *ids.ID
+	CreatedByService    string
+	CreatedAt           time.Time
+}
+
+type ReservationFinancialRequest struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ReservationID     ids.ID
+	FinancialGroupID  ids.ID
+	SessionID         *ids.ID
+	Kind              string
+	State             string
+	Request           []byte
+	RequestHash       string
+	IdempotencyKey    string
+	ProviderReference string
+	LeaseOwner        *string
+	LeaseGeneration   int64
+	LeaseExpiresAt    *time.Time
+	Attempts          int32
+	AvailableAt       time.Time
+	LastError         *string
+	Version           int64
+	UpdatedAt         time.Time
+	CreatedBy         *ids.ID
+	CreatedByService  string
+	CreatedAt         time.Time
+}
+
+type ReservationGroup struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	Name             string
+	SourceReference  string
+	BillingReference string
+	State            string
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationGuest struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	ReservationID         ids.ID
+	RoomID                *ids.ID
+	GuestID               *ids.ID
+	SourceKind            string
+	SourceReference       string
+	IsPrimary             bool
+	RegistrationReference string
+	DocumentReferences    []ids.ID
+	Version               int64
+	UpdatedAt             time.Time
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+}
+
+type ReservationHold struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RoomID           ids.ID
+	HoldID           ids.ID
+	HoldVersion      int64
+	SourceReference  string
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationInventoryDay struct {
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RoomID           ids.ID
+	PoolID           ids.ID
+	Day              pgtype.Date
+	Quantity         int32
+	AllotmentID      *ids.ID
+	AllottedQuantity int32
+	ReleasedAt       *time.Time
+}
+
+type ReservationLineage struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	SourceReservationID ids.ID
+	TargetReservationID ids.ID
+	RoomIds             []ids.ID
+	Action              string
+	SourceVersion       int64
+	TargetVersion       int64
+	ApprovalID          ids.ID
+	CreatedBy           *ids.ID
+	CreatedByService    string
+	CreatedAt           time.Time
+}
+
+type ReservationModification struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ReservationID    ids.ID
+	PriorVersion     int64
+	NewVersion       int64
+	Action           string
+	ChangeContext    []byte
+	Reason           string
+	ApprovalID       *ids.ID
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationOverbookingPermit struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ReservationID     ids.ID
+	PolicyID          ids.ID
+	Quantity          int32
+	ApprovalID        ids.ID
+	Reason            string
+	RecoveryReference string
+	ExpiresAt         time.Time
+	CreatedBy         *ids.ID
+	CreatedByService  string
+	CreatedAt         time.Time
+}
+
+type ReservationOverbookingPolicy struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	Definition       []byte
+	State            string
+	ApprovalID       ids.ID
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationPaymentBinding struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	FinancialGroupID ids.ID
+	IntentID         ids.ID
+	LockedQuoteID    ids.ID
+	PayerWalletID    ids.ID
+	SourceService    string
+	RequestHash      string
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationPaymentProjection struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	PropertyID           ids.ID
+	FinancialGroupID     ids.ID
+	IntentID             ids.ID
+	ProviderState        string
+	SettlementState      string
+	ReversedMinor        int64
+	FundingConfirmed     bool
+	RemedyVersion        int32
+	RemedyReviewRequired bool
+	AmountMinor          int64
+	Currency             string
+	SourceReference      string
+	PayloadHash          string
+	ObservedAt           time.Time
+	ExpiresAt            time.Time
+	SourceService        string
+	CreatedBy            *ids.ID
+	CreatedByService     string
+	CreatedAt            time.Time
+}
+
+type ReservationPolicy struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	Definition       []byte
+	ApprovalID       ids.ID
+	State            string
+	EffectiveAt      time.Time
+	ExpiresAt        *time.Time
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationPriceSnapshot struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ReservationID    ids.ID
+	RoomID           ids.ID
+	QuoteID          ids.ID
+	Snapshot         []byte
+	AcceptedAt       time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationRiskProjection struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ReservationID    ids.ID
+	SourceService    string
+	SourceReference  string
+	Status           string
+	ReasonCode       string
+	ReviewReference  string
+	AppealReference  string
+	ExpiresAt        time.Time
+	ApprovalID       *ids.ID
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type ReservationRoom struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	ReservationID      ids.ID
+	FinancialGroupID   ids.ID
+	ProductID          ids.ID
+	PoolID             ids.ID
+	QuoteID            ids.ID
+	HoldID             *ids.ID
+	DateFrom           pgtype.Date
+	DateTo             pgtype.Date
+	Quantity           int32
+	Adults             int32
+	Children           int32
+	AmountMinor        int64
+	Currency           string
+	AccommodationMinor *int64
+	Snapshot           []byte
+	AcceptedAt         time.Time
+	State              string
+	PreviousRoomID     *ids.ID
+	OverbookedQuantity int32
+	Version            int64
+	UpdatedAt          time.Time
+	CreatedBy          *ids.ID
+	CreatedByService   string
+	CreatedAt          time.Time
+}
+
+type ReservationSourceRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	ConnectionID          ids.ID
+	ReservationID         ids.ID
+	SourceService         string
+	Provider              string
+	ExternalReservationID string
+	ExternalVersion       string
+	PayloadHash           string
+	ReceiptID             *ids.ID
+	AcceptanceReference   string
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+}
+
+type ReservationVersion struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	ReservationID      ids.ID
+	ReservationVersion int64
+	Action             string
+	PriorState         *string
+	Snapshot           []byte
+	Reason             string
+	CorrelationID      string
+	CreatedBy          *ids.ID
+	CreatedByService   string
+	CreatedAt          time.Time
 }
 
 type RolePermission struct {
@@ -1533,4 +1961,43 @@ type VerificationLinkHistory struct {
 	ProviderUpdatedAt *time.Time
 	ActorID           *ids.ID
 	CreatedAt         time.Time
+}
+
+type WaitlistEntry struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	ProductID             ids.ID
+	DateFrom              pgtype.Date
+	DateTo                pgtype.Date
+	Adults                int32
+	Children              int32
+	Quantity              int32
+	Priority              int32
+	GuestReference        string
+	State                 string
+	ExpiresAt             time.Time
+	NotificationAccountID *ids.ID
+	Version               int64
+	UpdatedAt             time.Time
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+}
+
+type WaitlistOffer struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	EntryID          ids.ID
+	HoldID           ids.ID
+	QuoteID          ids.ID
+	State            string
+	ExpiresAt        time.Time
+	ReservationID    *ids.ID
+	Version          int64
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
 }

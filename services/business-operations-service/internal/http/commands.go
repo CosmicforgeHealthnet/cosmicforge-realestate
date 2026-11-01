@@ -32,6 +32,11 @@ func (h *Handler) execute(w http.ResponseWriter, r *http.Request, operation stri
 	}
 	store := idempotency.NewStore(h.Auth.Service.Pool, 30*time.Second, 7*24*time.Hour)
 	response, err := store.Execute(r.Context(), idempotency.Key{Scope: "business:" + t.Organisation.String() + ":" + operation, CallerType: idempotency.CallerUser, CallerID: "business-operations:" + t.Account.String(), Key: r.Header.Get("Idempotency-Key")}, hash, func(ctx context.Context, tx pgx.Tx) (idempotency.Result, error) {
+		// Read expected versions only after the common tenant lock. Triggers
+		// alone lock too late if a concurrent hold handoff changed ownership.
+		if _, err := tx.Exec(ctx, `SELECT id FROM organisations WHERE id=$1 FOR UPDATE`, t.Organisation); err != nil {
+			return idempotency.Result{}, err
+		}
 		status, out, err := fn(ctx, tx)
 		if err != nil {
 			return idempotency.Result{}, err

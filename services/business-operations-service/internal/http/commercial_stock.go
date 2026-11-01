@@ -11,6 +11,7 @@ import (
 
 	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/revenue"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
@@ -469,6 +470,13 @@ func (h *Handler) changeHold(w http.ResponseWriter, r *http.Request, extend bool
 		if e != nil {
 			return 0, nil, e
 		}
+		var owned bool
+		if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_holds WHERE organisation_id=$1 AND hold_id=$2)`, t.Organisation, hold.ID).Scan(&owned); e != nil {
+			return 0, nil, e
+		}
+		if owned {
+			return 0, nil, apperrors.Conflict("CANONICAL_RESERVATION_OWNS_HOLD", "Change the reservation rather than editing its bound hold independently.")
+		}
 		current, e := inventory.GetHold(ctx, tx, t.Organisation, hold.ID)
 		if e != nil {
 			return 0, nil, e
@@ -505,13 +513,34 @@ func (h *Handler) changeHold(w http.ResponseWriter, r *http.Request, extend bool
 		return 200, updated, e
 	})
 }
+
+// Handoff creates a canonical reservation against this exact hold. Its normal
+// payment/approval/risk policy still determines whether it can be confirmed.
 func (h *Handler) holdHandoff(w http.ResponseWriter, r *http.Request) {
-	_, _, e := h.holdTarget(r, "holds:write", true)
+	_, hold, e := h.holdTarget(r, "holds:write", true)
 	if e != nil {
 		reply(w, r, 0, nil, e)
 		return
 	}
-	reply(w, r, 0, nil, apperrors.Unavailable("Canonical Section 9 reservation acceptance is unavailable; the hold is not a confirmed reservation and has not been consumed."))
+	var in reservations.Create
+	if !decode(w, r, &in) {
+		return
+	}
+	if in.Validate() != nil || in.PropertyID != hold.PropertyID || len(in.Rooms) != 1 || in.Rooms[0].HoldID == nil || *in.Rooms[0].HoldID != hold.ID || in.Rooms[0].HoldVersion != hold.Version || in.State == "INQUIRY" {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("Complete reservation acceptance against the exact current hold required."))
+		return
+	}
+	h.execute(w, r, "reservation:hold-handoff:"+hold.ID.String(), in, "reservations:write", "PROPERTY", hold.PropertyID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
+		t, _, e := h.authorize(ctx, tx, "reservations:write", "PROPERTY", hold.PropertyID, true)
+		if e != nil {
+			return 0, nil, e
+		}
+		if _, _, e = h.authorize(ctx, tx, "holds:write", "PROPERTY", hold.PropertyID, true); e != nil {
+			return 0, nil, e
+		}
+		out, e := h.createReservationTx(ctx, tx, t, in, false)
+		return 201, out, e
+	})
 }
 
 type CommercialAllotment struct {

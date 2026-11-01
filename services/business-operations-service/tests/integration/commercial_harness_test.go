@@ -79,7 +79,7 @@ func newCommercialHTTP(t *testing.T) *commercialHarness {
 	c := &commercialHarness{businessHarness: h, owner: h.user(), approver: h.user(), policies: map[string]bool{}}
 	h.secure(c.owner)
 	h.secure(c.approver)
-	h.join(c.approver, c.owner, []string{"approvals:decide", "rates:approve", "pricing:approve", "publication:approve", "channels:approve"})
+	h.join(c.approver, c.owner, []string{"approvals:decide", "rates:approve", "pricing:approve", "publication:approve", "channels:approve", "reservations:approve"})
 	org := c.owner.registered.OrganisationID
 	branch := h.inventoryBranch(c.owner)
 	c.property = h.inventoryNode(c.owner, "/properties", map[string]any{"branch_id": branch, "code": "COMMERCIAL-HOTEL", "name": "Commercial test hotel", "capacity_code": "MANAGEMENT", "attributes": map[string]any{"classification": "HOTEL"}})

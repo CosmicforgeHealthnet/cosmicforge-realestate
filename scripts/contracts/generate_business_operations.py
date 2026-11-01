@@ -1,4 +1,4 @@
-"""Generate Sections 3–7 OpenAPI/Postman together. No runtime secrets or network IO.
+"""Generate Sections 3â€“7 OpenAPI/Postman together. No runtime secrets or network IO.
 Run from repository root: python scripts/contracts/generate_business_operations.py
 --check compares generated artifacts without changing them.
 """
@@ -15,10 +15,14 @@ def obj(props,required=(),closed=False):
  return d
 def arr(s):return {'type':'array','items':s}
 def fields(**kw):return obj({k:typ(v) for k,v in kw.items()})
-def typ(t):
+TYPE_NAMES={
+ 'reservations':{'Policy':'ReservationPolicy','Reservation':'Reservation','Room':'ReservationRoom','RoomCommand':'ReservationRoomCommand','GuestCommand':'ReservationGuestCommand','Create':'ReservationCreate','Detail':'ReservationDetail','Command':'ReservationMutation','SourceCommand':'ReservationSourceCommand','Acceptance':'ReservationAcceptance','FinancialGroupView':'ReservationFinancialGroupView'},
+ 'payment':{'Policy':'PaymentPolicy','Component':'PaymentComponent','Quote':'PaymentLockedQuote','IntentInput':'PaymentIntentInput','Intent':'PaymentIntent','Receipt':'PaymentReceipt'},
+}
+def typ(t,package=None):
  t=t.strip()
- if t.startswith('*'):return typ(t[1:])
- if t.startswith('[]'):return arr(typ(t[2:]))
+ if t.startswith('*'):return typ(t[1:],package)
+ if t.startswith('[]'):return arr(typ(t[2:],package))
  if t in ('ids.ID',):return {'type':'string','format':'uuid','pattern':'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$','example':UID}
  if t=='time.Time':return {'type':'string','format':'date-time','example':DATE}
  if t=='bool':return {'type':'boolean'}
@@ -26,19 +30,24 @@ def typ(t):
  if t in ('int','int32','int64','uint64'):return {'type':'integer','format':'int64'}
  if t in ('string','permissions.Permission','State','organisation.State','Protocol','Kind','portfolio.Kind'):return {'type':'string'}
  if t in ('json.RawMessage','any') or t.startswith('map['):return {'type':'object','additionalProperties':True}
+ if '.' in t:
+  namespace,name=t.split('.',1)
+  return ref(TYPE_NAMES.get(namespace,{}).get(name,name))
+ if package in TYPE_NAMES:return ref(TYPE_NAMES[package].get(t,t))
  return ref(t.split('.')[-1])
 S={}
 for p in (SERVICE/'internal').rglob('*.go'):
  if '_test.go' in p.name or 'repositories' in p.parts:continue
  text=p.read_text(encoding='utf-8')
+ package=re.search(r'^package (\w+)',text,re.M)[1]
  for m in re.finditer(r'type (\w+) struct \{([^}]+)\}',text,re.S):
   props={};required=[]
   for fm in re.finditer(r'\w+\s+([^\n`]+)\s+`json:"([^",]+)([^"`]*)"`',m[2]):
    t,name,opt=fm.groups()
    if name=='-':continue
-   props[name]=typ(t)
+   props[name]=typ(t,package)
    if 'omitempty' not in opt:required.append(name)
-  if props:S[m[1]]=obj(props,required,True)
+  if props:S[TYPE_NAMES.get(package,{}).get(m[1],m[1])]=obj(props,required,True)
 # Explicit inline command schemas, optional defaults are documented below.
 def command(name,required=(),**kw):S[name]=obj({k:typ(v) for k,v in kw.items()},required,True)
 command('DeviceLabel',('label','version'),label='string',version='int64')
@@ -192,8 +201,8 @@ route('POST','/approvals/{id}/submit','approvals:create','ApprovalCancel','Appro
 route('GET','/delegations',res='List:Delegation',notes='Only delegator/delegate membership grants are listed.')
 route('POST','/delegations','delegations:write','delegationCommand','Delegation',201,True,True,notes='Scoped read, hierarchy-write and explicit approval capabilities, at most 30 days. Approval decisions retain delegator provenance and cannot approve a delegator request or reuse one authority across independent requirements. Must fit direct authority and recipient role ceiling. Chaining prohibited; source revocation is checked on every use.')
 route('DELETE','/delegations/{id}','delegations:write','Reason','BooleanResult',200,True,True)
-route('GET','/break-glass',res='List:Emergency',notes='Lists the authenticated member’s grants; independent reviewers use the audited grant reference.')
-route('POST','/break-glass','break_glass:request','emergencyCommand','Emergency',201,True,True,notes='Designated senior role; 20-character reason; branch/department/team only; hierarchy:read or staff:read; 30–900 seconds. Exact independent BREAK_GLASS_ACCESS approval after activation; every use audited; explicit denies and tenant boundaries remain enforced.')
+route('GET','/break-glass',res='List:Emergency',notes='Lists the authenticated memberâ€™s grants; independent reviewers use the audited grant reference.')
+route('POST','/break-glass','break_glass:request','emergencyCommand','Emergency',201,True,True,notes='Designated senior role; 20-character reason; branch/department/team only; hierarchy:read or staff:read; 30â€“900 seconds. Exact independent BREAK_GLASS_ACCESS approval after activation; every use audited; explicit denies and tenant boundaries remain enforced.')
 route('DELETE','/break-glass/{id}','break_glass:request','Reason','BooleanResult',200,True,True)
 route('POST','/break-glass/{id}/review','break_glass:review','Reason','BooleanResult',200,True,True,notes='Independent reviewer only; immutable once completed; revokes access immediately.')
 route('GET','/audit-events','audit:read',res='List:Audit',mfa=True)
@@ -261,6 +270,8 @@ route('POST','/imports/{id}/rollback','imports:write','ImportControl','RecoveryR
 # Request examples are syntactically representative, not seeded demo records.
 from business_commercial_routes import register_commercial, commercial_examples,commercial_queries
 register_commercial(ROOT,S,route,obj,arr,ref,typ)
+from business_operational_routes import register_operations,operational_examples,operational_queries
+register_operations(ROOT,S,route,obj,arr,ref,typ)
 
 def example(schema,depth=0):
  if depth>20:return {}
@@ -274,7 +285,7 @@ def example(schema,depth=0):
  if t=='object':return {k:example(v,depth+1) for k,v in schema.get('properties',{}).items() if k in schema.get('required',schema.get('properties',{}))}
  if t=='array':return [example(schema['items'],depth+1)]
  if t=='boolean':return True
- if t=='integer':return 1
+ if t=='integer':return max(1,schema.get('minimum',1))
  if t=='number':return 1.0
  return schema.get('example',schema.get('enum',['example'])[0])
 S['Node']['example']={'id':UID,'organisation_id':UID,'branch_id':UID,'tree_version':1,'parents':[],'kind':'PROPERTY','non_sellable':False,'code':'PROPERTY-001','name':'Example Property','state':'DRAFT','timezone':'Africa/Lagos','currency':'NGN','policy_code':'STANDARD','policy_version':1,'attributes':{'classification':'RESIDENTIAL_BUILDING'},'version':1,'created_at':DATE,'updated_at':DATE,'created_by':UID,'updated_by':UID,'verification':{'status':'UNVERIFIED'}}
@@ -334,6 +345,7 @@ EXAMPLES.update({
  'CommercialFieldAuthority':{'field':'title','mode':'MANUAL_OVERRIDE','value':'Reviewed channel title','source_reference':'operator:review-42','expires_at':'2026-11-15T12:00:00Z','version':0,'reason':'Apply independently reviewed channel text','approval_id':UID},
 })
 EXAMPLES.update(commercial_examples(UID))
+EXAMPLES.update(operational_examples(UID))
 # Exclude implementation-only structs and ensure no dangling references.
 used=set()
 def include(s):
@@ -345,8 +357,8 @@ def include(s):
   for v in s.values():include(v)
  elif isinstance(s,list):
   for v in s:include(v)
-O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations — Sections 3–7','version':'1.3.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
-folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','05 Listings & Content','06 Inventory & Availability','07 Rate Plans, Restrictions & Promotions','08 Channel Manager','_Internal','_Webhooks','_Admin')}
+O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations â€” Sections 3â€“7','version':'1.4.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
+folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','05 Listings & Content','06 Inventory & Availability','07 Rate Plans, Restrictions & Promotions','08 Channel Manager','09 Revenue Management','10 Reservations','11 Front Desk','12 Folio, Cashier & Night Audit','13 Guest CRM & Marketing','_Internal','_Webhooks','_Admin')}
 error_defs={'400':('VALIDATION_ERROR','Invalid request fields.'),'401':('AUTHENTICATION_REQUIRED','Authentication required.'),'403':('PERMISSION_DENIED','Capability or scope denied.'),'404':('RESOURCE_NOT_FOUND','Resource not found.'),'409':('VERSION_CONFLICT','Version changed or idempotency conflicts.'),'429':('RATE_LIMITED','Try again later.'),'503':('SERVICE_UNAVAILABLE','Required provider is unavailable.')}
 for r in R:
  method,path=r['method'],r['path'];name=method+' '+path
@@ -365,7 +377,7 @@ for r in R:
  if method=='GET' and path.removeprefix('/api/v1/business/').split('/')[0] in node_kinds and response=='List:Node':
   parameters += [{'name':'branch_id','in':'query','schema':typ('ids.ID')},{'name':'state','in':'query','schema':{'type':'string','enum':['DRAFT','ACTIVE','INACTIVE','RETIRED','ARCHIVED']}},{'name':'q','in':'query','schema':{'type':'string','maxLength':200}}]
  parameters.append({'name':'X-Request-ID','in':'header','required':False,'schema':{'type':'string','maxLength':128}})
- for key,kind,required in commercial_queries(r.get('handler','')):
+ for key,kind,required in commercial_queries(r.get('handler',''))+operational_queries(r.get('handler','')):
   querySchema={'type':'integer','minimum':0} if kind=='integer' else typ('ids.ID') if kind=='uuid' else {'type':'string','format':'date'} if kind=='date' else {'type':'string'}
   parameters.append({'name':key,'in':'query','required':required,'schema':querySchema})
  if r['idempotent']:parameters.append({'name':'Idempotency-Key','in':'header','required':True,'schema':{'type':'string','minLength':8,'maxLength':128}})
@@ -429,7 +441,7 @@ for r in R:
   body=copy.deepcopy(body)
   for k in list(body):
    if k in ('password','current_password','new_password','invitation_token','refresh_token','mfa_token','key_base64') or (k=='code' and r['request'] in ('Code','MFAVerify')):body[k]='{{business_'+k+'}}'
-  if 'email' in body:body['email']='{{business_email}}'
+  if 'email' in body:body['email']='{{business_payer_email}}' if r['request']=='ReservationCollectionCommand' else '{{business_email}}'
   def interpolate(value):
    if isinstance(value,dict):
     for k,v in value.items():
@@ -450,17 +462,20 @@ for r in R:
   target='business_'+('property_id' if '/properties/{id}/' in path else 'development_id' if '/developments/{id}/' in path else graph_kind.lower()+'_id')
  if '/inventory-nodes/{id}' in path:target='business_node_id'
  if '/imports/{id}' in path:target='business_import_id'
+ if '/reservations/{id}' in path:target='business_reservation_id'
+ if '/waitlist/{id}' in path:target='business_waitlist_id'
  if '/handover/{id}' in path:target='business_handover_id'
  prerequest=['if (!pm.environment.get("business_idempotency_key")) pm.environment.set("business_idempotency_key", pm.variables.replaceIn("{{$guid}}"));']
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
  resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
- commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
+ commercial_capture={'Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
  if response=='CommercialMappingPreviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_mapping_preview_id",body.data.preview_id);pm.environment.set("business_mapping_digest",body.data.digest);}')
  if response=='CommercialBulkView':tests.append('if(pm.response.code<300){pm.environment.set("business_bulk_snapshot_digest",body.data.snapshot.digest);pm.environment.set("business_bulk_version",body.data.version);}')
  if response=='CommercialRateResult':tests.append('if(pm.response.code<300){pm.environment.set("business_rate_plan_id",body.data.rate_plan.id);if(body.data.rate_version)pm.environment.set("business_rate_version_id",body.data.rate_version.id);}')
  if response=='CommercialListingDetail':tests.append('if(pm.response.code<300){pm.environment.set("business_listing_id",body.data.listing.id);pm.environment.set("business_listing_version_id",body.data.current_version.id);}')
+ if response=='ReservationDetail':tests.append('if(pm.response.code<300){pm.environment.set("business_reservation_id",body.data.reservation.id);pm.environment.set("business_reservation_version",body.data.reservation.version);if(body.data.rooms.length)pm.environment.set("business_reservation_room_id",body.data.rooms[0].id);const activeGroup=body.data.financial_groups.find(g=>g.allocation_relationship==="ACTIVE_ALLOCATION");if(activeGroup)pm.environment.set("business_financial_group_id",activeGroup.id);}')
  if response=='QuoteSnapshot':tests.append('if(pm.response.code<300){pm.environment.set("business_quote_id",body.data.quote_id);pm.test("Quote is not a reservation",()=>pm.expect(body.data.is_reservation).to.eql(false));}')
  if response=='CommercialReceiptResult':tests.append('if(pm.response.code<300) pm.test("No fabricated reservation acceptance",()=>pm.expect(body.data.canonical_reservation_accepted).to.eql(false));')
  if response=='Node':tests.append('if(pm.response.code<300){pm.environment.set("business_node_id",body.data.id);pm.environment.set("business_tree_version",body.data.tree_version);}')
@@ -478,6 +493,7 @@ for r in R:
  if any(path.startswith('/api/v1/business/'+p) for p in ('inventory-pools','sellable-products','holds','allotments','calendar','availability','compliance-holds')) or path=='/api/v1/business/inventory':folder='06 Inventory & Availability'
  if any(path.startswith('/api/v1/business/'+p) for p in ('rate-plans','rate-plan-versions','rate-quotes','rates/','restrictions','promotions','packages','add-ons','tax-profiles','currency-policy')):folder='07 Rate Plans, Restrictions & Promotions'
  if path.startswith(('/api/v1/business/channels','/api/v1/business/channel-conflicts')):folder='08 Channel Manager'
+ if path.startswith(('/api/v1/business/reservations','/api/v1/business/reservation-','/api/v1/business/waitlist')):folder='10 Reservations'
  if path.startswith('/internal/'):folder='_Internal'
  if path.startswith('/webhooks/'):folder='_Webhooks'
  folders[folder]['item'].append({'name':name,'request':request,'response':examples,'event':[{'listen':'prerequest','script':{'type':'text/javascript','exec':prerequest}},{'listen':'test','script':{'type':'text/javascript','exec':tests}}]})
@@ -496,7 +512,7 @@ changed=[]
 for p,text in outputs.items():
  if not p.exists() or p.read_text(encoding='utf-8-sig')!=text:
   changed.append(str(p.relative_to(ROOT)))
-  if '--check' not in sys.argv:p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8')
+  if '--check' not in sys.argv:p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8',newline='\n')
 if '--check'in sys.argv and changed:raise SystemExit('Contract drift: '+', '.join(changed))
 if '--validate' in sys.argv:
  from jsonschema import Draft202012Validator,RefResolver
