@@ -56,3 +56,6 @@ REVOKE DELETE,TRUNCATE ON room_status_current,room_assignments,room_assignment_d
 
 REVOKE UPDATE,DELETE,TRUNCATE ON group_blocks,rooming_lists,master_folios,master_folio_members,event_bookings FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON reservation_groups FROM cf_business_runtime;
+
+REVOKE UPDATE,DELETE,TRUNCATE ON folio_close_reviews,folio_close_review_revocations FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON hospitality_operation_exceptions FROM cf_business_runtime;

@@ -1,3 +1,7 @@
+## Schema17 audit update
+
+Current PMS final-close/completion and bounded financial-readback maintenance are implemented and tested; full local candidate module219 passed, zero failed/skipped. Latest already-verified remote milestone is schema16 (`6b55697`, all five workflows and210 Linux race tests passed). Schema17 needs independent pushed-SHA evidence. The complete master objective remains PARTIAL; no remaining internal CRM, quantity/waitlist, in-house amendment, additional financial, automatic day-close or RMS automation requirement is reclassified as an external dependency. Other Postman folders and unrelated Owner workspace changes remain preserved.
+
 ## Current completion pass — November 2, 2026
 
 Baseline `13801be` was fetched/rechecked with five green workflows. The current uncommitted schema15 milestone has functioning CRM identity/corporate and core PMS commands; Sections 10/11 are PARTIAL, and Sections 8/9 remain PARTIAL. Current counts: 404 routes, 358 schemas, 68 events, 191 tables. The generated catalogue explicitly marks 21 missing current schema requirements instead of misclassifying those as future/external work. Reports 10/11 and the completion plan supersede historical missing-domain statements below. Full module: 206 pass, zero fail/skip; an additional distinct-reservation physical assignment race passed. Exact pushed-SHA Linux race/image/security CI remains to verify.

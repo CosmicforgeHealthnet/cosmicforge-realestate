@@ -192,3 +192,19 @@ func decodeRecord[T any](raw []byte, e error) (v T, err error) {
 	err = json.Unmarshal(raw, &v)
 	return
 }
+
+type FolioCloseReview struct {
+	ID                      ids.ID    `json:"id"`
+	FolioID                 ids.ID    `json:"folio_id"`
+	FolioVersion            int64     `json:"folio_version"`
+	PostingDigest           string    `json:"posting_digest"`
+	AutomaticClose          bool      `json:"automatic_close"`
+	AuthorizingMembershipID ids.ID    `json:"authorizing_membership_id"`
+	AuthorizingRoleID       ids.ID    `json:"authorizing_role_id"`
+	ExpiresAt               time.Time `json:"expires_at"`
+}
+
+func LatestFolioCloseReview(ctx context.Context, q database.Querier, org, folio ids.ID) (FolioCloseReview, error) {
+	raw, e := (&db.Queries{}).GetLatestFolioCloseReview(ctx, q, db.GetLatestFolioCloseReviewParams{OrganisationID: org, FolioID: folio})
+	return decodeRecord[FolioCloseReview](raw, e)
+}

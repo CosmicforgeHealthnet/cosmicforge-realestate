@@ -142,17 +142,21 @@ func (r *Runtime) Run(ctx context.Context) error {
 		if !time.Now().Before(nextMaintenance) {
 			nextMaintenance = time.Now().Add(time.Minute)
 			if r.Inventory != nil {
-				call, cancel := context.WithTimeout(ctx, 30*time.Second)
-				err := r.Inventory.ProcessReservationMaintenance(call, 50)
-				if err == nil {
-					err = r.Inventory.ProcessCommercialMaintenance(call, 50)
-				}
-				if err == nil {
-					err = r.Inventory.ProcessRMSMaintenance(call, 50)
-				}
-				cancel()
-				if err != nil && ctx.Err() == nil {
-					r.log.Error("commercial supply maintenance failed", "error", err.Error())
+				for _, task := range []struct {
+					name string
+					run  func(context.Context, int) error
+				}{
+					{"reservation", r.Inventory.ProcessReservationMaintenance},
+					{"commercial", r.Inventory.ProcessCommercialMaintenance},
+					{"rms", r.Inventory.ProcessRMSMaintenance},
+					{"hospitality", r.Inventory.ProcessHospitalityMaintenance},
+				} {
+					call, cancel := context.WithTimeout(ctx, 30*time.Second)
+					err := task.run(call, 50)
+					cancel()
+					if err != nil && ctx.Err() == nil {
+						r.log.Error("domain maintenance failed", "domain", task.name, "error", err.Error())
+					}
 				}
 			}
 			if r.verificationConsumer == nil {

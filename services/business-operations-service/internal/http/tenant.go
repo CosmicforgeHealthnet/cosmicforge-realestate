@@ -76,42 +76,7 @@ func (h *Handler) load(ctx context.Context, q database.Querier) (tenant, error) 
 		return t, apperrors.PermissionDenied("Organisation access denied.")
 	}
 	t.Membership = workforce.Membership{AccountID: t.Account, OrganisationID: t.Organisation, Status: status, EffectiveAt: effective, ExpiresAt: expiry, RoleCapabilities: permissions.NewSet()}
-	rows, err := q.Query(ctx, `SELECT permission FROM role_permissions WHERE role_id=$1`, t.Role)
-	if err != nil {
-		return t, err
-	}
-	for rows.Next() {
-		var capability permissions.Permission
-		if err := rows.Scan(&capability); err != nil {
-			rows.Close()
-			return t, err
-		}
-		t.Membership.RoleCapabilities[capability] = struct{}{}
-	}
-	err = rows.Err()
-	rows.Close()
-	if err != nil {
-		return t, err
-	}
-	rows, err = q.Query(ctx, `SELECT capability,scope_kind,scope_id,inherit,deny,effective_at,expires_at,revoked_at,amount_limit_minor,currency,require_mfa FROM staff_scope_grants WHERE organisation_id=$1 AND membership_id=$2`, t.Organisation, t.Member)
-	if err != nil {
-		return t, err
-	}
-	for rows.Next() {
-		g := workforce.Grant{Scope: workforce.Scope{Organisation: t.Organisation}}
-		var currency *string
-		if err := rows.Scan(&g.Capability, &g.Scope.Kind, &g.Scope.ID, &g.Inherit, &g.Deny, &g.EffectiveAt, &g.ExpiresAt, &g.RevokedAt, &g.AmountLimitMinor, &currency, &g.RequireMFA); err != nil {
-			rows.Close()
-			return t, err
-		}
-		if currency != nil {
-			g.Currency = *currency
-		}
-		t.Membership.Grants = append(t.Membership.Grants, g)
-	}
-	err = rows.Err()
-	rows.Close()
-	if err != nil {
+	if err = workforce.LoadDirectGrants(ctx, q, t.Organisation, t.Member, t.Role, &t.Membership); err != nil {
 		return t, err
 	}
 	t.Direct = t.Membership

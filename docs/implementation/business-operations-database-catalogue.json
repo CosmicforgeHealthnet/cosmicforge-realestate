@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00016_hospitality_groups.sql",
+  "latest_migration": "00017_hospitality_completion.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -3926,7 +3926,9 @@
         "immutable": true,
         "unique_constraint_count": 2,
         "check_constraint_count": 2,
-        "altered_in": []
+        "altered_in": [
+          "00017_hospitality_completion.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -5661,6 +5663,62 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "folio_close_review_revocations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00017_hospitality_completion.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "folio_close_reviews",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00017_hospitality_completion.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "folio_review_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "folio_payment_references",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -5906,6 +5964,66 @@
         "immutable": true,
         "unique_constraint_count": 1,
         "check_constraint_count": 2,
+        "altered_in": [
+          "00017_hospitality_completion.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_maintenance_cursors",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00017_hospitality_completion.sql",
+        "primary_key": [
+          "(organisation_id,folio_id)"
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "hospitality_maintenance_due"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_operation_exceptions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00017_hospitality_completion.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "hospitality_exception_queue"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",

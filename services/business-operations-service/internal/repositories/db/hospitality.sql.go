@@ -59,6 +59,22 @@ func (q *Queries) GetHospitalityStay(ctx context.Context, db DBTX, arg GetHospit
 	return record, err
 }
 
+const getLatestFolioCloseReview = `-- name: GetLatestFolioCloseReview :one
+SELECT to_jsonb(r)::jsonb AS record FROM folio_close_reviews r WHERE organisation_id=$1 AND folio_id=$2 ORDER BY created_at DESC,id DESC LIMIT 1
+`
+
+type GetLatestFolioCloseReviewParams struct {
+	OrganisationID ids.ID
+	FolioID        ids.ID
+}
+
+func (q *Queries) GetLatestFolioCloseReview(ctx context.Context, db DBTX, arg GetLatestFolioCloseReviewParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getLatestFolioCloseReview, arg.OrganisationID, arg.FolioID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
 const getPhysicalRoomAssignment = `-- name: GetPhysicalRoomAssignment :one
 SELECT to_jsonb(a)::jsonb AS record FROM room_assignments a WHERE organisation_id=$1 AND id=$2
 `

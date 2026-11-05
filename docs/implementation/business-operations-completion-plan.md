@@ -1,3 +1,11 @@
+## Current schema17 candidate
+
+Implemented the actual final-close/completion path and bounded hotel maintenance described in the Section10 report. The full local module passed **219 tests, zero failed/skipped**; nine focused security/concurrency cases also pass. Exact pushed-SHA CI is pending. Remaining internal work in the matrix below continues. New runtime authority reuses `workforce.LoadDirectGrants` and `workforce.Authorize`; no new identity authority or scheduler was introduced.
+
+## Verified schema16 staging milestone — November 5
+
+Commit `6b55697b09886bb0dac71f075a7063bf18e26e74` is on origin/staging. All five exact-SHA workflows passed: [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42115139614), [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42115139685), [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42115139655), [Architecture](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42115139721), [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42115139725). Business Linux race evidence: **210 tests passed, zero failed/skipped** (job127552670367). Business image digest: `sha256:9d603ade23f7ceb902f848e14b12940bbad4a21ac427d6994f54231b76b3d647` (job127552670622, pulled digest used for real container smoke). This verifies that milestone; the current schema17 changes require independent tests and pushed-SHA CI. There is still no authorized live rollout workflow or verified staging database/provider connection. All remaining internal requirements remain internal work.
+
 ## Current execution status — schema16 candidate
 
 Schema15 (`56cd2fb`) is pushed to staging with all five workflows green, 207 Linux race tests and real container smoke evidence in the certificate. Subsequent schema16 group changes pass 209 local module tests plus five focused snapshot/upgrade/group/facility/revocation tests. They require their own pushed-SHA CI. Existing unrelated Owner files remain excluded.

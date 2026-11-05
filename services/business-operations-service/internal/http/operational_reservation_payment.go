@@ -414,6 +414,14 @@ func (h *Handler) finishReservationFinancialJob(ctx context.Context, job reserva
 		if e := h.reservationFinancialFence(ctx, tx, job); e != nil {
 			return e
 		}
+		if job.CreatedBy.IsZero() {
+			if job.Kind != "READBACK" {
+				return apperrors.PermissionDenied("Service maintenance can only read an existing Payment binding.")
+			}
+			if _, e := tx.Exec(ctx, `SELECT set_config('business.actor_service','business-operations-service',true)`); e != nil {
+				return e
+			}
+		}
 		if cause != nil {
 			state, code := "RETRY", "PAYMENT_UNAVAILABLE_OR_UNKNOWN"
 			var remote *httpx.RemoteError

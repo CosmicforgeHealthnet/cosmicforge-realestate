@@ -63,6 +63,11 @@ func (h *Handler) registerPMS(r chi.Router) {
 	r.Get("/folios/{id}", h.pmsFolioGet)
 	r.Post("/folios/{id}/items", h.pmsFolioPost)
 	r.Post("/folios/{id}/reconcile", h.pmsFolioReconcile)
+	r.Post("/folios/{id}/close", h.pmsFolioClose)
+	r.Post("/folios/{id}/close-reviews", h.pmsFolioCloseReview)
+	r.Post("/folio-close-reviews/{id}/revoke", h.pmsFolioReviewRevoke)
+	r.Get("/folio-close-reviews", h.pmsCloseReviews)
+	r.Get("/hospitality-exceptions", h.pmsOperationExceptions)
 }
 func (h *Handler) pmsCommit(ctx context.Context, tx pgx.Tx, t tenant, property, id ids.ID, kind, action, event string, version int64, change any) error {
 	if _, e := tx.Exec(ctx, `INSERT INTO hospitality_history(id,organisation_id,property_id,entity_id,entity_type,entity_version,action,change_context,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, ids.New(), t.Organisation, property, id, kind, version, action, marshalCommercial(change), t.Account); e != nil {

@@ -1,3 +1,7 @@
+## Schema17 in-house lifecycle addition
+
+The owning PMS final-close command now advances a CHECKED_OUT root to COMPLETED only when every accepted physical quantity slot actually departed, all source folios are closed and all current balances are zero against usable signed Payment evidence. The automatic form requires an unexpired exact-posting review and live direct staff/role/scope authority; it creates no human principal or Payment charge. `internal/http/operational_pms_completion.go`, `operational_pms_maintenance.go` and `tests/integration/pms_completion_test.go` implement/test this path, including provider outage/recovery, concurrent close and later reversal. Full candidate module:219 passed, zero failed/skipped. Quantity fragmentation, extension/early departure and waitlist/source/recovery completion remain internal work; overall Section9 stays PARTIAL. Exact pushed-SHA CI is recorded in the combined certificate when available.
+
 Current schema16 candidate: group blocking/rooming and batch check-in/out now reuse canonical reservations and accepted financial/stock history; published schema15 remains the green staging milestone below. Quantity fragmentation, extension, full waitlist automation and remedy composition remain unfinished current work.
 
 ## Current completion pass, schema15

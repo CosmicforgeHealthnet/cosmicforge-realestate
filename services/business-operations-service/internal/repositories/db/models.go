@@ -993,6 +993,32 @@ type Folio struct {
 	UpdatedAt      time.Time
 }
 
+type FolioCloseReview struct {
+	ID                      ids.ID
+	OrganisationID          ids.ID
+	PropertyID              ids.ID
+	FolioID                 ids.ID
+	FolioVersion            int64
+	PostingDigest           string
+	AutomaticClose          bool
+	AuthorizingMembershipID ids.ID
+	AuthorizingRoleID       ids.ID
+	ExpiresAt               time.Time
+	Reason                  string
+	CreatedBy               ids.ID
+	CreatedAt               time.Time
+}
+
+type FolioCloseReviewRevocation struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ReviewID       ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
 type FolioItem struct {
 	ID              ids.ID
 	OrganisationID  ids.ID
@@ -1194,16 +1220,40 @@ type HospitalityBusinessDay struct {
 }
 
 type HospitalityHistory struct {
-	ID             ids.ID
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	EntityID         ids.ID
+	EntityType       string
+	EntityVersion    int64
+	Action           string
+	ChangeContext    []byte
+	CreatedBy        *ids.ID
+	CreatedAt        time.Time
+	CreatedByService string
+}
+
+type HospitalityMaintenanceCursor struct {
 	OrganisationID ids.ID
-	PropertyID     ids.ID
-	EntityID       ids.ID
-	EntityType     string
-	EntityVersion  int64
-	Action         string
-	ChangeContext  []byte
-	CreatedBy      ids.ID
-	CreatedAt      time.Time
+	FolioID        ids.ID
+	NextCheckAt    time.Time
+}
+
+type HospitalityOperationException struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	SourceType       string
+	SourceID         ids.ID
+	SourceDigest     string
+	Code             string
+	State            string
+	Evidence         []byte
+	Version          int64
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type HospitalityPolicy struct {
@@ -1595,15 +1645,16 @@ type MasterFolioMember struct {
 }
 
 type NightAudit struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	PropertyID     ids.ID
-	BusinessDayID  ids.ID
-	State          string
-	Snapshot       []byte
-	SnapshotDigest string
-	CreatedBy      ids.ID
-	CreatedAt      time.Time
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	BusinessDayID    ids.ID
+	State            string
+	Snapshot         []byte
+	SnapshotDigest   string
+	CreatedBy        *ids.ID
+	CreatedAt        time.Time
+	CreatedByService string
 }
 
 type NightAuditException struct {

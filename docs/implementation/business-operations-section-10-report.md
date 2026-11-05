@@ -1,3 +1,9 @@
+## Current schema17 completion work
+
+Post-departure folio close, canonical reservation COMPLETED, optional bounded final-close reviews/revocation, service-actor maintenance, current-authority checks, fair scan cursors, safe existing Payment READBACK queue recovery and immutable operational exceptions are implemented. Five additional registered APIs bring the current scope to Goose17 / 424 routes / 379 schemas / 73 events / 200 tables. The nine focused PostgreSQL completion/security/concurrency test cases pass, including provider outage/recovery without duplicate collection, current membership/scope/MFA checks, source-posting changes, review expiry/revocation, concurrent final close and later reversal. The complete local module passed **219 tests, zero failed/skipped** (`go test -p 2 ./... -count=1 -json`, fresh PostgreSQL18); no schema17 CI is yet claimed. See the completion certificate for the independently verified schema16 SHA and image digest.
+
+This remains PARTIAL: automatic day-close/no-show/access workflows, in-house extension/early departure, additional/mixed-payer collection and full fiscal itemization remain current work. CRM, reservation and RMS completion continues; these are not external blockers.
+
 ## Schema16 group operations in progress
 
 Additive migration 00016 reuses `reservation_groups` and adds `group_blocks`, immutable versioned `rooming_lists`, `master_folios`, `master_folio_members` and `event_bookings`. The corporate negotiated-rate contract remains the approved `corporate_customer_contracts` record; no duplicate price authority is created. Group blocks create actual canonical held/confirmed reservations and committed quantities, not a second calendar or invented distribution channel. Existing reservation cancellation/expiry releases their stock. Canonical group changes publish `group.booking.updated.v1` in the same transaction.

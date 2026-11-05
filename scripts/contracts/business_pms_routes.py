@@ -17,6 +17,7 @@ def register_pms(s,obj,arr,ref,typ):
  shape('PMSCheckoutResult',stay_id=uid,state={'const':'DEPARTED'},folio_state={'enum':['CLOSED','SETTLEMENT_PENDING']},balance_minor=integer,reservation_version=integer,room_state={'const':'VACANT_DIRTY'},access_state={'const':'UNKNOWN'})
  shape('PMSFolioView',folio=ref('PMSFolio'),items=arr(ref('PMSItem')),balance_minor=integer,payment_truth={'const':'PAYMENT_SERVICE'})
  shape('PMSFolioReconciled',folio=ref('PMSFolio'),balance_minor=integer,payment_truth={'const':'PAYMENT_SERVICE'})
+ shape('PMSFolioReviewRevoked',id=uid,review_id=uid,state={'const':'REVOKED'})
  shape('PMSFolioPostingResult',folio=ref('PMSFolio'),item_id=uid)
  shape('PMSFrontDesk',property_id=uid,business_date={'type':'string','format':'date'},timezone={'type':'string'},posting_cutoff_local={'type':'string'},observed_at={'type':'string','format':'date-time'},counts={'type':'object','additionalProperties':integer},reservations=arr({'type':'object','additionalProperties':True}),limit=integer,offset=integer)
  shape('PMSHospitalityPolicyCreated',id=uid,version=integer,cutoff_local={'type':'string'},applies_to={'const':'NEXT_OPENED_BUSINESS_DAY'})
@@ -83,6 +84,11 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsFolios':('folios:read',None,'PMSList',200,False),
  'pmsFolioGet':('folios:read',None,'PMSFolioView',200,False),
  'pmsFolioReconcile':('folios:write','PMSVersionCommand','PMSFolioReconciled',200,False),
+ 'pmsCloseReviews':('folios:read',None,'PMSList',200,False),
+ 'pmsOperationExceptions':('pms:read',None,'PMSList',200,False),
+ 'pmsFolioClose':('folios:write','PMSVersionCommand','PMSFolioClosed',200,True),
+ 'pmsFolioCloseReview':('folios:write','PMSFolioCloseReviewCommand','PMSFolioCloseReview',201,True),
+ 'pmsFolioReviewRevoke':('folios:write','PMSVersionCommand','PMSFolioReviewRevoked',201,True),
  'pmsFolioPost':('folios:write','PMSFolioPosting','PMSFolioPostingResult',201,False),
  }
 def pms_queries(handler):
@@ -92,6 +98,7 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSFolioCloseReviewCommand':{'version':2,'automatic_close':True,'expires_at':'2026-12-02T01:00:00Z','reason':reason},
  'PMSGroupCreate':{'property_id':uid,'name':'Reviewed conference group','source_reference':'actual-group-sales-reference','billing_reference':'group-billing-authority-reference','reason':reason},
  'PMSGroupBlockCommand':{'booking':{'property_id':uid,'source':'GROUP','channel':'','source_reference':'actual-group-booking-reference','state':'HOLD','rooms':[{'product_id':uid,'quote_id':uid,'product_version':1,'pool_version':1,'date_from':'2026-12-01','date_to':'2026-12-03','quantity':1}],'guests':[{'guest_id':uid,'source_kind':'DIRECT','source_reference':'actual-registered-source-reference','is_primary':True}],'payment_responsibility':'PLATFORM_COLLECT','group_id':uid,'reason':reason}},
  'PMSGroupPatch':{'version':1,'state':'CANCELLED','reason':reason},
