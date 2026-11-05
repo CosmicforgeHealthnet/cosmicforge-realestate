@@ -40,21 +40,30 @@ func TestBusinessCompleteCatalogueMatchesActualPostgreSQL(t *testing.T) {
 	if len(catalogue.Entries) < 200 {
 		t.Fatal("catalogue does not cover the full specification and annex supplements")
 	}
-	present, future := 0, 0
+	present, future, required := 0, 0, 0
 	declared := map[string]bool{}
 	for _, entry := range catalogue.Entries {
+		if entry.Decision != "SCHEMA_PRESENT" && entry.Decision != "DEFERRED_FUTURE_DOMAIN" && entry.Decision != "REQUIRED_CURRENT_WORK" {
+			t.Fatalf("unknown catalogue decision %s for %s", entry.Decision, entry.Canonical)
+		}
 		var exists bool
 		if err = db.Pool.QueryRow(t.Context(), `SELECT to_regclass('public.'||$1) IS NOT NULL`, entry.Canonical).Scan(&exists); err != nil {
 			t.Fatal(err)
 		}
-		if entry.Decision == "DEFERRED_FUTURE_DOMAIN" {
-			future++
+		if entry.Decision == "DEFERRED_FUTURE_DOMAIN" || entry.Decision == "REQUIRED_CURRENT_WORK" {
+			if entry.Decision == "REQUIRED_CURRENT_WORK" {
+				required++
+			} else {
+				future++
+			}
 			if exists {
-				t.Fatalf("deferred table exists without catalogue reconciliation: %s", entry.Canonical)
+				t.Fatalf("unimplemented table exists without catalogue reconciliation: %s", entry.Canonical)
 			}
 			continue
 		}
-		present++
+		if !declared[entry.Canonical] {
+			present++
+		}
 		declared[entry.Canonical] = true
 		if !exists || entry.Schema == nil {
 			t.Fatalf("missing implemented schema %s", entry.Canonical)
@@ -86,7 +95,7 @@ func TestBusinessCompleteCatalogueMatchesActualPostgreSQL(t *testing.T) {
 	if e = rows.Err(); e != nil {
 		t.Fatal(e)
 	}
-	t.Logf("verified %d implemented tables and %d deliberate future-table decisions against PostgreSQL", present, future)
+	t.Logf("verified %d implemented tables, %d future-section decisions and %d explicitly unfinished current schema requirements against PostgreSQL", present, future, required)
 }
 
 func TestBusinessCommercialMigrationPreservesPopulatedSection4Database(t *testing.T) {

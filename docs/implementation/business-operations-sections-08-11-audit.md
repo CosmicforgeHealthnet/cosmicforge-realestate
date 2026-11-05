@@ -1,3 +1,7 @@
+## Current completion pass — November 2, 2026
+
+Baseline `13801be` was fetched/rechecked with five green workflows. The current uncommitted schema15 milestone has functioning CRM identity/corporate and core PMS commands; Sections 10/11 are PARTIAL, and Sections 8/9 remain PARTIAL. Current counts: 404 routes, 358 schemas, 68 events, 191 tables. The generated catalogue explicitly marks 21 missing current schema requirements instead of misclassifying those as future/external work. Reports 10/11 and the completion plan supersede historical missing-domain statements below. Full module: 206 pass, zero fail/skip; an additional distinct-reservation physical assignment race passed. Exact pushed-SHA Linux race/image/security CI remains to verify.
+
 # Sections 8–11 baseline audit and execution matrix
 
 Current progress: canonical reservation/overbooking checkpoint `67557e69c3177d2166d4a8d86cf52ac1da19486a` passed all five exact-SHA workflows. Subsequent RMS observation/forecast and manual pricing-governance workflows are implemented and passed 192 Business tests with real disposable PostgreSQL/JetStream; see [Section 8 evidence](business-operations-section-08-report.md). The Sections 8–11 task remains incomplete; pending RMS governance, PMS and CRM work is not external-provider certification.

@@ -1,3 +1,33 @@
+Current verification (November 5): fresh disposable PostgreSQL18 full Business module run **207 passed, zero failed/skipped**; local quality, contracts, SQLC, architecture and service secret scan passed. Linux race/container and exact-SHA CI/deployment status require subsequent verification.
+
+# Section 10 implementation in progress
+
+Status: **PARTIAL**. Physical stays, folios, cashier declarations, business-day audit/close and offline commands now execute against owned PostgreSQL records. Full Section 10 acceptance remains outstanding; the remaining internal work below is not an external provider blocker.
+
+Starting/fetched staging SHA: `13801be24a431b8ef33201c3c2ddeb7b16167b2e`. Published migrations 00001–00011 remain unchanged. New migrations 00013–00015 add hospitality persistence. Migration 00012 supplies the trusted guest/corporate foundation. No main/production/VPS access occurred. Existing unrelated Owner files are excluded.
+
+| Requirement | Evidence and current status |
+|---|---|
+| Canonical physical room assignment | Implemented in `internal/http/operational_pms_rooms.go`: committed backing, exact pool membership and node version, same property, accepted per-room guest capacity, current readiness, financial/risk gates, quantity slots, unique room nights, release and concurrent conflict protection. |
+| Readiness and hazards | Authoritative local dirty/clean/inspection transitions; clean/inspection requires inspection capability and recent MFA. Occupancy belongs to stay commands. Hard hazards conservatively hold affected commercial pools without reducing or fabricating committed stock. Runtime identity/history/retention guards apply. |
+| Check-in and checkout | `operational_pms_stays.go`: registered and source-linked guest, current reservation/room/assignment versions, property-local arrival, independent same-day early-arrival approval, atomic occupancy/stay/folio/reservation history/outbox. Debt departure needs independent exact approval and leaves SETTLEMENT_PENDING. Actual settled backing or zero obligation is necessary for debt-free close. Rooms become VACANT_DIRTY. |
+| Room move and guest requests | `operational_pms_moves.go` and `operational_pms_requests.go`: same accepted physical product, current stay/assignment/reservation, destination capacity/readiness, remaining-night uniqueness, retained source history, unchanged folio and reservation price. Guest service requests have versioned actual evidence and lifecycle. |
+| Folio obligations | Immutable accepted gross quote allocation per quantity slot, immutable source-key postings and compensating independently approved adjustments; amounts use integer minor units and accepted currency. `operational_pms_folios.go`; no local ledger or provider execution. Itemized decomposition of legacy accepted gross tax/fee/add-on snapshots remains to complete. |
+| Financial reconciliation | `folio_payment_references` binds actual existing signed Payment worker readbacks and conserves allocation across folios. Collected/guaranteed money is not SETTLED. Fresh settled/funded/unreversed receipts are required; latest expiry/reversal removes usable backing while retaining evidence. Additional-charge collection and full mixed/corporate payer/remedy composition remain. |
+| Cashier | Property drawers, actual opening/closing declarations, signed Payment-owned expected movement adapter, current version, independent unknown/variance review, immutable reports and distinct authorized receiving cashier. Unknown receipts remain RECONCILIATION_REQUIRED and hard-block night close. Payment does not yet produce the new cashier-attestation contract in live infrastructure. |
+| Night audit and business day | `operational_pms_days.go`: captured property timezone/cutoff, DST gap/fold handling, immutable audit snapshots and source digests, actual arrivals/departures/occupancy/folios/cash/postings/source checks, exact approved eligible exceptions, non-waivable hard exceptions, one atomic close/report/next-day rollover and cutoff posting restrictions. Full nightly automated execution and remaining fiscal/operational checks are still required. |
+| Offline continuity | `operational_pms_offline.go`: stable actor/client operation identity, original timestamp as metadata, current session/scope/RBAC/version gates, shared online use cases for assignment/check-in/folio, savepoint rollback and durable reconciliation task. Resolution retains original failed-operation truth. |
+| Public contracts | Annex routes for reservation check-in/check-out/room-move, front-desk arrivals/departures, folios/items, room-status, cashier and night audit are registered. Additional stays/assignments/offline/guest-request/readback routes are in generated OpenAPI/Postman and drift checks. Folios are created by an actual check-in; no arbitrary empty financial object creation is exposed. |
+| Groups, events and workers | Group blocks, rooming lists, master folios, event/facility associations, group commands, full automated no-show/readiness/settlement/night-audit/close/access processing and in-house extension/early-departure conservation remain **internal implementation work**. Smart-device provider execution remains a separate external dependency. |
+
+Focused PostgreSQL evidence: nine tests passed, zero failures/skips in the focused migration/catalogue/populated-v11-upgrade/PMS suite. This includes concurrent physical assignment, hazard hold, real registration→canonical booking→check-in→room-move→guest-service→folio→approved debt departure, settled receipt/reversal, cashier signed truth/handover, stale offline replay and business-day close/replay/stale snapshot. DST tests cover Europe/Rome and America/New_York gaps/folds plus Africa/Lagos. Full module subsequently passed 206 tests with zero failures/skips. The added distinct-reservation race test passed separately. Linux race/container and exact-SHA CI evidence remains pending push; those checks are not inferred from local tests. Service secret scan, vet/staticcheck/tidy, architecture and generated contract/example checks passed.
+
+New events include `reservation.checked_in.v1`, `reservation.checked_out.v1`, `room.status.changed.v1`, `night_audit.closed.v1` and additional typed hospitality lifecycle events. Producer remains Business Operations; non-business root names are published under the existing Business JetStream namespace. Device issue/revoke references explicitly remain UNKNOWN without a confirmed authenticated provider result. Guest history/loyalty consumers are still outstanding.
+
+---
+
+<details><summary>Historical schema11 checkpoint (superseded by the current status above)</summary>
+
 # Section 10 PMS status
 
 Status: **FAIL — required domain workflows remain unimplemented**. This is an internal implementation gap, not an external infrastructure blocker. Existing reservation and inventory functionality is not a substitute for PMS certification.
@@ -15,3 +45,5 @@ Status: **FAIL — required domain workflows remain unimplemented**. This is an 
 | Workers, APIs, events, OpenAPI/Postman | No PMS endpoints documented as implemented | Implement and test owning workflows before adding their published contracts |
 
 No Section 10 migration is claimed. Goose 00010 and 00011 belong to RMS. No PMS workflow/security/concurrency/E2E test is certified. Existing reservation/inventory regression and image smoke results certify their actual scope only. Future smart-access operations require an authenticated owning contract/provider certification; that external dependency does not excuse the unfinished internal PMS work. The full requirement matrix is in the Sections 8–11 audit and combined certificate.
+
+</details>

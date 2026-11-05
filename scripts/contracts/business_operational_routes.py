@@ -1,5 +1,7 @@
 """Reviewed contracts for executable operational handlers; no future routes."""
 import re
+from business_pms_routes import register_pms,pms_queries,pms_examples
+from business_crm_routes import register_crm,crm_queries,crm_examples
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
@@ -117,6 +119,8 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  'reservationMerge':('reservations:modify','ReservationMutation','ReservationLineageResult',200,True),
  'reservationLineageGet':('reservations:read',None,'ReservationRawList',200,False),
  }
+ data.update(register_crm(s,obj,arr,ref,typ))
+ data.update(register_pms(s,obj,arr,ref,typ))
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
   for method,path,handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',p.read_text(encoding='utf-8')):
@@ -127,10 +131,15 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler in ('reservationAmend','reservationSplit','reservationMerge'):note+='Exact independent amount/currency/channel-bound approval and MFA. Prices remain immutable. Stock and financial backing conserve through append-only versions/lineage. '
    if handler in ('reservationCollectionRequest','reservationPaymentReadback'):note+='202 means a durable request only. Worker uses existing authenticated Payment policy/locked-quote/receipt/intent APIs. Unknown outcomes remain pending; collection, settlement and refunds are distinct. '
    if handler.startswith('reservationOverbook'):note+='Explicit staff-only excess-demand policy and independent exact approval. Physical capacity is unchanged; ordinary booking remains bounded. Outstanding excess blocks physical assignment. Reconciliation requires real released backing; customer recovery and remote pause remain separately observable. Policy upsert returns 201 for creation or 200 for a new version. '
+   if handler=='pmsOfflineReplay':note+='FOLIO_POST requires folios:write; ASSIGN_ROOM/CHECK_IN require pms:write and all nested live capabilities/MFA/approvals. 202 retains a failed original operation and durable reconciliation task, never applied business success. '
+   if handler=='pmsFolioPost':note+='amount_minor is the extended line total in accepted currency; quantity records actual source quantity, without implicit multiplication. '
+   if handler.startswith('pms'):note+='Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. '
+   if handler.startswith('crm'):note+='Guest/corporate records are property-scoped; contact/accessibility fields use protected storage and purpose-specific capabilities/current consent. Source identity links require authenticated evidence and exact independent approval. Marketplace accounts and Payment financial outcomes remain externally owned. '
    if handler.startswith('rms'):note+='Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. '
    if handler.startswith('reservationWaitlist'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
    route.__globals__['R'][-1]['handler']=handler
+   if handler=='pmsOfflineReplay':route.__globals__['R'][-1]['success_statuses']=[202]
    if handler=='reservationOverbookingPolicySave':route.__globals__['R'][-1]['success_statuses']=[200]
    found.add(handler)
  if found!=set(data):raise RuntimeError('Unregistered operational contracts: '+str(set(data)-found))
@@ -138,6 +147,10 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  route.__globals__['R'][-1].update(path='/internal/v1/business-supply/reservations/{id}',transport='internal',handler='internalReservationStatus')
 
 def operational_queries(handler):
+ pms=pms_queries(handler)
+ if pms is not None:return pms
+ crm=crm_queries(handler)
+ if crm is not None:return crm
  if handler=='rmsMetricsGet':return [('snapshot_id','uuid',True)]
  if handler=='reservationConflicts':return [('state','string',False)]
  if handler=='internalReservationStatus':return [('connection_id','uuid',True)]
@@ -150,6 +163,8 @@ def operational_examples(uid):
  booking={'property_id':uid,'source':'DIRECT','channel':'','source_reference':'direct-booker-reference','state':'HOLD','payment_responsibility':'PLATFORM_COLLECT','rooms':[room],'guests':[{'source_kind':'DIRECT','source_reference':'typed-direct-guest-reference','is_primary':True}],'reason':'Accept the exact frozen canonical quote'}
  policy={'allowed_payment_policy_ids':[uid],'allow_source_cancellation':False,'max_guarantee_minor':100000,'allowed_sources':['DIRECT','MARKETPLACE'],'allowed_guarantees':['PAY_AT_PROPERTY'],'hold_seconds':600,'require_approval':False,'require_risk_clear':True,'cancellation_hours':24,'cancellation_penalty_bps':5000,'no_show_grace_hours':2,'no_show_retain_nights':1,'check_in_local':'14:00','check_out_local':'11:00','policy_reference':'operator-approved-hotel-terms:v1'}
  return {
+ **crm_examples(uid),
+ **pms_examples(uid),
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
  'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},
  'ReservationOverbookingPolicyCommand':{'property_id':uid,'pool_id':uid,'expected_version':0,'definition':{'max_quantity':1,'max_capacity_bps':10000,'allowed_sources':['DIRECT'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-10T00:00:00Z','policy_reference':'approved-exception-policy:v1'},'state':'ACTIVE','approval_id':uid,'reason':'Explicit independent property overbooking policy'},

@@ -2,6 +2,7 @@ package integration
 
 import (
 	"encoding/json"
+	"io/fs"
 	"testing"
 	"time"
 
@@ -72,10 +73,13 @@ func (c *commercialHarness) approvalAt(action, capability, channel string, amoun
 	c.must(c.approver, "POST", "/approvals/"+id.String()+"/decision", map[string]any{"version": 1, "level": 0, "outcome": "APPROVED", "reason": "Independent source and scope checked"}, 200)
 	return id
 }
-func newCommercialHTTP(t *testing.T) *commercialHarness {
+func newCommercialHTTP(t *testing.T, schemas ...fs.FS) *commercialHarness {
+	return newCommercialHTTPForArrival(t, 2, schemas...)
+}
+func newCommercialHTTPForArrival(t *testing.T, arrivalOffset int, schemas ...fs.FS) *commercialHarness {
 	t.Helper()
 	provider := &businessVerificationFake{}
-	h := newBusinessHTTP(t, provider)
+	h := newBusinessHTTP(t, provider, schemas...)
 	c := &commercialHarness{businessHarness: h, owner: h.user(), approver: h.user(), policies: map[string]bool{}}
 	h.secure(c.owner)
 	h.secure(c.approver)
@@ -129,7 +133,7 @@ func newCommercialHTTP(t *testing.T) *commercialHarness {
 	fiscal.ApprovalID = c.approval("COMMERCIAL_FISCAL_POLICY_CHANGE", "pricing:approve", "", nil, "", map[string]any{"property_id": c.property.ID, "command": fiscal})
 	tax := commercialData[businesshttp.CommercialTaxProfile](t, c.must(c.owner, "POST", "/tax-profiles", fiscal, 201))
 	loc, _ := time.LoadLocation(c.property.Timezone)
-	arrival := time.Now().In(loc).AddDate(0, 0, 2)
+	arrival := time.Now().In(loc).AddDate(0, 0, arrivalOffset)
 	c.dates = inventory.DateRange{DateFrom: arrival.Format(time.DateOnly), DateTo: arrival.AddDate(0, 0, 2).Format(time.DateOnly)}
 	c.definition = revenue.RateDefinition{Currency: "NGN", AmountMinor: 10000, IncludedAdults: 2, MinGuests: 1, MaxGuests: 2, MinNights: 1, MaxNights: 30, CancellationReference: "FLEXIBLE-24H:v1", PrepaymentReference: "PAYMENT-SERVICE-REFERENCE:v1", PolicyCode: "COMMERCIAL-BASE", PolicyVersion: 1, FloorMinor: 1000, CeilingMinor: 20000, MaxChangeBPS: 1000, TaxProfileID: &tax.ID}
 	created := commercialData[struct {

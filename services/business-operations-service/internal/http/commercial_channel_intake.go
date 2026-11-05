@@ -31,10 +31,12 @@ func (h *Handler) InternalDistributionRouter(verifier *serviceauth.Verifier) htt
 		r.Use(serviceauth.RequireCaller(platform.MarketplaceService))
 		r.Post("/channel-receipts", h.internalChannelReceipt)
 		r.Get("/reservations/{id}", h.internalReservationStatus)
+		r.Post("/guest-assertions", h.internalCRMSourceAssertion)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.PaymentService, platform.AdminService))
 		r.Post("/channel-financial-inputs", h.internalChannelFinancialInput)
+		r.Post("/cashier-attestations", h.internalPMSCashAttestation)
 	})
 	return r
 }

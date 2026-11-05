@@ -127,7 +127,7 @@ func (q *Queries) GetCommercialHold(ctx context.Context, db DBTX, arg GetCommerc
 }
 
 const getCommercialPool = `-- name: GetCommercialPool :one
-SELECT id, organisation_id, property_id, node_id, name, kind, capacity, state, version, created_by, created_at, updated_at, source_node_version FROM inventory_pools WHERE organisation_id=$1 AND id=$2
+SELECT id, organisation_id, property_id, node_id, name, kind, capacity, state, version, created_by, created_at, updated_at, source_node_version, operational_hold FROM inventory_pools WHERE organisation_id=$1 AND id=$2
 `
 
 type GetCommercialPoolParams struct {
@@ -152,6 +152,7 @@ func (q *Queries) GetCommercialPool(ctx context.Context, db DBTX, arg GetCommerc
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.SourceNodeVersion,
+		&i.OperationalHold,
 	)
 	return i, err
 }

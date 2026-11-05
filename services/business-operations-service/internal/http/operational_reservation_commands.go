@@ -122,6 +122,9 @@ func (h *Handler) reservationConfirm(w http.ResponseWriter, r *http.Request) {
 		if len(rooms) == 0 {
 			return "", apperrors.Conflict("RESERVATION_ROOMS_REQUIRED", "An active room allocation is required.")
 		}
+		if e = h.reservationCRMEligibility(ctx, tx, t, v, rooms); e != nil {
+			return "", e
+		}
 		for _, room := range rooms {
 			product, err := inventory.GetProduct(ctx, tx, t.Organisation, room.ProductID)
 			if err != nil {
@@ -203,6 +206,13 @@ func (h *Handler) reservationReleaseCommand(w http.ResponseWriter, r *http.Reque
 	h.reservationCommand(w, r, action, "reservations:cancel", false, func(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, in reservations.Command) (string, error) {
 		if !reservations.Transition(v.State, state) {
 			return "", apperrors.Conflict("RESERVATION_TRANSITION_DENIED", "This lifecycle state cannot release reservation stock through this command.")
+		}
+		var physical bool
+		if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM room_assignments WHERE organisation_id=$1 AND reservation_id=$2 AND state IN ('ASSIGNED','OCCUPIED'))`, t.Organisation, v.ID).Scan(&physical); e != nil {
+			return "", e
+		}
+		if physical {
+			return "", apperrors.Conflict("RESERVATION_PHYSICAL_ASSIGNMENT_ACTIVE", "Release physical assignments through their owning front-desk workflow before cancelling stock.")
 		}
 		rooms, e := reservations.Rooms(ctx, tx, t.Organisation, v.ID, true)
 		if e != nil {

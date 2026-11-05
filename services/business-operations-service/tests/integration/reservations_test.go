@@ -42,7 +42,7 @@ func TestBusinessReservationHoldConfirmCancelConservesStockAndHistory(t *testing
 	unknownGuest.Guests = append([]reservations.GuestCommand(nil), in.Guests...)
 	unowned := ids.New()
 	unknownGuest.Guests[0].GuestID = &unowned
-	c.must(c.owner, "POST", "/reservations", unknownGuest, 503)
+	c.must(c.owner, "POST", "/reservations", unknownGuest, 403)
 	key := ids.New().String()
 	status, raw := c.call(c.owner, http.MethodPost, "/reservations", in, map[string]string{"Idempotency-Key": key})
 	if status != 201 {

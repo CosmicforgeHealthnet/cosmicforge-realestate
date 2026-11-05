@@ -37,3 +37,19 @@ REVOKE UPDATE,DELETE,TRUNCATE ON demand_snapshots,booking_pace_snapshots,forecas
 REVOKE INSERT,UPDATE,DELETE,TRUNCATE ON forecast_models FROM cf_business_runtime;
 REVOKE UPDATE,DELETE,TRUNCATE ON rms_policies,pricing_decisions,pricing_simulations FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON pricing_recommendations FROM cf_business_runtime;
+-- Guest/corporate evidence is append-only; protected live records retain
+-- versioned lifecycle commands rather than arbitrary deletion.
+REVOKE UPDATE,DELETE,TRUNCATE ON customer_accounts_projection,consents,guest_identity_history,corporate_customer_contracts FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON guest_profiles,guest_property_scopes,guest_identity_links,guest_preferences,corporate_customer_profiles,corporate_property_scopes,guest_company_associations FROM cf_business_runtime;
+DO $$ BEGIN
+ IF has_table_privilege('cf_business_runtime','consents','UPDATE')
+ OR has_table_privilege('cf_business_runtime','customer_accounts_projection','DELETE')
+ OR has_table_privilege('cf_business_runtime','guest_identity_history','TRUNCATE')
+ OR has_table_privilege('cf_business_runtime','corporate_customer_contracts','UPDATE')
+ THEN RAISE EXCEPTION 'CRM runtime evidence privileges are excessive';END IF;
+END $$;
+
+-- Hospitality evidence and declarations are retained; only versioned owning
+-- transitions may update current projections. Payment inputs remain immutable.
+REVOKE UPDATE,DELETE,TRUNCATE ON folio_items,folio_payment_references,hospitality_history,hospitality_policies,night_audits,night_audit_exceptions,business_day_closes,business_day_close_reports,cashier_financial_attestations,cashier_variances,cashier_handovers,offline_operation_receipts,offline_reconciliation_tasks,offline_reconciliation_resolutions FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON room_status_current,room_assignments,room_assignment_days,stay_records,folios,guest_requests,access_grant_references,hospitality_business_days,cash_drawers,cashier_shifts FROM cf_business_runtime;

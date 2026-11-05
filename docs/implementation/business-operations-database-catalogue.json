@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00011_rms_pricing_governance.sql",
+  "latest_migration": "00015_hospitality_offline.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -20,7 +20,8 @@
     "failures": "channel_sync_failures",
     "conflicts": "channel_conflicts",
     "waitlist": "waitlist_entries",
-    "source_refs": "channel_reservation_refs"
+    "source_refs": "channel_reservation_refs",
+    "corporate_rate_contracts": "corporate_customer_contracts"
   },
   "entries": [
     {
@@ -529,10 +530,10 @@
       "category": "Annex supplement",
       "owner_package": "internal/crm",
       "owning_section": "D.32 Guest CRM, Loyalty and Service Recovery",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -542,10 +543,10 @@
       "category": "Annex supplement",
       "owner_package": "internal/sales",
       "owning_section": "D.39 Group, Corporate, Conference and Event Sales",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -579,12 +580,26 @@
       "canonical_table": "offline_operation_receipts",
       "specification": "D.41 Offline Continuity and Disaster Recovery",
       "category": "Annex supplement",
-      "owner_package": "internal/workers",
+      "owner_package": "internal/hospitality",
       "owning_section": "D.41 Offline Continuity and Disaster Recovery",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/workers repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00015_hospitality_offline.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -810,11 +825,27 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "guest_consent_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 8,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "corporate_customer_profiles",
@@ -823,11 +854,27 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "corporate_customer_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "customer_accounts_projection",
@@ -836,11 +883,27 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "customer_projection_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "guest_profiles",
@@ -849,11 +912,27 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "guest_profile_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "lead_activities",
@@ -927,10 +1006,10 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -1800,7 +1879,8 @@
         "unique_constraint_count": 2,
         "check_constraint_count": 5,
         "altered_in": [
-          "00006_commercial_inventory_distribution.sql"
+          "00006_commercial_inventory_distribution.sql",
+          "00013_hospitality_operations.sql"
         ]
       },
       "repository": "internal/repositories/db (SQLC); internal/inventory owning command/query interfaces",
@@ -3405,55 +3485,273 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
+      "specified_table": "guest_segments",
+      "canonical_table": "guest_segments",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "guest_stay_history",
+      "canonical_table": "guest_stay_history",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_entitlements",
+      "canonical_table": "loyalty_entitlements",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_programs",
+      "canonical_table": "loyalty_programs",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_redemptions",
+      "canonical_table": "loyalty_redemptions",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_reversals",
+      "canonical_table": "loyalty_reversals",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_rewards",
+      "canonical_table": "loyalty_rewards",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_rules",
+      "canonical_table": "loyalty_rules",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "loyalty_transactions",
+      "canonical_table": "loyalty_transactions",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "service_recovery_actions",
+      "canonical_table": "service_recovery_actions",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "service_recovery_compensation_refs",
+      "canonical_table": "service_recovery_compensation_refs",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
+      "specified_table": "vip_classifications",
+      "canonical_table": "vip_classifications",
+      "specification": "Master completion Sections 8\u201311",
+      "category": "Required current persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "REQUIRED_CURRENT_WORK",
+      "schema": null,
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
+    },
+    {
       "specified_table": "business_day_closes",
       "canonical_table": "business_day_closes",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "cash_drawers",
       "canonical_table": "cash_drawers",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "cashier_shifts",
       "canonical_table": "cashier_shifts",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "one_active_drawer_shift"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 7,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "corporate_rate_contracts",
-      "canonical_table": "corporate_rate_contracts",
+      "canonical_table": "corporate_customer_contracts",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/crm",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "corporate_contract_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00012_guest_corporate_identity.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Negotiated canonical rate-plan, traveler and billing-reference contract implemented in the CRM owning record; no duplicate price authority.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -3463,10 +3761,10 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -3474,26 +3772,56 @@
       "canonical_table": "folio_items",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 7,
+        "altered_in": [
+          "00014_hospitality_business_days.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "folios",
       "canonical_table": "folios",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "group_blocks",
@@ -3502,10 +3830,10 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -3513,26 +3841,54 @@
       "canonical_table": "guest_requests",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "night_audits",
       "canonical_table": "night_audits",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "reservation_guests",
@@ -3557,7 +3913,9 @@
         "immutable": false,
         "unique_constraint_count": 3,
         "check_constraint_count": 4,
-        "altered_in": []
+        "altered_in": [
+          "00012_guest_corporate_identity.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3676,7 +4034,9 @@
         "immutable": false,
         "unique_constraint_count": 2,
         "check_constraint_count": 12,
-        "altered_in": []
+        "altered_in": [
+          "00012_guest_corporate_identity.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -3687,13 +4047,31 @@
       "canonical_table": "room_assignments",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "assignment_active_slot",
+          "assignment_occupied_room",
+          "assignment_property_dates"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "rooming_lists",
@@ -3702,10 +4080,10 @@
       "category": "Reservations & hospitality",
       "owner_package": "internal/reservations",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
       "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -3713,13 +4091,29 @@
       "canonical_table": "stay_records",
       "specification": "Section 5",
       "category": "Reservations & hospitality",
-      "owner_package": "internal/reservations",
+      "owner_package": "internal/hospitality",
       "owning_section": "9 / 10 / D.39",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/reservations repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "stay_property_state"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "waitlist_entries",
@@ -4055,12 +4449,12 @@
       "canonical_table": "data_retention_jobs",
       "specification": "Section 5",
       "category": "Risk/privacy/access",
-      "owner_package": "internal/risk",
+      "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -4133,12 +4527,12 @@
       "canonical_table": "legal_holds",
       "specification": "Section 5",
       "category": "Risk/privacy/access",
-      "owner_package": "internal/risk",
+      "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -4146,12 +4540,12 @@
       "canonical_table": "privacy_requests",
       "specification": "Section 5",
       "category": "Risk/privacy/access",
-      "owner_package": "internal/risk",
+      "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
+      "decision": "REQUIRED_CURRENT_WORK",
       "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "repository": "Planned internal/crm repository with owning-section migration",
+      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -4419,11 +4813,11 @@
       "canonical_table": "room_status_history",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
-      "owner_package": "internal/shortlet",
+      "owner_package": "internal/hospitality",
       "owning_section": "D.14 / D.17",
       "decision": "DEFERRED_FUTURE_DOMAIN",
       "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
+      "repository": "Planned internal/hospitality repository with owning-section migration",
       "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
@@ -4452,6 +4846,33 @@
       "repository": "Planned internal/shortlet repository with owning-section migration",
       "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "access_grant_references",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
     },
     {
       "specified_table": "(supporting table)",
@@ -4591,6 +5012,33 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "business_day_close_reports",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },
@@ -4757,6 +5205,87 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/auth owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "cashier_financial_attestations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "cashier_handovers",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "cashier_variances",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },
@@ -4987,6 +5516,66 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "corporate_customer_contracts",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "corporate_contract_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00012_guest_corporate_identity.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "corporate_property_scopes",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "corporate_property_visibility"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "event_failures",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -5014,6 +5603,33 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "folio_payment_references",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "forecast_models",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -5036,6 +5652,232 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/revenue owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_company_associations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "corporate_traveler_current"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00012_guest_corporate_identity.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_identity_history",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_identity_links",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "guest_identity_active"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 8,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_preferences",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_property_scopes",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "11",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00012_guest_corporate_identity.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "guest_property_visibility"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_business_days",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "property_single_open_business_day"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_history",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_policies",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },
@@ -5479,6 +6321,33 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "night_audit_exceptions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "notification_acceptances",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -5501,6 +6370,60 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workers owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "offline_reconciliation_resolutions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00015_hospitality_offline.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "offline_reconciliation_tasks",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00015_hospitality_offline.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },
@@ -6203,6 +7126,62 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/workforce owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "room_assignment_days",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          "(assignment_id,day)"
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "physical_room_night_exclusive"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "room_status_current",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },

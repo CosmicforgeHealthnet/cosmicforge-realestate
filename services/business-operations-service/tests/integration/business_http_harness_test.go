@@ -5,6 +5,7 @@ import (
 	"encoding/base32"
 	"encoding/json"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -36,8 +37,8 @@ type businessUser struct {
 	email, password string
 }
 
-func newBusinessHTTP(t *testing.T, provider verification.API) *businessHarness {
-	service, db := newBusinessAuth(t)
+func newBusinessHTTP(t *testing.T, provider verification.API, schemas ...fs.FS) *businessHarness {
+	service, db := newBusinessAuth(t, schemas...)
 	sealer, err := credentials.NewSealer("test-mfa-key", []byte("01234567890123456789012345678901"), nil)
 	if err != nil {
 		t.Fatal(err)

@@ -189,7 +189,7 @@ func (h *Handler) authorize(ctx context.Context, q database.Querier, capability,
 	if err != nil {
 		return t, target, err
 	}
-	restricted := !reservationExitAllowed(ctx, capability, kind, id) && (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify" && capability != "approvals:create" && capability != "approvals:decide" && capability != "break_glass:review"
+	restricted := !reservationExitAllowed(ctx, capability, kind, id) && !crmWithdrawalAllowed(ctx, t.Organisation, capability, kind, id) && (t.State == "RESTRICTED" || t.State == "SUSPENDED" || t.State == "CLOSURE_PENDING") && !strings.HasSuffix(capability, ":read") && capability != "organisation:verify" && capability != "approvals:create" && capability != "approvals:decide" && capability != "break_glass:review"
 	now := h.Auth.Service.Now().UTC()
 	if stepUp && !workforce.RecentMFA(t.MFAAt, now, 5*time.Minute) {
 		return t, target, apperrors.PermissionDenied("Recent MFA is required.")

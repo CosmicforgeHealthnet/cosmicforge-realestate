@@ -47,6 +47,7 @@ func (r DateRange) Days(timezone string) ([]string, error) {
 }
 
 type Pool struct {
+	OperationalHold   bool      `json:"operational_hold"`
 	SourceNodeVersion int64     `json:"source_node_version"`
 	ID                ids.ID    `json:"id"`
 	OrganisationID    ids.ID    `json:"organisation_id"`

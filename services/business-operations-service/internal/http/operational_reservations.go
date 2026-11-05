@@ -261,14 +261,8 @@ func (h *Handler) createReservationTx(ctx context.Context, tx pgx.Tx, t tenant, 
 	if in.Source == "CORPORATE" && (in.CorporateID == nil || in.CorporateContractID == nil) {
 		return out, apperrors.InvalidRequest("Corporate reservations require the current authorised corporate customer and contract.")
 	}
-	for _, guest := range in.Guests {
-		if guest.GuestID != nil {
-			return out, apperrors.Unavailable("Canonical guest identity ownership validation is not yet composed; use a typed source reference until the owning CRM workflow is available.")
-		}
-	}
-	// Corporate bindings are supplied only after their owning Section 11 contract is installed.
-	if in.CorporateID != nil {
-		return out, apperrors.Unavailable("Corporate contract validation is not yet composed.")
+	if e = h.validateReservationCRM(ctx, tx, t, in, quotes, amount, currency); e != nil {
+		return out, e
 	}
 	id, financialID := ids.New(), ids.New()
 	state := in.State

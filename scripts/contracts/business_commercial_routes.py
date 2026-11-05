@@ -130,6 +130,8 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
       'channelConflicts':('channels:read',None,'List:CommercialChannelConflict',200,False),
       'channelConflictGet':('channels:read',None,'CommercialConflictDetail',200,False),
       'channelConflictResolve':('channels:resolve','CommercialConflictDecision','CommercialConflictResult',202,True),
+      'internalPMSCashAttestation':('signed:payment-service','PMSCashAttestation','PMSCashAttestationResult',200,False),
+      'internalCRMSourceAssertion':('signed:marketplace-service','CRMSourceAssertion','CRMSourceAssertionResult',201,False),
       'internalChannelReceipt':('signed:marketplace-service','CommercialReceiptCommand','CommercialReceiptResult',202,False),
       'internalChannelFinancialInput':('signed:financial-owner','CommercialFinancialInputCommand','CommercialInputResult',201,False),
       'channelProviderWebhook':('signed:provider-callback','CommercialReceiptCommand','CommercialReceiptResult',202,False),
@@ -148,6 +150,7 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
             cap,request,response,status,mfa=data[handler]
             private=handler.startswith('internal');webhook=handler=='channelProviderWebhook'
             note='Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. '
+            if handler=='internalPMSCashAttestation':note+='Only signed Payment Service with exact delegated organisation may attest the exact shift/property/currency. Monotonic source_version and source_reference/digest bind immutable idempotency; expired newest observations do not restore older authority. A live producer is not certified by this consumer contract. '
             if handler=='holdHandoff':note='Requires both holds:write and reservations:write, recent MFA, complete acceptance details and the exact current hold. Creates a pending canonical reservation; policy, payment and risk gates still govern confirmation.'
             if handler in ('channelAuthorize','channelMappingPreview','listingPublish'):note+='A real authenticated provider operation and certification evidence are required. Unavailable dependencies return 503; test fakes do not certify staging. '
             if handler in ('listingPublish','listingPause','listingWithdraw','channelResync'):note+='202 means durable desired state/job only. Provider sellability remains pending/unknown until acknowledgement AND matching readback. '
@@ -163,6 +166,7 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
                 route.__globals__['R'][-1]['path']=route_list_path
                 route.__globals__['R'][-1]['transport']='internal' if private else 'webhook'
             route.__globals__['R'][-1]['handler']=handler
+            if handler=='internalCRMSourceAssertion':route.__globals__['R'][-1].update(idempotent=True,success_statuses=[200])
             found.add(handler)
     if set(data)!=found:raise RuntimeError('Documented commercial handlers not registered: '+str(set(data)-found))
 

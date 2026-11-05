@@ -1,3 +1,15 @@
+## November 5 staging milestone verification
+
+Remote staging was fetched again and still matched `13801be24a431b8ef33201c3c2ddeb7b16167b2e`. A fresh isolated PostgreSQL18 cluster on loopback port55447 executed the complete current Business suite: **207 passed, zero failed/skipped**. Gofmt, go vet, staticcheck, tidy-diff, exact SQLC output comparison, contract/examples/event/catalogue drift, architecture and service gitleaks checks passed. Other services' Postman folders were compared structurally and remain unchanged. Docker/CGO tools are unavailable locally; Linux race and container certification must come from exact pushed-SHA CI. GitHub still exposes only the five CI/image workflows and zero deployment environments; live staging rollout is not certified. Remaining current work stays PARTIAL.
+
+## Current completion work — 2026-11-02
+
+Starting/fetched staging SHA `13801be24a431b8ef33201c3c2ddeb7b16167b2e`; no divergence. That exact baseline's five workflows were rechecked successful. Repository implementation now includes Goose15, 404 registered routes, 358 typed schemas, 68 event schemas and 191 owned tables (334 catalogue decisions: 21 explicit current schema gaps and 121 genuinely future-section decisions). These are scope counts, not completed-workflow certification. Source milestone is not yet pushed at this report update.
+
+Section 10 and Section 11 have moved from no implemented domain workflows to **PARTIAL**, with secured PostgreSQL-backed guest/corporate and physical-stay/folio/cashier/night-audit/offline journeys. Sections 8 and 9 remain PARTIAL. See the rewritten per-section reports and completion plan for the internal work still required. Live staging deployment remains unverified; image publication is not deployment. No complete Sections 8–11 certification or final SHA is claimed while work continues.
+
+The first broad module run found one missing new-table catalogue entry (202 pass, one fail, zero skips); the catalogue was regenerated and the focused real PostgreSQL migration/catalogue/populated-upgrade/PMS rerun passed nine tests. The full updated module subsequently passed 206 tests, zero failures/skips; the additional distinct-reservation physical occupancy concurrency test passed separately. Updated contract/examples, catalogue drift, SQLC generation, go vet, staticcheck, tidy-diff, architecture and service gitleaks checks passed locally. Linux race, images and exact-SHA CI are pending the milestone push. No failed check is ignored.
+
 # Sections 8–11 implementation certificate (incomplete)
 
 This is a truthful checkpoint certificate, not acceptance of the complete requested implementation. Branch: **staging only**. Starting baseline: `19eb01f456d3cd40217e4ecd0e70a7a8073e1307`. Implementation checkpoint: `3402adf7aa99871fda95ce189a6158c426aaedc8`. Final follow-up: the enclosing commit, resolvable with `git log -1 --format=%H -- docs/implementation/business-operations-sections-08-11-certification.md`; final exact-SHA workflow evidence is independently verified after push and supplied in the handoff.

@@ -11,6 +11,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AccessGrantReference struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	StayID            ids.ID
+	AssignmentID      ids.ID
+	Operation         string
+	State             string
+	ProviderReference string
+	CreatedAt         time.Time
+}
+
 type AddOn struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -209,6 +221,26 @@ type BusinessCredential struct {
 	ChangedAt    time.Time
 }
 
+type BusinessDayClose struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	BusinessDayID  ids.ID
+	AuditID        ids.ID
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type BusinessDayCloseReport struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	CloseID        ids.ID
+	Report         []byte
+	CreatedAt      time.Time
+}
+
 type BusinessDevice struct {
 	ID         ids.ID
 	AccountID  ids.ID
@@ -321,6 +353,81 @@ type CapabilityPack struct {
 	Enabled            bool
 	Version            int64
 	CreatedAt          time.Time
+}
+
+type CashDrawer struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	Code           string
+	Currency       string
+	State          string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type CashierFinancialAttestation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	ShiftID               ids.ID
+	SourceVersion         int64
+	ExpectedMovementMinor int64
+	Currency              string
+	SourceReference       string
+	ObservedAt            time.Time
+	ExpiresAt             time.Time
+	PayloadDigest         string
+	CreatedAt             time.Time
+}
+
+type CashierHandover struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ShiftID           ids.ID
+	FromAccountID     ids.ID
+	ToAccountID       ids.ID
+	DeclaredMinor     int64
+	EvidenceReference string
+	Reason            string
+	CreatedAt         time.Time
+}
+
+type CashierShift struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	DrawerID       ids.ID
+	BusinessDayID  ids.ID
+	CashierID      ids.ID
+	OpeningMinor   int64
+	ClosingMinor   *int64
+	ExpectedMinor  *int64
+	VarianceMinor  *int64
+	State          string
+	ClosedAt       *time.Time
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type CashierVariance struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ShiftID        ids.ID
+	ShiftVersion   int64
+	ExpectedMinor  *int64
+	ClosingMinor   int64
+	VarianceMinor  *int64
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
 }
 
 type ChannelCapability struct {
@@ -671,6 +778,23 @@ type ComplianceHold struct {
 	CreatedAt       time.Time
 }
 
+type Consent struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	GuestID           ids.ID
+	Purpose           string
+	Version           int64
+	State             string
+	Source            string
+	EvidenceReference string
+	CapturedAt        time.Time
+	ExpiresAt         *time.Time
+	CreatedBy         *ids.ID
+	CreatedByService  string
+	CreatedAt         time.Time
+}
+
 type ContentQualityScore struct {
 	ID               ids.ID
 	OrganisationID   ids.ID
@@ -678,6 +802,50 @@ type ContentQualityScore struct {
 	Score            int32
 	Issues           []byte
 	CreatedAt        time.Time
+}
+
+type CorporateCustomerContract struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	CorporateID    ids.ID
+	ContractKey    ids.ID
+	Version        int64
+	State          string
+	Definition     []byte
+	EffectiveAt    time.Time
+	ExpiresAt      time.Time
+	ApprovalID     ids.ID
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type CorporateCustomerProfile struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	LegalName             string
+	RegistrationReference string
+	State                 string
+	EncryptedContacts     []byte
+	ContactKeyID          string
+	Version               int64
+	CreatedBy             ids.ID
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type CorporatePropertyScope struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	CorporateID    ids.ID
+	PropertyID     ids.ID
+	State          string
+	ApprovalID     *ids.ID
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type CurrencyPolicy struct {
@@ -691,6 +859,22 @@ type CurrencyPolicy struct {
 	SourceReference string
 	CreatedBy       ids.ID
 	CreatedAt       time.Time
+}
+
+type CustomerAccountsProjection struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ConnectionID        ids.ID
+	SourceKind          string
+	SourceService       string
+	SourceReferenceHash string
+	SourceVersion       int64
+	AssertionDigest     string
+	EvidenceReference   string
+	ExpiresAt           time.Time
+	State               string
+	CreatedAt           time.Time
 }
 
 type DelegationGrant struct {
@@ -782,6 +966,53 @@ type Floor struct {
 	Kind           string
 }
 
+type Folio struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ReservationID  ids.ID
+	StayID         ids.ID
+	State          string
+	Currency       string
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type FolioItem struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	FolioID         ids.ID
+	Kind            string
+	SourceReference string
+	Quantity        int32
+	AmountMinor     int64
+	Currency        string
+	PolicySnapshot  []byte
+	AdjustsItemID   *ids.ID
+	ApprovalID      *ids.ID
+	Reason          string
+	CreatedBy       ids.ID
+	CreatedAt       time.Time
+	BusinessDayID   *ids.ID
+}
+
+type FolioPaymentReference struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	FolioID             ids.ID
+	FinancialGroupID    ids.ID
+	IntentID            ids.ID
+	PaymentProjectionID ids.ID
+	AmountMinor         int64
+	Currency            string
+	CreatedBy           ids.ID
+	CreatedAt           time.Time
+}
+
 type ForecastModel struct {
 	ID         ids.ID
 	ModelKey   string
@@ -808,6 +1039,156 @@ type ForecastRun struct {
 	CreatedBy        *ids.ID
 	CreatedByService string
 	CreatedAt        time.Time
+}
+
+type GuestCompanyAssociation struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	GuestID        ids.ID
+	CorporateID    ids.ID
+	ContractID     ids.ID
+	State          string
+	EffectiveAt    time.Time
+	ExpiresAt      time.Time
+	Policy         []byte
+	ApprovalID     ids.ID
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type GuestIdentityHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	GuestID        ids.ID
+	EntityType     string
+	EntityID       ids.ID
+	Version        int64
+	Operation      string
+	ActorID        *ids.ID
+	ActorService   string
+	Context        []byte
+	CreatedAt      time.Time
+}
+
+type GuestIdentityLink struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	GuestID             ids.ID
+	PropertyID          ids.ID
+	SourceKind          string
+	SourceAuthority     string
+	SourceReferenceHash string
+	ConnectionID        *ids.ID
+	ProjectionID        *ids.ID
+	ProofKind           string
+	ApprovalID          *ids.ID
+	EvidenceReference   string
+	State               string
+	Version             int64
+	CreatedBy           ids.ID
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type GuestPreference struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	PropertyID           ids.ID
+	GuestID              ids.ID
+	EncryptedPreferences []byte
+	PreferenceKeyID      string
+	Version              int64
+	UpdatedBy            ids.ID
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type GuestProfile struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	State                 string
+	RegistrationReference string
+	EncryptedProfile      []byte
+	ProfileKeyID          string
+	MergedInto            *ids.ID
+	Version               int64
+	CreatedBy             ids.ID
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type GuestPropertyScope struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	GuestID        ids.ID
+	PropertyID     ids.ID
+	State          string
+	ApprovalID     *ids.ID
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type GuestRequest struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	StayID            ids.ID
+	Kind              string
+	State             string
+	EvidenceReference string
+	Reason            string
+	Version           int64
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type HospitalityBusinessDay struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	Day            pgtype.Date
+	Timezone       string
+	CutoffLocal    string
+	CutoffAt       time.Time
+	State          string
+	Version        int64
+	PolicyVersion  int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	CreatedBy      ids.ID
+}
+
+type HospitalityHistory struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	EntityID       ids.ID
+	EntityType     string
+	EntityVersion  int64
+	Action         string
+	ChangeContext  []byte
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type HospitalityPolicy struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	CutoffLocal    string
+	Version        int64
+	ApprovalID     ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
 }
 
 type IdempotencyRecord struct {
@@ -1074,6 +1455,7 @@ type InventoryPool struct {
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	SourceNodeVersion int64
+	OperationalHold   bool
 }
 
 type InventoryPoolMember struct {
@@ -1161,11 +1543,73 @@ type ListingVersion struct {
 	CreatedAt       time.Time
 }
 
+type NightAudit struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	BusinessDayID  ids.ID
+	State          string
+	Snapshot       []byte
+	SnapshotDigest string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type NightAuditException struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	AuditID        ids.ID
+	Code           string
+	HardBlock      bool
+	Quantity       int64
+	Evidence       []byte
+	CreatedAt      time.Time
+}
+
 type NotificationAcceptance struct {
 	JobID          ids.ID
 	EventID        ids.ID
 	NotificationID ids.ID
 	AcceptedAt     time.Time
+}
+
+type OfflineOperationReceipt struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	AccountID         ids.ID
+	SessionID         ids.ID
+	ClientOperationID ids.ID
+	Action            string
+	TargetID          ids.ID
+	OriginalActionAt  time.Time
+	RequestDigest     string
+	State             string
+	Result            []byte
+	FailureCode       string
+	CreatedAt         time.Time
+}
+
+type OfflineReconciliationResolution struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	TaskID            ids.ID
+	Disposition       string
+	EvidenceReference string
+	Reason            string
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+}
+
+type OfflineReconciliationTask struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ReceiptID      ids.ID
+	Classification string
+	CreatedAt      time.Time
 }
 
 type Organisation struct {
@@ -1916,6 +2360,46 @@ type Room struct {
 	Kind           string
 }
 
+type RoomAssignment struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ReservationID     ids.ID
+	ReservationRoomID ids.ID
+	RoomID            ids.ID
+	Slot              int32
+	DateFrom          pgtype.Date
+	DateTo            pgtype.Date
+	State             string
+	Version           int64
+	Reason            string
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	CreatedBy         ids.ID
+}
+
+type RoomAssignmentDay struct {
+	OrganisationID ids.ID
+	AssignmentID   ids.ID
+	RoomID         ids.ID
+	Day            pgtype.Date
+	ReleasedAt     *time.Time
+}
+
+type RoomStatusCurrent struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	RoomID            ids.ID
+	State             string
+	EvidenceReference string
+	Reason            string
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	CreatedBy         ids.ID
+}
+
 type RoomType struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -2050,6 +2534,24 @@ type StaffScopeGrant struct {
 	Currency         *string
 	RequireMfa       bool
 	CreatedAt        time.Time
+}
+
+type StayRecord struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	ReservationID         ids.ID
+	AssignmentID          ids.ID
+	GuestID               ids.ID
+	State                 string
+	RegistrationReference string
+	CheckedInAt           time.Time
+	CheckedOutAt          *time.Time
+	Version               int64
+	Reason                string
+	CreatedBy             ids.ID
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type TaxProfile struct {

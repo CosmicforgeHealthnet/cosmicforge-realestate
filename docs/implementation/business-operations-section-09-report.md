@@ -1,3 +1,7 @@
+## Current completion pass, schema15
+
+Guest and corporate UUID boundaries now resolve real registered identities, live typed source links and exact approved canonical contracts at booking/confirmation. Physical check-in/out/move and partial per-slot departure coordinate actual PMS state atomically with immutable reservation versions. Cancellation refuses active physical assignments; operators must release the owning assignment first. Full quantity fragmentation, in-house extension/early departure stock conservation, group operations, automated waitlist release/notification and remaining remedy/source composition remain internal work. Previous evidence below remains historical; this is not full Section 9 acceptance.
+
 # Section 9 reservation implementation checkpoint
 
 Status: **PARTIAL — implementation continues**. This report records a logical reservation-core milestone, not acceptance of the full Sections 8–11 assignment.

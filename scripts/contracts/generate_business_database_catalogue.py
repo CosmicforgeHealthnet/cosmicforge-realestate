@@ -86,7 +86,19 @@ for line in annex.splitlines():
 mapped = {e['canonical_table'] for e in entries}
 for name, schema in sorted(tables.items()):
     if name not in mapped:
-        entries.append({'specified_table': '(supporting table)', 'canonical_table': name, 'specification': 'Supporting implementation', 'category': 'Supporting persistence', 'owner_package': 'internal/reservations' if name.startswith(('reservation_','waitlist_')) else 'Existing owning migration/domain', 'owning_section': '8' if int(schema['migration'][:5]) in (10,11) else '9' if int(schema['migration'][:5]) in (8,9) else '3–7' if int(schema['migration'][:5]) >= 6 else '1–4', 'decision': 'SCHEMA_PRESENT', 'schema': schema, 'repository': 'Owning bounded context; no cross-service implementation imports.', 'dependency': 'Supporting secure/transactional operation, immutable history, normalized relationships or recovery.', 'isolation': 'Service-local; parent tenant keys and command authorization.'})
+        entries.append({'specified_table': '(supporting table)', 'canonical_table': name, 'specification': 'Supporting implementation', 'category': 'Supporting persistence', 'owner_package': 'internal/reservations' if name.startswith(('reservation_','waitlist_')) else 'Existing owning migration/domain', 'owning_section': '10' if int(schema['migration'][:5])>=13 else '11' if int(schema['migration'][:5])==12 else '8' if int(schema['migration'][:5]) in (10,11) else '9' if int(schema['migration'][:5]) in (8,9) else '3–7' if int(schema['migration'][:5]) >= 6 else '1–4', 'decision': 'SCHEMA_PRESENT', 'schema': schema, 'repository': 'Owning bounded context; no cross-service implementation imports.', 'dependency': 'Supporting secure/transactional operation, immutable history, normalized relationships or recovery.', 'isolation': 'Service-local; parent tenant keys and command authorization.'})
+current_required={'group_blocks','rooming_lists','event_bookings','master_folios','guest_stay_history','guest_segments','vip_classifications','loyalty_programs','loyalty_rules','loyalty_accounts','loyalty_entitlements','loyalty_transactions','loyalty_rewards','loyalty_redemptions','loyalty_reversals','service_recovery_cases','service_recovery_actions','service_recovery_compensation_refs','privacy_requests','legal_holds','data_retention_jobs'}
+known={e['canonical_table'] for e in entries}
+for name in sorted(current_required-known):
+    hospitality=name in {'group_blocks','rooming_lists','event_bookings','master_folios'}
+    owner='hospitality' if hospitality else 'crm'
+    entries.append({'specified_table':name,'canonical_table':name,'specification':'Master completion Sections 8–11','category':'Required current persistence','owner_package':owner,'owning_section':'10' if hospitality else '11','decision':'REQUIRED_CURRENT_WORK','schema':None,'repository':'internal/'+owner,'dependency':'Unfinished current internal backend requirement.','isolation':'Owned organisation/property-safe references only; no cross-service database access.'})
+# The corporate negotiated-rate contract is the existing approved CRM record,
+# not a second independent rate authority.
+aliases['corporate_rate_contracts']='corporate_customer_contracts'
+for entry in entries:
+    if entry['canonical_table']=='corporate_rate_contracts':
+        entry.update(canonical_table='corporate_customer_contracts',schema=tables['corporate_customer_contracts'],decision='SCHEMA_PRESENT',dependency='Negotiated canonical rate-plan, traveler and billing-reference contract implemented in the CRM owning record; no duplicate price authority.')
 # Resolve each table to one owning context, including supporting persistence.
 annex_owners={1:'organisation',2:'auth',3:'workforce',4:'finance',5:'portfolio',6:'portfolio',7:'content',8:'crm',9:'residential',10:'commercial',11:'land',12:'sales',13:'development',14:'shortlet',15:'portfolio',16:'reservations',17:'housekeeping',18:'revenue',19:'delegation',20:'maintenance',21:'professional',22:'support',23:'analytics',24:'risk',25:'organisation',26:'financing',27:'insurance',28:'access',29:'distribution',30:'revenue',31:'reservations',32:'crm',33:'reputation',34:'automation',35:'commerce',36:'integrations',37:'finance',38:'hospitality',39:'sales',40:'content',41:'workers',42:'risk'}
 for entry in entries:
@@ -99,6 +111,8 @@ for entry in entries:
             ('portfolio',('inventory_graph_versions','inventory_nodes','inventory_edges','inventory_edge_','inventory_history','inventory_external_','inventory_import_','inventory_verification_','inventory_media_','space_graphs','digital_twin_refs','portfolios','developments','development_phases','parcels','properties','buildings','blocks','floors','units','room_types','rooms','facilities','common_areas','assets')),
             ('inventory',('inventory_pools','inventory_pool_members','inventory_calendar','inventory_holds','inventory_hold_days','inventory_allotments','inventory_allotment_days','sellable_products')),
             ('reservations',('reservations','reservation_','waitlist_')),
+            ('hospitality',('offline_','cash_','cashier_','night_audit','night_audits','night_audit_','business_day_','room_status_','room_assignments','room_assignment_','stay_records','folios','folio_','hospitality_','guest_requests','access_grant_references')),
+            ('crm',('loyalty_','vip_classifications','service_recovery_','privacy_requests','legal_holds','data_retention_jobs','guest_','consents','customer_accounts_projection','corporate_')),
             ('revenue',('rms_','forecast_','demand_','booking_pace_','pricing_','market_benchmarks','rate_','promotions','add_ons','packages','package_components','price_quotes','bulk_rate_','tax_profiles','currency_policies')),
             ('content',('listing_templates','listings','listing_versions','listing_media_links','content_quality_scores','listing_approvals')),
             ('distribution',('channel_','listing_publication')),
@@ -117,13 +131,19 @@ for entry in entries:
         all_source='\n'.join(p.read_text(encoding='utf-8') for p in (SERVICE/'migrations').glob('*.sql'))
         entry['schema']['altered_in']=[p.name for p in sorted((SERVICE/'migrations').glob('*.sql')) if re.search(r'ALTER TABLE '+re.escape(name)+r'\b',p.read_text(encoding='utf-8'),re.I)]
         entry['schema']['indexes']=sorted(set(re.findall(r'CREATE (?:UNIQUE )?INDEX (\w+) ON '+re.escape(name)+r'\b',all_source,re.I)))
+# Section 8–11 gaps belong to the current assignment, not future sections.
+
+for entry in entries:
+    if not entry['schema'] and (entry['canonical_table'] in current_required or entry['owning_section'] in ('8','9','10','11') or entry['owning_section'] in ('D.30','D.31','D.32','D.38','D.39','D.41')):
+        entry['decision']='REQUIRED_CURRENT_WORK'
+        entry['dependency']='Unfinished internal Sections 8–11 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.'
 entries.sort(key=lambda e: (e['category'], e['canonical_table']))
 data = {'latest_migration':sorted((SERVICE/'migrations').glob('*.sql'))[-1].name,'specification': 'CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0', 'aliases': aliases, 'entries': entries}
-md = ['# Section 5: reconciled database catalogue', '', 'Generated from the complete Section 5 catalogue, Annex D table supplements and actual owned migrations. SCHEMA_PRESENT certifies presence, not unexecuted workflows. Future-domain tables are deliberately deferred, with no placeholder DDL. Run `python scripts/contracts/generate_business_database_catalogue.py --check` to detect drift. Integration tests verify implemented tables against real pg_catalog. SQLC generates typed query models; domain commands retain owning transactions and explicit scope checks.', '', '| Specified table | Canonical table | Owner / section | Decision | Migration | Tenant / FK / unique / check / indexes / immutability |', '|---|---|---|---|---|---|']
+md = ['# Section 5: reconciled database catalogue', '', 'Generated from the complete Section 5 catalogue, Annex D table supplements and actual owned migrations. SCHEMA_PRESENT certifies presence, not unexecuted workflows. REQUIRED_CURRENT_WORK records unfinished current Sections 8–11 schema; DEFERRED_FUTURE_DOMAIN is reserved for genuinely later sections. No placeholder DDL is generated. Run `python scripts/contracts/generate_business_database_catalogue.py --check` to detect drift. Integration tests verify implemented tables against real pg_catalog. SQLC generates typed query models; domain commands retain owning transactions and explicit scope checks.', '', '| Specified table | Canonical table | Owner / section | Decision | Migration | Tenant / FK / unique / check / indexes / immutability |', '|---|---|---|---|---|---|']
 for e in entries:
     a = e['schema']
     detail = ('altered_in='+','.join(a['altered_in'])+'; tenant=' + str(a['organisation_column']) + '; FK=' + str(a['foreign_key_count']) + '; unique=' + str(a['unique_constraint_count']) + '; checks=' + str(a['check_constraint_count']) + '; indexes=' + ', '.join(a['indexes']) + '; immutable=' + str(a['immutable'])) if a else e['dependency']
-    md.append('| ' + ' | '.join([e['specified_table'], e['canonical_table'], e['owner_package'] + ' / ' + e['owning_section'], e['decision'], a['migration'] if a else 'Future owning-section migration', detail]) + ' |')
+    md.append('| ' + ' | '.join([e['specified_table'], e['canonical_table'], e['owner_package'] + ' / ' + e['owning_section'], e['decision'], a['migration'] if a else 'Required current migration' if e['decision']=='REQUIRED_CURRENT_WORK' else 'Future owning-section migration', detail]) + ' |')
 outputs = {ROOT / 'docs/implementation/business-operations-database-catalogue.json': json.dumps(data, indent=2) + '\n', ROOT / 'docs/implementation/business-operations-database-catalogue.md': '\n'.join(md) + '\n'}
 changed = []
 for path, text in outputs.items():
@@ -133,4 +153,4 @@ for path, text in outputs.items():
             path.write_text(text, encoding='utf-8', newline='\n')
 if '--check' in sys.argv and changed:
     raise SystemExit('Catalogue drift: ' + ', '.join(changed))
-print(f'{len(entries)} table decisions; {len(tables)} implemented tables; {sum(e["decision"] == "DEFERRED_FUTURE_DOMAIN" for e in entries)} future tables explicitly deferred')
+print(f'{len(entries)} table decisions; {len(tables)} implemented tables; {sum(e["decision"] == "DEFERRED_FUTURE_DOMAIN" for e in entries)} future tables explicitly deferred; {sum(e["decision"] == "REQUIRED_CURRENT_WORK" for e in entries)} required current schema gaps')

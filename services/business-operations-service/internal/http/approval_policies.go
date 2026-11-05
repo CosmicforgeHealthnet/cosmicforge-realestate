@@ -30,6 +30,18 @@ func highRiskAction(action string) bool {
 
 func commercialApprovalCapability(action string) string {
 	switch action {
+	case "COMMERCIAL_PMS_BUSINESS_DAY_POLICY", "COMMERCIAL_PMS_NIGHT_AUDIT_EXCEPTION":
+		return "night_audit:approve"
+	case "COMMERCIAL_PMS_CASHIER_VARIANCE":
+		return "cashier:approve"
+	case "COMMERCIAL_PMS_EARLY_CHECK_IN", "COMMERCIAL_PMS_DEPARTURE_DEBT":
+		return "pms:approve"
+	case "COMMERCIAL_PMS_FOLIO_ADJUSTMENT":
+		return "folios:approve"
+	case "COMMERCIAL_GUEST_IDENTITY_LINK", "COMMERCIAL_GUEST_SCOPE_LINK", "COMMERCIAL_GUEST_RESTRICTION_RELEASE":
+		return "guest_privacy:write"
+	case "COMMERCIAL_CORPORATE_CONTRACT", "COMMERCIAL_CORPORATE_TRAVELER", "COMMERCIAL_CORPORATE_SCOPE_LINK":
+		return "reservations:approve"
 	case "COMMERCIAL_RMS_POLICY":
 		return "rms:approve"
 	case "COMMERCIAL_RMS_RATE_CHANGE", "COMMERCIAL_RMS_RATE_ROLLBACK":

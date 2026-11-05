@@ -48,7 +48,7 @@ func GetHold(ctx context.Context, q database.Querier, org, id ids.ID) (Hold, err
 // has not yet reconciled the graph. A product never manufactures extra stock.
 func CheckStockAuthority(ctx context.Context, q database.Querier, pool Pool) error {
 	var current bool
-	err := q.QueryRow(ctx, `SELECT p.state='ACTIVE' AND EXISTS(SELECT 1 FROM inventory_nodes source WHERE source.organisation_id=p.organisation_id AND source.id=p.node_id AND source.version=p.source_node_version AND source.state='ACTIVE' AND business_graph_property(source.organisation_id,source.id)=p.property_id) AND EXISTS(SELECT 1 FROM inventory_pool_members WHERE organisation_id=p.organisation_id AND pool_id=p.id) AND NOT EXISTS(SELECT 1 FROM inventory_pool_members m JOIN inventory_nodes n ON n.organisation_id=m.organisation_id AND n.id=m.node_id WHERE m.organisation_id=p.organisation_id AND m.pool_id=p.id AND (n.state<>'ACTIVE' OR n.version<>m.node_version OR business_graph_property(n.organisation_id,n.id) IS DISTINCT FROM p.property_id)) FROM inventory_pools p WHERE p.organisation_id=$1 AND p.id=$2`, pool.OrganisationID, pool.ID).Scan(&current)
+	err := q.QueryRow(ctx, `SELECT p.state='ACTIVE' AND NOT coalesce((to_jsonb(p)->>'operational_hold')::boolean,false) AND EXISTS(SELECT 1 FROM inventory_nodes source WHERE source.organisation_id=p.organisation_id AND source.id=p.node_id AND source.version=p.source_node_version AND source.state='ACTIVE' AND business_graph_property(source.organisation_id,source.id)=p.property_id) AND EXISTS(SELECT 1 FROM inventory_pool_members WHERE organisation_id=p.organisation_id AND pool_id=p.id) AND NOT EXISTS(SELECT 1 FROM inventory_pool_members m JOIN inventory_nodes n ON n.organisation_id=m.organisation_id AND n.id=m.node_id WHERE m.organisation_id=p.organisation_id AND m.pool_id=p.id AND (n.state<>'ACTIVE' OR n.version<>m.node_version OR business_graph_property(n.organisation_id,n.id) IS DISTINCT FROM p.property_id)) FROM inventory_pools p WHERE p.organisation_id=$1 AND p.id=$2`, pool.OrganisationID, pool.ID).Scan(&current)
 	if err != nil {
 		return err
 	}
@@ -88,6 +88,7 @@ func calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 		}
 	}
 	rows, err := q.Query(ctx, `SELECT c.day::text,c.capacity,c.committed,c.overbooked,c.blocked,c.version,c.updated_at,
+ coalesce((SELECT (to_jsonb(p)->>'operational_hold')::boolean FROM inventory_pools p WHERE p.organisation_id=c.organisation_id AND p.id=c.pool_id),false),
  (SELECT coalesce(sum(d.quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.state='ACTIVE' AND h.expires_at>$6),
  (SELECT coalesce(sum(d.quantity),0) FROM inventory_allotment_days d JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND d.released_at IS NULL AND a.state='ACTIVE' AND a.release_at>$6),
  (SELECT coalesce(sum(d.allotted_quantity),0) FROM inventory_hold_days d JOIN inventory_holds h ON h.id=d.hold_id AND h.organisation_id=d.organisation_id JOIN inventory_allotments a ON a.id=d.allotment_id AND a.organisation_id=d.organisation_id WHERE d.organisation_id=c.organisation_id AND d.pool_id=c.pool_id AND d.day=c.day AND h.state='ACTIVE' AND h.expires_at>$6 AND a.state='ACTIVE' AND a.release_at>$6),
@@ -104,14 +105,20 @@ func calendar(ctx context.Context, q database.Querier, org, pool ids.ID, dateRan
 	result := []Day{}
 	for rows.Next() {
 		var d Day
+		var operationalHold bool
 		var usedAllotted, ownAllotted, ownUsed, committedAllotted, ownCommitted int
-		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Overbooked, &d.Blocked, &d.Version, &d.UpdatedAt, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed, &committedAllotted, &ownCommitted); err != nil {
+		if err = rows.Scan(&d.Day, &d.Capacity, &d.Committed, &d.Overbooked, &d.Blocked, &d.Version, &d.UpdatedAt, &operationalHold, &d.Held, &d.Allotted, &usedAllotted, &d.AllotmentID, &ownAllotted, &ownUsed, &committedAllotted, &ownCommitted); err != nil {
 			return nil, err
 		}
 		d.Allotted = max(0, d.Allotted-committedAllotted)
 		d.ChannelAllotted = max(0, ownAllotted-ownUsed-ownCommitted)
 		d.Available = max(0, d.Capacity-d.Committed-d.Blocked-d.Held-d.Allotted+usedAllotted) + d.ChannelAllotted
 		d.PhysicalAvailable = max(0, d.Capacity-d.Committed+d.Overbooked-d.Blocked-d.Held-d.Allotted+usedAllotted) + d.ChannelAllotted
+		if operationalHold {
+			d.Available = 0
+			d.PhysicalAvailable = 0
+			d.ChannelAllotted = 0
+		}
 		result = append(result, d)
 	}
 	if err = rows.Err(); err != nil {

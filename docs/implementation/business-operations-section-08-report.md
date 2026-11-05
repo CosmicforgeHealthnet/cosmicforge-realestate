@@ -1,3 +1,7 @@
+## Current completion pass
+
+Section 8 remains PARTIAL. This pass adds genuine guest/stay/folio prerequisites for future realized outcomes, but does not yet complete RMS automatic modes, advanced recommendation families or outcome pipelines. No PMS fixture or accepted reservation is labeled realized financial revenue. Existing RMS behavior is preserved and remains in full regression checks.
+
 # Section 8 RMS implementation evidence
 
 Branch: staging. Foundation checkpoint: `67557e69c3177d2166d4a8d86cf52ac1da19486a`; its Backend, Images, Contracts, Security and Architecture workflows all succeeded. Observation/forecast checkpoint: `4560806a1a42003d00f81f9e1db102c543c9159c`. This report also records subsequent RMS governance work; Section 8 remains **PARTIAL**.

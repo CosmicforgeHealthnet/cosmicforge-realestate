@@ -2,6 +2,7 @@ package integration
 
 import (
 	"context"
+	"io/fs"
 	"sync"
 	"testing"
 	"time"
@@ -18,8 +19,12 @@ import (
 	testkit "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/testing"
 )
 
-func newBusinessAuth(t *testing.T) (*businessauth.Service, *testkit.Database) {
-	db := testkit.NewDatabase(t, migrations.FS)
+func newBusinessAuth(t *testing.T, schemas ...fs.FS) (*businessauth.Service, *testkit.Database) {
+	var schema fs.FS = migrations.FS
+	if len(schemas) > 0 {
+		schema = schemas[0]
+	}
+	db := testkit.NewDatabase(t, schema)
 	key := testkit.SigningKey(t, "business-auth-1")
 	issuer, err := sharedauth.NewIssuer(sharedauth.IssuerConfig{Issuer: string(platform.BusinessOperationsService), Key: key})
 	if err != nil {

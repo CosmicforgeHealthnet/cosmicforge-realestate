@@ -22,6 +22,7 @@ type reservationPaymentFake struct {
 	policy                            payment.Policy
 	quote                             payment.Quote
 	intent                            payment.Intent
+	fundingConfirmed                  bool
 	reversed                          int64
 	remedyReviewRequired              bool
 	receiptUnavailableAfterCollection bool
@@ -83,7 +84,7 @@ func (f *reservationPaymentFake) Receipt(_ context.Context, id ids.ID) (payment.
 	if f.unavailable || id != f.quote.ID || f.receiptUnavailableAfterCollection && !f.intent.ID.IsZero() {
 		return payment.Receipt{}, errors.New("disposable receipt unavailable")
 	}
-	r := payment.Receipt{RemedyVersion: 1, RemedyReviewRequired: f.remedyReviewRequired, Quote: f.quote, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", ReversedMinor: f.reversed}
+	r := payment.Receipt{FundingConfirmed: f.fundingConfirmed, RemedyVersion: 1, RemedyReviewRequired: f.remedyReviewRequired, Quote: f.quote, CollectionState: "NOT_INITIATED", SettlementState: "PENDING", ReversedMinor: f.reversed}
 	r.PayerContext.WalletID = f.quote.PayerWalletID
 	r.PayerContext.CanonicalPartyRef = f.quote.LegalPartyRef
 	if f.forgedReceipt {
