@@ -1,7 +1,14 @@
 """Executable hospitality contracts. Provider unknowns are represented explicitly."""
+import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ s['PMSGroupBooking']=copy.deepcopy(s['ReservationCreate'])
+ s['PMSGroupBooking']['properties']['source']['enum']=['GROUP','CORPORATE']
+ s['PMSGroupBooking']['properties']['state']['enum']=['HOLD','CONFIRMED']
+ s['PMSGroupBooking']['properties']['group_name']['const']=''
+ s['PMSGroupBooking']['required']=list(dict.fromkeys(s['PMSGroupBooking']['required']+['group_id']))
+ s['PMSGroupBlockCommand']['properties']['booking']=ref('PMSGroupBooking')
  s['PMSOfflineResult']['properties']['result']={'type':['object','null'],'additionalProperties':True}
  shape('PMSOfflineResolved',id=uid,disposition={'enum':['RETRY_ONLINE','CANCELLED']},original_operation_applied={'const':False})
  shape('PMSRoomMoveResult',stay_id=uid,assignment_id=uid,version=integer,reservation_version=integer,access_state={'const':'UNKNOWN'})
@@ -19,7 +26,29 @@ def register_pms(s,obj,arr,ref,typ):
  shape('PMSHandoverCreated',id=uid,state={'const':'ACKNOWLEDGED'})
  shape('PMSCashAttestationResult',source_version=integer,duplicate={'type':'boolean'})
  s['PMSCashAttestationResult']['properties']['id']=uid
+ shape('PMSGroupDetail',group=ref('PMSGroup'),reservations=arr({'type':'object','additionalProperties':True}),limit=integer,offset=integer)
+ shape('PMSRoomingResult',id=uid,version=integer,state={'enum':['ACTIVE','REVOKED']},reservation_version=integer)
+ shape('PMSGroupCheckInsResult',group_id=uid,items=arr(ref('PMSCheckInResult')),atomic={'const':True})
+ shape('PMSGroupCheckOutsResult',group_id=uid,items=arr(ref('PMSCheckoutResult')),atomic={'const':True})
+ shape('PMSMasterFolioCreated',id=uid,group_id=uid,currency={'type':'string'},source_folio_count=integer,payment_execution={'const':'PAYMENT_SERVICE'})
+ shape('PMSMasterFolioView',id=uid,group_id=uid,currency={'type':'string'},billing_reference={'type':'string'},items=arr({'type':'object','additionalProperties':True}),balance_minor=integer,all_source_folios_closed={'type':'boolean'},basis={'const':'CURRENT_SOURCE_FOLIOS_AND_PAYMENT_READBACKS'})
+ shape('PMSEventBookingCreated',id=uid,reservation_id=uid,reservation_state={'type':'string'},date_from={'type':'string','format':'date'},date_to={'type':'string','format':'date'},capacity_authority={'const':'CANONICAL_RESERVATION'},conversation_verified={'const':False})
  return {
+ 'pmsGroups':('pms:read',None,'PMSList',200,False),
+ 'pmsGroupCreate':('pms:write','PMSGroupCreate','PMSGroup',201,False),
+ 'pmsGroupGet':('pms:read',None,'PMSGroupDetail',200,False),
+ 'pmsGroupPatch':('pms:write','PMSGroupPatch','PMSGroup',200,True),
+ 'pmsGroupBlocks':('pms:read',None,'PMSList',200,False),
+ 'pmsGroupBlockCreate':('pms:write','PMSGroupBlockCommand','ReservationDetail',201,False),
+ 'pmsGroupRooming':('pms:read',None,'PMSList',200,False),
+ 'pmsGroupRoomingSave':('pms:write','PMSRoomingCommand','PMSRoomingResult',201,True),
+ 'pmsGroupCheckIn':('pms:write','PMSGroupCheckIns','PMSGroupCheckInsResult',201,True),
+ 'pmsGroupCheckOut':('pms:write','PMSGroupCheckOuts','PMSGroupCheckOutsResult',200,True),
+ 'pmsMasterFolios':('folios:read',None,'PMSList',200,False),
+ 'pmsMasterFolioCreate':('folios:write','PMSMasterFolioCommand','PMSMasterFolioCreated',201,True),
+ 'pmsMasterFolioGet':('folios:read',None,'PMSMasterFolioView',200,False),
+ 'pmsEventBookings':('pms:read',None,'PMSList',200,False),
+ 'pmsEventBookingCreate':('pms:write','PMSEventBookingCommand','PMSEventBookingCreated',201,False),
  'pmsHospitalityPolicies':('night_audit:read',None,'PMSList',200,False),
  'pmsHospitalityPolicy':('night_audit:write','PMSHospitalityPolicyCommand','PMSHospitalityPolicyCreated',201,True),
  'pmsNightAudits':('night_audit:read',None,'PMSList',200,False),
@@ -63,6 +92,14 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSGroupCreate':{'property_id':uid,'name':'Reviewed conference group','source_reference':'actual-group-sales-reference','billing_reference':'group-billing-authority-reference','reason':reason},
+ 'PMSGroupBlockCommand':{'booking':{'property_id':uid,'source':'GROUP','channel':'','source_reference':'actual-group-booking-reference','state':'HOLD','rooms':[{'product_id':uid,'quote_id':uid,'product_version':1,'pool_version':1,'date_from':'2026-12-01','date_to':'2026-12-03','quantity':1}],'guests':[{'guest_id':uid,'source_kind':'DIRECT','source_reference':'actual-registered-source-reference','is_primary':True}],'payment_responsibility':'PLATFORM_COLLECT','group_id':uid,'reason':reason}},
+ 'PMSGroupPatch':{'version':1,'state':'CANCELLED','reason':reason},
+ 'PMSRoomingCommand':{'reservation_id':uid,'reservation_version':2,'reservation_room_id':uid,'slot':1,'expected_version':0,'guest_id':uid,'source_kind':'DIRECT','source_reference':'registered-guest-source-reference','registration_reference':'actual-arrival-registration-reference','state':'ACTIVE','approval_id':uid,'reason':reason},
+ 'PMSGroupCheckIns':{'items':[{'assignment_id':uid,'assignment_version':1,'reservation_version':4,'room_status_version':3,'guest_id':uid,'registration_reference':'actual-arrival-registration-reference','reason':reason}],'reason':reason},
+ 'PMSGroupCheckOuts':{'items':[{'stay_id':uid,'version':1,'reservation_version':5,'folio_version':1,'approval_id':uid,'reason':reason}],'reason':reason},
+ 'PMSMasterFolioCommand':{'property_id':uid,'group_id':uid,'folio_ids':[uid],'folio_versions':{uid:1},'currency':'NGN','billing_reference':'approved-group-billing-reference','approval_id':uid,'reason':reason},
+ 'PMSEventBookingCommand':{'property_id':uid,'group_id':uid,'reservation_id':uid,'reservation_version':2,'facility_id':uid,'source_reference':'actual-conference-booking-reference','conversation_reference':'opaque-cf-meet-conversation-reference','reason':reason},
  'PMSHospitalityPolicyCommand':{'property_id':uid,'expected_version':0,'cutoff_local':'04:00','approval_id':uid,'reason':reason},
  'PMSAuditCommand':{'property_id':uid,'reason':reason},
  'PMSDayCloseCommand':{'property_id':uid,'business_day_id':uid,'version':1,'audit_id':uid,'snapshot_digest':'a'*64,'reason':reason},

@@ -27,6 +27,22 @@ func (q *Queries) GetHospitalityFolio(ctx context.Context, db DBTX, arg GetHospi
 	return record, err
 }
 
+const getHospitalityGroup = `-- name: GetHospitalityGroup :one
+SELECT to_jsonb(g)::jsonb AS record FROM reservation_groups g WHERE organisation_id=$1 AND id=$2
+`
+
+type GetHospitalityGroupParams struct {
+	OrganisationID ids.ID
+	ID             ids.ID
+}
+
+func (q *Queries) GetHospitalityGroup(ctx context.Context, db DBTX, arg GetHospitalityGroupParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getHospitalityGroup, arg.OrganisationID, arg.ID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
 const getHospitalityStay = `-- name: GetHospitalityStay :one
 SELECT to_jsonb(s)::jsonb AS record FROM stay_records s WHERE organisation_id=$1 AND id=$2
 `

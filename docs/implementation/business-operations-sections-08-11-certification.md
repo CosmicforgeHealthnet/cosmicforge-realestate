@@ -1,3 +1,15 @@
+## Schema16 candidate
+
+Group blocks/rooming, atomic group arrivals/departures, approved master-folio associations and actual facility-event reservation links are implemented with owned stock/financial lineage and immutable audit. Candidate counts: Goose16, 419 routes, 375 schemas, 69 events, 196 tables. Full local module: **209 passed, zero failed/skipped**; five focused tests passed after the final snapshot refinement. Local quality/contracts/SQLC/architecture/service secret checks passed. The next pushed commit needs independent exact-SHA CI. Sections 8–11 remain PARTIAL because the listed internal automation, ancillary financial, reservation, privacy, loyalty and recovery work is still outstanding.
+
+## Verified schema15 staging milestone — November 5
+
+Implementation SHA: `56cd2fb575f0c80bdf04a1971e64ee48276ebedc` on origin/staging. All five exact-SHA workflows succeeded: [Backend](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42109849738) (20/20 jobs; Business Linux race suite **207 passed, zero failed/skipped**, including Individual Owner and Payment regressions and process E2E), [Contracts](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42109849769), [Security](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42109849592), [Architecture](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42109849721), [Images](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42109849776).
+
+Published Business image digest: `sha256:d444ab416f028c64dac4cd61eabf3fd55d2c7415dc829c6cc0cba6b6edd5fd33`. The image workflow executed real PostgreSQL/NATS/Redis/Gateway/API/worker/migration containers, non-root startup, repeated migrations, health/readiness, graceful shutdown, broker outage/recovery and vulnerability checks. Notification uses an authenticated contract fake in those tests. Image publication is not live staging deployment. GitHub exposes zero deployment environments and no deployment workflow; an authorized operator must provide the existing rollout path and live service/database/provider configuration. No VPS access was used.
+
+This certifies the schema15 milestone, not completion of Sections 8–11. Subsequent schema16 group changes are independently tested and need their own pushed-SHA CI.
+
 ## November 5 staging milestone verification
 
 Remote staging was fetched again and still matched `13801be24a431b8ef33201c3c2ddeb7b16167b2e`. A fresh isolated PostgreSQL18 cluster on loopback port55447 executed the complete current Business suite: **207 passed, zero failed/skipped**. Gofmt, go vet, staticcheck, tidy-diff, exact SQLC output comparison, contract/examples/event/catalogue drift, architecture and service gitleaks checks passed. Other services' Postman folders were compared structurally and remain unchanged. Docker/CGO tools are unavailable locally; Linux race and container certification must come from exact pushed-SHA CI. GitHub still exposes only the five CI/image workflows and zero deployment environments; live staging rollout is not certified. Remaining current work stays PARTIAL.

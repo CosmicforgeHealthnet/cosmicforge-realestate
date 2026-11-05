@@ -27,7 +27,7 @@ def obj(props,required=(),closed=False):
 def arr(s):return {'type':'array','items':s}
 def fields(**kw):return obj({k:typ(v) for k,v in kw.items()})
 TYPE_NAMES={
- 'hospitality':{'RoomStatus':'PMSRoomStatus','Assignment':'PMSAssignment','Stay':'PMSStay','Folio':'PMSFolio','Item':'PMSItem'},
+ 'hospitality':{'Group':'PMSGroup','RoomStatus':'PMSRoomStatus','Assignment':'PMSAssignment','Stay':'PMSStay','Folio':'PMSFolio','Item':'PMSItem'},
  'crm':{'Profile':'CRMProfile','PrivateProfile':'CRMPrivateProfile','Guest':'CRMGuest','GuestView':'CRMGuestView','Corporate':'CRMCorporateCustomer','CorporateTerms':'CRMCorporateTerms','CorporateContact':'CRMCorporateContact','CorporateContract':'CRMCorporateContract'},
  'reservations':{'Policy':'ReservationPolicy','Reservation':'Reservation','Room':'ReservationRoom','RoomCommand':'ReservationRoomCommand','GuestCommand':'ReservationGuestCommand','Create':'ReservationCreate','Detail':'ReservationDetail','Command':'ReservationMutation','SourceCommand':'ReservationSourceCommand','Acceptance':'ReservationAcceptance','FinancialGroupView':'ReservationFinancialGroupView'},
  'payment':{'Policy':'PaymentPolicy','Component':'PaymentComponent','Quote':'PaymentLockedQuote','IntentInput':'PaymentIntentInput','Intent':'PaymentIntent','Receipt':'PaymentReceipt'},
@@ -478,6 +478,8 @@ for r in R:
   target='business_'+('property_id' if '/properties/{id}/' in path else 'development_id' if '/developments/{id}/' in path else graph_kind.lower()+'_id')
  if '/inventory-nodes/{id}' in path:target='business_node_id'
  if '/revenue/demand-snapshots/{id}' in path:target='business_snapshot_id'
+ if '/groups/{id}' in path:target='business_group_id'
+ if '/master-folios/{id}' in path:target='business_master_folio_id'
  if '/stays/{id}' in path:target='business_stay_id'
  if '/folios/{id}' in path:target='business_folio_id'
  if '/room-assignments/{id}' in path:target='business_assignment_id'
@@ -496,8 +498,10 @@ for r in R:
  if target:prerequest.append(f'if (pm.environment.get("{target}")) pm.variables.set("business_id",pm.environment.get("{target}"));')
  resource={**{('/'+k):v[0].lower()+'_id' for k,v in node_kinds.items()},'/regions':'region_id','/branches':'branch_id','/departments':'department_id','/teams':'team_id'}.get(path.removeprefix('/api/v1/business'))
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
- commercial_capture={'PMSAssignment':'assignment_id','PMSDrawerCreated':'drawer_id','PMSCashierShift':'cashier_shift_id','PMSAuditResult':'night_audit_id','PMSGuestRequest':'guest_request_id','PMSOfflineResult':'offline_receipt_id','Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','RMSPolicy':'rms_policy_id','RMSRecommendation':'recommendation_id','RMSSimulationRecord':'simulation_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
+ commercial_capture={'PMSGroup':'group_id','PMSMasterFolioCreated':'master_folio_id','PMSEventBookingCreated':'event_booking_id','PMSAssignment':'assignment_id','PMSDrawerCreated':'drawer_id','PMSCashierShift':'cashier_shift_id','PMSAuditResult':'night_audit_id','PMSGuestRequest':'guest_request_id','PMSOfflineResult':'offline_receipt_id','Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','RMSPolicy':'rms_policy_id','RMSRecommendation':'recommendation_id','RMSSimulationRecord':'simulation_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if response=='PMSGroupCheckInsResult':tests.append('if(pm.response.code===201){pm.test("Atomic group arrival",()=>pm.expect(body.data.atomic).to.eql(true));pm.environment.set("business_group_stays",JSON.stringify(body.data.items));}')
+ if response=='PMSGroupCheckOutsResult':tests.append('if(pm.response.code===200)pm.test("Atomic group departure",()=>pm.expect(body.data.atomic).to.eql(true));')
  if response=='PMSCheckInResult':tests.append('if(pm.response.code===201){pm.environment.set("business_stay_id",body.data.stay_id);pm.environment.set("business_folio_id",body.data.folio_id);pm.environment.set("business_reservation_version",body.data.reservation_version);pm.test("No fabricated device success",()=>pm.expect(body.data.access_state).to.eql("UNKNOWN"));}')
  if response=='PMSRoomStatus':tests.append('if(pm.response.code<300)pm.environment.set("business_room_status_version",body.data.version);')
  if response=='PMSAuditResult':tests.append('if(pm.response.code===201){pm.environment.set("business_business_day_id",body.data.snapshot.day.id);pm.environment.set("business_business_day_version",body.data.snapshot.day.version);pm.environment.set("business_night_audit_digest",body.data.snapshot_digest);}')
@@ -535,8 +539,8 @@ for r in R:
  if path.startswith('/api/v1/business/revenue'):folder='09 Revenue Management'
  if path.startswith(('/api/v1/business/reservations','/api/v1/business/reservation-','/api/v1/business/waitlist')):folder='10 Reservations'
  if path.startswith(('/api/v1/business/guests','/api/v1/business/corporate-customers')):folder='13 Guest CRM & Marketing'
- if path.startswith(('/api/v1/business/front-desk','/api/v1/business/room-status','/api/v1/business/room-assignments','/api/v1/business/stays','/api/v1/business/folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies')):folder='11 Front Desk'
- if path.startswith(('/api/v1/business/folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies')):folder='12 Folio, Cashier & Night Audit'
+ if path.startswith(('/api/v1/business/front-desk','/api/v1/business/room-status','/api/v1/business/room-assignments','/api/v1/business/stays','/api/v1/business/groups','/api/v1/business/events','/api/v1/business/folios','/api/v1/business/master-folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies')):folder='11 Front Desk'
+ if path.startswith(('/api/v1/business/folios','/api/v1/business/master-folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies')):folder='12 Folio, Cashier & Night Audit'
  if path.startswith('/internal/'):folder='_Internal'
  if path.startswith('/webhooks/'):folder='_Webhooks'
  folders[folder]['item'].append({'name':name,'request':request,'response':examples,'event':[{'listen':'prerequest','script':{'type':'text/javascript','exec':prerequest}},{'listen':'test','script':{'type':'text/javascript','exec':tests}}]})

@@ -53,3 +53,6 @@ END $$;
 -- transitions may update current projections. Payment inputs remain immutable.
 REVOKE UPDATE,DELETE,TRUNCATE ON folio_items,folio_payment_references,hospitality_history,hospitality_policies,night_audits,night_audit_exceptions,business_day_closes,business_day_close_reports,cashier_financial_attestations,cashier_variances,cashier_handovers,offline_operation_receipts,offline_reconciliation_tasks,offline_reconciliation_resolutions FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON room_status_current,room_assignments,room_assignment_days,stay_records,folios,guest_requests,access_grant_references,hospitality_business_days,cash_drawers,cashier_shifts FROM cf_business_runtime;
+
+REVOKE UPDATE,DELETE,TRUNCATE ON group_blocks,rooming_lists,master_folios,master_folio_members,event_bookings FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON reservation_groups FROM cf_business_runtime;

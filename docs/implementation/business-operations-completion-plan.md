@@ -1,3 +1,21 @@
+## Current execution status — schema16 candidate
+
+Schema15 (`56cd2fb`) is pushed to staging with all five workflows green, 207 Linux race tests and real container smoke evidence in the certificate. Subsequent schema16 group changes pass 209 local module tests plus five focused snapshot/upgrade/group/facility/revocation tests. They require their own pushed-SHA CI. Existing unrelated Owner files remain excluded.
+
+| Current work | Status | Concrete evidence | Still required |
+|---|---|---|---|
+| Typed guest/corporate prerequisite | PASS for implemented foundation; live producers PARTIAL | migration12, internal/crm, operational_crm_*.go, crm_identity_test.go, crm_upgrade_test.go | Full privacy/merge/VIP and producer certification belong to the remaining CRM phase |
+| PMS room assignment/readiness/check-in/out/move | PASS for tested core | migration13, operational_pms_rooms/stays/moves.go, pms_test.go | In-house extension/early-departure canonical conservation, scheduling and additional-charge reconciliation |
+| Folio/cashier/financial references | PARTIAL | immutable postings/adjustments, actual signed Payment readbacks, pms_days_test.go | Extra/mixed-payer collections, full fiscal itemization and live cashier-attestation producer |
+| Property day/audit/offline | PARTIAL | migrations14–15, snapshot/cutoff/DST/close and offline savepoint/reconciliation tests | Full automatic worker execution/recovery and remaining operational/fiscal checks |
+| Group/corporate/event PMS | PASS for implemented stock/roster/batch/reference workflows; full automation PARTIAL | migration16, operational_pms_groups/rooming/group_billing.go, pms_groups_test.go | Worker composition and remaining consolidated financial/communication journeys |
+| Full CRM | PARTIAL | Trusted prerequisite and real PMS outcomes now exist | Stay projection/rebuild, loyalty, recovery/compensation, privacy, notifications and cohort metrics remain internal work |
+| Reservation closure | PARTIAL | Canonical core plus real guest/corporate/PMS/group composition | Quantity fragmentation, extension/early departure, automatic waitlist/release, source/remedy/recovery integration |
+| RMS closure | PARTIAL | Existing observations/forecast/manual governance retained | Approved automatic execution, advanced action families, workers and source-backed outcome pipelines |
+| Full cross-domain certification | PARTIAL | Executed core journeys and exact schema15 CI | Complete all remaining internal workflows and all master journeys, then verify the final SHA |
+
+The original requirement-by-requirement execution matrix below records the starting gaps. It is historical planning context; the concrete current statuses above and per-section reports supersede its initial missing-domain descriptions. Unfinished current requirements are not external/future blockers.
+
 # Remaining Sections 8–11 execution matrix
 
 Starting and fetched origin/staging: `13801be24a431b8ef33201c3c2ddeb7b16167b2e`; working branch staging. No remote divergence. Existing unrelated Owner web/documentation/workspace files are preserved and excluded. This matrix supplements the existing complete baseline audit/certification; it does not certify unfinished work.

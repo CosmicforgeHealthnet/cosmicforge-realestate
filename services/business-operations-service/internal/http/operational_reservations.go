@@ -280,6 +280,10 @@ func (h *Handler) createReservationTx(ctx context.Context, tx pgx.Tx, t tenant, 
 		if _, e = tx.Exec(ctx, `INSERT INTO reservation_groups(id,organisation_id,property_id,name,source_reference,created_by) VALUES($1,$2,$3,$4,$5,$6)`, next, t.Organisation, in.PropertyID, in.GroupName, in.SourceReference, t.Account); e != nil {
 			return out, e
 		}
+		if e = h.commercialCommit(ctx, tx, t, in.PropertyID, next, "reservation_group", "GROUP_CREATED", "group.booking.updated.v1", 1, map[string]any{"name": in.GroupName, "reason": in.Reason}); e != nil {
+			return out, e
+		}
+
 	}
 	if group != nil {
 		var valid bool
@@ -516,7 +520,13 @@ func (h *Handler) reservationCommit(ctx context.Context, tx pgx.Tx, t tenant, v 
 			return e
 		}
 	}
-	return businessEvents.CommercialCommit(ctx, tx, h.Auth.Service.Outbox, t.Organisation, v.PropertyID, v.ID, t.Account, "reservation", action, event, v.Version, map[string]any{"reservation_id": v.ID, "state": v.State, "source": v.Source, "channel": v.Channel, "version": v.Version, "financial_state": v.FinancialState, "risk_status": v.RiskStatus, "amount_minor": v.AmountMinor, "currency": v.Currency, "allocation_state": v.AllocationState, "date_from": v.DateFrom, "date_to": v.DateTo, "reason": reason})
+	if e = businessEvents.CommercialCommit(ctx, tx, h.Auth.Service.Outbox, t.Organisation, v.PropertyID, v.ID, t.Account, "reservation", action, event, v.Version, map[string]any{"reservation_id": v.ID, "state": v.State, "source": v.Source, "channel": v.Channel, "version": v.Version, "financial_state": v.FinancialState, "risk_status": v.RiskStatus, "amount_minor": v.AmountMinor, "currency": v.Currency, "allocation_state": v.AllocationState, "date_from": v.DateFrom, "date_to": v.DateTo, "reason": reason}); e != nil {
+		return e
+	}
+	if v.GroupID != nil {
+		return businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, v.PropertyID, v.ID, "reservation", "GROUP_RESERVATION_"+action, "group.booking.updated.v1", v.Version, map[string]any{"group_id": *v.GroupID, "reservation_id": v.ID, "reservation_version": v.Version, "state": v.State, "allocation_state": v.AllocationState, "reason": reason})
+	}
+	return nil
 }
 
 // acceptReservationRoom stores one frozen price line and its real hold. The

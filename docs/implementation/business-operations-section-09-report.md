@@ -1,3 +1,5 @@
+Current schema16 candidate: group blocking/rooming and batch check-in/out now reuse canonical reservations and accepted financial/stock history; published schema15 remains the green staging milestone below. Quantity fragmentation, extension, full waitlist automation and remedy composition remain unfinished current work.
+
 ## Current completion pass, schema15
 
 Guest and corporate UUID boundaries now resolve real registered identities, live typed source links and exact approved canonical contracts at booking/confirmation. Physical check-in/out/move and partial per-slot departure coordinate actual PMS state atomically with immutable reservation versions. Cancellation refuses active physical assignments; operators must release the owning assignment first. Full quantity fragmentation, in-house extension/early departure stock conservation, group operations, automated waitlist release/notification and remaining remedy/source composition remain internal work. Previous evidence below remains historical; this is not full Section 9 acceptance.

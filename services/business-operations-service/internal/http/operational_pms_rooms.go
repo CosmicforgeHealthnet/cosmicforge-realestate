@@ -41,6 +41,7 @@ func (h *Handler) registerPMS(r chi.Router) {
 	h.registerPMSDays(r)
 	h.registerPMSCashier(r)
 	h.registerPMSOffline(r)
+	h.registerPMSGroups(r)
 	r.Get("/guest-requests", h.pmsGuestRequests)
 	r.Post("/guest-requests", h.pmsGuestRequestCreate)
 	r.Patch("/guest-requests/{id}", h.pmsGuestRequestPatch)
@@ -330,5 +331,5 @@ func (h *Handler) pmsRoomStatusGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func validPMSAssignment(in PMSAssignmentCommand) bool {
-	return !(in.ReservationID.ValidateV7() != nil || in.ReservationRoomID.ValidateV7() != nil || in.RoomID.ValidateV7() != nil || in.ReservationVersion < 1 || in.RoomStatusVersion < 1 || in.Slot < 1 || !validStaffReason(in.Reason))
+	return !(in.ReservationID.ValidateV7() != nil || in.ReservationRoomID.ValidateV7() != nil || in.RoomID.ValidateV7() != nil || in.ReservationVersion < 1 || in.RoomStatusVersion < 1 || in.Slot < 1 || in.Slot > 1000 || !validStaffReason(in.Reason))
 }

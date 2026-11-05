@@ -115,6 +115,15 @@ func (h *Handler) executePMSCheckIn(ctx context.Context, tx pgx.Tx, pre hospital
 	if room.ID.IsZero() {
 		return 0, nil, apperrors.Conflict("CHECK_IN_ALLOCATION_CHANGED", "The physical assignment must still own the active canonical allocation.")
 	}
+	if v.GroupID != nil {
+		var rostered bool
+		if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM rooming_lists l JOIN reservation_groups g ON g.organisation_id=l.organisation_id AND g.id=l.group_id WHERE l.organisation_id=$1 AND l.group_id=$2 AND l.reservation_room_id=$3 AND l.slot=$4 AND l.version=(SELECT max(latest.version) FROM rooming_lists latest WHERE latest.organisation_id=l.organisation_id AND latest.group_id=l.group_id AND latest.reservation_room_id=l.reservation_room_id AND latest.slot=l.slot) AND l.state='ACTIVE' AND l.guest_id=$5 AND g.state='ACTIVE')`, t.Organisation, *v.GroupID, room.ID, a.Slot, in.GuestID).Scan(&rostered); e != nil {
+			return 0, nil, e
+		}
+		if !rostered {
+			return 0, nil, apperrors.Conflict("GROUP_ROOMING_REQUIRED", "The current independently reviewed group rooming slot must authorize this exact guest.")
+		}
+	}
 	if e = reservations.RequirePhysicalBacking(ctx, tx, t.Organisation, room.ID, inventory.DateRange{DateFrom: a.DateFrom, DateTo: a.DateTo}); e != nil {
 		return 0, nil, e
 	}
@@ -296,108 +305,114 @@ func (h *Handler) pmsCheckOut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.execute(w, r, "pms:checkout:"+id.String(), in, "pms:write", "PROPERTY", pre.PropertyID, false, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
-		t, target, e := h.authorize(ctx, tx, "pms:write", "PROPERTY", pre.PropertyID, false)
-		if e != nil {
-			return 0, nil, e
-		}
-		if _, _, e = h.authorize(ctx, tx, "folios:write", "PROPERTY", pre.PropertyID, false); e != nil {
-			return 0, nil, e
-		}
-		s, e := hospitality.GetStay(ctx, tx, t.Organisation, id)
-		if e != nil {
-			return 0, nil, e
-		}
-		a, e := hospitality.GetAssignment(ctx, tx, t.Organisation, s.AssignmentID)
-		if e != nil {
-			return 0, nil, e
-		}
-		v, e := reservations.Get(ctx, tx, t.Organisation, s.ReservationID)
-		if e != nil {
-			return 0, nil, e
-		}
-		f, e := hospitality.Load[hospitality.Folio](ctx, tx, `SELECT to_jsonb(f) FROM folios f WHERE organisation_id=$1 AND stay_id=$2`, t.Organisation, id)
-		if e != nil {
-			return 0, nil, e
-		}
-		if s.State != "ACTIVE" || s.Version != in.Version || a.State != "OCCUPIED" || v.State != "CHECKED_IN" || v.Version != in.ReservationVersion || f.Version != in.FolioVersion || f.State != "OPEN" && f.State != "SETTLEMENT_PENDING" && f.State != "SETTLED" {
-			return 0, nil, apperrors.Conflict("CHECKOUT_STATE_VERSION", "Current active stay, occupied assignment and reviewable folio required.")
-		}
-		var balance int64
-		if e = func() error {
-			var err error
-			balance, err = hospitality.Balance(ctx, tx, t.Organisation, f.ID, h.Auth.Service.Now())
-			return err
-		}(); e != nil {
-			return 0, nil, e
-		}
-		state := "CLOSED"
-		if balance != 0 {
-			op := in
-			op.ApprovalID = ids.Nil
-			exposure := balance
-			if exposure < 0 {
-				exposure = -exposure
-			}
-			if e = h.requireCommercialApproval(ctx, tx, t, "COMMERCIAL_PMS_DEPARTURE_DEBT", target.Scope, in.ApprovalID, map[string]any{"stay_id": s.ID, "command": op}, "", &exposure, f.Currency); e != nil {
-				return 0, nil, e
-			}
-			state = "SETTLEMENT_PENDING"
-		}
-		now := h.Auth.Service.Now().UTC()
-		if _, e = tx.Exec(ctx, `UPDATE stay_records SET state='DEPARTED',checked_out_at=$3,reason=$4,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, now, in.Reason); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `UPDATE room_assignment_days SET released_at=$3 WHERE organisation_id=$1 AND assignment_id=$2 AND released_at IS NULL`, t.Organisation, a.ID, now); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `UPDATE room_assignments SET state='RELEASED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, a.ID, in.Reason); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state='VACANT_DIRTY',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID, state); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state) VALUES($1,$2,$3,$4,$5,'REVOKE','UNKNOWN')`, ids.New(), t.Organisation, s.PropertyID, id, a.ID); e != nil {
-			return 0, nil, e
-		}
-		var pending bool
-		if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND s.reservation_id=$2 AND a.reservation_room_id=rr.id AND s.state='DEPARTED'))`, t.Organisation, v.ID).Scan(&pending); e != nil {
-			return 0, nil, e
-		}
-		next := "CHECKED_OUT"
-		if pending {
-			next = "CHECKED_IN"
-		}
-		if _, e = tx.Exec(ctx, `UPDATE reservations SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, next); e != nil {
-			return 0, nil, e
-		}
-		v, e = reservations.Get(ctx, tx, t.Organisation, v.ID)
-		if e != nil {
-			return 0, nil, e
-		}
-		if e = h.reservationCommit(ctx, tx, t, v, "CHECKED_OUT", "reservation.checked_out.v1", in.Reason, map[string]any{"stay_id": id, "folio_state": state, "balance_minor": balance}); e != nil {
-			return 0, nil, e
-		}
-		status, e := hospitality.Load[hospitality.RoomStatus](ctx, tx, `SELECT to_jsonb(s) FROM room_status_current s WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID)
-		if e != nil {
-			return 0, nil, e
-		}
-		if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": "VACANT_DIRTY", "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		if e = h.pmsCommit(ctx, tx, t, s.PropertyID, a.ID, "room_assignment", "ASSIGNMENT_RELEASED", "hospitality.room.assigned.v1", a.Version+1, map[string]any{"stay_id": id, "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		if e = h.pmsCommit(ctx, tx, t, s.PropertyID, f.ID, "folio", "FOLIO_DEPARTURE_REVIEWED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		if e = h.pmsCommit(ctx, tx, t, s.PropertyID, id, "stay", "CHECKED_OUT", "hospitality.stay.checked_out.v1", s.Version+1, map[string]any{"reservation_id": v.ID, "folio_id": f.ID, "folio_state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		return 200, map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": "VACANT_DIRTY", "access_state": "UNKNOWN"}, nil
+		return h.executePMSCheckOut(ctx, tx, pre, in)
+
 	})
+}
+func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospitality.Stay, in PMSCheckoutCommand) (int, any, error) {
+	id := pre.ID
+
+	t, target, e := h.authorize(ctx, tx, "pms:write", "PROPERTY", pre.PropertyID, false)
+	if e != nil {
+		return 0, nil, e
+	}
+	if _, _, e = h.authorize(ctx, tx, "folios:write", "PROPERTY", pre.PropertyID, false); e != nil {
+		return 0, nil, e
+	}
+	s, e := hospitality.GetStay(ctx, tx, t.Organisation, id)
+	if e != nil {
+		return 0, nil, e
+	}
+	a, e := hospitality.GetAssignment(ctx, tx, t.Organisation, s.AssignmentID)
+	if e != nil {
+		return 0, nil, e
+	}
+	v, e := reservations.Get(ctx, tx, t.Organisation, s.ReservationID)
+	if e != nil {
+		return 0, nil, e
+	}
+	f, e := hospitality.Load[hospitality.Folio](ctx, tx, `SELECT to_jsonb(f) FROM folios f WHERE organisation_id=$1 AND stay_id=$2`, t.Organisation, id)
+	if e != nil {
+		return 0, nil, e
+	}
+	if s.State != "ACTIVE" || s.Version != in.Version || a.State != "OCCUPIED" || v.State != "CHECKED_IN" || v.Version != in.ReservationVersion || f.Version != in.FolioVersion || f.State != "OPEN" && f.State != "SETTLEMENT_PENDING" && f.State != "SETTLED" {
+		return 0, nil, apperrors.Conflict("CHECKOUT_STATE_VERSION", "Current active stay, occupied assignment and reviewable folio required.")
+	}
+	var balance int64
+	if e = func() error {
+		var err error
+		balance, err = hospitality.Balance(ctx, tx, t.Organisation, f.ID, h.Auth.Service.Now())
+		return err
+	}(); e != nil {
+		return 0, nil, e
+	}
+	state := "CLOSED"
+	if balance != 0 {
+		op := in
+		op.ApprovalID = ids.Nil
+		exposure := balance
+		if exposure < 0 {
+			exposure = -exposure
+		}
+		if e = h.requireCommercialApproval(ctx, tx, t, "COMMERCIAL_PMS_DEPARTURE_DEBT", target.Scope, in.ApprovalID, map[string]any{"stay_id": s.ID, "command": op}, "", &exposure, f.Currency); e != nil {
+			return 0, nil, e
+		}
+		state = "SETTLEMENT_PENDING"
+	}
+	now := h.Auth.Service.Now().UTC()
+	if _, e = tx.Exec(ctx, `UPDATE stay_records SET state='DEPARTED',checked_out_at=$3,reason=$4,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, now, in.Reason); e != nil {
+		return 0, nil, e
+	}
+	if _, e = tx.Exec(ctx, `UPDATE room_assignment_days SET released_at=$3 WHERE organisation_id=$1 AND assignment_id=$2 AND released_at IS NULL`, t.Organisation, a.ID, now); e != nil {
+		return 0, nil, e
+	}
+	if _, e = tx.Exec(ctx, `UPDATE room_assignments SET state='RELEASED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, a.ID, in.Reason); e != nil {
+		return 0, nil, e
+	}
+	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state='VACANT_DIRTY',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
+		return 0, nil, e
+	}
+	if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID, state); e != nil {
+		return 0, nil, e
+	}
+	if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state) VALUES($1,$2,$3,$4,$5,'REVOKE','UNKNOWN')`, ids.New(), t.Organisation, s.PropertyID, id, a.ID); e != nil {
+		return 0, nil, e
+	}
+	var pending bool
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND s.reservation_id=$2 AND a.reservation_room_id=rr.id AND s.state='DEPARTED'))`, t.Organisation, v.ID).Scan(&pending); e != nil {
+		return 0, nil, e
+	}
+	next := "CHECKED_OUT"
+	if pending {
+		next = "CHECKED_IN"
+	}
+	if _, e = tx.Exec(ctx, `UPDATE reservations SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, next); e != nil {
+		return 0, nil, e
+	}
+	v, e = reservations.Get(ctx, tx, t.Organisation, v.ID)
+	if e != nil {
+		return 0, nil, e
+	}
+	if e = h.reservationCommit(ctx, tx, t, v, "CHECKED_OUT", "reservation.checked_out.v1", in.Reason, map[string]any{"stay_id": id, "folio_state": state, "balance_minor": balance}); e != nil {
+		return 0, nil, e
+	}
+	status, e := hospitality.Load[hospitality.RoomStatus](ctx, tx, `SELECT to_jsonb(s) FROM room_status_current s WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID)
+	if e != nil {
+		return 0, nil, e
+	}
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": "VACANT_DIRTY", "reason": in.Reason}); e != nil {
+		return 0, nil, e
+	}
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, a.ID, "room_assignment", "ASSIGNMENT_RELEASED", "hospitality.room.assigned.v1", a.Version+1, map[string]any{"stay_id": id, "reason": in.Reason}); e != nil {
+		return 0, nil, e
+	}
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, f.ID, "folio", "FOLIO_DEPARTURE_REVIEWED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
+		return 0, nil, e
+	}
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, id, "stay", "CHECKED_OUT", "hospitality.stay.checked_out.v1", s.Version+1, map[string]any{"reservation_id": v.ID, "folio_id": f.ID, "folio_state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
+		return 0, nil, e
+	}
+	return 200, map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": "VACANT_DIRTY", "access_state": "UNKNOWN"}, nil
 }
 
 func validPMSCheckIn(in PMSCheckInCommand) bool {

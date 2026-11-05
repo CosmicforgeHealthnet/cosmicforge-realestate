@@ -942,6 +942,19 @@ type DigitalTwinRef struct {
 	NodeID         ids.ID
 }
 
+type EventBooking struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	GroupID               ids.ID
+	ReservationID         ids.ID
+	FacilityID            ids.ID
+	SourceReference       string
+	ConversationReference string
+	CreatedBy             ids.ID
+	CreatedAt             time.Time
+}
+
 type EventFailure struct {
 	ID           ids.ID
 	Consumer     string
@@ -1039,6 +1052,20 @@ type ForecastRun struct {
 	CreatedBy        *ids.ID
 	CreatedByService string
 	CreatedAt        time.Time
+}
+
+type GroupBlock struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	GroupID           ids.ID
+	ReservationID     ids.ID
+	ReservationRoomID ids.ID
+	Quantity          int32
+	DateFrom          pgtype.Date
+	DateTo            pgtype.Date
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
 }
 
 type GuestCompanyAssociation struct {
@@ -1541,6 +1568,30 @@ type ListingVersion struct {
 	Reason          string
 	CreatedBy       ids.ID
 	CreatedAt       time.Time
+}
+
+type MasterFolio struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	GroupID             ids.ID
+	Currency            string
+	BillingReference    string
+	CorporateID         *ids.ID
+	CorporateContractID *ids.ID
+	ApprovalID          ids.ID
+	Reason              string
+	CreatedBy           ids.ID
+	CreatedAt           time.Time
+}
+
+type MasterFolioMember struct {
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	MasterFolioID  ids.ID
+	FolioID        ids.ID
+	FolioVersion   int64
+	CreatedAt      time.Time
 }
 
 type NightAudit struct {
@@ -2404,6 +2455,23 @@ type RoomType struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type RoomingList struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	GroupID           ids.ID
+	ReservationID     ids.ID
+	ReservationRoomID ids.ID
+	Slot              int32
+	GuestID           ids.ID
+	State             string
+	Version           int64
+	ApprovalID        *ids.ID
+	Reason            string
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
 }
 
 type SecurityEvent struct {

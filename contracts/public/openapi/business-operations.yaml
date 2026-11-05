@@ -69186,6 +69186,3457 @@
         }
       }
     },
+    "/api/v1/business/groups": {
+      "get": {
+        "operationId": "GET_api_v1_business_groups",
+        "summary": "GET /api/v1/business/groups",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_groups",
+        "summary": "POST /api/v1/business/groups",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": false,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSGroup"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "name": "example",
+                    "state": "example",
+                    "source_reference": "example",
+                    "billing_reference": "example",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSGroupCreate"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "name": "Reviewed conference group",
+                "source_reference": "actual-group-sales-reference",
+                "billing_reference": "group-billing-authority-reference",
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/groups/{id}": {
+      "get": {
+        "operationId": "GET_api_v1_business_groups_id",
+        "summary": "GET /api/v1/business/groups/{id}",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSGroupDetail"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "group": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "name": "example",
+                      "state": "example",
+                      "source_reference": "example",
+                      "billing_reference": "example",
+                      "version": 1
+                    },
+                    "reservations": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "PATCH_api_v1_business_groups_id",
+        "summary": "PATCH /api/v1/business/groups/{id}",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSGroup"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "name": "example",
+                    "state": "example",
+                    "source_reference": "example",
+                    "billing_reference": "example",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSGroupPatch"
+              },
+              "example": {
+                "version": 1,
+                "state": "CANCELLED",
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/groups/{id}/blocks": {
+      "get": {
+        "operationId": "GET_api_v1_business_groups_id_blocks",
+        "summary": "GET /api/v1/business/groups/{id}/blocks",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_groups_id_blocks",
+        "summary": "POST /api/v1/business/groups/{id}/blocks",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also reservations:write and canonical acceptance capabilities. booking.group_id/property_id must match the route. Held/confirmed canonical allocations are the block authority; cancellation/release use canonical reservation commands. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": false,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ReservationDetail"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "outstanding_overbooking": [
+                      {
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "day": "2027-01-02",
+                        "outstanding_quantity": 1,
+                        "permit_id": "019a5fb0-0000-7000-8000-000000000001"
+                      }
+                    ],
+                    "reservation": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "source": "example",
+                      "channel": "example",
+                      "source_reference": "example",
+                      "state": "HOLD",
+                      "allocation_state": "ACTIVE",
+                      "version": 1,
+                      "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "policy_snapshot": {
+                        "allow_source_cancellation": true,
+                        "max_guarantee_minor": 1,
+                        "allowed_sources": [
+                          "example"
+                        ],
+                        "allowed_guarantees": [
+                          "example"
+                        ],
+                        "hold_seconds": 60,
+                        "require_approval": true,
+                        "require_risk_clear": true,
+                        "cancellation_hours": 1,
+                        "cancellation_penalty_bps": 1,
+                        "no_show_grace_hours": 1,
+                        "no_show_retain_nights": 1,
+                        "check_in_local": "example",
+                        "check_out_local": "example",
+                        "policy_reference": "example"
+                      },
+                      "payment_responsibility": "example",
+                      "financial_state": "PENDING",
+                      "amount_minor": 1,
+                      "currency": "example",
+                      "date_from": "2027-01-02",
+                      "date_to": "2027-01-04",
+                      "risk_status": "UNREVIEWED",
+                      "reason": "example",
+                      "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                      "created_at": "2026-10-30T12:00:00Z",
+                      "updated_at": "2026-10-30T12:00:00Z"
+                    },
+                    "rooms": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "financial_group_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "date_from": "2027-01-02",
+                        "date_to": "2027-01-04",
+                        "quantity": 1,
+                        "adults": 1,
+                        "children": 1,
+                        "amount_minor": 1,
+                        "currency": "example",
+                        "snapshot": {
+                          "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "product_version": 1,
+                          "pool_version": 1,
+                          "rate_plan_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "rate_plan_version": 1,
+                          "date_from": "example",
+                          "date_to": "example",
+                          "adults": 1,
+                          "children": 1,
+                          "quantity": 1,
+                          "channel": "example",
+                          "nights": [
+                            {
+                              "calendar_version": 1,
+                              "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "cancellation_reference": "example",
+                              "prepayment_reference": "example",
+                              "day": "example",
+                              "rate_version_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "parent_version_ids": [
+                                "019a5fb0-0000-7000-8000-000000000001"
+                              ],
+                              "amount_minor": 1
+                            }
+                          ],
+                          "base_amount_minor": 1,
+                          "discount_minor": 1,
+                          "add_ons_minor": 1,
+                          "components": [
+                            {
+                              "code": "example",
+                              "amount_minor": 1,
+                              "included": true
+                            }
+                          ],
+                          "amount_minor": 1,
+                          "currency": "example",
+                          "currency_precision": 1,
+                          "rounding": "example",
+                          "restrictions": [
+                            {
+                              "id": "019a5fb0-0000-7000-8000-000000000001",
+                              "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                              "channel": "example",
+                              "date_from": "example",
+                              "date_to": "example",
+                              "definition": {
+                                "stop_sell": true,
+                                "closed_to_arrival": true,
+                                "closed_to_departure": true,
+                                "min_nights": 1,
+                                "max_nights": 1,
+                                "min_advance_days": 1,
+                                "max_advance_days": 1,
+                                "cutoff_local": "example",
+                                "min_guests": 1,
+                                "max_guests": 1,
+                                "weekdays": [
+                                  1
+                                ]
+                              },
+                              "state": "example",
+                              "version": 1
+                            }
+                          ],
+                          "cancellation_reference": "example",
+                          "prepayment_reference": "example",
+                          "policy_code": "example",
+                          "policy_version": 1,
+                          "tax_profile_ids": [
+                            "019a5fb0-0000-7000-8000-000000000001"
+                          ],
+                          "promotion_versions": {},
+                          "add_on_versions": {},
+                          "expires_at": "2026-10-30T12:00:00Z",
+                          "calculated_at": "2026-10-30T12:00:00Z",
+                          "is_reservation": false
+                        },
+                        "accepted_at": "2026-10-30T12:00:00Z",
+                        "state": "example",
+                        "version": 1,
+                        "overbooked_quantity": 1
+                      }
+                    ],
+                    "guests": [
+                      {
+                        "source_kind": "example",
+                        "source_reference": "example",
+                        "is_primary": true
+                      }
+                    ],
+                    "financial_groups": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "amount_minor": 1,
+                        "required_amount_minor": 1,
+                        "currency": "example",
+                        "policy_reference": "example",
+                        "agreement_version": 1,
+                        "state": "example",
+                        "responsibility": "example",
+                        "version": 1,
+                        "allocated_amount_minor": 1,
+                        "credits_applied_minor": 1,
+                        "credits_forwarded_minor": 1,
+                        "allocation_relationship": "ACTIVE_ALLOCATION"
+                      }
+                    ],
+                    "history": [
+                      {}
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSGroupBlockCommand"
+              },
+              "example": {
+                "booking": {
+                  "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                  "source": "GROUP",
+                  "channel": "",
+                  "source_reference": "actual-group-booking-reference",
+                  "state": "HOLD",
+                  "rooms": [
+                    {
+                      "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "product_version": 1,
+                      "pool_version": 1,
+                      "date_from": "2026-12-01",
+                      "date_to": "2026-12-03",
+                      "quantity": 1
+                    }
+                  ],
+                  "guests": [
+                    {
+                      "guest_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "source_kind": "DIRECT",
+                      "source_reference": "actual-registered-source-reference",
+                      "is_primary": true
+                    }
+                  ],
+                  "payment_responsibility": "PLATFORM_COLLECT",
+                  "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                  "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/groups/{id}/rooming-list": {
+      "get": {
+        "operationId": "GET_api_v1_business_groups_id_rooming_list",
+        "summary": "GET /api/v1/business/groups/{id}/rooming-list",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also guests:read in the same property. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_groups_id_rooming_list",
+        "summary": "POST /api/v1/business/groups/{id}/rooming-list",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also reservations:modify and guests:read. Active changes require exact independent pms:approve review, typed identity/current corporate eligibility and an unstarted quantity slot. Revocation appends history and immediately removes slot eligibility. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSRoomingResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "version": 1,
+                    "state": "ACTIVE",
+                    "reservation_version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSRoomingCommand"
+              },
+              "example": {
+                "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reservation_version": 2,
+                "reservation_room_id": "019a5fb0-0000-7000-8000-000000000001",
+                "slot": 1,
+                "expected_version": 0,
+                "guest_id": "019a5fb0-0000-7000-8000-000000000001",
+                "source_kind": "DIRECT",
+                "source_reference": "registered-guest-source-reference",
+                "registration_reference": "actual-arrival-registration-reference",
+                "state": "ACTIVE",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/groups/{id}/check-in": {
+      "post": {
+        "operationId": "POST_api_v1_business_groups_id_check_in",
+        "summary": "POST /api/v1/business/groups/{id}/check-in",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Ordered member commands are atomic. For multiple slots in one reservation, expected reservation versions follow earlier member increments. Nested guest/roster/folio/financial/MFA/approval gates apply; one failure rolls back all members. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSGroupCheckInsResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "items": [
+                      {
+                        "stay_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "folio_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reservation_version": 1,
+                        "access_state": "UNKNOWN"
+                      }
+                    ],
+                    "atomic": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSGroupCheckIns"
+              },
+              "example": {
+                "items": [
+                  {
+                    "assignment_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "assignment_version": 1,
+                    "reservation_version": 4,
+                    "room_status_version": 3,
+                    "guest_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "registration_reference": "actual-arrival-registration-reference",
+                    "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+                  }
+                ],
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/groups/{id}/check-out": {
+      "post": {
+        "operationId": "POST_api_v1_business_groups_id_check_out",
+        "summary": "POST /api/v1/business/groups/{id}/check-out",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Ordered member commands are atomic. For multiple slots in one reservation, expected reservation versions follow earlier member increments. Nested guest/roster/folio/financial/MFA/approval gates apply; one failure rolls back all members. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSGroupCheckOutsResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "items": [
+                      {
+                        "stay_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "state": "DEPARTED",
+                        "folio_state": "CLOSED",
+                        "balance_minor": 1,
+                        "reservation_version": 1,
+                        "room_state": "VACANT_DIRTY",
+                        "access_state": "UNKNOWN"
+                      }
+                    ],
+                    "atomic": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSGroupCheckOuts"
+              },
+              "example": {
+                "items": [
+                  {
+                    "stay_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "version": 1,
+                    "reservation_version": 5,
+                    "folio_version": 1,
+                    "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+                  }
+                ],
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/master-folios": {
+      "get": {
+        "operationId": "GET_api_v1_business_master_folios",
+        "summary": "GET /api/v1/business/master-folios",
+        "description": "Authentication: business access JWT plus live account/session. Permission: folios:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "folios:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_master_folios",
+        "summary": "POST /api/v1/business/master-folios",
+        "description": "Authentication: business access JWT plus live account/session. Permission: folios:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also pms:write and corporate:read when applicable. Exact independent folios:approve authority binds source versions, currency and gross exposure. Aggregation does not transfer payer duties, duplicate receipts or execute collection. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "folios:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSMasterFolioCreated"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "currency": "example",
+                    "source_folio_count": 1,
+                    "payment_execution": "PAYMENT_SERVICE"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSMasterFolioCommand"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                "folio_ids": [
+                  "019a5fb0-0000-7000-8000-000000000001"
+                ],
+                "folio_versions": {
+                  "019a5fb0-0000-7000-8000-000000000001": 1
+                },
+                "currency": "NGN",
+                "billing_reference": "approved-group-billing-reference",
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/master-folios/{id}": {
+      "get": {
+        "operationId": "GET_api_v1_business_master_folios_id",
+        "summary": "GET /api/v1/business/master-folios/{id}",
+        "description": "Authentication: business access JWT plus live account/session. Permission: folios:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "folios:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSMasterFolioView"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "currency": "example",
+                    "billing_reference": "example",
+                    "items": [
+                      {}
+                    ],
+                    "balance_minor": 1,
+                    "all_source_folios_closed": true,
+                    "basis": "CURRENT_SOURCE_FOLIOS_AND_PAYMENT_READBACKS"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/events": {
+      "get": {
+        "operationId": "GET_api_v1_business_events",
+        "summary": "GET /api/v1/business/events",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {}
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_events",
+        "summary": "POST /api/v1/business/events",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also reservations:read; actual canonical facility stock, current physical/capacity/risk/financial eligibility and exact group/property required. CF Meet conversation references remain unverified annotations. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": false,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSEventBookingCreated"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "reservation_state": "example",
+                    "date_from": "example",
+                    "date_to": "example",
+                    "capacity_authority": "CANONICAL_RESERVATION",
+                    "conversation_verified": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSEventBookingCommand"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "group_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reservation_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reservation_version": 2,
+                "facility_id": "019a5fb0-0000-7000-8000-000000000001",
+                "source_reference": "actual-conference-booking-reference",
+                "conversation_reference": "opaque-cf-meet-conversation-reference",
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/business/front-desk/offline-operations": {
       "post": {
         "operationId": "POST_api_v1_business_front_desk_offline_operations",
@@ -98454,6 +101905,102 @@
           "version"
         ]
       },
+      "PMSEventBookingCommand": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "facility_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "conversation_reference": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "group_id",
+          "reservation_id",
+          "reservation_version",
+          "facility_id",
+          "source_reference",
+          "reason"
+        ]
+      },
+      "PMSEventBookingCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_state": {
+            "type": "string"
+          },
+          "date_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_to": {
+            "type": "string",
+            "format": "date"
+          },
+          "capacity_authority": {
+            "const": "CANONICAL_RESERVATION"
+          },
+          "conversation_verified": {
+            "const": false
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "reservation_id",
+          "reservation_state",
+          "date_from",
+          "date_to",
+          "capacity_authority",
+          "conversation_verified"
+        ]
+      },
       "PMSFolio": {
         "type": "object",
         "properties": {
@@ -98685,6 +102232,334 @@
           "reservations",
           "limit",
           "offset"
+        ]
+      },
+      "PMSGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "billing_reference": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "name",
+          "state",
+          "source_reference",
+          "billing_reference",
+          "version"
+        ]
+      },
+      "PMSGroupBlockCommand": {
+        "type": "object",
+        "properties": {
+          "booking": {
+            "$ref": "#/components/schemas/PMSGroupBooking"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "booking"
+        ]
+      },
+      "PMSGroupBooking": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "GROUP",
+              "CORPORATE"
+            ]
+          },
+          "channel": {
+            "type": "string"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "HOLD",
+              "CONFIRMED"
+            ]
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReservationRoomCommand"
+            }
+          },
+          "guests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReservationGuestCommand"
+            }
+          },
+          "payment_responsibility": {
+            "type": "string"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "group_name": {
+            "type": "string",
+            "const": ""
+          },
+          "corporate_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "corporate_contract_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "guarantee_approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "source",
+          "channel",
+          "source_reference",
+          "state",
+          "rooms",
+          "guests",
+          "payment_responsibility",
+          "reason",
+          "group_id"
+        ]
+      },
+      "PMSGroupCheckIns": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSCheckInCommand"
+            }
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "reason"
+        ]
+      },
+      "PMSGroupCheckInsResult": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSCheckInResult"
+            }
+          },
+          "atomic": {
+            "const": true
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "group_id",
+          "items",
+          "atomic"
+        ]
+      },
+      "PMSGroupCheckOuts": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSCheckoutCommand"
+            }
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "reason"
+        ]
+      },
+      "PMSGroupCheckOutsResult": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSCheckoutResult"
+            }
+          },
+          "atomic": {
+            "const": true
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "group_id",
+          "items",
+          "atomic"
+        ]
+      },
+      "PMSGroupCreate": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "name": {
+            "type": "string"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "billing_reference": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "name",
+          "source_reference",
+          "billing_reference",
+          "reason"
+        ]
+      },
+      "PMSGroupDetail": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/PMSGroup"
+          },
+          "reservations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "group",
+          "reservations",
+          "limit",
+          "offset"
+        ]
+      },
+      "PMSGroupPatch": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "state",
+          "reason"
         ]
       },
       "PMSGuestRequest": {
@@ -98984,6 +102859,158 @@
           "items",
           "limit",
           "offset"
+        ]
+      },
+      "PMSMasterFolioCommand": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "folio_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          "folio_versions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "currency": {
+            "type": "string"
+          },
+          "billing_reference": {
+            "type": "string"
+          },
+          "corporate_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "corporate_contract_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "group_id",
+          "folio_ids",
+          "folio_versions",
+          "currency",
+          "billing_reference",
+          "approval_id",
+          "reason"
+        ]
+      },
+      "PMSMasterFolioCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "source_folio_count": {
+            "type": "integer"
+          },
+          "payment_execution": {
+            "const": "PAYMENT_SERVICE"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "group_id",
+          "currency",
+          "source_folio_count",
+          "payment_execution"
+        ]
+      },
+      "PMSMasterFolioView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "billing_reference": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "balance_minor": {
+            "type": "integer"
+          },
+          "all_source_folios_closed": {
+            "type": "boolean"
+          },
+          "basis": {
+            "const": "CURRENT_SOURCE_FOLIOS_AND_PAYMENT_READBACKS"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "group_id",
+          "currency",
+          "billing_reference",
+          "items",
+          "balance_minor",
+          "all_source_folios_closed",
+          "basis"
         ]
       },
       "PMSOfflineCommand": {
@@ -99291,6 +103318,106 @@
           "state",
           "evidence_reference",
           "reason"
+        ]
+      },
+      "PMSRoomingCommand": {
+        "type": "object",
+        "properties": {
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "slot": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expected_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "guest_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_kind": {
+            "type": "string"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "registration_reference": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "reservation_id",
+          "reservation_version",
+          "reservation_room_id",
+          "slot",
+          "expected_version",
+          "guest_id",
+          "source_kind",
+          "source_reference",
+          "registration_reference",
+          "state",
+          "reason"
+        ]
+      },
+      "PMSRoomingResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "ACTIVE",
+              "REVOKED"
+            ]
+          },
+          "reservation_version": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "state",
+          "reservation_version"
         ]
       },
       "PMSStay": {
