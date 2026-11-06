@@ -132,10 +132,10 @@ func (h *Handler) pmsRoomMove(w http.ResponseWriter, r *http.Request) {
 		}
 		// An old device grant cannot be reused after a physical move. Adapter work
 		// remains separate; UNKNOWN never authorizes unlocking a new room.
-		if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state,provider_reference) VALUES($1,$2,$3,$4,$5,'REVOKE','UNKNOWN',$6) ON CONFLICT(assignment_id,operation) DO NOTHING`, ids.New(), t.Organisation, s.PropertyID, s.ID, a.ID, "room-move:"+a.ID.String()); e != nil {
+		if _, e = h.queuePMSAccess(ctx, tx, t, s.ID, a.ID, "REVOKE", in.Reason); e != nil {
 			return 0, nil, e
 		}
-		if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state) VALUES($1,$2,$3,$4,$5,'ISSUE','UNKNOWN')`, ids.New(), t.Organisation, s.PropertyID, s.ID, next.ID); e != nil {
+		if _, e = h.queuePMSAccess(ctx, tx, t, s.ID, next.ID, "ISSUE", in.Reason); e != nil {
 			return 0, nil, e
 		}
 		return 200, map[string]any{"stay_id": s.ID, "assignment_id": next.ID, "version": s.Version + 1, "reservation_version": v.Version, "access_state": "UNKNOWN"}, nil

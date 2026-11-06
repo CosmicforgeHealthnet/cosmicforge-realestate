@@ -59,3 +59,9 @@ WHERE s.organisation_id=$1 AND s.room_id=$2;
 
 -- name: GetRoomReconciliationReport :one
 SELECT to_jsonb(r)::jsonb AS record FROM room_reconciliation_reports r WHERE organisation_id=$1 AND id=$2;
+
+-- name: GetLatestHospitalityAccessConfiguration :one
+SELECT to_jsonb(c)::jsonb AS record FROM hospitality_access_configurations c WHERE organisation_id=$1 AND room_id=$2 ORDER BY version DESC LIMIT 1;
+
+-- name: GetHospitalityAccessReference :one
+SELECT to_jsonb(a)::jsonb AS record FROM access_grant_references a WHERE organisation_id=$1 AND id=$2;

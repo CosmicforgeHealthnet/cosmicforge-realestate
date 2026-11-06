@@ -205,7 +205,7 @@ func (h *Handler) executePMSCheckIn(ctx context.Context, tx pgx.Tx, pre hospital
 	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state='OCCUPIED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
 		return 0, nil, e
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state) VALUES($1,$2,$3,$4,$5,'ISSUE','UNKNOWN')`, ids.New(), t.Organisation, a.PropertyID, stay, a.ID); e != nil {
+	if _, e = h.queuePMSAccess(ctx, tx, t, stay, a.ID, "ISSUE", in.Reason); e != nil {
 		return 0, nil, e
 	}
 	if _, e = tx.Exec(ctx, `UPDATE reservations SET state='CHECKED_IN',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID); e != nil {
@@ -396,7 +396,7 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 	if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID, state); e != nil {
 		return 0, nil, e
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO access_grant_references(id,organisation_id,property_id,stay_id,assignment_id,operation,state) VALUES($1,$2,$3,$4,$5,'REVOKE','UNKNOWN')`, ids.New(), t.Organisation, s.PropertyID, id, a.ID); e != nil {
+	if _, e = h.queuePMSAccess(ctx, tx, t, id, a.ID, "REVOKE", in.Reason); e != nil {
 		return 0, nil, e
 	}
 	var pending bool

@@ -43,6 +43,22 @@ func (q *Queries) GetFolioItemsWithFiscalDetails(ctx context.Context, db DBTX, a
 	return record, err
 }
 
+const getHospitalityAccessReference = `-- name: GetHospitalityAccessReference :one
+SELECT to_jsonb(a)::jsonb AS record FROM access_grant_references a WHERE organisation_id=$1 AND id=$2
+`
+
+type GetHospitalityAccessReferenceParams struct {
+	OrganisationID ids.ID
+	ID             ids.ID
+}
+
+func (q *Queries) GetHospitalityAccessReference(ctx context.Context, db DBTX, arg GetHospitalityAccessReferenceParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getHospitalityAccessReference, arg.OrganisationID, arg.ID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
 const getHospitalityFolio = `-- name: GetHospitalityFolio :one
 SELECT to_jsonb(f)::jsonb AS record FROM folios f WHERE organisation_id=$1 AND id=$2
 `
@@ -102,6 +118,22 @@ type GetLatestFolioCloseReviewParams struct {
 
 func (q *Queries) GetLatestFolioCloseReview(ctx context.Context, db DBTX, arg GetLatestFolioCloseReviewParams) ([]byte, error) {
 	row := db.QueryRow(ctx, getLatestFolioCloseReview, arg.OrganisationID, arg.FolioID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
+const getLatestHospitalityAccessConfiguration = `-- name: GetLatestHospitalityAccessConfiguration :one
+SELECT to_jsonb(c)::jsonb AS record FROM hospitality_access_configurations c WHERE organisation_id=$1 AND room_id=$2 ORDER BY version DESC LIMIT 1
+`
+
+type GetLatestHospitalityAccessConfigurationParams struct {
+	OrganisationID ids.ID
+	RoomID         ids.ID
+}
+
+func (q *Queries) GetLatestHospitalityAccessConfiguration(ctx context.Context, db DBTX, arg GetLatestHospitalityAccessConfigurationParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getLatestHospitalityAccessConfiguration, arg.OrganisationID, arg.RoomID)
 	var record []byte
 	err := row.Scan(&record)
 	return record, err

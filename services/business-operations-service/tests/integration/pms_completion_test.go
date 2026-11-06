@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func pmsCollectedStay(c *commercialHarness) (reservations.Detail, businesshttp.PMSStayDetail) {
+func pmsCollectedStay(c *commercialHarness, prepareRoom ...func()) (reservations.Detail, businesshttp.PMSStayDetail) {
 	t := c.t
 	c.approver = c.user()
 	c.secure(c.approver)
@@ -27,6 +27,9 @@ func pmsCollectedStay(c *commercialHarness) (reservations.Detail, businesshttp.P
 	v = commercialData[reservations.Detail](t, c.must(c.owner, "GET", "/reservations/"+v.Reservation.ID.String(), nil, 200))
 	v = commercialData[reservations.Detail](t, c.must(c.owner, "POST", "/reservations/"+v.Reservation.ID.String()+"/confirm", reservations.Command{Version: v.Reservation.Version, Reason: "Confirm exact collection evidence before the physical arrival workflow"}, 200))
 	status := pmsReady(c)
+	for _, prepare := range prepareRoom {
+		prepare()
+	}
 	a := pmsAssign(c, v, status)
 	check := businesshttp.PMSCheckInCommand{AssignmentID: a.ID, AssignmentVersion: a.Version, ReservationVersion: v.Reservation.Version, RoomStatusVersion: status.Version, GuestID: g.Guest.ID, RegistrationReference: "registered-financial-journey-guest", Reason: "Open the physical stay without conflating collection and final settlement"}
 	arrival, e := hospitality.LocalInstant(a.DateFrom, v.Reservation.PolicySnapshot.CheckInLocal, v.Reservation.PolicySnapshot.AcceptanceTimezone)

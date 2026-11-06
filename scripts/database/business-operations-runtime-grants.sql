@@ -70,3 +70,7 @@ REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_day_automation_policies,hospitality
 REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_arrival_policies,hospitality_arrival_revocations,hospitality_arrival_runs FROM cf_business_runtime;
 
 REVOKE UPDATE,DELETE,TRUNCATE ON room_reconciliation_reports FROM cf_business_runtime;
+
+-- Bounded physical access and retained provider/manual evidence.
+REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_access_configurations,hospitality_access_observations FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON access_grant_references,hospitality_access_jobs FROM cf_business_runtime;

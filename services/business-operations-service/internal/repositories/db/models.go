@@ -21,6 +21,8 @@ type AccessGrantReference struct {
 	State             string
 	ProviderReference string
 	CreatedAt         time.Time
+	Version           int64
+	UpdatedAt         time.Time
 }
 
 type AddOn struct {
@@ -1250,6 +1252,63 @@ type GuestStayHistory struct {
 	SourceEventType     *string
 	SourceAggregateType *string
 	SourceAggregateID   *ids.ID
+	CreatedByService    string
+	CreatedAt           time.Time
+}
+
+type HospitalityAccessConfiguration struct {
+	ID                      ids.ID
+	OrganisationID          ids.ID
+	PropertyID              ids.ID
+	RoomID                  ids.ID
+	Version                 int64
+	Method                  string
+	Provider                string
+	DeviceReference         string
+	AccountReference        string
+	DeviceProof             []byte
+	ExpiresAt               time.Time
+	ApprovalID              *ids.ID
+	AuthorizingMembershipID ids.ID
+	AuthorizingRoleID       ids.ID
+	Reason                  string
+	CreatedBy               ids.ID
+	CreatedAt               time.Time
+}
+
+type HospitalityAccessJob struct {
+	ID              ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	ConfigurationID ids.ID
+	Request         []byte
+	RequestDigest   string
+	IdempotencyKey  string
+	DeliveryState   string
+	Attempts        int32
+	AvailableAt     time.Time
+	ReviewAt        time.Time
+	DispatchedAt    *time.Time
+	LeaseOwner      string
+	LeaseGeneration int64
+	LeaseExpiresAt  *time.Time
+	LastErrorCode   string
+	CreatedAt       time.Time
+}
+
+type HospitalityAccessObservation struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	AccessReferenceID   ids.ID
+	ReferenceVersion    int64
+	RequestDigest       string
+	State               string
+	Origin              string
+	CredentialReference string
+	EvidenceReference   string
+	Reason              string
+	CreatedBy           *ids.ID
 	CreatedByService    string
 	CreatedAt           time.Time
 }

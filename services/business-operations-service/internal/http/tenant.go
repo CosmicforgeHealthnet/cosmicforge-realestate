@@ -15,6 +15,7 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/smartaccess"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/portfolio"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/workforce"
@@ -34,6 +35,7 @@ type Handler struct {
 	Verification            verification.API
 	Notification            notification.Sender
 	Payment                 payment.API
+	AccessAdapters          map[string]smartaccess.API
 	InvitationAcceptURL     string
 	CapacityAuthority       verification.CapacityAuthority
 	RepresentativeAuthority verification.RepresentativeAuthority

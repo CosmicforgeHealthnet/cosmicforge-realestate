@@ -27,6 +27,7 @@ def obj(props,required=(),closed=False):
 def arr(s):return {'type':'array','items':s}
 def fields(**kw):return obj({k:typ(v) for k,v in kw.items()})
 TYPE_NAMES={
+ 'smartaccess':{'Device':'AccessAdapterDevice','DeviceProof':'AccessAdapterDeviceProof','Request':'AccessAdapterRequest','Observation':'AccessAdapterObservation'},
  'hospitality':{'FolioCloseReview':'PMSFolioCloseReview','Group':'PMSGroup','RoomStatus':'PMSRoomStatus','Assignment':'PMSAssignment','Stay':'PMSStay','Folio':'PMSFolio','Item':'PMSItem'},
  'crm':{'StayHistory':'CRMStayHistory','StayFact':'CRMStayFact','Profile':'CRMProfile','PrivateProfile':'CRMPrivateProfile','Guest':'CRMGuest','GuestView':'CRMGuestView','Corporate':'CRMCorporateCustomer','CorporateTerms':'CRMCorporateTerms','CorporateContact':'CRMCorporateContact','CorporateContract':'CRMCorporateContract'},
  'reservations':{'Policy':'ReservationPolicy','Reservation':'Reservation','Room':'ReservationRoom','RoomCommand':'ReservationRoomCommand','GuestCommand':'ReservationGuestCommand','Create':'ReservationCreate','Detail':'ReservationDetail','Command':'ReservationMutation','SourceCommand':'ReservationSourceCommand','Acceptance':'ReservationAcceptance','FinancialGroupView':'ReservationFinancialGroupView'},
@@ -469,11 +470,20 @@ for r in R:
    elif isinstance(value,list):
     for child in value:interpolate(child)
   interpolate(body)
+  if r.get('handler','').startswith('pmsAccess') and 'version' in body:body['version']='{{business_access_reference_version}}'
+  if r['request']=='PMSAccessAcknowledgement':
+   body['request_digest']='{{business_access_request_digest}}'
+   body['credential_reference']='{{business_access_credential_reference}}'
+  if r['request']=='PMSAccessConfigurationCommand':
+   body['expected_version']='{{business_access_configuration_version}}'
+   body['expires_at']='{{business_access_configuration_expires_at}}'
   if r['request']=='PMSRoomReconcileCommand':
    body['expected_room_version']='{{business_room_status_version}}'
    body['source_digest']='{{business_room_source_digest}}'
   if r['request']=='InventoryCreate' and graph_kind and 'parent_id' in body:body['parent_id']='{{business_'+{'DEVELOPMENT_PHASE':'development','BLOCK':'building','FLOOR':'block','UNIT':'floor','ROOM':'floor','ASSET':'room'}.get(graph_kind,'property')+'_id}}'
-  request['body']={'mode':'raw','raw':json.dumps(body,indent=2),'options':{'raw':{'language':'json'}}}
+  rendered=json.dumps(body,indent=2)
+  for numeric_variable in ('business_room_status_version','business_access_reference_version','business_access_configuration_version'):rendered=rendered.replace('"{{'+numeric_variable+'}}"','{{'+numeric_variable+'}}')
+  request['body']={'mode':'raw','raw':rendered,'options':{'raw':{'language':'json'}}}
  success_statuses=sorted(set([r['status']]+r.get('success_statuses',[])))
  tests=[f'pm.test("Documented status", () => pm.expect([{",".join(map(str,success_statuses))},400,401,403,404,409,429,503]).to.include(pm.response.code));','const body = pm.response.json();','pm.test("Consistent envelope", () => pm.expect(body).to.have.property(pm.response.code < 300 ? "data" : "error"));', 'if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set("business_access_token", tokens.access_token); if (tokens.refresh_token) pm.environment.set("business_refresh_token", tokens.refresh_token); for (const k of ["account_id","organisation_id","session_id","device_id","method_id","role_id","staff_id","invitation_id","capacity_id","capability_pack_id","delegation_id","break_glass_id","mfa_token","verification_id","handover_id","import_id","mapping_id","media_link_id","space_graph_id"]) if (d[k]) pm.environment.set("business_"+k,d[k]); if (d.handover_id) pm.environment.set("business_handover_id",d.handover_id); if (d.id) pm.environment.set("business_id",d.id); if (d.approval) pm.environment.set("business_approval_id",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set("business_policy_id",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set("business_version",d.version); }']
  target=''
@@ -490,6 +500,7 @@ for r in R:
  if '/hospitality-arrival-automation/{id}' in path:target='business_arrival_policy_id'
  if '/hospitality-day-automation/{id}' in path:target='business_day_automation_policy_id'
  if '/folio-close-reviews/{id}' in path:target='business_folio_close_review_id'
+ if '/access-grants/{id}' in path:target='business_access_reference_id'
  if '/room-assignments/{id}' in path:target='business_assignment_id'
  if '/cashier-shifts/{id}' in path:target='business_cashier_shift_id'
  if '/guest-requests/{id}' in path:target='business_guest_request_id'
@@ -508,6 +519,9 @@ for r in R:
  if graph_kind and r['request']=='InventoryCreate':resource=graph_kind.lower()+'_id'
  commercial_capture={'PMSArrivalPolicy':'arrival_policy_id','PMSDayAutomationPolicy':'day_automation_policy_id','PMSFolioCloseReview':'folio_close_review_id','PMSGroup':'group_id','PMSMasterFolioCreated':'master_folio_id','PMSEventBookingCreated':'event_booking_id','PMSAssignment':'assignment_id','PMSDrawerCreated':'drawer_id','PMSCashierShift':'cashier_shift_id','PMSAuditResult':'night_audit_id','PMSGuestRequest':'guest_request_id','PMSOfflineResult':'offline_receipt_id','Pool':'pool_id','Product':'product_id','CommercialChannelConnection':'connection_id','CommercialBulkView':'bulk_preview_id','CommercialListing':'listing_id','ReservationPolicyView':'reservation_policy_id','ReservationOverbookingPolicy':'overbooking_policy_id','RMSDemandSnapshot':'demand_snapshot_id','RMSForecastRun':'forecast_id','RMSPolicy':'rms_policy_id','RMSRecommendation':'recommendation_id','RMSSimulationRecord':'simulation_id','ReservationWaitlist':'waitlist_id','ReservationWaitlistOffer':'waitlist_offer_id','Promotion':'promotion_id','AddOn':'add_on_id','Package':'package_id'}
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
+ if r.get('handler')=='pmsAccessConfiguration':prerequest.append('if(!pm.environment.get("business_access_configuration_version"))pm.environment.set("business_access_configuration_version",0);if(!pm.environment.get("business_access_configuration_expires_at")||Date.parse(pm.environment.get("business_access_configuration_expires_at"))<=Date.now())pm.environment.set("business_access_configuration_expires_at",new Date(Date.now()+2*60*60*1000).toISOString());')
+ if response=='AccessConfiguration':tests.append('if(pm.response.code===201){pm.environment.set("business_access_configuration_id",body.data.id);pm.environment.set("business_access_configuration_version",body.data.version);pm.environment.set("business_room_id",body.data.room_id);}')
+ if response=='PMSAccessView':tests.append('if(pm.response.code<300){pm.environment.set("business_access_reference_id",body.data.reference.id);pm.environment.set("business_access_reference_version",body.data.reference.version);if(body.data.command)pm.environment.set("business_access_request_digest",body.data.command.request_digest);if(body.data.reference.provider_reference)pm.environment.set("business_access_credential_reference",body.data.reference.provider_reference);pm.test("Unknown device outcomes remain explicit",()=>{pm.expect(["UNKNOWN","RECORDED_ACTIVE","REVOCATION_REQUIRED","REVOKED"]).to.include(body.data.effective_state);if(body.data.reference.state==="UNKNOWN")pm.expect(body.data.delivery_confirmed).to.eql(false);});}')
  if response=='PMSArrivalPolicy':tests.append('if(pm.response.code===201){pm.environment.set("business_arrival_policy_version",body.data.version);pm.test("Bounded exposure only",()=>{pm.expect(body.data.max_total_minor).to.be.at.least(body.data.max_reservation_minor);pm.expect(["MANUAL","AUTOMATIC_NO_SHOW"]).to.include(body.data.mode);});}')
  if response=='PMSDayAutomationPolicy':tests.append('if(pm.response.code===201){pm.environment.set("business_day_automation_policy_version",body.data.version);pm.test("Bounded recorded policy",()=>{pm.expect(["MANUAL","AUDIT_ONLY","CLOSE_IF_CLEAR"]).to.include(body.data.mode);pm.expect(body.data.max_days_per_run).to.be.within(1,7);});}')
  if response=='PMSDayAutomationRevoked':tests.append('if(pm.response.code===201)pm.test("Latest policy revoked without fallback",()=>pm.expect(body.data.state).to.eql("REVOKED"));')

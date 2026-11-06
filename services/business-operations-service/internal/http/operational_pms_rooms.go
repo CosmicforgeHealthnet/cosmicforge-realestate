@@ -38,6 +38,7 @@ type PMSVersionCommand struct {
 }
 
 func (h *Handler) registerPMS(r chi.Router) {
+	h.registerPMSAccess(r)
 	h.registerPMSDays(r)
 	h.registerPMSArrivals(r)
 	h.registerPMSCashier(r)
@@ -325,6 +326,12 @@ func (h *Handler) pmsList(w http.ResponseWriter, r *http.Request, table, cap str
 	records, e := commercialJSONRows(r.Context(), h.Auth.Service.Pool, `SELECT to_jsonb(v) FROM `+table+` v WHERE organisation_id=$1 AND property_id=ANY($2::uuid[]) ORDER BY created_at DESC,id DESC LIMIT $3 OFFSET $4`, t.Organisation, properties, limit, offset)
 	if records == nil {
 		records = []json.RawMessage{}
+	}
+	if table == "hospitality_access_configurations" {
+		w.Header().Set("Cache-Control", "no-store")
+		if e == nil {
+			e = audit(r.Context(), h.Auth.Service.Pool, t, "ACCESS_CONFIGURATIONS_READ", "access_configurations", t.Organisation, map[string]any{"property_ids": properties, "limit": limit, "offset": offset, "count": len(records)})
+		}
 	}
 	reply(w, r, 200, map[string]any{"items": records, "limit": limit, "offset": offset}, e)
 }

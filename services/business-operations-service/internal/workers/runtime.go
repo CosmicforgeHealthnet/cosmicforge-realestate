@@ -163,6 +163,7 @@ func (r *Runtime) Run(ctx context.Context) error {
 					{"rms", r.Inventory.ProcessRMSMaintenance},
 					{"hospitality", r.Inventory.ProcessHospitalityMaintenance},
 					{"hospitality-room-safety", r.Inventory.ProcessPMSRooms},
+					{"hospitality-access", r.Inventory.ProcessPMSAccess},
 					{"hospitality-arrivals", r.Inventory.ProcessPMSArrivals},
 					{"hospitality-day-automation", r.Inventory.ProcessPMSDayAutomation},
 				} {

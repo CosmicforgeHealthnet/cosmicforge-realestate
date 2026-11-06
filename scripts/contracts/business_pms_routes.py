@@ -3,6 +3,19 @@ import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ for name in ('AccessConfiguration','PMSAccessConfigurationCommand'):
+  s[name]['properties']['method']['enum']=['DISABLED','MANUAL_KEY','MANUAL_CARD','SMART_DEVICE']
+ for name in ('PMSAccessAcknowledgement','PMSAccessCommandView'):
+  s[name]['properties']['request_digest'].update(pattern='^[a-f0-9]{64}$',example='a'*64)
+ s['AccessReference']['properties']['operation']['enum']=['ISSUE','REVOKE']
+ s['AccessReference']['properties']['state']['enum']=['PENDING','UNKNOWN','CONFIRMED','FAILED']
+ s['PMSAccessView']['properties']['effective_state']['enum']=['UNKNOWN','RECORDED_ACTIVE','REVOCATION_REQUIRED','REVOKED']
+ s['PMSAccessCommandView']['properties']['method']['enum']=['MANUAL_KEY','MANUAL_CARD','SMART_DEVICE']
+ s['PMSAccessCommandView']['properties']['delivery_state']['enum']=['READY','RUNNING','RETRY','WAITING_MANUAL','DEPENDENCY_BLOCKED','COMPLETE','CANCELLED','QUARANTINED']
+ s['AccessConfigurationView']=copy.deepcopy(s['AccessConfiguration'])
+ s['AccessConfigurationView']['properties']['approval_id']={'anyOf':[uid,{'type':'null'}]}
+ shape('PMSAccessConfigurationList',items=arr(ref('AccessConfigurationView')),limit=integer,offset=integer)
+ shape('PMSAccessList',items=arr(ref('PMSAccessView')),limit=integer,offset=integer)
  shape('PMSRoomSafetyRead',proof=ref('RoomSafetyProof'),source_digest={'type':'string','pattern':'^[a-f0-9]{64}$','example':'a'*64},plan=ref('RoomSafetyPlan'))
  shape('PMSRoomSourceError',error_code={'const':'SOURCE_TRANSACTION_FAILED'},room_id=uid)
  s['RoomReconciliationReport']['properties']['proof']={'anyOf':[ref('RoomSafetyProof'),ref('PMSRoomSourceError')]}
@@ -118,6 +131,13 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsEventBookingCreate':('pms:write','PMSEventBookingCommand','PMSEventBookingCreated',201,False),
  'pmsHospitalityPolicies':('night_audit:read',None,'PMSList',200,False),
  'pmsHospitalityPolicy':('night_audit:write','PMSHospitalityPolicyCommand','PMSHospitalityPolicyCreated',201,True),
+ 'pmsAccessConfigurations':('pms:read',None,'PMSAccessConfigurationList',200,False),
+ 'pmsAccessConfiguration':('pms:write','PMSAccessConfigurationCommand','AccessConfiguration',201,True),
+ 'pmsAccessList':('pms:read',None,'PMSAccessList',200,False),
+ 'pmsAccessGet':('pms:read',None,'PMSAccessView',200,False),
+ 'pmsAccessRequest':('pms:write','PMSVersionCommand','PMSAccessView',202,True),
+ 'pmsAccessRetry':('pms:write','PMSVersionCommand','PMSAccessView',202,True),
+ 'pmsAccessAcknowledge':('pms:write','PMSAccessAcknowledgement','PMSAccessView',200,True),
  'pmsRoomReconciliationReports':('pms:read',None,'PMSRoomReconciliationList',200,False),
  'pmsRoomSafetyProof':('pms:read',None,'PMSRoomSafetyRead',200,False),
  'pmsRoomReconcile':('pms:write','PMSRoomReconcileCommand','PMSRoomReconcileResult',200,True),
@@ -177,6 +197,8 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSAccessConfigurationCommand':{'property_id':uid,'room_id':uid,'expected_version':0,'method':'MANUAL_KEY','device_reference':'physical-key-inventory-reference','expires_at':'2027-01-03T12:00:00Z','approval_id':uid,'reason':reason},
+ 'PMSAccessAcknowledgement':{'version':1,'request_digest':'a'*64,'credential_reference':'physical-key-inventory-reference:issued-item','evidence_reference':'actual-physical-key-handover-or-return-reference','reason':reason},
  'PMSRoomReconcileCommand':{'expected_room_version':3,'source_digest':'a'*64,'reason':'Reconcile only the exact current owning room and stay sources without asserting vacancy'},
  'PMSArrivalPolicyCommand':{'property_id':uid,'expected_version':0,'mode':'AUTOMATIC_NO_SHOW','allowed_sources':['DIRECT','WALK_IN'],'max_reservations_per_run':5,'max_reservation_minor':500000,'max_total_minor':1000000,'currency':'NGN','effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','approval_id':uid,'reason':'Authorize bounded no-show processing only when the original accepted terms explicitly permit it'},
  'PMSDayAutomationCommand':{'property_id':uid,'expected_version':0,'mode':'AUDIT_ONLY','hospitality_policy_version':1,'effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','max_days_per_run':1,'approval_id':uid,'reason':'Authorize a bounded property night audit without waiving any exception'},
