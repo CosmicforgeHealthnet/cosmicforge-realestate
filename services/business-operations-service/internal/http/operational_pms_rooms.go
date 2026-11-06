@@ -39,6 +39,7 @@ type PMSVersionCommand struct {
 
 func (h *Handler) registerPMS(r chi.Router) {
 	h.registerPMSDays(r)
+	h.registerPMSArrivals(r)
 	h.registerPMSCashier(r)
 	h.registerPMSOffline(r)
 	h.registerPMSGroups(r)

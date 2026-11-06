@@ -1254,6 +1254,63 @@ type GuestStayHistory struct {
 	CreatedAt           time.Time
 }
 
+type HospitalityArrivalCursor struct {
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ReservationID       ids.ID
+	NextCheckAt         time.Time
+	ConsecutiveFailures int32
+	State               string
+	LastErrorCode       string
+}
+
+type HospitalityArrivalPolicy struct {
+	ID                      ids.ID
+	OrganisationID          ids.ID
+	PropertyID              ids.ID
+	Version                 int64
+	Mode                    string
+	AllowedSources          []string
+	MaxReservationsPerRun   int32
+	MaxReservationMinor     int64
+	MaxTotalMinor           int64
+	Currency                string
+	EffectiveAt             time.Time
+	ExpiresAt               time.Time
+	AuthorizingMembershipID ids.ID
+	AuthorizingRoleID       ids.ID
+	ApprovalID              *ids.ID
+	Reason                  string
+	CreatedBy               ids.ID
+	CreatedAt               time.Time
+}
+
+type HospitalityArrivalRevocation struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	PolicyID       ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type HospitalityArrivalRun struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	PolicyID            ids.ID
+	ReservationID       ids.ID
+	ReservationVersion  int64
+	SourceDigest        string
+	State               string
+	OriginalAmountMinor int64
+	Currency            string
+	Evidence            []byte
+	CreatedByService    string
+	CreatedAt           time.Time
+}
+
 type HospitalityBusinessDay struct {
 	ID               ids.ID
 	OrganisationID   ids.ID

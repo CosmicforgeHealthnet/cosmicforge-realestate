@@ -162,6 +162,7 @@ func (r *Runtime) Run(ctx context.Context) error {
 					{"commercial", r.Inventory.ProcessCommercialMaintenance},
 					{"rms", r.Inventory.ProcessRMSMaintenance},
 					{"hospitality", r.Inventory.ProcessHospitalityMaintenance},
+					{"hospitality-arrivals", r.Inventory.ProcessPMSArrivals},
 					{"hospitality-day-automation", r.Inventory.ProcessPMSDayAutomation},
 				} {
 					call, cancel := context.WithTimeout(ctx, 30*time.Second)

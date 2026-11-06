@@ -29,6 +29,7 @@ type Policy struct {
 	CancellationPenaltyBPS  int64    `json:"cancellation_penalty_bps"`
 	NoShowGraceHours        int      `json:"no_show_grace_hours"`
 	NoShowRetainNights      int      `json:"no_show_retain_nights"`
+	AutomaticNoShow         bool     `json:"automatic_no_show,omitempty"`
 	CheckInLocal            string   `json:"check_in_local"`
 	CheckOutLocal           string   `json:"check_out_local"`
 	PolicyReference         string   `json:"policy_reference"`

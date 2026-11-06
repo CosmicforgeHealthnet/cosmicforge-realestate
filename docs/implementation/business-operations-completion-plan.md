@@ -1,3 +1,7 @@
+## Current schema21 progress
+
+Supported business-owned no-show automation now reuses canonical release/financial obligations, frozen accepted opt-in/deadlines, exact current direct authority, independent cumulative limits, unoccupied assignment release and immutable service audit/outbox. Real source-write rollback, non-starvation and repaired recovery are tested. Unknown/pending cancellation remedies hard-block night audit. Automatic remote-source authorization, the remaining occupancy/readiness/access workers and in-house/ancillary financial workflows are still internal requirements. No complete Sections8–11 acceptance is claimed; see the current reports and exact-SHA certificate.
+
 ## Current schema20 progress
 
 Accepted fiscal detail/legacy review (schema19) and independently approved bounded night-audit/clean-day closing automation (schema20) are implemented and locally tested. Shared manual/worker commands, current direct authority, immutable service audit, backoff/quarantine and reviewed source recovery are covered. Other PMS operational workers, financial extensions and the remaining CRM/reservation/RMS work are still internal requirements. Scope counts and prior foundation certificates do not certify completion. Current implementation/evidence are in the Section10 report and combined certificate; exact-SHA CI remains independently tracked.

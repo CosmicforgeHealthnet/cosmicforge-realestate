@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/hospitality"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/revenue"
@@ -204,97 +205,7 @@ func (h *Handler) reservationReleaseCommand(w http.ResponseWriter, r *http.Reque
 		action = "PARTIAL_CANCELLED"
 	}
 	h.reservationCommand(w, r, action, "reservations:cancel", false, func(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, in reservations.Command) (string, error) {
-		if !reservations.Transition(v.State, state) {
-			return "", apperrors.Conflict("RESERVATION_TRANSITION_DENIED", "This lifecycle state cannot release reservation stock through this command.")
-		}
-		var physical bool
-		if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM room_assignments WHERE organisation_id=$1 AND reservation_id=$2 AND state IN ('ASSIGNED','OCCUPIED'))`, t.Organisation, v.ID).Scan(&physical); e != nil {
-			return "", e
-		}
-		if physical {
-			return "", apperrors.Conflict("RESERVATION_PHYSICAL_ASSIGNMENT_ACTIVE", "Release physical assignments through their owning front-desk workflow before cancelling stock.")
-		}
-		rooms, e := reservations.Rooms(ctx, tx, t.Organisation, v.ID, true)
-		if e != nil {
-			return "", e
-		}
-		if partial && (len(in.RoomIDs) == 0 || len(in.RoomIDs) >= len(rooms)) {
-			return "", apperrors.InvalidRequest("Partial cancellation requires a proper nonempty subset of room lines; use full cancellation for all rooms.")
-		}
-		if !partial && len(in.RoomIDs) > 0 {
-			return "", apperrors.InvalidRequest("Only partial cancellation accepts room IDs.")
-		}
-		selected := []reservations.Room{}
-		for _, room := range rooms {
-			if !partial || slices.Contains(in.RoomIDs, room.ID) {
-				selected = append(selected, room)
-			}
-		}
-		if partial && len(selected) != len(in.RoomIDs) {
-			return "", apperrors.PermissionDenied("Every selected room must currently belong to this reservation.")
-		}
-		now := h.Auth.Service.Now().UTC()
-		zone := v.PolicySnapshot.AcceptanceTimezone
-		if zone == "" {
-			if e = tx.QueryRow(ctx, `SELECT timezone FROM inventory_nodes WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.PropertyID).Scan(&zone); e != nil {
-				return "", e
-			}
-		}
-		loc, e := time.LoadLocation(zone)
-		if e != nil {
-			return "", e
-		}
-		if state == "NO_SHOW" {
-			for _, room := range selected {
-				arrival, e := time.ParseInLocation("2006-01-02 15:04", room.DateFrom+" "+v.PolicySnapshot.CheckInLocal, loc)
-				if e != nil {
-					return "", e
-				}
-				if now.Before(arrival.Add(time.Duration(v.PolicySnapshot.NoShowGraceHours) * time.Hour)) {
-					return "", apperrors.Conflict("NO_SHOW_DEADLINE_NOT_REACHED", "Every selected room line must have passed its frozen property-local arrival and no-show grace period.")
-				}
-			}
-		}
-
-		for _, room := range selected {
-			from := room.DateFrom
-			if state == "NO_SHOW" {
-				start, _ := time.Parse(time.DateOnly, from)
-				from = start.AddDate(0, 0, v.PolicySnapshot.NoShowRetainNights).Format(time.DateOnly)
-				if from > room.DateTo {
-					from = room.DateTo
-				}
-			}
-			if e = reservations.Release(ctx, tx, t.Organisation, t.Account, room, from, now); e != nil {
-				return "", e
-			}
-			if state != "NO_SHOW" {
-				if _, e = tx.Exec(ctx, `UPDATE reservation_rooms SET state='CANCELLED',version=version+1,updated_at=$3 WHERE organisation_id=$1 AND id=$2`, t.Organisation, room.ID, now); e != nil {
-					return "", e
-				}
-			}
-		}
-		nextState := state
-		amount := v.AmountMinor
-		if partial {
-			nextState = v.State
-			for _, room := range selected {
-				amount -= room.AmountMinor
-			}
-		}
-		// The cancelled obligation remains auditable. No refund is inferred from a
-		// cancellation: only the Payment-owned refund reference can settle it.
-		if _, e = tx.Exec(ctx, `UPDATE reservations SET state=$3,amount_minor=$4,cancelled_at=CASE WHEN $3 IN ('CANCELLED','REJECTED') THEN $5 ELSE cancelled_at END,reason=$6,version=version+1,updated_at=$5,hold_expires_at=CASE WHEN $3 IN ('CANCELLED','REJECTED','NO_SHOW') THEN NULL ELSE hold_expires_at END WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, nextState, amount, now, in.Reason); e != nil {
-			return "", e
-		}
-		if e = h.cancellationObligation(ctx, tx, t, v, selected, action, in.Reason, v.Version+1); e != nil {
-			return "", e
-		}
-		event := "reservation.modified.v1"
-		if nextState == "CANCELLED" {
-			event = "reservation.cancelled.v1"
-		}
-		return event, nil
+		return h.executeReservationRelease(ctx, tx, t, v, in, state, partial)
 	})
 }
 func (h *Handler) reservationDispute(w http.ResponseWriter, r *http.Request) {
@@ -391,4 +302,102 @@ func (h *Handler) reservationRiskReview(w http.ResponseWriter, r *http.Request) 
 		e = h.reservationCommit(ctx, tx, t, v, "RISK_REVIEWED", "reservation.modified.v1", in.Reason, map[string]any{"status": in.Status, "review_reference": in.ReviewReference, "source": "human_review", "approval_id": in.ApprovalID})
 		return 200, v, e
 	})
+}
+
+// The caller holds the organisation fence and establishes current command
+// authority. Shared by the authenticated manual command and bounded policy
+// maintenance; no HTTP/session impersonation is involved.
+func (h *Handler) executeReservationRelease(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, in reservations.Command, state string, partial bool) (string, error) {
+	action := state
+	if partial {
+		action = "PARTIAL_CANCELLED"
+	}
+
+	if !reservations.Transition(v.State, state) {
+		return "", apperrors.Conflict("RESERVATION_TRANSITION_DENIED", "This lifecycle state cannot release reservation stock through this command.")
+	}
+	var physical bool
+	if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM room_assignments WHERE organisation_id=$1 AND reservation_id=$2 AND state IN ('ASSIGNED','OCCUPIED'))`, t.Organisation, v.ID).Scan(&physical); e != nil {
+		return "", e
+	}
+	if physical {
+		return "", apperrors.Conflict("RESERVATION_PHYSICAL_ASSIGNMENT_ACTIVE", "Release physical assignments through their owning front-desk workflow before cancelling stock.")
+	}
+	rooms, e := reservations.Rooms(ctx, tx, t.Organisation, v.ID, true)
+	if e != nil {
+		return "", e
+	}
+	if partial && (len(in.RoomIDs) == 0 || len(in.RoomIDs) >= len(rooms)) {
+		return "", apperrors.InvalidRequest("Partial cancellation requires a proper nonempty subset of room lines; use full cancellation for all rooms.")
+	}
+	if !partial && len(in.RoomIDs) > 0 {
+		return "", apperrors.InvalidRequest("Only partial cancellation accepts room IDs.")
+	}
+	selected := []reservations.Room{}
+	for _, room := range rooms {
+		if !partial || slices.Contains(in.RoomIDs, room.ID) {
+			selected = append(selected, room)
+		}
+	}
+	if partial && len(selected) != len(in.RoomIDs) {
+		return "", apperrors.PermissionDenied("Every selected room must currently belong to this reservation.")
+	}
+	now := h.Auth.Service.Now().UTC()
+	zone := v.PolicySnapshot.AcceptanceTimezone
+	if zone == "" {
+		if e = tx.QueryRow(ctx, `SELECT timezone FROM inventory_nodes WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.PropertyID).Scan(&zone); e != nil {
+			return "", e
+		}
+	}
+	if state == "NO_SHOW" {
+		for _, room := range selected {
+			arrival, e := hospitality.LocalInstant(room.DateFrom, v.PolicySnapshot.CheckInLocal, zone)
+			if e != nil {
+				return "", e
+			}
+			if now.Before(arrival.Add(time.Duration(v.PolicySnapshot.NoShowGraceHours) * time.Hour)) {
+				return "", apperrors.Conflict("NO_SHOW_DEADLINE_NOT_REACHED", "Every selected room line must have passed its frozen property-local arrival and no-show grace period.")
+			}
+		}
+	}
+
+	for _, room := range selected {
+		from := room.DateFrom
+		if state == "NO_SHOW" {
+			start, _ := time.Parse(time.DateOnly, from)
+			from = start.AddDate(0, 0, v.PolicySnapshot.NoShowRetainNights).Format(time.DateOnly)
+			if from > room.DateTo {
+				from = room.DateTo
+			}
+		}
+		if e = reservations.Release(ctx, tx, t.Organisation, t.Account, room, from, now); e != nil {
+			return "", e
+		}
+		if state != "NO_SHOW" {
+			if _, e = tx.Exec(ctx, `UPDATE reservation_rooms SET state='CANCELLED',version=version+1,updated_at=$3 WHERE organisation_id=$1 AND id=$2`, t.Organisation, room.ID, now); e != nil {
+				return "", e
+			}
+		}
+	}
+	nextState := state
+	amount := v.AmountMinor
+	if partial {
+		nextState = v.State
+		for _, room := range selected {
+			amount -= room.AmountMinor
+		}
+	}
+	// The cancelled obligation remains auditable. No refund is inferred from a
+	// cancellation: only the Payment-owned refund reference can settle it.
+	if _, e = tx.Exec(ctx, `UPDATE reservations SET state=$3,amount_minor=$4,cancelled_at=CASE WHEN $3 IN ('CANCELLED','REJECTED') THEN $5 ELSE cancelled_at END,reason=$6,version=version+1,updated_at=$5,hold_expires_at=CASE WHEN $3 IN ('CANCELLED','REJECTED','NO_SHOW') THEN NULL ELSE hold_expires_at END WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, nextState, amount, now, in.Reason); e != nil {
+		return "", e
+	}
+	if e = h.cancellationObligation(ctx, tx, t, v, selected, action, in.Reason, v.Version+1); e != nil {
+		return "", e
+	}
+	event := "reservation.modified.v1"
+	if nextState == "CANCELLED" {
+		event = "reservation.cancelled.v1"
+	}
+	return event, nil
 }

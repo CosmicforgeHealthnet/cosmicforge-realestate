@@ -107,6 +107,22 @@ func (q *Queries) GetLatestFolioCloseReview(ctx context.Context, db DBTX, arg Ge
 	return record, err
 }
 
+const getLatestHospitalityArrivalPolicy = `-- name: GetLatestHospitalityArrivalPolicy :one
+SELECT to_jsonb(p)::jsonb AS record FROM hospitality_arrival_policies p WHERE organisation_id=$1 AND property_id=$2 ORDER BY version DESC LIMIT 1
+`
+
+type GetLatestHospitalityArrivalPolicyParams struct {
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+}
+
+func (q *Queries) GetLatestHospitalityArrivalPolicy(ctx context.Context, db DBTX, arg GetLatestHospitalityArrivalPolicyParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getLatestHospitalityArrivalPolicy, arg.OrganisationID, arg.PropertyID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
 const getLatestHospitalityDayAutomation = `-- name: GetLatestHospitalityDayAutomation :one
 SELECT to_jsonb(p)::jsonb AS record FROM hospitality_day_automation_policies p WHERE organisation_id=$1 AND property_id=$2 ORDER BY version DESC LIMIT 1
 `

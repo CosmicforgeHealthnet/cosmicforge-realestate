@@ -158,6 +158,8 @@ func (h *Handler) pmsHospitalityPolicy(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d PMSBusinessDay) (PMSAuditSnapshot, error) {
 	checks, e := hospitality.Load[map[string]int64](ctx, tx, `SELECT jsonb_build_object(
+ 'UNKNOWN_CANCELLATION_FINANCIAL_OUTCOMES',(SELECT count(*) FROM reservation_cancellation_obligations WHERE organisation_id=$1 AND property_id=$2 AND financial_state<>'KNOWN_PLATFORM_REFERENCE'),
+ 'PENDING_RESERVATION_FINANCIAL_REMEDIES',(SELECT count(*) FROM reservation_financial_requests WHERE organisation_id=$1 AND property_id=$2 AND kind IN ('REFUND','SETTLEMENT') AND state<>'SUCCEEDED'),
  'FISCAL_DETAIL_REVIEW_REQUIRED',(SELECT count(*) FROM folio_items i JOIN folios f ON f.organisation_id=i.organisation_id AND f.id=i.folio_id LEFT JOIN LATERAL(SELECT state FROM folio_fiscal_reviews v WHERE v.organisation_id=i.organisation_id AND v.folio_item_id=i.id ORDER BY review_version DESC LIMIT 1)v ON true WHERE i.organisation_id=$1 AND i.property_id=$2 AND i.kind='ACCOMMODATION' AND i.policy_snapshot->'accepted_quote' IS NOT NULL AND (i.amount_minor=0 OR i.amount_minor+coalesce((SELECT sum(a.amount_minor) FROM folio_items a WHERE a.organisation_id=i.organisation_id AND a.adjusts_item_id=i.id),0)>0) AND (f.state<>'CLOSED' OR i.business_day_id=$5) AND (v.state IS NULL OR v.state NOT IN ('ITEMIZED','OPERATOR_REVIEWED'))),
  'UNRESOLVED_OPERATIONAL_EXCEPTIONS',(SELECT count(*) FROM hospitality_operation_exceptions WHERE organisation_id=$1 AND property_id=$2 AND state='OPEN'),
  'PENDING_ARRIVALS',(SELECT count(*) FROM reservations WHERE organisation_id=$1 AND property_id=$2 AND date_from<=$3::date AND state='CONFIRMED'),
@@ -181,7 +183,7 @@ func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d P
 	if e != nil {
 		return snapshot, e
 	}
-	for _, code := range []string{"FISCAL_DETAIL_REVIEW_REQUIRED", "UNRESOLVED_OPERATIONAL_EXCEPTIONS", "GROUP_ROOMING_MISSING", "PENDING_ARRIVALS", "OVERDUE_DEPARTURES", "OCCUPANCY_CONFLICT", "PENDING_FINANCIAL_SETTLEMENT", "OPEN_CASHIER_SHIFTS", "UNKNOWN_CASH_RECONCILIATION", "STALE_CASH_RECONCILIATION", "UNUSABLE_FOLIO_PAYMENT_REFERENCE", "MISSING_FOLIO_POSTINGS", "RATE_CURRENCY_MISMATCH", "SOURCE_CONFLICT", "HARD_ROOM_BLOCKS", "OPEN_GUEST_REQUESTS"} {
+	for _, code := range []string{"UNKNOWN_CANCELLATION_FINANCIAL_OUTCOMES", "PENDING_RESERVATION_FINANCIAL_REMEDIES", "FISCAL_DETAIL_REVIEW_REQUIRED", "UNRESOLVED_OPERATIONAL_EXCEPTIONS", "GROUP_ROOMING_MISSING", "PENDING_ARRIVALS", "OVERDUE_DEPARTURES", "OCCUPANCY_CONFLICT", "PENDING_FINANCIAL_SETTLEMENT", "OPEN_CASHIER_SHIFTS", "UNKNOWN_CASH_RECONCILIATION", "STALE_CASH_RECONCILIATION", "UNUSABLE_FOLIO_PAYMENT_REFERENCE", "MISSING_FOLIO_POSTINGS", "RATE_CURRENCY_MISMATCH", "SOURCE_CONFLICT", "HARD_ROOM_BLOCKS", "OPEN_GUEST_REQUESTS"} {
 		if checks[code] > 0 {
 			hard := code != "PENDING_ARRIVALS" && code != "OVERDUE_DEPARTURES" && code != "OPEN_GUEST_REQUESTS"
 			snapshot.Exceptions = append(snapshot.Exceptions, PMSAuditException{Code: code, Quantity: checks[code], HardBlock: hard})
@@ -206,6 +208,8 @@ func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d P
  'cash_proofs',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,source_version,expires_at) ORDER BY id),'[]') FROM cashier_financial_attestations WHERE organisation_id=$1 AND property_id=$2),
  'requests',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state) ORDER BY id),'[]') FROM guest_requests WHERE organisation_id=$1 AND property_id=$2),
  'payments',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,expires_at,remedy_version,reversed_minor) ORDER BY id),'[]') FROM reservation_payment_projections WHERE organisation_id=$1 AND property_id=$2),
+ 'cancellation_obligations',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,financial_state,penalty_minor,refundable_minor) ORDER BY id),'[]') FROM reservation_cancellation_obligations WHERE organisation_id=$1 AND property_id=$2),
+ 'financial_remedies',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state,provider_reference) ORDER BY id),'[]') FROM reservation_financial_requests WHERE organisation_id=$1 AND property_id=$2 AND kind IN ('REFUND','SETTLEMENT')),
  'source_conflicts',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state) ORDER BY id),'[]') FROM reservation_conflicts WHERE organisation_id=$1 AND property_id=$2)
  )`, t.Organisation, d.PropertyID).Scan(&source); e != nil {
 		return snapshot, e

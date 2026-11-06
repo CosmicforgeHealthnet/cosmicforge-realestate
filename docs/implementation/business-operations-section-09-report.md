@@ -1,3 +1,7 @@
+## Schema21 no-show integration progress
+
+Canonical manual and bounded automatic no-show now share the same release/obligation implementation. Frozen accepted opt-in, civil deadline/grace, source/physical/risk/backing checks, exact current direct authority and independent per-booking/cumulative gross limits govern the worker. Real unoccupied physical assignments are released atomically, accepted penalty nights/amounts are conserved and unknown/pending financial remedies remain unresolved hard audit facts. No new Payment collection or executed refund is invented. Thirteen focused real PostgreSQL/HTTP tests passed. See the Section10 report and PMS automation architecture for evidence and limits. Automatic OTA/Marketplace accepted-term/source integration, quantity fragmentation, in-house extensions/early departure, waitlist automation and full remedy reconciliation remain internal Section9 work. Overall status remains PARTIAL.
+
 ## Schema18 CRM composition
 
 Actual guest booking/stay history now derives from canonical reservation, room-assignment, stay, folio and owning Payment readback records. No broker payload can fabricate completion. The final-close command also records the actual `completed_at` timestamp; historical missing timestamps are not fabricated by migration. Full Section9 remains PARTIAL while quantity fragmentation, in-house amendments, automatic waitlist and recovery/source work continue.

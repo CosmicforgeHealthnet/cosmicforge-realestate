@@ -34,6 +34,8 @@ func commercialApprovalCapability(action string) string {
 		return "night_audit:approve"
 	case "COMMERCIAL_PMS_CASHIER_VARIANCE":
 		return "cashier:approve"
+	case "COMMERCIAL_PMS_NO_SHOW_AUTOMATION":
+		return "reservations:approve"
 	case "COMMERCIAL_PMS_GROUP_BILLING":
 		return "folios:approve"
 	case "COMMERCIAL_PMS_ROOMING_CHANGE":

@@ -3,6 +3,20 @@ import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ for name in ('PMSArrivalPolicyCommand','PMSArrivalPolicy'):
+  s[name]['properties']['mode']['enum']=['MANUAL','AUTOMATIC_NO_SHOW']
+  s[name]['properties']['allowed_sources']['items']['enum']=['DIRECT','WALK_IN','CORPORATE','GROUP']
+  s[name]['properties']['max_reservations_per_run'].update(minimum=1,maximum=50)
+  for field in ('max_reservation_minor','max_total_minor'):s[name]['properties'][field].update(minimum=0)
+  s[name]['properties']['currency'].update(pattern='^[A-Z]{3}$',example='NGN')
+ s['ReservationPolicy']['properties']['automatic_no_show'].update(default=False,description='Opt-in retained in the original accepted terms. Missing/false snapshots never authorize automatic no-show processing.')
+ s['PMSArrivalPolicyView']=copy.deepcopy(s['PMSArrivalPolicy'])
+ s['PMSArrivalPolicyView']['properties']['approval_id']={'anyOf':[uid,{'type':'null'}]}
+ s['PMSArrivalPolicyView']['properties'].update(recorded_state={'enum':['SUPERSEDED','REVOKED','MANUAL','EXPIRED','NOT_YET_EFFECTIVE','RECORDED']},used_exposure_minor={'type':'integer','minimum':0},source_review_count={'type':'integer','minimum':0})
+ s['PMSArrivalPolicyView']['required']+=['recorded_state','used_exposure_minor','source_review_count']
+ shape('PMSArrivalPolicyList',items=arr(ref('PMSArrivalPolicyView')),limit=integer,offset=integer)
+ shape('PMSArrivalRun',id=uid,organisation_id=uid,property_id=uid,policy_id=uid,reservation_id=uid,reservation_version={'type':'integer','minimum':1},source_digest={'type':'string','pattern':'^[a-f0-9]{64}$','example':'a'*64},state={'enum':['MARKED_NO_SHOW','REVIEW_REQUIRED','AUTHORITY_REVOKED','BUDGET_EXHAUSTED','SOURCE_REVIEW_REQUIRED']},original_amount_minor={'type':'integer','minimum':0},currency={'type':'string','pattern':'^[A-Z]{3}$','example':'NGN'},evidence={'type':'object','additionalProperties':True},created_by_service={'const':'business-operations-service'},created_at=typ('time.Time'))
+ shape('PMSArrivalRunList',items=arr(ref('PMSArrivalRun')),limit=integer,offset=integer)
  s['PMSDayAutomationCommand']['properties']['mode']['enum']=['MANUAL','AUDIT_ONLY','CLOSE_IF_CLEAR']
  s['PMSDayAutomationPolicy']['properties']['mode']['enum']=['MANUAL','AUDIT_ONLY','CLOSE_IF_CLEAR']
  for name in ('PMSDayAutomationCommand','PMSDayAutomationPolicy'):
@@ -82,6 +96,10 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsEventBookingCreate':('pms:write','PMSEventBookingCommand','PMSEventBookingCreated',201,False),
  'pmsHospitalityPolicies':('night_audit:read',None,'PMSList',200,False),
  'pmsHospitalityPolicy':('night_audit:write','PMSHospitalityPolicyCommand','PMSHospitalityPolicyCreated',201,True),
+ 'pmsArrivalPolicies':('reservations:read',None,'PMSArrivalPolicyList',200,False),
+ 'pmsArrivalPolicy':('reservations:cancel','PMSArrivalPolicyCommand','PMSArrivalPolicy',201,True),
+ 'pmsArrivalRevoke':('reservations:cancel','PMSVersionCommand','PMSDayAutomationRevoked',201,True),
+ 'pmsArrivalRuns':('reservations:read',None,'PMSArrivalRunList',200,False),
  'pmsDayAutomationPolicies':('night_audit:read',None,'PMSDayAutomationPolicyList',200,False),
  'pmsDayAutomationPolicy':('night_audit:write','PMSDayAutomationCommand','PMSDayAutomationPolicy',201,True),
  'pmsDayAutomationRuns':('night_audit:read',None,'PMSDayAutomationRunList',200,False),
@@ -134,6 +152,7 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSArrivalPolicyCommand':{'property_id':uid,'expected_version':0,'mode':'AUTOMATIC_NO_SHOW','allowed_sources':['DIRECT','WALK_IN'],'max_reservations_per_run':5,'max_reservation_minor':500000,'max_total_minor':1000000,'currency':'NGN','effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','approval_id':uid,'reason':'Authorize bounded no-show processing only when the original accepted terms explicitly permit it'},
  'PMSDayAutomationCommand':{'property_id':uid,'expected_version':0,'mode':'AUDIT_ONLY','hospitality_policy_version':1,'effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','max_days_per_run':1,'approval_id':uid,'reason':'Authorize a bounded property night audit without waiving any exception'},
  'PMSFiscalReviewCommand':{'folio_version':2,'item_id':uid,'expected_review_version':0,'reason':'Derive original accepted fiscal source detail without repricing or adding a charge'},
  'PMSFolioCloseReviewCommand':{'version':2,'automatic_close':True,'expires_at':'2026-12-02T01:00:00Z','reason':reason},

@@ -66,3 +66,5 @@ REVOKE DELETE,TRUNCATE ON stay_history_projection FROM cf_business_runtime;
 REVOKE UPDATE,DELETE,TRUNCATE ON folio_fiscal_reviews FROM cf_business_runtime;
 
 REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_day_automation_policies,hospitality_day_automation_revocations,hospitality_day_automation_runs FROM cf_business_runtime;
+
+REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_arrival_policies,hospitality_arrival_revocations,hospitality_arrival_runs FROM cf_business_runtime;

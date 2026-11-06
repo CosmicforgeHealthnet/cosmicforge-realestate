@@ -24,3 +24,6 @@ SELECT coalesce(jsonb_agg(to_jsonb(i)||jsonb_build_object('fiscal_review',(SELEC
 
 -- name: GetLatestHospitalityDayAutomation :one
 SELECT to_jsonb(p)::jsonb AS record FROM hospitality_day_automation_policies p WHERE organisation_id=$1 AND property_id=$2 ORDER BY version DESC LIMIT 1;
+
+-- name: GetLatestHospitalityArrivalPolicy :one
+SELECT to_jsonb(p)::jsonb AS record FROM hospitality_arrival_policies p WHERE organisation_id=$1 AND property_id=$2 ORDER BY version DESC LIMIT 1;
