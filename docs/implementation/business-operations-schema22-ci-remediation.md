@@ -1,0 +1,13 @@
+# Schema22 image security remediation
+
+Branch: staging only. Starting commit: `db6d886d998003c2439666ddedbaa294e61f1f36`.
+
+All five workflows executed against that exact commit. Backend42296461903, Architecture42296461820, Contracts42296461792 and Security42296461751 passed. The Business Linux race job128162866187 passed **287 tests, zero failures/skips**. Images42296461770 failed all seven service-image jobs at the existing HIGH/CRITICAL-with-fix Trivy gate; digest aggregation was skipped. This is **not overall CI PASS** and no rollout is claimed.
+
+The exact common finding is `golang.org/x/net` v0.60.0, CVE-2026-78661 / GO-2026-6860, fixed in v0.62.0. The Go security report describes quadratic allocations in HTML text-node coalescing: https://pkg.go.dev/vuln/GO-2026-6860 . This is a vulnerable existing shared dependency, not a room-reconciliation logic failure or flaky test. No scanner exception, severity change, ignored finding or disabled test is introduced.
+
+The fix updates all nine existing workspace module manifests and checksums to x/net v0.62.0. Its required coherent graph updates x/crypto to v0.58.0, x/sys to v0.49.0, x/text to v0.43.0 and x/sync to v0.24.0 (additional tools dependencies follow their existing module constraints). All module sums are tidied. No service implementation, identity authority or unrelated Owner frontend/workspace file is changed by this remediation commit.
+
+Validation: shared Go platform and Gateway full local test suites passed with the patched graph. The already committed schema22 source was exported to an isolated disposable directory so unfinished schema23 access work did not contaminate dependency validation. All287 Business cases were executed against real PostgreSQL18/JetStream:286 passed on the broad run; the sole contract fixture failure was a missing Postman file in the temporary export, not a code/test regression. Restoring the exact HEAD-tracked Postman fixture and rerunning the unchanged affected contract test passed. Thus all287 cases passed across the broad run and controlled fixture-corrected rerun; the broad command itself is not represented as green. Linux race, all service regressions and image vulnerability scans must independently pass against the remediation's pushed SHA.
+
+Live staging deployment remains unverified. Published/smoke-tested images alone do not establish operator rollout, real database/roles, NATS ACLs or provider connectivity. Main, production and VPS access remain untouched.
