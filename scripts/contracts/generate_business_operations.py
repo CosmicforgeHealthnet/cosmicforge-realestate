@@ -28,7 +28,7 @@ def arr(s):return {'type':'array','items':s}
 def fields(**kw):return obj({k:typ(v) for k,v in kw.items()})
 TYPE_NAMES={
  'hospitality':{'FolioCloseReview':'PMSFolioCloseReview','Group':'PMSGroup','RoomStatus':'PMSRoomStatus','Assignment':'PMSAssignment','Stay':'PMSStay','Folio':'PMSFolio','Item':'PMSItem'},
- 'crm':{'Profile':'CRMProfile','PrivateProfile':'CRMPrivateProfile','Guest':'CRMGuest','GuestView':'CRMGuestView','Corporate':'CRMCorporateCustomer','CorporateTerms':'CRMCorporateTerms','CorporateContact':'CRMCorporateContact','CorporateContract':'CRMCorporateContract'},
+ 'crm':{'StayHistory':'CRMStayHistory','StayFact':'CRMStayFact','Profile':'CRMProfile','PrivateProfile':'CRMPrivateProfile','Guest':'CRMGuest','GuestView':'CRMGuestView','Corporate':'CRMCorporateCustomer','CorporateTerms':'CRMCorporateTerms','CorporateContact':'CRMCorporateContact','CorporateContract':'CRMCorporateContract'},
  'reservations':{'Policy':'ReservationPolicy','Reservation':'Reservation','Room':'ReservationRoom','RoomCommand':'ReservationRoomCommand','GuestCommand':'ReservationGuestCommand','Create':'ReservationCreate','Detail':'ReservationDetail','Command':'ReservationMutation','SourceCommand':'ReservationSourceCommand','Acceptance':'ReservationAcceptance','FinancialGroupView':'ReservationFinancialGroupView'},
  'payment':{'Policy':'PaymentPolicy','Component':'PaymentComponent','Quote':'PaymentLockedQuote','IntentInput':'PaymentIntentInput','Intent':'PaymentIntent','Receipt':'PaymentReceipt'},
 }

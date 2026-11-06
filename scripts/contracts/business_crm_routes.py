@@ -3,6 +3,7 @@
 def register_crm(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer','minimum':1}
+ shape('CRMStayHistoryRebuilt',guest_id=uid,property_id=uid,reservations_reconciled={'type':'integer','minimum':0},source={'const':'OWNED_CANONICAL_RESERVATIONS_STAYS_AND_PAYMENT_READBACKS'})
  shape('CRMGuestRegistered',guest=ref('CRMGuest'),source_kind={'enum':['DIRECT','WALK_IN','LEGACY','CORPORATE']},source_reference={'type':'string'})
  shape('CRMGuestList',items=arr(ref('CRMGuestView')),limit={'type':'integer'},offset={'type':'integer'})
  shape('CRMRawList',items=arr({'type':'object','additionalProperties':True}),limit={'type':'integer'},offset={'type':'integer'})
@@ -22,6 +23,8 @@ def register_crm(s,obj,arr,ref,typ):
   s[name]['allOf']=[{'if':{'properties':{'state':{'const':'ACTIVE'}},'required':['state']},'then':{'required':fields}}]
  s['CRMCorporateTerms']['properties']['currency'].update(pattern='^[A-Z]{3}$',example='NGN')
  return {
+ 'crmStayHistory':('guests:read',None,'CRMStayHistoryList',200,False),
+ 'crmStayHistoryRebuild':('guests:write','CRMStayHistoryRebuild','CRMStayHistoryRebuilt',200,True),
  'crmGuestCreate':('guests:write','CRMGuestCreate','CRMGuestRegistered',201,False),
  'crmGuestList':('guests:read',None,'CRMGuestList',200,False),
  'crmGuestGet':('guests:read',None,'CRMGuestView',200,False),
@@ -57,6 +60,7 @@ def crm_queries(handler):
 def crm_examples(uid):
  terms={'rate_plan_ids':[uid],'allowed_sources':['CORPORATE'],'billing_responsibility':'PAY_AT_PROPERTY','billing_reference':'approved-company-billing-reference','max_booking_minor':100000,'currency':'NGN','require_named_travelers':True,'max_nights':30}
  return {
+ 'CRMStayHistoryRebuild':{'guest_version':1,'reason':'Reconcile current owned booking and physical stay facts without trusting event payloads'},
  'CRMGuestCreate':{'property_id':uid,'profile':{'display_name':'Example guest','language':'en'},'source_kind':'WALK_IN','registration_reference':'operator-captured-registration-reference','reason':'Record an actual local guest registration'},
  'CRMGuestPatch':{'version':1,'profile':{'display_name':'Corrected guest display name','language':'en'},'reason':'Correct an operator-reviewed business guest profile'},
  'CRMConsentCommand':{'expected_version':0,'purpose':'OPERATIONAL_CONTACT','state':'GRANTED','evidence_reference':'guest-captured-consent-form-reference','reason':'Record explicit captured purpose-specific consent'},

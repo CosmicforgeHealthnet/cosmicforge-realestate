@@ -3786,6 +3786,32 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/business/guests/{id}/stay-history",
+    "capability": "guests:read",
+    "request": null,
+    "response": "CRMStayHistoryList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also reservations:read and folios:read in the validated property scope. No-store audited read reloads canonical facts so delayed projections never expose stale settled spend; actual nights remain null until physical departure. Guest/corporate records are property-scoped; contact/accessibility fields use protected storage and purpose-specific capabilities/current consent. Source identity links require authenticated evidence and exact independent approval. Marketplace accounts and Payment financial outcomes remain externally owned. ",
+    "handler": "crmStayHistory"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/guests/{id}/stay-history/rebuild",
+    "capability": "guests:write",
+    "request": "CRMStayHistoryRebuild",
+    "response": "CRMStayHistoryRebuilt",
+    "status": 200,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Also reservations:read and recent MFA. Current guest version required. Rebuilds owned source facts, preserves immutable history and never creates completed stays or financial success. Guest/corporate records are property-scoped; contact/accessibility fields use protected storage and purpose-specific capabilities/current consent. Source identity links require authenticated evidence and exact independent approval. Marketplace accounts and Payment financial outcomes remain externally owned. ",
+    "handler": "crmStayHistoryRebuild"
+  },
+  {
+    "method": "GET",
     "path": "/api/v1/business/guests/{id}/consents",
     "capability": "guests:read",
     "request": null,

@@ -1,3 +1,7 @@
+## Schema18 audit update — November6
+
+Actual guest-stay projection/history is now implemented with typed canonical references, immutable version evidence, current Payment-backed monetary eligibility, scoped audited APIs, existing event/worker composition and real broker recovery. Full local module224 passed, zero failed/skipped; final source-quarantine and forged-message checks passed. Schema17 all five workflows passed with219 Linux race tests; schema18 requires its own exact pushed-SHA result. Overall Sections8–11 certification remains PARTIAL while the detailed internal gaps continue. No current backend gap is hidden as an external provider dependency.
+
 ## Schema17 audit update
 
 Current PMS final-close/completion and bounded financial-readback maintenance are implemented and tested; full local candidate module219 passed, zero failed/skipped. Latest already-verified remote milestone is schema16 (`6b55697`, all five workflows and210 Linux race tests passed). Schema17 needs independent pushed-SHA evidence. The complete master objective remains PARTIAL; no remaining internal CRM, quantity/waitlist, in-house amendment, additional financial, automatic day-close or RMS automation requirement is reclassified as an external dependency. Other Postman folders and unrelated Owner workspace changes remain preserved.

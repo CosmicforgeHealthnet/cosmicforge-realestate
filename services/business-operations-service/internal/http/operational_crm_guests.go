@@ -41,6 +41,8 @@ func (h *Handler) registerCRM(r chi.Router) {
 	r.Post("/guests/{id}/property-scopes", h.crmGuestScope)
 	r.Get("/guests/{id}/private", h.crmGuestPrivateGet)
 	r.Put("/guests/{id}/private", h.crmGuestPrivateSave)
+	r.Get("/guests/{id}/stay-history", h.crmStayHistory)
+	r.Post("/guests/{id}/stay-history/rebuild", h.crmStayHistoryRebuild)
 	r.Get("/guests/{id}/consents", h.crmGuestConsents)
 	r.Post("/guests/{id}/consents", h.crmGuestConsent)
 	h.registerCorporateCRM(r)

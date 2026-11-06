@@ -848,6 +848,17 @@ type CorporatePropertyScope struct {
 	UpdatedAt      time.Time
 }
 
+type CrmHistoryCursor struct {
+	OrganisationID ids.ID
+	ReservationID  ids.ID
+	NextCheckAt    time.Time
+	FailureCount   int32
+	LastErrorCode  *string
+	LastFailedAt   *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type CurrencyPolicy struct {
 	ID              ids.ID
 	OrganisationID  ids.ID
@@ -1201,6 +1212,23 @@ type GuestRequest struct {
 	CreatedBy         ids.ID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+}
+
+type GuestStayHistory struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ProjectionID        ids.ID
+	ProjectionVersion   int64
+	SourceDigest        string
+	Snapshot            []byte
+	SourceEventID       *ids.ID
+	SourceEventVersion  *int64
+	SourceEventType     *string
+	SourceAggregateType *string
+	SourceAggregateID   *ids.ID
+	CreatedByService    string
+	CreatedAt           time.Time
 }
 
 type HospitalityBusinessDay struct {
@@ -2653,6 +2681,20 @@ type StaffScopeGrant struct {
 	Currency         *string
 	RequireMfa       bool
 	CreatedAt        time.Time
+}
+
+type StayHistoryProjection struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	GuestID          ids.ID
+	ReservationID    ids.ID
+	SourceDigest     string
+	Snapshot         []byte
+	Version          int64
+	CreatedByService string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type StayRecord struct {

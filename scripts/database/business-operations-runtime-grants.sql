@@ -59,3 +59,6 @@ REVOKE DELETE,TRUNCATE ON reservation_groups FROM cf_business_runtime;
 
 REVOKE UPDATE,DELETE,TRUNCATE ON folio_close_reviews,folio_close_review_revocations FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON hospitality_operation_exceptions FROM cf_business_runtime;
+
+REVOKE UPDATE,DELETE,TRUNCATE ON guest_stay_history FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON stay_history_projection FROM cf_business_runtime;

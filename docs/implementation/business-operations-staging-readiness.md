@@ -2,6 +2,12 @@
 
 This runbook prepares staging only. It is not evidence that a deployment happened. Never apply these commands to production or use a production DSN.
 
+## Current schema18 repository preparation — November6
+
+The current candidate needs additive migrations through00018 and the updated `scripts/database/business-operations-runtime-grants.sql`, applied by the authorised staging migrator to `business_operations_db` before replacing API/worker. Run the migrator's supported `up` and `status` operations and retain actual output; do not infer live status from disposable tests. Keep immutable audit, accepted stock/price, physical stay/folio and guest-history evidence. The new history consumer is `business-operations-guest-history-v1` on the existing Business stream, filtering `<prefix>.business.reservation.>`, `<prefix>.business.hospitality.stay.>` and `<prefix>.business.hospitality.folio.updated.v1`. Grant only the established Business stream/consumer permissions through the operator-managed NATS identity; no Owner root subjects or new scheduler are introduced.
+
+The November6 audit still found only the five CI/image workflows, zero GitHub environments and no preauthorised rollout transport. No rollout was triggered. Last independently verified image is schema17 commit `06dd74115602ac5518cfcef1c0e3633266d9681b`, digest `sha256:58903a0ab3f08a99906db89b9949d3f400d124bfa04927c8459a27ce21d8d0f3`. Schema18 must obtain its own immutable digest and exact-SHA checks. An operator rollout must smoke real typed guest→reservation→stay→folio→history flows, confirm pending/source-review counters, provider expiry/readback, quarantine repair and broker restart before claiming live readiness. Prefer a forward fix; any rollback must use a compatible immutable image and preserve schema/history. Historical section-specific certificates below are not a current rollout certificate.
+
 ## Actual access boundary
 
 Repository/Actions inspection found no authorised staging deployment transport, no registered self-hosted runner and no usable staging database/provider credentials. The existing Images workflow publishes immutable GHCR digests; the existing staging Compose describes API, worker and one-shot migration processes. No new SSH transport, VPS access, production secret or production workflow is introduced.

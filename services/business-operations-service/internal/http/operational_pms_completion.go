@@ -255,7 +255,7 @@ func (h *Handler) closePMSFolio(ctx context.Context, tx pgx.Tx, t tenant, f hosp
 			}
 		}
 		if ready {
-			if _, e = tx.Exec(ctx, `UPDATE reservations SET state='COMPLETED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID); e != nil {
+			if _, e = tx.Exec(ctx, `UPDATE reservations SET state='COMPLETED',completed_at=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, now); e != nil {
 				return out, e
 			}
 			v, e = reservations.Get(ctx, tx, t.Organisation, v.ID)

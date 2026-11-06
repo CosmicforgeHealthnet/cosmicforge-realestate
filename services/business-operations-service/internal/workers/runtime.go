@@ -7,6 +7,7 @@ import (
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth/credentials"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/crm"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
@@ -26,6 +27,8 @@ import (
 )
 
 type Runtime struct {
+	CRM                  *crm.HistoryProjector
+	crmConsumer          *jetstream.Consumer
 	Inventory            *businesshttp.Handler
 	InventoryReferences  *InventoryReferences
 	Notifications        *Notifications
@@ -98,9 +101,18 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 		refs.Media = client
 		inventory.Media = client
 	}
-	return &Runtime{Inventory: inventory, InventoryReferences: refs, Notifications: worker, Lifecycle: &Lifecycle{Pool: pool, Outbox: outbox.NewStore(pool, prefix)}, consumer: consumer, log: log, conn: conn, prefix: prefix, Verification: &Verification{Inventory: projection, Projection: organisation.Projection{Sealer: sealer, Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}, API: verify}}, nil
+	history := &crm.HistoryProjector{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}
+	historyConsumer, err := conn.Consume(ctx, jetstream.ConsumerConfig{Stream: businessEvents.StreamConfig(prefix).Name, Durable: crm.HistoryConsumer, FilterSubjects: []string{prefix + ".business.reservation.>", prefix + ".business.hospitality.stay.>", prefix + ".business.hospitality.folio.updated.v1"}, AckWait: 30 * time.Second, HandlerTimeout: 20 * time.Second, MaxDeliver: 12, OnFailure: worker.Quarantine}, history.Handle)
+	if err != nil {
+		consumer.Stop()
+		return nil, err
+	}
+	return &Runtime{CRM: history, crmConsumer: historyConsumer, Inventory: inventory, InventoryReferences: refs, Notifications: worker, Lifecycle: &Lifecycle{Pool: pool, Outbox: outbox.NewStore(pool, prefix)}, consumer: consumer, log: log, conn: conn, prefix: prefix, Verification: &Verification{Inventory: projection, Projection: organisation.Projection{Sealer: sealer, Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}, API: verify}}, nil
 }
 func (r *Runtime) Stop() {
+	if r != nil && r.crmConsumer != nil {
+		r.crmConsumer.Stop()
+	}
 	if r != nil && r.consumer != nil {
 		r.consumer.Stop()
 		if r.verificationConsumer != nil {
@@ -157,6 +169,14 @@ func (r *Runtime) Run(ctx context.Context) error {
 					if err != nil && ctx.Err() == nil {
 						r.log.Error("domain maintenance failed", "domain", task.name, "error", err.Error())
 					}
+				}
+			}
+			if r.CRM != nil {
+				call, cancel := context.WithTimeout(ctx, 30*time.Second)
+				err := r.CRM.Tick(call, 50)
+				cancel()
+				if err != nil && ctx.Err() == nil {
+					r.log.Error("guest history reconciliation failed", "error", err.Error())
 				}
 			}
 			if r.verificationConsumer == nil {

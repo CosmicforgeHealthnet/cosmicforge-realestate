@@ -58,3 +58,41 @@ func (q *Queries) GetCRMGuest(ctx context.Context, db DBTX, arg GetCRMGuestParam
 	err := row.Scan(&record)
 	return record, err
 }
+
+const listCRMStayProjections = `-- name: ListCRMStayProjections :many
+SELECT to_jsonb(v)::jsonb AS record FROM stay_history_projection v WHERE organisation_id=$1 AND property_id=$2 AND guest_id=$3 ORDER BY created_at DESC,id DESC LIMIT $5::integer OFFSET $4::integer
+`
+
+type ListCRMStayProjectionsParams struct {
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	GuestID        ids.ID
+	PageOffset     int32
+	PageLimit      int32
+}
+
+func (q *Queries) ListCRMStayProjections(ctx context.Context, db DBTX, arg ListCRMStayProjectionsParams) ([][]byte, error) {
+	rows, err := db.Query(ctx, listCRMStayProjections,
+		arg.OrganisationID,
+		arg.PropertyID,
+		arg.GuestID,
+		arg.PageOffset,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items [][]byte
+	for rows.Next() {
+		var record []byte
+		if err := rows.Scan(&record); err != nil {
+			return nil, err
+		}
+		items = append(items, record)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

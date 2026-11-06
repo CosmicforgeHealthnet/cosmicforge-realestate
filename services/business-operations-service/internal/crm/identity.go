@@ -234,3 +234,19 @@ func GetContract(ctx context.Context, q database.Querier, org, id ids.ID) (Corpo
 	raw, e := db.New().GetCRMCorporateContract(ctx, q, db.GetCRMCorporateContractParams{OrganisationID: org, ID: id})
 	return decodeRecord[CorporateContract](raw, e)
 }
+
+func ListStayHistoryRecords(ctx context.Context, q database.Querier, org, property, guest ids.ID, limit, offset int32) ([]HistoryRecord, error) {
+	rows, e := db.New().ListCRMStayProjections(ctx, q, db.ListCRMStayProjectionsParams{OrganisationID: org, PropertyID: property, GuestID: guest, PageLimit: limit, PageOffset: offset})
+	if e != nil {
+		return nil, e
+	}
+	out := make([]HistoryRecord, 0, len(rows))
+	for _, raw := range rows {
+		v, e := decodeRecord[HistoryRecord](raw, nil)
+		if e != nil {
+			return nil, e
+		}
+		out = append(out, v)
+	}
+	return out, nil
+}
