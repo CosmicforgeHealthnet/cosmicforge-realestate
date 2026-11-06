@@ -68376,6 +68376,882 @@
         }
       }
     },
+    "/api/v1/business/hospitality-day-automation": {
+      "get": {
+        "operationId": "GET_api_v1_business_hospitality_day_automation",
+        "summary": "GET /api/v1/business/hospitality-day-automation",
+        "description": "Authentication: business access JWT plus live account/session. Permission: night_audit:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Optional independently approved one-to-seven-day automation, manual by default. Latest policy only; no fallback after revocation/expiry. Direct current maker authority, property timezone and cutoff version are rechecked by the service worker. All exceptions block automatic close; no borrowed human MFA or provider outcome is invented. Read endpoints return recorded policies/runs, not a claim of current execution eligibility. Revocation and MANUAL mode reduce authority without another independent approval. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "night_audit:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSDayAutomationPolicyList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "version": 1,
+                        "mode": "MANUAL",
+                        "hospitality_policy_version": 1,
+                        "timezone": "example",
+                        "effective_at": "2026-10-30T12:00:00Z",
+                        "expires_at": "2026-10-30T12:00:00Z",
+                        "max_days_per_run": 1,
+                        "authorizing_membership_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "authorizing_role_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "reason": "example",
+                        "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                        "created_at": "2026-10-30T12:00:00Z",
+                        "recorded_state": "SUPERSEDED",
+                        "source_review": {
+                          "state": "READY",
+                          "consecutive_failures": 1,
+                          "last_error_code": "",
+                          "next_check_at": "2026-10-30T12:00:00Z"
+                        }
+                      }
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "POST_api_v1_business_hospitality_day_automation",
+        "summary": "POST /api/v1/business/hospitality-day-automation",
+        "description": "Authentication: business access JWT plus live account/session. Permission: night_audit:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Optional independently approved one-to-seven-day automation, manual by default. Latest policy only; no fallback after revocation/expiry. Direct current maker authority, property timezone and cutoff version are rechecked by the service worker. All exceptions block automatic close; no borrowed human MFA or provider outcome is invented. Read endpoints return recorded policies/runs, not a claim of current execution eligibility. Revocation and MANUAL mode reduce authority without another independent approval. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "night_audit:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSDayAutomationPolicy"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "version": 1,
+                    "mode": "MANUAL",
+                    "hospitality_policy_version": 1,
+                    "timezone": "example",
+                    "effective_at": "2026-10-30T12:00:00Z",
+                    "expires_at": "2026-10-30T12:00:00Z",
+                    "max_days_per_run": 1,
+                    "authorizing_membership_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "authorizing_role_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "reason": "example",
+                    "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                    "created_at": "2026-10-30T12:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSDayAutomationCommand"
+              },
+              "example": {
+                "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                "expected_version": 0,
+                "mode": "AUDIT_ONLY",
+                "hospitality_policy_version": 1,
+                "effective_at": "2026-12-01T00:00:00Z",
+                "expires_at": "2026-12-02T00:00:00Z",
+                "max_days_per_run": 1,
+                "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                "reason": "Authorize a bounded property night audit without waiving any exception"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/hospitality-day-automation/{id}/revoke": {
+      "post": {
+        "operationId": "POST_api_v1_business_hospitality_day_automation_id_revoke",
+        "summary": "POST /api/v1/business/hospitality-day-automation/{id}/revoke",
+        "description": "Authentication: business access JWT plus live account/session. Permission: night_audit:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Optional independently approved one-to-seven-day automation, manual by default. Latest policy only; no fallback after revocation/expiry. Direct current maker authority, property timezone and cutoff version are rechecked by the service worker. All exceptions block automatic close; no borrowed human MFA or provider outcome is invented. Read endpoints return recorded policies/runs, not a claim of current execution eligibility. Revocation and MANUAL mode reduce authority without another independent approval. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "night_audit:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSDayAutomationRevoked"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "state": "REVOKED"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSVersionCommand"
+              },
+              "example": {
+                "version": 1,
+                "reason": "Operator-reviewed current physical occupancy or obligation evidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/hospitality-day-automation-runs": {
+      "get": {
+        "operationId": "GET_api_v1_business_hospitality_day_automation_runs",
+        "summary": "GET /api/v1/business/hospitality-day-automation-runs",
+        "description": "Authentication: business access JWT plus live account/session. Permission: night_audit:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Optional independently approved one-to-seven-day automation, manual by default. Latest policy only; no fallback after revocation/expiry. Direct current maker authority, property timezone and cutoff version are rechecked by the service worker. All exceptions block automatic close; no borrowed human MFA or provider outcome is invented. Read endpoints return recorded policies/runs, not a claim of current execution eligibility. Revocation and MANUAL mode reduce authority without another independent approval. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "night_audit:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSDayAutomationRunList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "business_day_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "state": "AUDITED",
+                        "audit_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "close_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "evidence": {},
+                        "created_by_service": "business-operations-service",
+                        "created_at": "2026-10-30T12:00:00Z"
+                      }
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/business/hospitality-policies": {
       "get": {
         "operationId": "GET_api_v1_business_hospitality_policies",
@@ -104402,6 +105278,530 @@
           "reservation_version",
           "room_state",
           "access_state"
+        ]
+      },
+      "PMSDayAutomationCommand": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "expected_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "AUDIT_ONLY",
+              "CLOSE_IF_CLEAR"
+            ]
+          },
+          "hospitality_policy_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "max_days_per_run": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "property_id",
+          "expected_version",
+          "mode",
+          "hospitality_policy_version",
+          "effective_at",
+          "expires_at",
+          "max_days_per_run",
+          "reason"
+        ]
+      },
+      "PMSDayAutomationPolicy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "AUDIT_ONLY",
+              "CLOSE_IF_CLEAR"
+            ]
+          },
+          "hospitality_policy_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "max_days_per_run": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "authorizing_membership_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "authorizing_role_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "version",
+          "mode",
+          "hospitality_policy_version",
+          "timezone",
+          "effective_at",
+          "expires_at",
+          "max_days_per_run",
+          "authorizing_membership_id",
+          "authorizing_role_id",
+          "reason",
+          "created_by",
+          "created_at"
+        ]
+      },
+      "PMSDayAutomationPolicyList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSDayAutomationPolicyView"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "limit",
+          "offset"
+        ]
+      },
+      "PMSDayAutomationPolicyView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "AUDIT_ONLY",
+              "CLOSE_IF_CLEAR"
+            ]
+          },
+          "hospitality_policy_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "max_days_per_run": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "authorizing_membership_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "authorizing_role_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "recorded_state": {
+            "enum": [
+              "SUPERSEDED",
+              "REVOKED",
+              "MANUAL",
+              "EXPIRED",
+              "NOT_YET_EFFECTIVE",
+              "RECORDED"
+            ]
+          },
+          "source_review": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "READY",
+                      "QUARANTINED"
+                    ]
+                  },
+                  "consecutive_failures": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "last_error_code": {
+                    "enum": [
+                      "",
+                      "SOURCE_TRANSACTION_FAILED"
+                    ]
+                  },
+                  "next_check_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-10-30T12:00:00Z"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "state",
+                  "consecutive_failures",
+                  "last_error_code",
+                  "next_check_at"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "version",
+          "mode",
+          "hospitality_policy_version",
+          "timezone",
+          "effective_at",
+          "expires_at",
+          "max_days_per_run",
+          "authorizing_membership_id",
+          "authorizing_role_id",
+          "reason",
+          "created_by",
+          "created_at",
+          "recorded_state",
+          "source_review"
+        ]
+      },
+      "PMSDayAutomationRevoked": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "state": {
+            "type": "string",
+            "const": "REVOKED"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "policy_id",
+          "state"
+        ]
+      },
+      "PMSDayAutomationRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "business_day_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "state": {
+            "enum": [
+              "AUDITED",
+              "BLOCKED",
+              "CLOSED",
+              "AUTHORITY_REVOKED",
+              "POLICY_STALE",
+              "SOURCE_REVIEW_REQUIRED"
+            ]
+          },
+          "audit_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "close_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_by_service": {
+            "const": "business-operations-service"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "policy_id",
+          "business_day_id",
+          "source_digest",
+          "state",
+          "audit_id",
+          "close_id",
+          "evidence",
+          "created_by_service",
+          "created_at"
+        ]
+      },
+      "PMSDayAutomationRunList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PMSDayAutomationRun"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "limit",
+          "offset"
         ]
       },
       "PMSDayCloseCommand": {

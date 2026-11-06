@@ -59,6 +59,10 @@ type PMSAuditSnapshot struct {
 }
 
 func (h *Handler) registerPMSDays(r chi.Router) {
+	r.Get("/hospitality-day-automation", h.pmsDayAutomationPolicies)
+	r.Post("/hospitality-day-automation", h.pmsDayAutomationPolicy)
+	r.Post("/hospitality-day-automation/{id}/revoke", h.pmsDayAutomationRevoke)
+	r.Get("/hospitality-day-automation-runs", h.pmsDayAutomationRuns)
 	r.Get("/hospitality-policies", h.pmsHospitalityPolicies)
 	r.Post("/hospitality-policies", h.pmsHospitalityPolicy)
 	r.Get("/night-audit", h.pmsNightAudits)
@@ -223,32 +227,8 @@ func (h *Handler) pmsNightAuditValidate(w http.ResponseWriter, r *http.Request) 
 		if e != nil {
 			return 0, nil, e
 		}
-		d, e := h.pmsDay(ctx, tx, t, in.PropertyID, false)
-		if e != nil {
-			return 0, nil, e
-		}
-		snapshot, e := h.pmsAuditSnapshot(ctx, tx, t, d)
-		if e != nil {
-			return 0, nil, e
-		}
-		id := ids.New()
-		state := "READY"
-		if len(snapshot.Exceptions) > 0 {
-			state = "EXCEPTIONS"
-		}
-		digest := security.SHA256Hex(marshalCommercial(snapshot))
-		if _, e = tx.Exec(ctx, `INSERT INTO night_audits(id,organisation_id,property_id,business_day_id,state,snapshot,snapshot_digest,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, id, t.Organisation, in.PropertyID, d.ID, state, marshalCommercial(snapshot), digest, t.Account); e != nil {
-			return 0, nil, e
-		}
-		for _, ex := range snapshot.Exceptions {
-			if _, e = tx.Exec(ctx, `INSERT INTO night_audit_exceptions(id,organisation_id,property_id,audit_id,code,hard_block,quantity,evidence) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, ids.New(), t.Organisation, in.PropertyID, id, ex.Code, ex.HardBlock, ex.Quantity, marshalCommercial(ex)); e != nil {
-				return 0, nil, e
-			}
-		}
-		if e = h.pmsCommit(ctx, tx, t, in.PropertyID, id, "night_audit", "NIGHT_AUDIT_VALIDATED", "hospitality.night_audit.validated.v1", 1, map[string]any{"business_day_id": d.ID, "snapshot_digest": digest, "state": state, "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		return 201, map[string]any{"id": id, "state": state, "snapshot_digest": digest, "snapshot": snapshot}, nil
+		out, e := h.validatePMSNightAudit(ctx, tx, t, in.PropertyID, in.Reason)
+		return 201, out, e
 	})
 }
 func (h *Handler) pmsBusinessDayClose(w http.ResponseWriter, r *http.Request) {
@@ -261,62 +241,12 @@ func (h *Handler) pmsBusinessDayClose(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.execute(w, r, "pms:day:close:"+in.BusinessDayID.String(), in, "night_audit:write", "PROPERTY", in.PropertyID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
-		t, target, e := h.authorize(ctx, tx, "night_audit:write", "PROPERTY", in.PropertyID, true)
+		t, _, e := h.authorize(ctx, tx, "night_audit:write", "PROPERTY", in.PropertyID, true)
 		if e != nil {
 			return 0, nil, e
 		}
-		d, e := h.pmsDay(ctx, tx, t, in.PropertyID, false)
-		if e != nil {
-			return 0, nil, e
-		}
-		if d.ID != in.BusinessDayID || d.Version != in.Version || h.Auth.Service.Now().Before(d.CutoffAt) {
-			return 0, nil, apperrors.Conflict("BUSINESS_DAY_CLOSE_WINDOW", "Only the exact current business day after its local cutoff can close.")
-		}
-		var digest string
-		if e = tx.QueryRow(ctx, `SELECT snapshot_digest FROM night_audits WHERE organisation_id=$1 AND property_id=$2 AND business_day_id=$3 AND id=$4`, t.Organisation, in.PropertyID, d.ID, in.AuditID).Scan(&digest); e != nil {
-			return 0, nil, e
-		}
-		snapshot, e := h.pmsAuditSnapshot(ctx, tx, t, d)
-		if e != nil {
-			return 0, nil, e
-		}
-		if digest != in.SnapshotDigest || security.SHA256Hex(marshalCommercial(snapshot)) != digest {
-			return 0, nil, apperrors.Conflict("NIGHT_AUDIT_STALE", "Revalidate the actual current property evidence before closing.")
-		}
-		for _, ex := range snapshot.Exceptions {
-			if ex.HardBlock {
-				return 0, nil, apperrors.Conflict("NIGHT_AUDIT_HARD_EXCEPTION", "Resolve hard occupancy, stock, fiscal, cash and settlement exceptions before closing.")
-			}
-		}
-		if len(snapshot.Exceptions) > 0 {
-			op := in
-			op.ApprovalID = ids.Nil
-			if e = h.requireCommercialApproval(ctx, tx, t, "COMMERCIAL_PMS_NIGHT_AUDIT_EXCEPTION", target.Scope, in.ApprovalID, map[string]any{"command": op}, "", nil, ""); e != nil {
-				return 0, nil, e
-			}
-		}
-		id := ids.New()
-		var approval any
-		if !in.ApprovalID.IsZero() {
-			approval = in.ApprovalID
-		}
-		if _, e = tx.Exec(ctx, `INSERT INTO business_day_closes(id,organisation_id,property_id,business_day_id,audit_id,approval_id,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, id, t.Organisation, in.PropertyID, d.ID, in.AuditID, approval, in.Reason, t.Account); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `INSERT INTO business_day_close_reports(id,organisation_id,close_id,report) VALUES($1,$2,$3,$4)`, ids.New(), t.Organisation, id, marshalCommercial(map[string]any{"snapshot": snapshot, "audit_id": in.AuditID, "approval_id": approval, "snapshot_digest": digest, "closed_at": h.Auth.Service.Now().UTC()})); e != nil {
-			return 0, nil, e
-		}
-		if _, e = tx.Exec(ctx, `UPDATE hospitality_business_days SET state='CLOSED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, d.ID); e != nil {
-			return 0, nil, e
-		}
-		if e = h.pmsCommit(ctx, tx, t, in.PropertyID, d.ID, "business_day", "BUSINESS_DAY_CLOSED", "night_audit.closed.v1", d.Version+1, map[string]any{"close_id": id, "audit_id": in.AuditID, "day": d.Day, "snapshot_digest": digest, "reason": in.Reason}); e != nil {
-			return 0, nil, e
-		}
-		next, e := h.pmsDay(ctx, tx, t, in.PropertyID, false)
-		if e != nil {
-			return 0, nil, e
-		}
-		return 200, map[string]any{"id": id, "state": "CLOSED", "business_day_id": d.ID, "next_business_day": next}, nil
+		out, e := h.closePMSBusinessDay(ctx, tx, t, in)
+		return 200, out, e
 	})
 }
 func (h *Handler) pmsHospitalityPolicies(w http.ResponseWriter, r *http.Request) {
@@ -327,4 +257,109 @@ func (h *Handler) pmsNightAudits(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) pmsBusinessDayCloses(w http.ResponseWriter, r *http.Request) {
 	h.pmsList(w, r, "business_day_closes", "night_audit:read")
+}
+
+type PMSAuditResult struct {
+	ID             ids.ID           `json:"id"`
+	State          string           `json:"state"`
+	SnapshotDigest string           `json:"snapshot_digest"`
+	Snapshot       PMSAuditSnapshot `json:"snapshot"`
+}
+
+func (h *Handler) validatePMSNightAudit(ctx context.Context, tx pgx.Tx, t tenant, property ids.ID, reason string) (out PMSAuditResult, e error) {
+	d, e := h.pmsDay(ctx, tx, t, property, false)
+	if e != nil {
+		return out, e
+	}
+	snapshot, e := h.pmsAuditSnapshot(ctx, tx, t, d)
+	if e != nil {
+		return out, e
+	}
+	id := ids.New()
+	state := "READY"
+	if len(snapshot.Exceptions) > 0 {
+		state = "EXCEPTIONS"
+	}
+	digest := security.SHA256Hex(marshalCommercial(snapshot))
+	if _, e = tx.Exec(ctx, `INSERT INTO night_audits(id,organisation_id,property_id,business_day_id,state,snapshot,snapshot_digest,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, id, t.Organisation, property, d.ID, state, marshalCommercial(snapshot), digest, t.Account); e != nil {
+		return out, e
+	}
+	for _, ex := range snapshot.Exceptions {
+		if _, e = tx.Exec(ctx, `INSERT INTO night_audit_exceptions(id,organisation_id,property_id,audit_id,code,hard_block,quantity,evidence) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, ids.New(), t.Organisation, property, id, ex.Code, ex.HardBlock, ex.Quantity, marshalCommercial(ex)); e != nil {
+			return out, e
+		}
+	}
+	if e = h.pmsCommit(ctx, tx, t, property, id, "night_audit", "NIGHT_AUDIT_VALIDATED", "hospitality.night_audit.validated.v1", 1, map[string]any{"business_day_id": d.ID, "snapshot_digest": digest, "state": state, "reason": reason}); e != nil {
+		return out, e
+	}
+	return PMSAuditResult{ID: id, State: state, SnapshotDigest: digest, Snapshot: snapshot}, nil
+}
+
+type PMSDayCloseResult struct {
+	ID              ids.ID         `json:"id"`
+	State           string         `json:"state"`
+	BusinessDayID   ids.ID         `json:"business_day_id"`
+	NextBusinessDay PMSBusinessDay `json:"next_business_day"`
+}
+
+func (h *Handler) closePMSBusinessDay(ctx context.Context, tx pgx.Tx, t tenant, in PMSDayCloseCommand) (out PMSDayCloseResult, e error) {
+	d, e := h.pmsDay(ctx, tx, t, in.PropertyID, false)
+	if e != nil {
+		return out, e
+	}
+	if d.ID != in.BusinessDayID || d.Version != in.Version || h.Auth.Service.Now().Before(d.CutoffAt) {
+		return out, apperrors.Conflict("BUSINESS_DAY_CLOSE_WINDOW", "Only the exact current business day after its local cutoff can close.")
+	}
+	var digest string
+	if e = tx.QueryRow(ctx, `SELECT snapshot_digest FROM night_audits WHERE organisation_id=$1 AND property_id=$2 AND business_day_id=$3 AND id=$4`, t.Organisation, in.PropertyID, d.ID, in.AuditID).Scan(&digest); e != nil {
+		return out, e
+	}
+	snapshot, e := h.pmsAuditSnapshot(ctx, tx, t, d)
+	if e != nil {
+		return out, e
+	}
+	if digest != in.SnapshotDigest || security.SHA256Hex(marshalCommercial(snapshot)) != digest {
+		return out, apperrors.Conflict("NIGHT_AUDIT_STALE", "Revalidate the actual current property evidence before closing.")
+	}
+	for _, ex := range snapshot.Exceptions {
+		if ex.HardBlock {
+			return out, apperrors.Conflict("NIGHT_AUDIT_HARD_EXCEPTION", "Resolve hard occupancy, stock, fiscal, cash and settlement exceptions before closing.")
+		}
+	}
+	if len(snapshot.Exceptions) > 0 {
+		if t.Account.IsZero() {
+			return out, apperrors.Conflict("AUTOMATION_EXCEPTION_DENIED", "Automatic closure requires no exceptions; a human must resolve or independently approve eligible exceptions.")
+		}
+		target, e := resolve(ctx, tx, t.Organisation, "PROPERTY", in.PropertyID)
+		if e != nil {
+			return out, e
+		}
+		op := in
+		op.ApprovalID = ids.Nil
+		if e = h.requireCommercialApproval(ctx, tx, t, "COMMERCIAL_PMS_NIGHT_AUDIT_EXCEPTION", target.Scope, in.ApprovalID, map[string]any{"command": op}, "", nil, ""); e != nil {
+			return out, e
+		}
+	}
+	id := ids.New()
+	var approval any
+	if !in.ApprovalID.IsZero() {
+		approval = in.ApprovalID
+	}
+	if _, e = tx.Exec(ctx, `INSERT INTO business_day_closes(id,organisation_id,property_id,business_day_id,audit_id,approval_id,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, id, t.Organisation, in.PropertyID, d.ID, in.AuditID, approval, in.Reason, t.Account); e != nil {
+		return out, e
+	}
+	if _, e = tx.Exec(ctx, `INSERT INTO business_day_close_reports(id,organisation_id,close_id,report) VALUES($1,$2,$3,$4)`, ids.New(), t.Organisation, id, marshalCommercial(map[string]any{"snapshot": snapshot, "audit_id": in.AuditID, "approval_id": approval, "snapshot_digest": digest, "closed_at": h.Auth.Service.Now().UTC()})); e != nil {
+		return out, e
+	}
+	if _, e = tx.Exec(ctx, `UPDATE hospitality_business_days SET state='CLOSED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, d.ID); e != nil {
+		return out, e
+	}
+	if e = h.pmsCommit(ctx, tx, t, in.PropertyID, d.ID, "business_day", "BUSINESS_DAY_CLOSED", "night_audit.closed.v1", d.Version+1, map[string]any{"close_id": id, "audit_id": in.AuditID, "day": d.Day, "snapshot_digest": digest, "reason": in.Reason}); e != nil {
+		return out, e
+	}
+	next, e := h.pmsDay(ctx, tx, t, in.PropertyID, false)
+	if e != nil {
+		return out, e
+	}
+	return PMSDayCloseResult{ID: id, State: "CLOSED", BusinessDayID: d.ID, NextBusinessDay: next}, nil
 }

@@ -3,6 +3,22 @@ import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ s['PMSDayAutomationCommand']['properties']['mode']['enum']=['MANUAL','AUDIT_ONLY','CLOSE_IF_CLEAR']
+ s['PMSDayAutomationPolicy']['properties']['mode']['enum']=['MANUAL','AUDIT_ONLY','CLOSE_IF_CLEAR']
+ for name in ('PMSDayAutomationCommand','PMSDayAutomationPolicy'):
+  s[name]['properties']['max_days_per_run'].update(minimum=1,maximum=7)
+  s[name]['properties']['hospitality_policy_version'].update(minimum=0)
+ s['PMSDayAutomationRevoked']['properties']['state']['const']='REVOKED'
+ s['PMSDayAutomationPolicyView']=copy.deepcopy(s['PMSDayAutomationPolicy'])
+ s['PMSDayAutomationPolicyView']['properties']['approval_id']={'anyOf':[uid,{'type':'null'}]}
+ s['PMSDayAutomationPolicyView']['properties']['recorded_state']={'enum':['SUPERSEDED','REVOKED','MANUAL','EXPIRED','NOT_YET_EFFECTIVE','RECORDED']}
+ s['PMSDayAutomationPolicyView']['properties']['source_review']={'anyOf':[obj({'state':{'enum':['READY','QUARANTINED']},'consecutive_failures':{'type':'integer','minimum':0},'last_error_code':{'enum':['','SOURCE_TRANSACTION_FAILED']},'next_check_at':typ('time.Time')},['state','consecutive_failures','last_error_code','next_check_at'],True),{'type':'null'}]}
+ s['PMSDayAutomationPolicyView']['required']+=['recorded_state','source_review']
+ shape('PMSDayAutomationPolicyList',items=arr(ref('PMSDayAutomationPolicyView')),limit=integer,offset=integer)
+ shape('PMSDayAutomationRun',id=uid,organisation_id=uid,property_id=uid,policy_id=uid,business_day_id={'anyOf':[uid,{'type':'null'}]},source_digest={'type':'string','pattern':'^[a-f0-9]{64}$','example':'a'*64},state={'enum':['AUDITED','BLOCKED','CLOSED','AUTHORITY_REVOKED','POLICY_STALE','SOURCE_REVIEW_REQUIRED']},audit_id={'anyOf':[uid,{'type':'null'}]},close_id={'anyOf':[uid,{'type':'null'}]},evidence={'type':'object','additionalProperties':True},created_by_service={'const':'business-operations-service'},created_at=typ('time.Time'))
+ shape('PMSDayAutomationRunList',items=arr(ref('PMSDayAutomationRun')),limit=integer,offset=integer)
+
+
  shape('PMSFiscalReviewResult',review=ref('FiscalReview'),folio_version=integer,financial_effect={'const':'DETAIL_ONLY'},changed={'type':'boolean','example':True})
  shape('PMSFiscalReviewList',items=arr(ref('FiscalReview')),limit=integer,offset=integer)
  s['PMSItem']['description']='The accepted accommodation posting is one gross booking obligation. fiscal_review.breakdown is detail only; its components are never charged again.'
@@ -66,6 +82,10 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsEventBookingCreate':('pms:write','PMSEventBookingCommand','PMSEventBookingCreated',201,False),
  'pmsHospitalityPolicies':('night_audit:read',None,'PMSList',200,False),
  'pmsHospitalityPolicy':('night_audit:write','PMSHospitalityPolicyCommand','PMSHospitalityPolicyCreated',201,True),
+ 'pmsDayAutomationPolicies':('night_audit:read',None,'PMSDayAutomationPolicyList',200,False),
+ 'pmsDayAutomationPolicy':('night_audit:write','PMSDayAutomationCommand','PMSDayAutomationPolicy',201,True),
+ 'pmsDayAutomationRuns':('night_audit:read',None,'PMSDayAutomationRunList',200,False),
+ 'pmsDayAutomationRevoke':('night_audit:write','PMSVersionCommand','PMSDayAutomationRevoked',201,True),
  'pmsNightAudits':('night_audit:read',None,'PMSList',200,False),
  'pmsNightAuditValidate':('night_audit:write','PMSAuditCommand','PMSAuditResult',201,False),
  'pmsBusinessDayClose':('night_audit:write','PMSDayCloseCommand','PMSDayCloseResult',200,True),
@@ -114,6 +134,7 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSDayAutomationCommand':{'property_id':uid,'expected_version':0,'mode':'AUDIT_ONLY','hospitality_policy_version':1,'effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','max_days_per_run':1,'approval_id':uid,'reason':'Authorize a bounded property night audit without waiving any exception'},
  'PMSFiscalReviewCommand':{'folio_version':2,'item_id':uid,'expected_review_version':0,'reason':'Derive original accepted fiscal source detail without repricing or adding a charge'},
  'PMSFolioCloseReviewCommand':{'version':2,'automatic_close':True,'expires_at':'2026-12-02T01:00:00Z','reason':reason},
  'PMSGroupCreate':{'property_id':uid,'name':'Reviewed conference group','source_reference':'actual-group-sales-reference','billing_reference':'group-billing-authority-reference','reason':reason},

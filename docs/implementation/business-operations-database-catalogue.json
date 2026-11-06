@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00019_folio_fiscal_evidence.sql",
+  "latest_migration": "00020_hospitality_day_automation.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -3678,7 +3678,9 @@
         "immutable": true,
         "unique_constraint_count": 2,
         "check_constraint_count": 1,
-        "altered_in": []
+        "altered_in": [
+          "00020_hospitality_day_automation.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
@@ -6029,6 +6031,122 @@
         "immutable": false,
         "unique_constraint_count": 3,
         "check_constraint_count": 4,
+        "altered_in": [
+          "00020_hospitality_day_automation.sql"
+        ]
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_day_automation_cursors",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00020_hospitality_day_automation.sql",
+        "primary_key": [
+          "(organisation_id,property_id)"
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "hospitality_automation_due"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_day_automation_policies",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00020_hospitality_day_automation.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [
+          "hospitality_automation_latest"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 8,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_day_automation_revocations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00020_hospitality_day_automation.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_day_automation_runs",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00020_hospitality_day_automation.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "hospitality_automation_run_list"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 8,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",

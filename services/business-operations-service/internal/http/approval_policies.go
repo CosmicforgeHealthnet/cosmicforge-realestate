@@ -30,7 +30,7 @@ func highRiskAction(action string) bool {
 
 func commercialApprovalCapability(action string) string {
 	switch action {
-	case "COMMERCIAL_PMS_BUSINESS_DAY_POLICY", "COMMERCIAL_PMS_NIGHT_AUDIT_EXCEPTION":
+	case "COMMERCIAL_PMS_BUSINESS_DAY_POLICY", "COMMERCIAL_PMS_NIGHT_AUDIT_EXCEPTION", "COMMERCIAL_PMS_DAY_AUTOMATION":
 		return "night_audit:approve"
 	case "COMMERCIAL_PMS_CASHIER_VARIANCE":
 		return "cashier:approve"

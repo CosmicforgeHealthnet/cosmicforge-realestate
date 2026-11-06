@@ -289,9 +289,12 @@ func serviceActor(t tenant) string {
 // Recorded authority is reloaded without a session, delegated grants or invented
 // MFA. A scope requiring fresh per-action MFA cannot authorize a worker.
 func (h *Handler) currentFolioReviewAuthority(ctx context.Context, tx pgx.Tx, org, property ids.ID, review PMSFolioCloseReview) (bool, error) {
+	return h.currentRecordedPMSAuthority(ctx, tx, org, property, review.AuthorizingMembershipID, review.AuthorizingRoleID, "folios:write")
+}
+func (h *Handler) currentRecordedPMSAuthority(ctx context.Context, tx pgx.Tx, org, property, member, role ids.ID, capability permissions.Permission) (bool, error) {
 	var m workforce.Membership
 	var state string
-	e := tx.QueryRow(ctx, `SELECT m.account_id,m.organisation_id,m.status,m.effective_at,m.expires_at,o.state FROM staff_memberships m JOIN role_templates r ON r.organisation_id=m.organisation_id AND r.id=m.role_id JOIN business_accounts a ON a.id=m.account_id JOIN organisations o ON o.id=m.organisation_id WHERE m.organisation_id=$1 AND m.id=$2 AND m.role_id=$3 AND r.active AND a.status='ACTIVE' FOR SHARE OF m,r,a`, org, review.AuthorizingMembershipID, review.AuthorizingRoleID).Scan(&m.AccountID, &m.OrganisationID, &m.Status, &m.EffectiveAt, &m.ExpiresAt, &state)
+	e := tx.QueryRow(ctx, `SELECT m.account_id,m.organisation_id,m.status,m.effective_at,m.expires_at,o.state FROM staff_memberships m JOIN role_templates r ON r.organisation_id=m.organisation_id AND r.id=m.role_id JOIN business_accounts a ON a.id=m.account_id JOIN organisations o ON o.id=m.organisation_id WHERE m.organisation_id=$1 AND m.id=$2 AND m.role_id=$3 AND r.active AND a.status='ACTIVE' FOR SHARE OF m,r,a`, org, member, role).Scan(&m.AccountID, &m.OrganisationID, &m.Status, &m.EffectiveAt, &m.ExpiresAt, &state)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return false, nil
 	}
@@ -305,14 +308,14 @@ func (h *Handler) currentFolioReviewAuthority(ctx context.Context, tx pgx.Tx, or
 		return false, e
 	}
 	m.RoleCapabilities = permissions.NewSet()
-	if e = workforce.LoadDirectGrants(ctx, tx, org, review.AuthorizingMembershipID, review.AuthorizingRoleID, &m); e != nil {
+	if e = workforce.LoadDirectGrants(ctx, tx, org, member, role, &m); e != nil {
 		return false, e
 	}
 	target, e := resolve(ctx, tx, org, "PROPERTY", property)
 	if e != nil {
 		return false, e
 	}
-	return workforce.Authorize(m, workforce.DecisionInput{AccountID: m.AccountID, Target: target, Capability: "folios:write", Now: now, Restricted: state != "ACTIVE" || !verified}) == nil, nil
+	return workforce.Authorize(m, workforce.DecisionInput{AccountID: m.AccountID, Target: target, Capability: capability, Now: now, Restricted: state != "ACTIVE" || !verified}) == nil, nil
 }
 
 func (h *Handler) pmsCloseReviews(w http.ResponseWriter, r *http.Request) {

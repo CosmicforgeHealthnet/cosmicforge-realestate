@@ -1,3 +1,7 @@
+## Current schema20 progress
+
+Accepted fiscal detail/legacy review (schema19) and independently approved bounded night-audit/clean-day closing automation (schema20) are implemented and locally tested. Shared manual/worker commands, current direct authority, immutable service audit, backoff/quarantine and reviewed source recovery are covered. Other PMS operational workers, financial extensions and the remaining CRM/reservation/RMS work are still internal requirements. Scope counts and prior foundation certificates do not certify completion. Current implementation/evidence are in the Section10 report and combined certificate; exact-SHA CI remains independently tracked.
+
 ## Current schema18 work
 
 Rebuildable actual guest-stay history, source/event version provenance, real broker outage/replay, financial-expiry-safe reads and source-error quarantine/recovery are implemented. Full local module224 passed, zero failed/skipped; final focused security tests and quality/contracts/SQLC/architecture/secret checks passed. Exact schema18 pushed-SHA CI is still required. Existing unrelated Owner changes remain excluded. The master objective continues: remaining PMS fiscal/financial/automation and in-house work, full privacy/loyalty/recovery/notifications/metrics, reservation fragmentation/waitlist/source work, and RMS automation/advanced work are internal requirements, not provider blockers.

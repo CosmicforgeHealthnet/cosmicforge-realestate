@@ -222,15 +222,16 @@ type BusinessCredential struct {
 }
 
 type BusinessDayClose struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	PropertyID     ids.ID
-	BusinessDayID  ids.ID
-	AuditID        ids.ID
-	ApprovalID     *ids.ID
-	Reason         string
-	CreatedBy      ids.ID
-	CreatedAt      time.Time
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	BusinessDayID    ids.ID
+	AuditID          ids.ID
+	ApprovalID       *ids.ID
+	Reason           string
+	CreatedBy        *ids.ID
+	CreatedAt        time.Time
+	CreatedByService string
 }
 
 type BusinessDayCloseReport struct {
@@ -1254,19 +1255,73 @@ type GuestStayHistory struct {
 }
 
 type HospitalityBusinessDay struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	Day              pgtype.Date
+	Timezone         string
+	CutoffLocal      string
+	CutoffAt         time.Time
+	State            string
+	Version          int64
+	PolicyVersion    int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	CreatedBy        *ids.ID
+	CreatedByService string
+}
+
+type HospitalityDayAutomationCursor struct {
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	NextCheckAt         time.Time
+	ConsecutiveFailures int32
+	LastErrorCode       string
+	State               string
+}
+
+type HospitalityDayAutomationPolicy struct {
+	ID                       ids.ID
+	OrganisationID           ids.ID
+	PropertyID               ids.ID
+	Version                  int64
+	Mode                     string
+	HospitalityPolicyVersion int64
+	Timezone                 string
+	EffectiveAt              time.Time
+	ExpiresAt                time.Time
+	MaxDaysPerRun            int32
+	AuthorizingMembershipID  ids.ID
+	AuthorizingRoleID        ids.ID
+	ApprovalID               *ids.ID
+	Reason                   string
+	CreatedBy                ids.ID
+	CreatedAt                time.Time
+}
+
+type HospitalityDayAutomationRevocation struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	PropertyID     ids.ID
-	Day            pgtype.Date
-	Timezone       string
-	CutoffLocal    string
-	CutoffAt       time.Time
-	State          string
-	Version        int64
-	PolicyVersion  int64
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	PolicyID       ids.ID
+	Reason         string
 	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type HospitalityDayAutomationRun struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	PolicyID         ids.ID
+	BusinessDayID    *ids.ID
+	SourceDigest     string
+	State            string
+	AuditID          *ids.ID
+	CloseID          *ids.ID
+	Evidence         []byte
+	CreatedByService string
+	CreatedAt        time.Time
 }
 
 type HospitalityHistory struct {
