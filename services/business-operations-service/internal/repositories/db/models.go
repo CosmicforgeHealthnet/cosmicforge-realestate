@@ -1416,6 +1416,7 @@ type HospitalityOperationException struct {
 	CreatedByService string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	RoomID           *ids.ID
 }
 
 type HospitalityPolicy struct {
@@ -1428,6 +1429,15 @@ type HospitalityPolicy struct {
 	Reason         string
 	CreatedBy      ids.ID
 	CreatedAt      time.Time
+}
+
+type HospitalityRoomCursor struct {
+	OrganisationID      ids.ID
+	RoomID              ids.ID
+	NextCheckAt         time.Time
+	ConsecutiveFailures int32
+	State               string
+	LastErrorCode       string
 }
 
 type IdempotencyRecord struct {
@@ -2648,6 +2658,22 @@ type RoomAssignmentDay struct {
 	RoomID         ids.ID
 	Day            pgtype.Date
 	ReleasedAt     *time.Time
+}
+
+type RoomReconciliationReport struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RoomID           ids.ID
+	SourceDigest     string
+	State            string
+	Proof            []byte
+	Changes          []byte
+	ApprovalID       *ids.ID
+	Reason           string
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
 }
 
 type RoomStatusCurrent struct {

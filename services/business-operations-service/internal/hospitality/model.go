@@ -117,6 +117,8 @@ func StatusTransition(from, to string) bool {
 		return to == "VACANT_CLEAN" || to == "VACANT_DIRTY" || to == "BLOCKED" || to == "OUT_OF_ORDER"
 	case "BLOCKED", "OUT_OF_ORDER":
 		return to == "VACANT_DIRTY"
+	case "OCCUPIED":
+		return to == "BLOCKED" || to == "OUT_OF_ORDER"
 	}
 	return false
 }

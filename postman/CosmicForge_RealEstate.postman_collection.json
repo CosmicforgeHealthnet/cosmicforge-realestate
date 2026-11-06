@@ -124554,6 +124554,562 @@
               ]
             },
             {
+              "name": "GET /api/v1/business/room-reconciliations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "room-reconciliations"
+                  ],
+                  "query": [
+                    {
+                      "key": "property_id",
+                      "value": "{{business_property_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "branch_id",
+                      "value": "{{business_branch_id}}",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"room_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"source_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n        \"state\": \"CONSISTENT\",\n        \"proof\": {\n          \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n          \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n          \"room_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n          \"status_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n          \"room_state\": \"INSPECTED\",\n          \"room_version\": 1,\n          \"status_updated_at\": \"2026-10-30T12:00:00Z\",\n          \"node_kind\": \"ROOM\",\n          \"node_state\": \"ACTIVE\",\n          \"node_version\": 1,\n          \"node_property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n          \"node_capacity\": 2,\n          \"active_stay_count\": 0,\n          \"occupied_assignment_count\": 0,\n          \"effective_assignment_count\": 0,\n          \"active_stays\": [],\n          \"assignments\": []\n        },\n        \"changes\": {},\n        \"reason\": \"example\",\n        \"created_by_service\": \"\",\n        \"created_at\": \"2026-10-30T12:00:00Z\"\n      }\n    ],\n    \"limit\": 1,\n    \"offset\": 1\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-reconciliations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-reconciliations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "GET /api/v1/business/guest-requests",
               "request": {
                 "method": "GET",
@@ -290768,6 +291324,1282 @@
                       "const body = pm.response.json();",
                       "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
                       "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/business/room-status/{room_id}/safety-proof",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "room-status",
+                    "{{business_room_id}}",
+                    "safety-proof"
+                  ],
+                  "query": [
+                    {
+                      "key": "property_id",
+                      "value": "{{business_property_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "branch_id",
+                      "value": "{{business_branch_id}}",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"proof\": {\n      \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"room_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"status_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"room_state\": \"INSPECTED\",\n      \"room_version\": 1,\n      \"status_updated_at\": \"2026-10-30T12:00:00Z\",\n      \"node_kind\": \"ROOM\",\n      \"node_state\": \"ACTIVE\",\n      \"node_version\": 1,\n      \"node_property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"node_capacity\": 2,\n      \"active_stay_count\": 0,\n      \"occupied_assignment_count\": 0,\n      \"effective_assignment_count\": 0,\n      \"active_stays\": [],\n      \"assignments\": []\n    },\n    \"source_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    \"plan\": {\n      \"desired_state\": \"INSPECTED\",\n      \"issues\": [],\n      \"release_assignment_ids\": []\n    }\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/safety-proof",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "safety-proof"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }",
+                      "if(pm.response.code===200){pm.environment.set(\"business_room_id\",body.data.proof.room_id);pm.environment.set(\"business_room_status_version\",body.data.proof.room_version);pm.environment.set(\"business_room_source_digest\",body.data.source_digest);pm.test(\"Exact owning source digest\",()=>pm.expect(body.data.source_digest).to.match(/^[a-f0-9]{64}$/));}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/business/room-status/{room_id}/reconcile",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{business_idempotency_key}}",
+                    "description": "Set a new stable value per intended command; reuse only for exact retries."
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "room-status",
+                    "{{business_room_id}}",
+                    "reconcile"
+                  ],
+                  "query": [
+                    {
+                      "key": "property_id",
+                      "value": "{{business_property_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "branch_id",
+                      "value": "{{business_branch_id}}",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"report\": {\n      \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"room_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n      \"source_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"state\": \"CONSISTENT\",\n      \"proof\": {\n        \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"room_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"status_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"room_state\": \"INSPECTED\",\n        \"room_version\": 1,\n        \"status_updated_at\": \"2026-10-30T12:00:00Z\",\n        \"node_kind\": \"ROOM\",\n        \"node_state\": \"ACTIVE\",\n        \"node_version\": 1,\n        \"node_property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"node_capacity\": 2,\n        \"active_stay_count\": 0,\n        \"occupied_assignment_count\": 0,\n        \"effective_assignment_count\": 0,\n        \"active_stays\": [],\n        \"assignments\": []\n      },\n      \"changes\": {},\n      \"reason\": \"example\",\n      \"created_by_service\": \"\",\n      \"created_at\": \"2026-10-30T12:00:00Z\"\n    },\n    \"room_version\": 1,\n    \"room_state\": \"example\",\n    \"safety_hold\": true,\n    \"changed\": true\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/room-status/{{business_room_id}}/reconcile",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "room-status",
+                        "{{business_room_id}}",
+                        "reconcile"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "branch_id",
+                          "value": "{{business_branch_id}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"expected_room_version\": \"{{business_room_status_version}}\",\n  \"source_digest\": \"{{business_room_source_digest}}\",\n  \"reason\": \"Reconcile only the exact current owning room and stay sources without asserting vacancy\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }",
+                      "if(pm.response.code===200){pm.environment.set(\"business_room_reconciliation_id\",body.data.report.id);pm.environment.set(\"business_room_status_version\",body.data.room_version);pm.test(\"Reconciliation reports safety explicitly\",()=>{pm.expect(body.data.safety_hold).to.be.a(\"boolean\");pm.expect(body.data.report.proof).to.be.an(\"object\");if(body.data.report.state===\"OPERATOR_OBSERVATION\")pm.expect(body.data.room_state).to.eql(\"VACANT_DIRTY\");});}"
                     ]
                   }
                 }

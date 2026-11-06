@@ -75713,6 +75713,709 @@
         }
       }
     },
+    "/api/v1/business/room-reconciliations": {
+      "get": {
+        "operationId": "GET_api_v1_business_room_reconciliations",
+        "summary": "GET /api/v1/business/room-reconciliations",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSRoomReconciliationList"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "items": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "state": "CONSISTENT",
+                        "proof": {
+                          "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "status_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "room_state": "INSPECTED",
+                          "room_version": 1,
+                          "status_updated_at": "2026-10-30T12:00:00Z",
+                          "node_kind": "ROOM",
+                          "node_state": "ACTIVE",
+                          "node_version": 1,
+                          "node_property_id": "019a5fb0-0000-7000-8000-000000000001",
+                          "node_capacity": 2,
+                          "active_stay_count": 0,
+                          "occupied_assignment_count": 0,
+                          "effective_assignment_count": 0,
+                          "active_stays": [],
+                          "assignments": []
+                        },
+                        "changes": {},
+                        "reason": "example",
+                        "created_by_service": "",
+                        "created_at": "2026-10-30T12:00:00Z"
+                      }
+                    ],
+                    "limit": 1,
+                    "offset": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/room-status/{room_id}/safety-proof": {
+      "get": {
+        "operationId": "GET_api_v1_business_room_status_room_id_safety_proof",
+        "summary": "GET /api/v1/business/room-status/{room_id}/safety-proof",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:read",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSRoomSafetyRead"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "proof": {
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "status_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "room_state": "INSPECTED",
+                      "room_version": 1,
+                      "status_updated_at": "2026-10-30T12:00:00Z",
+                      "node_kind": "ROOM",
+                      "node_state": "ACTIVE",
+                      "node_version": 1,
+                      "node_property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "node_capacity": 2,
+                      "active_stay_count": 0,
+                      "occupied_assignment_count": 0,
+                      "effective_assignment_count": 0,
+                      "active_stays": [],
+                      "assignments": []
+                    },
+                    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "plan": {
+                      "desired_state": "INSPECTED",
+                      "issues": [],
+                      "release_assignment_ids": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business/room-status/{room_id}/reconcile": {
+      "post": {
+        "operationId": "POST_api_v1_business_room_status_room_id_reconcile",
+        "summary": "POST /api/v1/business/room-status/{room_id}/reconcile",
+        "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Current bounded canonical room/stay/assignment evidence, exact source digest and current room version. Mutation additionally requires room_status:inspect and recent MFA. Derived departure never declares cleanliness; unknown occupancy/overdue/hazard contradictions create retained safety exceptions and the existing pool hold. Qualified OBSERVED_VACANT_DIRTY requires an exact independent COMMERCIAL_PMS_OCCUPANCY_CORRECTION approval and cannot evict a real active stay or occupied assignment. Reports retain captured source history; current proof reloads facts. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+        "x-permission": "pms:write",
+        "x-step-up": true,
+        "x-idempotency-key": true,
+        "parameters": [
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "property_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PMSRoomReconcileResult"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "report": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "state": "CONSISTENT",
+                      "proof": {
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "room_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "status_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "room_state": "INSPECTED",
+                        "room_version": 1,
+                        "status_updated_at": "2026-10-30T12:00:00Z",
+                        "node_kind": "ROOM",
+                        "node_state": "ACTIVE",
+                        "node_version": 1,
+                        "node_property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "node_capacity": 2,
+                        "active_stay_count": 0,
+                        "occupied_assignment_count": 0,
+                        "effective_assignment_count": 0,
+                        "active_stays": [],
+                        "assignments": []
+                      },
+                      "changes": {},
+                      "reason": "example",
+                      "created_by_service": "",
+                      "created_at": "2026-10-30T12:00:00Z"
+                    },
+                    "room_version": 1,
+                    "room_state": "example",
+                    "safety_hold": true,
+                    "changed": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PMSRoomReconcileCommand"
+              },
+              "example": {
+                "expected_room_version": 3,
+                "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "reason": "Reconcile only the exact current owning room and stay sources without asserting vacancy"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/business/guest-requests": {
       "get": {
         "operationId": "GET_api_v1_business_guest_requests",
@@ -106660,7 +107363,11 @@
             "type": "integer"
           },
           "room_state": {
-            "const": "VACANT_DIRTY"
+            "enum": [
+              "VACANT_DIRTY",
+              "BLOCKED",
+              "OUT_OF_ORDER"
+            ]
           },
           "access_state": {
             "const": "UNKNOWN"
@@ -108915,6 +109622,139 @@
           "version",
           "reservation_version",
           "access_state"
+        ]
+      },
+      "PMSRoomReconcileCommand": {
+        "type": "object",
+        "properties": {
+          "expected_room_version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "observation": {
+            "type": "string",
+            "enum": [
+              "",
+              "OBSERVED_VACANT_DIRTY"
+            ]
+          },
+          "evidence_reference": {
+            "type": "string"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "expected_room_version",
+          "source_digest",
+          "reason"
+        ]
+      },
+      "PMSRoomReconcileResult": {
+        "type": "object",
+        "properties": {
+          "report": {
+            "$ref": "#/components/schemas/RoomReconciliationReport"
+          },
+          "room_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "room_state": {
+            "type": "string"
+          },
+          "safety_hold": {
+            "type": "boolean"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "report",
+          "room_version",
+          "room_state",
+          "safety_hold",
+          "changed"
+        ]
+      },
+      "PMSRoomReconciliationList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomReconciliationReportView"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "limit",
+          "offset"
+        ]
+      },
+      "PMSRoomSafetyRead": {
+        "type": "object",
+        "properties": {
+          "proof": {
+            "$ref": "#/components/schemas/RoomSafetyProof"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/RoomSafetyPlan"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "proof",
+          "source_digest",
+          "plan"
+        ]
+      },
+      "PMSRoomSourceError": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "const": "SOURCE_TRANSACTION_FAILED"
+          },
+          "room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "error_code",
+          "room_id"
         ]
       },
       "PMSRoomStatus": {
@@ -114035,6 +114875,571 @@
           }
         },
         "additionalProperties": true
+      },
+      "RoomAssignmentSource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "type": "string"
+          },
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_state": {
+            "type": "string"
+          },
+          "has_any_stay": {
+            "type": "boolean"
+          },
+          "has_terminal_evidence": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "state",
+          "reservation_id",
+          "reservation_version",
+          "reservation_state",
+          "has_any_stay",
+          "has_terminal_evidence"
+        ]
+      },
+      "RoomDepartureSource": {
+        "type": "object",
+        "properties": {
+          "stay_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "stay_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assignment_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "assignment_state": {
+            "type": "string"
+          },
+          "checked_out_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "has_departure_evidence": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "stay_id",
+          "stay_version",
+          "assignment_id",
+          "assignment_state",
+          "checked_out_at",
+          "recorded_at",
+          "has_departure_evidence"
+        ]
+      },
+      "RoomReconciliationReport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "CONSISTENT",
+              "DERIVED_OCCUPANCY",
+              "DERIVED_DEPARTURE",
+              "ASSIGNMENTS_RELEASED",
+              "REVIEW_REQUIRED",
+              "OPERATOR_OBSERVATION",
+              "SOURCE_REVIEW_REQUIRED"
+            ]
+          },
+          "proof": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSafetyProof"
+              },
+              {
+                "$ref": "#/components/schemas/PMSRoomSourceError"
+              }
+            ]
+          },
+          "changes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "created_by_service": {
+            "type": "string",
+            "enum": [
+              "",
+              "business-operations-service"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "room_id",
+          "source_digest",
+          "state",
+          "proof",
+          "changes",
+          "reason",
+          "created_by_service",
+          "created_at"
+        ]
+      },
+      "RoomReconciliationReportView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "source_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "CONSISTENT",
+              "DERIVED_OCCUPANCY",
+              "DERIVED_DEPARTURE",
+              "ASSIGNMENTS_RELEASED",
+              "REVIEW_REQUIRED",
+              "OPERATOR_OBSERVATION",
+              "SOURCE_REVIEW_REQUIRED"
+            ]
+          },
+          "proof": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSafetyProof"
+              },
+              {
+                "$ref": "#/components/schemas/PMSRoomSourceError"
+              }
+            ]
+          },
+          "changes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                "example": "019a5fb0-0000-7000-8000-000000000001"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_by_service": {
+            "type": "string",
+            "enum": [
+              "",
+              "business-operations-service"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organisation_id",
+          "property_id",
+          "room_id",
+          "source_digest",
+          "state",
+          "proof",
+          "changes",
+          "reason",
+          "created_by_service",
+          "created_at"
+        ]
+      },
+      "RoomSafetyPlan": {
+        "type": "object",
+        "properties": {
+          "desired_state": {
+            "type": "string",
+            "example": "INSPECTED"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "release_assignment_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            },
+            "example": []
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "desired_state",
+          "issues",
+          "release_assignment_ids"
+        ]
+      },
+      "RoomSafetyProof": {
+        "type": "object",
+        "properties": {
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "status_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "room_state": {
+            "type": "string",
+            "example": "INSPECTED"
+          },
+          "room_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "node_kind": {
+            "type": "string",
+            "example": "ROOM"
+          },
+          "node_state": {
+            "type": "string",
+            "example": "ACTIVE"
+          },
+          "node_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "node_property_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "node_capacity": {
+            "type": "integer",
+            "format": "int64",
+            "example": 2,
+            "minimum": 0
+          },
+          "active_stay_count": {
+            "type": "integer",
+            "format": "int64",
+            "example": 0,
+            "minimum": 0
+          },
+          "occupied_assignment_count": {
+            "type": "integer",
+            "format": "int64",
+            "example": 0,
+            "minimum": 0
+          },
+          "effective_assignment_count": {
+            "type": "integer",
+            "format": "int64",
+            "example": 0,
+            "minimum": 0
+          },
+          "active_stays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomStaySource"
+            },
+            "example": []
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomAssignmentSource"
+            },
+            "example": []
+          },
+          "latest_departure": {
+            "$ref": "#/components/schemas/RoomDepartureSource"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "organisation_id",
+          "property_id",
+          "room_id",
+          "status_id",
+          "room_state",
+          "room_version",
+          "status_updated_at",
+          "node_kind",
+          "node_state",
+          "node_version",
+          "node_property_id",
+          "node_capacity",
+          "active_stay_count",
+          "occupied_assignment_count",
+          "effective_assignment_count",
+          "active_stays",
+          "assignments"
+        ]
+      },
+      "RoomStaySource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assignment_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "assignment_state": {
+            "type": "string"
+          },
+          "assignment_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_room_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reservation_version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservation_state": {
+            "type": "string"
+          },
+          "allocation_state": {
+            "type": "string"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "occupants": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "checkout_local": {
+            "type": "string"
+          },
+          "acceptance_timezone": {
+            "type": "string"
+          },
+          "has_arrival_evidence": {
+            "type": "boolean"
+          },
+          "stock_backed": {
+            "type": "boolean"
+          },
+          "departure_due_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00Z"
+          },
+          "overdue": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "assignment_id",
+          "assignment_state",
+          "assignment_version",
+          "reservation_id",
+          "reservation_room_id",
+          "reservation_version",
+          "reservation_state",
+          "allocation_state",
+          "date_from",
+          "date_to",
+          "occupants",
+          "checkout_local",
+          "acceptance_timezone",
+          "has_arrival_evidence",
+          "stock_backed",
+          "overdue"
+        ]
       },
       "Rule": {
         "type": "object",

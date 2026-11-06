@@ -469,6 +469,9 @@ for r in R:
    elif isinstance(value,list):
     for child in value:interpolate(child)
   interpolate(body)
+  if r['request']=='PMSRoomReconcileCommand':
+   body['expected_room_version']='{{business_room_status_version}}'
+   body['source_digest']='{{business_room_source_digest}}'
   if r['request']=='InventoryCreate' and graph_kind and 'parent_id' in body:body['parent_id']='{{business_'+{'DEVELOPMENT_PHASE':'development','BLOCK':'building','FLOOR':'block','UNIT':'floor','ROOM':'floor','ASSET':'room'}.get(graph_kind,'property')+'_id}}'
   request['body']={'mode':'raw','raw':json.dumps(body,indent=2),'options':{'raw':{'language':'json'}}}
  success_statuses=sorted(set([r['status']]+r.get('success_statuses',[])))
@@ -513,6 +516,8 @@ for r in R:
  if response=='PMSFiscalReviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_fiscal_review_id",body.data.review.id);pm.environment.set("business_fiscal_review_version",body.data.review.review_version);pm.environment.set("business_folio_item_id",body.data.review.folio_item_id);pm.environment.set("business_folio_version",body.data.folio_version);pm.test("Fiscal detail never duplicates a charge",()=>pm.expect(body.data.financial_effect).to.eql("DETAIL_ONLY"));}')
  if response=='PMSFolioClosed':tests.append('if(pm.response.code===200){pm.test("Closed only against exact current backing",()=>{pm.expect(body.data.folio.state).to.eql("CLOSED");pm.expect(body.data.balance_minor).to.eql(0);});pm.environment.set("business_reservation_version",body.data.reservation_version);}')
  if response=='PMSCheckInResult':tests.append('if(pm.response.code===201){pm.environment.set("business_stay_id",body.data.stay_id);pm.environment.set("business_folio_id",body.data.folio_id);pm.environment.set("business_reservation_version",body.data.reservation_version);pm.test("No fabricated device success",()=>pm.expect(body.data.access_state).to.eql("UNKNOWN"));}')
+ if response=='PMSRoomSafetyRead':tests.append('if(pm.response.code===200){pm.environment.set("business_room_id",body.data.proof.room_id);pm.environment.set("business_room_status_version",body.data.proof.room_version);pm.environment.set("business_room_source_digest",body.data.source_digest);pm.test("Exact owning source digest",()=>pm.expect(body.data.source_digest).to.match(/^[a-f0-9]{64}$/));}')
+ if response=='PMSRoomReconcileResult':tests.append('if(pm.response.code===200){pm.environment.set("business_room_reconciliation_id",body.data.report.id);pm.environment.set("business_room_status_version",body.data.room_version);pm.test("Reconciliation reports safety explicitly",()=>{pm.expect(body.data.safety_hold).to.be.a("boolean");pm.expect(body.data.report.proof).to.be.an("object");if(body.data.report.state==="OPERATOR_OBSERVATION")pm.expect(body.data.room_state).to.eql("VACANT_DIRTY");});}')
  if response=='PMSRoomStatus':tests.append('if(pm.response.code<300)pm.environment.set("business_room_status_version",body.data.version);')
  if response=='PMSAuditResult':tests.append('if(pm.response.code===201){pm.environment.set("business_business_day_id",body.data.snapshot.day.id);pm.environment.set("business_business_day_version",body.data.snapshot.day.version);pm.environment.set("business_night_audit_digest",body.data.snapshot_digest);}')
  if response in ('PMSFolioView','PMSFolioPostingResult','PMSFolioReconciled','PMSFolioClosed'):tests.append('if(pm.response.code<300){pm.environment.set("business_folio_id",body.data.folio.id);pm.environment.set("business_folio_version",body.data.folio.version);}')

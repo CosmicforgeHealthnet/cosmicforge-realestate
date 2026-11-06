@@ -390,7 +390,7 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 	if _, e = tx.Exec(ctx, `UPDATE room_assignments SET state='RELEASED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, a.ID, in.Reason); e != nil {
 		return 0, nil, e
 	}
-	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state='VACANT_DIRTY',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
+	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state=CASE WHEN state IN ('BLOCKED','OUT_OF_ORDER') THEN state ELSE 'VACANT_DIRTY' END,reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
 		return 0, nil, e
 	}
 	if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID, state); e != nil {
@@ -421,7 +421,7 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 	if e != nil {
 		return 0, nil, e
 	}
-	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": "VACANT_DIRTY", "reason": in.Reason}); e != nil {
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": status.State, "reason": in.Reason}); e != nil {
 		return 0, nil, e
 	}
 	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, a.ID, "room_assignment", "ASSIGNMENT_RELEASED", "hospitality.room.assigned.v1", a.Version+1, map[string]any{"stay_id": id, "reason": in.Reason}); e != nil {
@@ -433,7 +433,7 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, id, "stay", "CHECKED_OUT", "hospitality.stay.checked_out.v1", s.Version+1, map[string]any{"reservation_id": v.ID, "folio_id": f.ID, "folio_state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
 		return 0, nil, e
 	}
-	return 200, map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": "VACANT_DIRTY", "access_state": "UNKNOWN"}, nil
+	return 200, map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": status.State, "access_state": "UNKNOWN"}, nil
 }
 
 func validPMSCheckIn(in PMSCheckInCommand) bool {

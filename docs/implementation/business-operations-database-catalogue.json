@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00021_hospitality_arrival_automation.sql",
+  "latest_migration": "00022_room_reconciliation.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -4113,7 +4113,8 @@
         "indexes": [
           "assignment_active_slot",
           "assignment_occupied_room",
-          "assignment_property_dates"
+          "assignment_property_dates",
+          "room_assignment_source_lookup"
         ],
         "immutable": false,
         "unique_constraint_count": 2,
@@ -6285,7 +6286,9 @@
         "organisation_column": true,
         "versioned": false,
         "lifecycle": false,
-        "indexes": [],
+        "indexes": [
+          "hospitality_source_evidence"
+        ],
         "immutable": true,
         "unique_constraint_count": 1,
         "check_constraint_count": 2,
@@ -6344,12 +6347,15 @@
         "versioned": true,
         "lifecycle": true,
         "indexes": [
-          "hospitality_exception_queue"
+          "hospitality_exception_queue",
+          "hospitality_room_exception_open"
         ],
         "immutable": false,
         "unique_constraint_count": 2,
         "check_constraint_count": 4,
-        "altered_in": []
+        "altered_in": [
+          "00022_room_reconciliation.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -6376,6 +6382,35 @@
         "immutable": true,
         "unique_constraint_count": 1,
         "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "hospitality_room_cursors",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00022_room_reconciliation.sql",
+        "primary_key": [
+          "(organisation_id,room_id)"
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "hospitality_room_due"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 2,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
@@ -7680,6 +7715,35 @@
         "immutable": false,
         "unique_constraint_count": 0,
         "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "room_reconciliation_reports",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00022_room_reconciliation.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "room_reconciliation_list"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 7,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",

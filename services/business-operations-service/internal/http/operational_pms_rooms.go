@@ -43,6 +43,9 @@ func (h *Handler) registerPMS(r chi.Router) {
 	h.registerPMSCashier(r)
 	h.registerPMSOffline(r)
 	h.registerPMSGroups(r)
+	r.Get("/room-reconciliations", h.pmsRoomReconciliationReports)
+	r.Get("/room-status/{room_id}/safety-proof", h.pmsRoomSafetyProof)
+	r.Post("/room-status/{room_id}/reconcile", h.pmsRoomReconcile)
 	r.Get("/guest-requests", h.pmsGuestRequests)
 	r.Post("/guest-requests", h.pmsGuestRequestCreate)
 	r.Patch("/guest-requests/{id}", h.pmsGuestRequestPatch)
@@ -122,9 +125,27 @@ func (h *Handler) pmsRoomStatus(w http.ResponseWriter, r *http.Request) {
 		if version != in.ExpectedVersion || !hospitality.StatusTransition(oldState, in.State) {
 			return 0, nil, apperrors.Conflict("ROOM_STATUS_TRANSITION", "Room state or version changed; occupancy is changed only by stay commands.")
 		}
+		if oldState == "OCCUPIED" && (in.State == "BLOCKED" || in.State == "OUT_OF_ORDER") {
+			var proved bool
+			if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND a.room_id=$2 AND s.state='ACTIVE' AND a.state='OCCUPIED')`, t.Organisation, in.RoomID).Scan(&proved); e != nil {
+				return 0, nil, e
+			}
+			if !proved {
+				return 0, nil, apperrors.Conflict("ROOM_OCCUPANCY_SOURCE_REVIEW_REQUIRED", "A maintenance change cannot replace an unresolved occupancy claim; use qualified source reconciliation.")
+			}
+		}
 		if oldState == "BLOCKED" || oldState == "OUT_OF_ORDER" {
 			if _, _, e = h.authorize(ctx, tx, "pms:approve", "PROPERTY", in.PropertyID, true); e != nil {
 				return 0, nil, e
+			}
+		}
+		if in.State != "BLOCKED" && in.State != "OUT_OF_ORDER" {
+			var occupied bool
+			if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM room_assignments a WHERE a.organisation_id=$1 AND a.room_id=$2 AND a.state='OCCUPIED') OR EXISTS(SELECT 1 FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND a.room_id=$2 AND s.state='ACTIVE')`, t.Organisation, in.RoomID).Scan(&occupied); e != nil {
+				return 0, nil, e
+			}
+			if occupied {
+				return 0, nil, apperrors.Conflict("ROOM_OCCUPANCY_PROTECTED", "Use owning stay/departure or qualified reconciliation commands; occupied rooms cannot be declared vacant or ready.")
 			}
 		}
 		if version == 0 {

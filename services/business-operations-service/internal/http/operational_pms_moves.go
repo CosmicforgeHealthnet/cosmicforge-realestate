@@ -100,14 +100,14 @@ func (h *Handler) pmsRoomMove(w http.ResponseWriter, r *http.Request) {
 			Room  ids.ID
 			State string
 		}{{a.RoomID, "VACANT_DIRTY"}, {in.RoomID, "OCCUPIED"}} {
-			if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state=$3,version=version+1,reason=$4,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, status.Room, status.State, in.Reason); e != nil {
+			if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state=CASE WHEN room_id=$5 AND state IN ('BLOCKED','OUT_OF_ORDER') THEN state ELSE $3 END,version=version+1,reason=$4,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, status.Room, status.State, in.Reason, a.RoomID); e != nil {
 				return 0, nil, e
 			}
 			row, e := hospitality.Load[hospitality.RoomStatus](ctx, tx, `SELECT to_jsonb(s) FROM room_status_current s WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, status.Room)
 			if e != nil {
 				return 0, nil, e
 			}
-			if e = h.pmsCommit(ctx, tx, t, s.PropertyID, row.ID, "room_status", "ROOM_MOVE_STATUS_CHANGED", "room.status.changed.v1", row.Version, map[string]any{"stay_id": s.ID, "room_id": status.Room, "state": status.State, "reason": in.Reason}); e != nil {
+			if e = h.pmsCommit(ctx, tx, t, s.PropertyID, row.ID, "room_status", "ROOM_MOVE_STATUS_CHANGED", "room.status.changed.v1", row.Version, map[string]any{"stay_id": s.ID, "room_id": status.Room, "state": row.State, "reason": in.Reason}); e != nil {
 				return 0, nil, e
 			}
 		}

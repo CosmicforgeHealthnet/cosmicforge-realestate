@@ -40,6 +40,8 @@ func commercialApprovalCapability(action string) string {
 		return "folios:approve"
 	case "COMMERCIAL_PMS_ROOMING_CHANGE":
 		return "pms:approve"
+	case "COMMERCIAL_PMS_OCCUPANCY_CORRECTION":
+		return "pms:approve"
 	case "COMMERCIAL_PMS_EARLY_CHECK_IN", "COMMERCIAL_PMS_DEPARTURE_DEBT":
 		return "pms:approve"
 	case "COMMERCIAL_PMS_FOLIO_ADJUSTMENT", "COMMERCIAL_PMS_FISCAL_REVIEW":

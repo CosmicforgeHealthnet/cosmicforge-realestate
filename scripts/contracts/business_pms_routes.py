@@ -3,6 +3,28 @@ import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ shape('PMSRoomSafetyRead',proof=ref('RoomSafetyProof'),source_digest={'type':'string','pattern':'^[a-f0-9]{64}$','example':'a'*64},plan=ref('RoomSafetyPlan'))
+ shape('PMSRoomSourceError',error_code={'const':'SOURCE_TRANSACTION_FAILED'},room_id=uid)
+ s['RoomReconciliationReport']['properties']['proof']={'anyOf':[ref('RoomSafetyProof'),ref('PMSRoomSourceError')]}
+ s['RoomReconciliationReport']['properties']['changes']={'type':'object','additionalProperties':True}
+ s['RoomReconciliationReport']['properties']['state']['enum']=['CONSISTENT','DERIVED_OCCUPANCY','DERIVED_DEPARTURE','ASSIGNMENTS_RELEASED','REVIEW_REQUIRED','OPERATOR_OBSERVATION','SOURCE_REVIEW_REQUIRED']
+ s['RoomReconciliationReport']['properties']['source_digest'].update(pattern='^[a-f0-9]{64}$',example='a'*64)
+ s['RoomReconciliationReport']['properties']['created_by_service']['enum']=['','business-operations-service']
+ s['RoomReconciliationReportView']=copy.deepcopy(s['RoomReconciliationReport'])
+ for field in ('approval_id','created_by'):s['RoomReconciliationReportView']['properties'][field]={'anyOf':[uid,{'type':'null'}]}
+ shape('PMSRoomReconciliationList',items=arr(ref('RoomReconciliationReportView')),limit=integer,offset=integer)
+ s['PMSRoomReconcileCommand']['properties']['observation']['enum']=['','OBSERVED_VACANT_DIRTY']
+ s['PMSRoomReconcileCommand']['properties']['source_digest'].update(pattern='^[a-f0-9]{64}$',example='a'*64)
+ s['PMSRoomReconcileCommand']['properties']['expected_room_version'].update(minimum=1)
+ for field in ('active_stay_count','occupied_assignment_count','effective_assignment_count'):s['RoomSafetyProof']['properties'][field].update(example=0,minimum=0)
+ for field in ('active_stays','assignments'):s['RoomSafetyProof']['properties'][field]['example']=[]
+ s['RoomSafetyProof']['properties']['room_state']['example']='INSPECTED'
+ s['RoomSafetyProof']['properties']['node_state']['example']='ACTIVE'
+ s['RoomSafetyProof']['properties']['node_kind']['example']='ROOM'
+ s['RoomSafetyProof']['properties']['node_capacity'].update(example=2,minimum=0)
+ s['RoomSafetyPlan']['properties']['desired_state']['example']='INSPECTED'
+ for field in ('issues','release_assignment_ids'):s['RoomSafetyPlan']['properties'][field]['example']=[]
+
  for name in ('PMSArrivalPolicyCommand','PMSArrivalPolicy'):
   s[name]['properties']['mode']['enum']=['MANUAL','AUTOMATIC_NO_SHOW']
   s[name]['properties']['allowed_sources']['items']['enum']=['DIRECT','WALK_IN','CORPORATE','GROUP']
@@ -58,7 +80,7 @@ def register_pms(s,obj,arr,ref,typ):
  shape('PMSRoomMoveResult',stay_id=uid,assignment_id=uid,version=integer,reservation_version=integer,access_state={'const':'UNKNOWN'})
  shape('PMSList',items=arr({'type':'object','additionalProperties':True}),limit=integer,offset=integer)
  shape('PMSCheckInResult',stay_id=uid,folio_id=uid,reservation_version=integer,access_state={'const':'UNKNOWN'})
- shape('PMSCheckoutResult',stay_id=uid,state={'const':'DEPARTED'},folio_state={'enum':['CLOSED','SETTLEMENT_PENDING']},balance_minor=integer,reservation_version=integer,room_state={'const':'VACANT_DIRTY'},access_state={'const':'UNKNOWN'})
+ shape('PMSCheckoutResult',stay_id=uid,state={'const':'DEPARTED'},folio_state={'enum':['CLOSED','SETTLEMENT_PENDING']},balance_minor=integer,reservation_version=integer,room_state={'enum':['VACANT_DIRTY','BLOCKED','OUT_OF_ORDER']},access_state={'const':'UNKNOWN'})
  shape('PMSFolioView',folio=ref('PMSFolio'),items=arr(ref('PMSItem')),balance_minor=integer,payment_truth={'const':'PAYMENT_SERVICE'})
  shape('PMSFolioReconciled',folio=ref('PMSFolio'),balance_minor=integer,payment_truth={'const':'PAYMENT_SERVICE'})
  shape('PMSFolioReviewRevoked',id=uid,review_id=uid,state={'const':'REVOKED'})
@@ -96,6 +118,9 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsEventBookingCreate':('pms:write','PMSEventBookingCommand','PMSEventBookingCreated',201,False),
  'pmsHospitalityPolicies':('night_audit:read',None,'PMSList',200,False),
  'pmsHospitalityPolicy':('night_audit:write','PMSHospitalityPolicyCommand','PMSHospitalityPolicyCreated',201,True),
+ 'pmsRoomReconciliationReports':('pms:read',None,'PMSRoomReconciliationList',200,False),
+ 'pmsRoomSafetyProof':('pms:read',None,'PMSRoomSafetyRead',200,False),
+ 'pmsRoomReconcile':('pms:write','PMSRoomReconcileCommand','PMSRoomReconcileResult',200,True),
  'pmsArrivalPolicies':('reservations:read',None,'PMSArrivalPolicyList',200,False),
  'pmsArrivalPolicy':('reservations:cancel','PMSArrivalPolicyCommand','PMSArrivalPolicy',201,True),
  'pmsArrivalRevoke':('reservations:cancel','PMSVersionCommand','PMSDayAutomationRevoked',201,True),
@@ -152,6 +177,7 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSRoomReconcileCommand':{'expected_room_version':3,'source_digest':'a'*64,'reason':'Reconcile only the exact current owning room and stay sources without asserting vacancy'},
  'PMSArrivalPolicyCommand':{'property_id':uid,'expected_version':0,'mode':'AUTOMATIC_NO_SHOW','allowed_sources':['DIRECT','WALK_IN'],'max_reservations_per_run':5,'max_reservation_minor':500000,'max_total_minor':1000000,'currency':'NGN','effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','approval_id':uid,'reason':'Authorize bounded no-show processing only when the original accepted terms explicitly permit it'},
  'PMSDayAutomationCommand':{'property_id':uid,'expected_version':0,'mode':'AUDIT_ONLY','hospitality_policy_version':1,'effective_at':'2026-12-01T00:00:00Z','expires_at':'2026-12-02T00:00:00Z','max_days_per_run':1,'approval_id':uid,'reason':'Authorize a bounded property night audit without waiving any exception'},
  'PMSFiscalReviewCommand':{'folio_version':2,'item_id':uid,'expected_review_version':0,'reason':'Derive original accepted fiscal source detail without repricing or adding a charge'},

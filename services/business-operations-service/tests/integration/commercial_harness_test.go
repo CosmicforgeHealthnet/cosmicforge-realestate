@@ -77,6 +77,9 @@ func newCommercialHTTP(t *testing.T, schemas ...fs.FS) *commercialHarness {
 	return newCommercialHTTPForArrival(t, 2, schemas...)
 }
 func newCommercialHTTPForArrival(t *testing.T, arrivalOffset int, schemas ...fs.FS) *commercialHarness {
+	return newCommercialHTTPWithVerificationTTL(t, arrivalOffset, time.Hour, schemas...)
+}
+func newCommercialHTTPWithVerificationTTL(t *testing.T, arrivalOffset int, verificationTTL time.Duration, schemas ...fs.FS) *commercialHarness {
 	t.Helper()
 	provider := &businessVerificationFake{}
 	h := newBusinessHTTP(t, provider, schemas...)
@@ -88,7 +91,7 @@ func newCommercialHTTPForArrival(t *testing.T, arrivalOffset int, schemas ...fs.
 	branch := h.inventoryBranch(c.owner)
 	c.property = h.inventoryNode(c.owner, "/properties", map[string]any{"branch_id": branch, "code": "COMMERCIAL-HOTEL", "name": "Commercial test hotel", "capacity_code": "MANAGEMENT", "attributes": map[string]any{"classification": "HOTEL"}})
 	c.unit = h.inventoryNode(c.owner, "/units", map[string]any{"parent_id": c.property.ID, "code": "APARTMENT-101", "name": "Physical apartment", "attributes": map[string]any{"classification": "APARTMENT", "capacity": 2}})
-	expiry := time.Now().UTC().Add(time.Hour)
+	expiry := time.Now().UTC().Add(verificationTTL)
 	authority, e := provider.Create(t.Context(), verification.TypePropertyAuthority, verification.Subject{Type: verification.SubjectProperty, Domain: string(platform.DomainBusinessOperations), ID: c.property.ID}, "commercial-authority", "commercial-authority")
 	if e != nil {
 		t.Fatal(e)

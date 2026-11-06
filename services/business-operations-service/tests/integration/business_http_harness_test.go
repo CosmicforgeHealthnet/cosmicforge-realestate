@@ -35,6 +35,7 @@ type businessUser struct {
 	registered      businessauth.Registered
 	tokens          businessauth.Tokens
 	email, password string
+	totpSecret      []byte
 }
 
 func newBusinessHTTP(t *testing.T, provider verification.API, schemas ...fs.FS) *businessHarness {
@@ -93,6 +94,7 @@ func (h *businessHarness) secure(u *businessUser) {
 	if err != nil {
 		h.t.Fatal(err)
 	}
+	u.totpSecret = append([]byte(nil), secret...)
 	if _, err := h.service.ConfirmTOTP(h.t.Context(), u.registered.AccountID, u.tokens.SessionID, (credentials.TOTP{}).Code(secret, credentials.Step(h.service.Now()))); err != nil {
 		h.t.Fatal(err)
 	}
