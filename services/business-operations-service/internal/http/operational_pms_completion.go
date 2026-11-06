@@ -36,7 +36,7 @@ type PMSFolioClosed struct {
 // Review binds the exact immutable postings, never a client asserted balance.
 func folioPostingDigest(ctx context.Context, q database.Querier, org, id ids.ID) (string, error) {
 	var raw []byte
-	e := q.QueryRow(ctx, `SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY i.id),'[]'::jsonb) FROM folio_items i WHERE organisation_id=$1 AND folio_id=$2`, org, id).Scan(&raw)
+	e := q.QueryRow(ctx, `SELECT jsonb_build_object('items',(SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY i.id),'[]'::jsonb) FROM folio_items i WHERE organisation_id=$1 AND folio_id=$2),'fiscal_reviews',(SELECT coalesce(jsonb_agg(jsonb_build_array(v.id,v.digest) ORDER BY v.folio_item_id),'[]'::jsonb) FROM folio_fiscal_reviews v WHERE v.organisation_id=$1 AND v.folio_id=$2 AND NOT EXISTS(SELECT 1 FROM folio_fiscal_reviews later WHERE later.organisation_id=v.organisation_id AND later.folio_item_id=v.folio_item_id AND later.review_version>v.review_version)))`, org, id).Scan(&raw)
 	return security.SHA256Hex(raw), e
 }
 
@@ -202,6 +202,13 @@ func (h *Handler) closePMSFolio(ctx context.Context, tx pgx.Tx, t tenant, f hosp
 	if balance != 0 {
 		return out, apperrors.Conflict("FOLIO_NOT_SETTLED", "Fresh owning-service financial evidence must cover all postings exactly.")
 	}
+	fiscalReady, e := hospitality.FiscalReady(ctx, tx, t.Organisation, f.ID)
+	if e != nil {
+		return out, e
+	}
+	if !fiscalReady {
+		return out, apperrors.Conflict("FOLIO_FISCAL_REVIEW_REQUIRED", "Accepted gross obligations need reconciled fiscal detail before final closure.")
+	}
 	if f.State != "CLOSED" {
 		if _, e = tx.Exec(ctx, `UPDATE folios SET state='CLOSED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID); e != nil {
 			return out, e
@@ -334,7 +341,15 @@ func (h *Handler) pmsOperationExceptions(w http.ResponseWriter, r *http.Request)
 	h.pmsList(w, r, "hospitality_operation_exceptions", "pms:read")
 }
 func (h *Handler) resolvePMSFolioExceptions(ctx context.Context, tx pgx.Tx, t tenant, f hospitality.Folio) error {
-	rows, e := tx.Query(ctx, `UPDATE hospitality_operation_exceptions SET state='RESOLVED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND source_type='folio' AND source_id=$2 AND state='OPEN' RETURNING id,version`, t.Organisation, f.ID)
+	return h.resolvePMSFolioExceptionsByCode(ctx, tx, t, f, "")
+}
+func (h *Handler) resolvePMSFolioExceptionsByCode(ctx context.Context, tx pgx.Tx, t tenant, f hospitality.Folio, code string) error {
+	reason := "Current reviewed folio closed with exact fresh financial backing"
+	if code == "FISCAL_SOURCE_REVIEW_REQUIRED" {
+		reason = "Accepted fiscal sources reconciled or fully offset by approved compensating postings"
+	}
+
+	rows, e := tx.Query(ctx, `UPDATE hospitality_operation_exceptions SET state='RESOLVED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND source_type='folio' AND source_id=$2 AND state='OPEN' AND ($3='' OR code=$3) RETURNING id,version`, t.Organisation, f.ID, code)
 	if e != nil {
 		return e
 	}
@@ -359,7 +374,7 @@ func (h *Handler) resolvePMSFolioExceptions(ctx context.Context, tx pgx.Tx, t te
 		return re
 	}
 	for _, v := range refs {
-		if e = h.pmsCommit(ctx, tx, t, f.PropertyID, v.id, "hospitality_exception", "HOSPITALITY_EXCEPTION_RESOLVED", "hospitality.operation.exception.v1", v.version, map[string]any{"folio_id": f.ID, "folio_version": f.Version, "actor_service": serviceActor(t), "reason": "Current reviewed folio closed with exact fresh financial backing"}); e != nil {
+		if e = h.pmsCommit(ctx, tx, t, f.PropertyID, v.id, "hospitality_exception", "HOSPITALITY_EXCEPTION_RESOLVED", "hospitality.operation.exception.v1", v.version, map[string]any{"folio_id": f.ID, "folio_version": f.Version, "actor_service": serviceActor(t), "reason": reason}); e != nil {
 			return e
 		}
 	}

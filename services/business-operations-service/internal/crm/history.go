@@ -121,7 +121,11 @@ func CurrentStayHistory(ctx context.Context, q database.Querier, org, reservatio
 		if e != nil {
 			return out, e
 		}
-		if stay.FolioState != "CLOSED" || balance != 0 {
+		fiscalReady, e := hospitality.FiscalReady(ctx, q, org, stay.FolioID)
+		if e != nil {
+			return out, e
+		}
+		if stay.FolioState != "CLOSED" || balance != 0 || !fiscalReady {
 			valid = false
 		}
 		var amount int64

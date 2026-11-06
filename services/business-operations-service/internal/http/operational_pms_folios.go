@@ -48,7 +48,7 @@ func (h *Handler) pmsFolioGet(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, e)
 		return
 	}
-	items, e := hospitality.Load[[]hospitality.Item](r.Context(), h.Auth.Service.Pool, `SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY created_at,id),'[]'::jsonb) FROM folio_items i WHERE organisation_id=$1 AND folio_id=$2`, t.Organisation, id)
+	items, e := hospitality.FolioItems(r.Context(), h.Auth.Service.Pool, t.Organisation, id)
 	if e != nil {
 		reply(w, r, 0, nil, e)
 		return
@@ -154,6 +154,19 @@ func (h *Handler) executePMSFolioPosting(ctx context.Context, tx pgx.Tx, pre hos
 	}
 	if e = h.pmsCommit(ctx, tx, t, f.PropertyID, id, "folio", "FOLIO_ITEM_POSTED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"item_id": item, "command": in}); e != nil {
 		return 0, nil, e
+	}
+	if in.AdjustsItemID != nil {
+		ready, e := hospitality.FiscalReady(ctx, tx, t.Organisation, id)
+		if e != nil {
+			return 0, nil, e
+		}
+		if ready {
+			resolvedFolio := f
+			resolvedFolio.Version++
+			if e = h.resolvePMSFolioExceptionsByCode(ctx, tx, t, resolvedFolio, "FISCAL_SOURCE_REVIEW_REQUIRED"); e != nil {
+				return 0, nil, e
+			}
+		}
 	}
 	out, e := hospitality.GetFolio(ctx, tx, t.Organisation, id)
 	return 201, map[string]any{"folio": out, "item_id": item}, e

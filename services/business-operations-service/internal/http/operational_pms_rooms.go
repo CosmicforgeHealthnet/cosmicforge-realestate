@@ -62,6 +62,8 @@ func (h *Handler) registerPMS(r chi.Router) {
 	r.Get("/folios", h.pmsFolios)
 	r.Get("/folios/{id}", h.pmsFolioGet)
 	r.Post("/folios/{id}/items", h.pmsFolioPost)
+	r.Get("/folios/{id}/fiscal-reviews", h.pmsFiscalReviews)
+	r.Post("/folios/{id}/fiscal-reviews", h.pmsFiscalReview)
 	r.Post("/folios/{id}/reconcile", h.pmsFolioReconcile)
 	r.Post("/folios/{id}/close", h.pmsFolioClose)
 	r.Post("/folios/{id}/close-reviews", h.pmsFolioCloseReview)

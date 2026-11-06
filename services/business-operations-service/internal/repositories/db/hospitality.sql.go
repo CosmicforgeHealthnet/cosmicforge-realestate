@@ -11,6 +11,38 @@ import (
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 )
 
+const getFolioFiscalReview = `-- name: GetFolioFiscalReview :one
+SELECT to_jsonb(v)::jsonb AS record FROM folio_fiscal_reviews v WHERE organisation_id=$1 AND id=$2
+`
+
+type GetFolioFiscalReviewParams struct {
+	OrganisationID ids.ID
+	ID             ids.ID
+}
+
+func (q *Queries) GetFolioFiscalReview(ctx context.Context, db DBTX, arg GetFolioFiscalReviewParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getFolioFiscalReview, arg.OrganisationID, arg.ID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
+const getFolioItemsWithFiscalDetails = `-- name: GetFolioItemsWithFiscalDetails :one
+SELECT coalesce(jsonb_agg(to_jsonb(i)||jsonb_build_object('fiscal_review',(SELECT to_jsonb(v) FROM folio_fiscal_reviews v WHERE v.organisation_id=i.organisation_id AND v.folio_item_id=i.id ORDER BY review_version DESC LIMIT 1)) ORDER BY i.created_at,i.id),'[]'::jsonb)::jsonb AS record FROM folio_items i WHERE i.organisation_id=$1 AND i.folio_id=$2
+`
+
+type GetFolioItemsWithFiscalDetailsParams struct {
+	OrganisationID ids.ID
+	FolioID        ids.ID
+}
+
+func (q *Queries) GetFolioItemsWithFiscalDetails(ctx context.Context, db DBTX, arg GetFolioItemsWithFiscalDetailsParams) ([]byte, error) {
+	row := db.QueryRow(ctx, getFolioItemsWithFiscalDetails, arg.OrganisationID, arg.FolioID)
+	var record []byte
+	err := row.Scan(&record)
+	return record, err
+}
+
 const getHospitalityFolio = `-- name: GetHospitalityFolio :one
 SELECT to_jsonb(f)::jsonb AS record FROM folios f WHERE organisation_id=$1 AND id=$2
 `
@@ -89,4 +121,40 @@ func (q *Queries) GetPhysicalRoomAssignment(ctx context.Context, db DBTX, arg Ge
 	var record []byte
 	err := row.Scan(&record)
 	return record, err
+}
+
+const listFolioFiscalReviews = `-- name: ListFolioFiscalReviews :many
+SELECT to_jsonb(v)::jsonb AS record FROM folio_fiscal_reviews v WHERE organisation_id=$1 AND folio_id=$2 ORDER BY created_at DESC,id DESC LIMIT $4::integer OFFSET $3::integer
+`
+
+type ListFolioFiscalReviewsParams struct {
+	OrganisationID ids.ID
+	FolioID        ids.ID
+	PageOffset     int32
+	PageLimit      int32
+}
+
+func (q *Queries) ListFolioFiscalReviews(ctx context.Context, db DBTX, arg ListFolioFiscalReviewsParams) ([][]byte, error) {
+	rows, err := db.Query(ctx, listFolioFiscalReviews,
+		arg.OrganisationID,
+		arg.FolioID,
+		arg.PageOffset,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items [][]byte
+	for rows.Next() {
+		var record []byte
+		if err := rows.Scan(&record); err != nil {
+			return nil, err
+		}
+		items = append(items, record)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

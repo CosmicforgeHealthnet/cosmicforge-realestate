@@ -286,42 +286,57 @@ type QuoteNight struct {
 	ParentVersionIDs      []ids.ID `json:"parent_version_ids"`
 	AmountMinor           int64    `json:"amount_minor"`
 }
+
+// QuoteAddOnAmount retains the accepted charged quantity and immutable source
+// version. It is an obligation, never evidence of physical service delivery.
+type QuoteAddOnAmount struct {
+	AddOnID            ids.ID `json:"add_on_id"`
+	Version            int64  `json:"version"`
+	Quantity           int    `json:"quantity"`
+	AmountMinor        int64  `json:"amount_minor"`
+	Included           bool   `json:"included"`
+	PerNight           bool   `json:"per_night"`
+	ExecutionReference string `json:"execution_reference"`
+}
+
 type QuoteSnapshot struct {
-	QuoteID               ids.ID              `json:"quote_id"`
-	ProductID             ids.ID              `json:"product_id"`
-	PropertyID            ids.ID              `json:"property_id"`
-	PoolID                ids.ID              `json:"pool_id"`
-	ProductVersion        int64               `json:"product_version"`
-	PoolVersion           int64               `json:"pool_version"`
-	RatePlanID            ids.ID              `json:"rate_plan_id"`
-	RatePlanVersion       int64               `json:"rate_plan_version"`
-	DateFrom              string              `json:"date_from"`
-	DateTo                string              `json:"date_to"`
-	Adults                int                 `json:"adults"`
-	Children              int                 `json:"children"`
-	Quantity              int                 `json:"quantity"`
-	Channel               string              `json:"channel"`
-	Nights                []QuoteNight        `json:"nights"`
-	BaseAmountMinor       int64               `json:"base_amount_minor"`
-	DiscountMinor         int64               `json:"discount_minor"`
-	AddOnsMinor           int64               `json:"add_ons_minor"`
-	Components            []ComponentAmount   `json:"components"`
-	AmountMinor           int64               `json:"amount_minor"`
-	Currency              string              `json:"currency"`
-	CurrencyPrecision     int                 `json:"currency_precision"`
-	Rounding              string              `json:"rounding"`
-	Restrictions          []RestrictionRecord `json:"restrictions"`
-	CancellationReference string              `json:"cancellation_reference"`
-	PrepaymentReference   string              `json:"prepayment_reference"`
-	PolicyCode            string              `json:"policy_code"`
-	PolicyVersion         int64               `json:"policy_version"`
-	TaxProfileID          *ids.ID             `json:"tax_profile_id,omitempty"`
-	TaxProfileIDs         []ids.ID            `json:"tax_profile_ids"`
-	PromotionVersions     map[string]int64    `json:"promotion_versions"`
-	AddOnVersions         map[string]int64    `json:"add_on_versions"`
-	PackageID             *ids.ID             `json:"package_id,omitempty"`
-	PackageVersion        *int64              `json:"package_version,omitempty"`
-	ExpiresAt             time.Time           `json:"expires_at"`
-	CalculatedAt          time.Time           `json:"calculated_at"`
-	IsReservation         bool                `json:"is_reservation"`
+	FiscalAllocationVersion string              `json:"fiscal_allocation_version,omitempty"`
+	AddOnAmounts            []QuoteAddOnAmount  `json:"add_on_amounts,omitempty"`
+	QuoteID                 ids.ID              `json:"quote_id"`
+	ProductID               ids.ID              `json:"product_id"`
+	PropertyID              ids.ID              `json:"property_id"`
+	PoolID                  ids.ID              `json:"pool_id"`
+	ProductVersion          int64               `json:"product_version"`
+	PoolVersion             int64               `json:"pool_version"`
+	RatePlanID              ids.ID              `json:"rate_plan_id"`
+	RatePlanVersion         int64               `json:"rate_plan_version"`
+	DateFrom                string              `json:"date_from"`
+	DateTo                  string              `json:"date_to"`
+	Adults                  int                 `json:"adults"`
+	Children                int                 `json:"children"`
+	Quantity                int                 `json:"quantity"`
+	Channel                 string              `json:"channel"`
+	Nights                  []QuoteNight        `json:"nights"`
+	BaseAmountMinor         int64               `json:"base_amount_minor"`
+	DiscountMinor           int64               `json:"discount_minor"`
+	AddOnsMinor             int64               `json:"add_ons_minor"`
+	Components              []ComponentAmount   `json:"components"`
+	AmountMinor             int64               `json:"amount_minor"`
+	Currency                string              `json:"currency"`
+	CurrencyPrecision       int                 `json:"currency_precision"`
+	Rounding                string              `json:"rounding"`
+	Restrictions            []RestrictionRecord `json:"restrictions"`
+	CancellationReference   string              `json:"cancellation_reference"`
+	PrepaymentReference     string              `json:"prepayment_reference"`
+	PolicyCode              string              `json:"policy_code"`
+	PolicyVersion           int64               `json:"policy_version"`
+	TaxProfileID            *ids.ID             `json:"tax_profile_id,omitempty"`
+	TaxProfileIDs           []ids.ID            `json:"tax_profile_ids"`
+	PromotionVersions       map[string]int64    `json:"promotion_versions"`
+	AddOnVersions           map[string]int64    `json:"add_on_versions"`
+	PackageID               *ids.ID             `json:"package_id,omitempty"`
+	PackageVersion          *int64              `json:"package_version,omitempty"`
+	ExpiresAt               time.Time           `json:"expires_at"`
+	CalculatedAt            time.Time           `json:"calculated_at"`
+	IsReservation           bool                `json:"is_reservation"`
 }

@@ -18,6 +18,9 @@ import (
 // transaction locks its organisation, rechecks facts and commits history/outbox
 // atomically. It never initiates collection or fabricates a human principal.
 func (h *Handler) ProcessHospitalityMaintenance(ctx context.Context, limit int) error {
+	if e := h.ProcessFolioFiscalMaintenance(ctx, limit); e != nil {
+		return e
+	}
 	if limit < 1 || limit > 100 {
 		limit = 100
 	}

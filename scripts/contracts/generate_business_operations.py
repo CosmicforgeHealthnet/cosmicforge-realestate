@@ -406,6 +406,8 @@ for r in R:
   response_example=item if response=='Node' else {'items':[item],'limit':50,'offset':0}
  responses={str(r['status']):{'description':'Committed success','content':{'application/json':{'schema':wrapped,'example':{'data':response_example}}}}}
  for success_status in r.get('success_statuses',[]):responses[str(success_status)]=copy.deepcopy(responses[str(r['status'])]);responses[str(success_status)]['description']='Committed new version'
+ for code,override in r.get('success_example_overrides',{}).items():responses[str(code)]['content']['application/json']['example']['data'].update(override)
+ for code,description in r.get('success_description_overrides',{}).items():responses[str(code)]['description']=description
  for code,(err,msg) in error_defs.items():responses[code]={'description':msg,'content':{'application/json':{'schema':ref('Error'),'example':{'error':{'code':err,'message':msg,'request_id':'example-request'}}}}}
  op={'operationId':re.sub('[^a-zA-Z0-9]+','_',name).strip('_'),'summary':name,'description':desc,'x-permission':r['capability'] or 'self','x-step-up':r['step_up'],'x-idempotency-key':r['idempotent'],'parameters':parameters,'responses':responses}
  if r['public']:op['security']=[]
@@ -503,6 +505,7 @@ for r in R:
  if response in commercial_capture:tests.append(f'if(pm.response.code<300) pm.environment.set("business_{commercial_capture[response]}",body.data.id);')
  if response=='PMSGroupCheckInsResult':tests.append('if(pm.response.code===201){pm.test("Atomic group arrival",()=>pm.expect(body.data.atomic).to.eql(true));pm.environment.set("business_group_stays",JSON.stringify(body.data.items));}')
  if response=='PMSGroupCheckOutsResult':tests.append('if(pm.response.code===200)pm.test("Atomic group departure",()=>pm.expect(body.data.atomic).to.eql(true));')
+ if response=='PMSFiscalReviewResult':tests.append('if(pm.response.code<300){pm.environment.set("business_fiscal_review_id",body.data.review.id);pm.environment.set("business_fiscal_review_version",body.data.review.review_version);pm.environment.set("business_folio_item_id",body.data.review.folio_item_id);pm.environment.set("business_folio_version",body.data.folio_version);pm.test("Fiscal detail never duplicates a charge",()=>pm.expect(body.data.financial_effect).to.eql("DETAIL_ONLY"));}')
  if response=='PMSFolioClosed':tests.append('if(pm.response.code===200){pm.test("Closed only against exact current backing",()=>{pm.expect(body.data.folio.state).to.eql("CLOSED");pm.expect(body.data.balance_minor).to.eql(0);});pm.environment.set("business_reservation_version",body.data.reservation_version);}')
  if response=='PMSCheckInResult':tests.append('if(pm.response.code===201){pm.environment.set("business_stay_id",body.data.stay_id);pm.environment.set("business_folio_id",body.data.folio_id);pm.environment.set("business_reservation_version",body.data.reservation_version);pm.test("No fabricated device success",()=>pm.expect(body.data.access_state).to.eql("UNKNOWN"));}')
  if response=='PMSRoomStatus':tests.append('if(pm.response.code<300)pm.environment.set("business_room_status_version",body.data.version);')

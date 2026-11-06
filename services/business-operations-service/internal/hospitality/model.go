@@ -64,6 +64,7 @@ type Folio struct {
 	Version        int64  `json:"version"`
 }
 type Item struct {
+	FiscalReview    *FiscalReview   `json:"fiscal_review,omitempty"`
 	ID              ids.ID          `json:"id"`
 	OrganisationID  ids.ID          `json:"organisation_id"`
 	PropertyID      ids.ID          `json:"property_id"`

@@ -154,6 +154,7 @@ func (h *Handler) pmsHospitalityPolicy(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d PMSBusinessDay) (PMSAuditSnapshot, error) {
 	checks, e := hospitality.Load[map[string]int64](ctx, tx, `SELECT jsonb_build_object(
+ 'FISCAL_DETAIL_REVIEW_REQUIRED',(SELECT count(*) FROM folio_items i JOIN folios f ON f.organisation_id=i.organisation_id AND f.id=i.folio_id LEFT JOIN LATERAL(SELECT state FROM folio_fiscal_reviews v WHERE v.organisation_id=i.organisation_id AND v.folio_item_id=i.id ORDER BY review_version DESC LIMIT 1)v ON true WHERE i.organisation_id=$1 AND i.property_id=$2 AND i.kind='ACCOMMODATION' AND i.policy_snapshot->'accepted_quote' IS NOT NULL AND (i.amount_minor=0 OR i.amount_minor+coalesce((SELECT sum(a.amount_minor) FROM folio_items a WHERE a.organisation_id=i.organisation_id AND a.adjusts_item_id=i.id),0)>0) AND (f.state<>'CLOSED' OR i.business_day_id=$5) AND (v.state IS NULL OR v.state NOT IN ('ITEMIZED','OPERATOR_REVIEWED'))),
  'UNRESOLVED_OPERATIONAL_EXCEPTIONS',(SELECT count(*) FROM hospitality_operation_exceptions WHERE organisation_id=$1 AND property_id=$2 AND state='OPEN'),
  'PENDING_ARRIVALS',(SELECT count(*) FROM reservations WHERE organisation_id=$1 AND property_id=$2 AND date_from<=$3::date AND state='CONFIRMED'),
  'GROUP_ROOMING_MISSING',(SELECT coalesce(sum(rr.quantity-(SELECT count(*) FROM rooming_lists l WHERE l.organisation_id=rr.organisation_id AND l.reservation_room_id=rr.id AND l.group_id=r.group_id AND l.state='ACTIVE' AND NOT EXISTS(SELECT 1 FROM rooming_lists later WHERE later.organisation_id=l.organisation_id AND later.group_id=l.group_id AND later.reservation_room_id=l.reservation_room_id AND later.slot=l.slot AND later.version>l.version))),0) FROM reservation_rooms rr JOIN reservations r ON r.organisation_id=rr.organisation_id AND r.id=rr.reservation_id JOIN inventory_pools p ON p.organisation_id=rr.organisation_id AND p.id=rr.pool_id WHERE rr.organisation_id=$1 AND rr.property_id=$2 AND rr.state='ACTIVE' AND r.group_id IS NOT NULL AND r.allocation_state='ACTIVE' AND r.state IN ('CONFIRMED','CHECKED_IN') AND rr.date_from<=$3::date AND p.kind IN ('ROOM','UNIT','ROOM_TYPE')),
@@ -176,7 +177,7 @@ func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d P
 	if e != nil {
 		return snapshot, e
 	}
-	for _, code := range []string{"UNRESOLVED_OPERATIONAL_EXCEPTIONS", "GROUP_ROOMING_MISSING", "PENDING_ARRIVALS", "OVERDUE_DEPARTURES", "OCCUPANCY_CONFLICT", "PENDING_FINANCIAL_SETTLEMENT", "OPEN_CASHIER_SHIFTS", "UNKNOWN_CASH_RECONCILIATION", "STALE_CASH_RECONCILIATION", "UNUSABLE_FOLIO_PAYMENT_REFERENCE", "MISSING_FOLIO_POSTINGS", "RATE_CURRENCY_MISMATCH", "SOURCE_CONFLICT", "HARD_ROOM_BLOCKS", "OPEN_GUEST_REQUESTS"} {
+	for _, code := range []string{"FISCAL_DETAIL_REVIEW_REQUIRED", "UNRESOLVED_OPERATIONAL_EXCEPTIONS", "GROUP_ROOMING_MISSING", "PENDING_ARRIVALS", "OVERDUE_DEPARTURES", "OCCUPANCY_CONFLICT", "PENDING_FINANCIAL_SETTLEMENT", "OPEN_CASHIER_SHIFTS", "UNKNOWN_CASH_RECONCILIATION", "STALE_CASH_RECONCILIATION", "UNUSABLE_FOLIO_PAYMENT_REFERENCE", "MISSING_FOLIO_POSTINGS", "RATE_CURRENCY_MISMATCH", "SOURCE_CONFLICT", "HARD_ROOM_BLOCKS", "OPEN_GUEST_REQUESTS"} {
 		if checks[code] > 0 {
 			hard := code != "PENDING_ARRIVALS" && code != "OVERDUE_DEPARTURES" && code != "OPEN_GUEST_REQUESTS"
 			snapshot.Exceptions = append(snapshot.Exceptions, PMSAuditException{Code: code, Quantity: checks[code], HardBlock: hard})
@@ -185,6 +186,7 @@ func (h *Handler) pmsAuditSnapshot(ctx context.Context, tx pgx.Tx, t tenant, d P
 	var source []byte
 	if e = tx.QueryRow(ctx, `SELECT jsonb_build_object(
  'reservations',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state) ORDER BY id),'[]') FROM reservations WHERE organisation_id=$1 AND property_id=$2),
+ 'fiscal_reviews',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,review_version,digest,state) ORDER BY id),'[]') FROM folio_fiscal_reviews WHERE organisation_id=$1 AND property_id=$2),
  'operational_exceptions',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state) ORDER BY id),'[]') FROM hospitality_operation_exceptions WHERE organisation_id=$1 AND property_id=$2),
  'groups',(SELECT coalesce(jsonb_agg(jsonb_build_array(id,version,state) ORDER BY id),'[]') FROM reservation_groups WHERE organisation_id=$1 AND property_id=$2),
  'rooming',(SELECT coalesce(jsonb_agg(id ORDER BY id),'[]') FROM rooming_lists WHERE organisation_id=$1 AND property_id=$2),

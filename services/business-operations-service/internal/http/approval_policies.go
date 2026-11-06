@@ -40,7 +40,7 @@ func commercialApprovalCapability(action string) string {
 		return "pms:approve"
 	case "COMMERCIAL_PMS_EARLY_CHECK_IN", "COMMERCIAL_PMS_DEPARTURE_DEBT":
 		return "pms:approve"
-	case "COMMERCIAL_PMS_FOLIO_ADJUSTMENT":
+	case "COMMERCIAL_PMS_FOLIO_ADJUSTMENT", "COMMERCIAL_PMS_FISCAL_REVIEW":
 		return "folios:approve"
 	case "COMMERCIAL_GUEST_IDENTITY_LINK", "COMMERCIAL_GUEST_SCOPE_LINK", "COMMERCIAL_GUEST_RESTRICTION_RELEASE":
 		return "guest_privacy:write"

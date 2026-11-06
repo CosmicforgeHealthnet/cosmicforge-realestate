@@ -135,6 +135,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler=='pmsGroupRoomingSave':note+='Also reservations:modify and guests:read. Active changes require exact independent pms:approve review, typed identity/current corporate eligibility and an unstarted quantity slot. Revocation appends history and immediately removes slot eligibility. '
    if handler=='pmsGroupRooming':note+='Also guests:read in the same property. '
    if handler in ('pmsGroupCheckIn','pmsGroupCheckOut'):note+='Ordered member commands are atomic. For multiple slots in one reservation, expected reservation versions follow earlier member increments. Nested guest/roster/folio/financial/MFA/approval gates apply; one failure rolls back all members. '
+   if handler=='pmsFiscalReview':note+='Recent MFA and current folio/item/review versions required. Empty net_allocations derives original source detail and never overwrites an existing reviewed allocation; 200/changed=false is unchanged. Legacy net allocation requires exact independent COMMERCIAL_PMS_FISCAL_REVIEW approval, source add-on IDs/versions and attested evidence; original taxes, fees, gross and currency cannot change. Detail is not a second charge. '
    if handler=='crmStayHistory':note+='Also reservations:read and folios:read in the validated property scope. No-store audited read reloads canonical facts so delayed projections never expose stale settled spend; actual nights remain null until physical departure. '
    if handler=='crmStayHistoryRebuild':note+='Also reservations:read and recent MFA. Current guest version required. Rebuilds owned source facts, preserves immutable history and never creates completed stays or financial success. '
    if handler in ('pmsFolioClose','pmsFolioCloseReview','pmsFolioReviewRevoke'):note+='Recent step-up MFA required. Closure requires actual departure and exact current settled Payment backing. An optional worker review binds immutable postings, expires within seven days and is rechecked against current direct membership/role/scopes; it never grants collection or bypasses MFA-required scopes. Revocation is append-only. '
@@ -148,6 +149,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler.startswith('reservationWaitlist'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
    route.__globals__['R'][-1]['handler']=handler
+   if handler=='pmsFiscalReview':route.__globals__['R'][-1]['success_statuses']=[200];route.__globals__['R'][-1]['success_example_overrides']={'200':{'changed':False}};route.__globals__['R'][-1]['success_description_overrides']={'200':'Original source detail unchanged; no new version or charge.'}
    if handler=='pmsOfflineReplay':route.__globals__['R'][-1]['success_statuses']=[202]
    if handler=='reservationOverbookingPolicySave':route.__globals__['R'][-1]['success_statuses']=[200]
    found.add(handler)

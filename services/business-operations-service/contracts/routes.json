@@ -4503,6 +4503,43 @@
     "handler": "pmsFolioPost"
   },
   {
+    "method": "GET",
+    "path": "/api/v1/business/folios/{id}/fiscal-reviews",
+    "capability": "folios:read",
+    "request": null,
+    "response": "PMSFiscalReviewList",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+    "handler": "pmsFiscalReviews"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/folios/{id}/fiscal-reviews",
+    "capability": "folios:write",
+    "request": "PMSFiscalReviewCommand",
+    "response": "PMSFiscalReviewResult",
+    "status": 201,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Trusted live tenant/membership and property scope; current versions and immutable history. Side-effect retries require Idempotency-Key. Recent MFA and current folio/item/review versions required. Empty net_allocations derives original source detail and never overwrites an existing reviewed allocation; 200/changed=false is unchanged. Legacy net allocation requires exact independent COMMERCIAL_PMS_FISCAL_REVIEW approval, source add-on IDs/versions and attested evidence; original taxes, fees, gross and currency cannot change. Detail is not a second charge. Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. ",
+    "handler": "pmsFiscalReview",
+    "success_statuses": [
+      200
+    ],
+    "success_example_overrides": {
+      "200": {
+        "changed": false
+      }
+    },
+    "success_description_overrides": {
+      "200": "Original source detail unchanged; no new version or charge."
+    }
+  },
+  {
     "method": "POST",
     "path": "/api/v1/business/folios/{id}/reconcile",
     "capability": "folios:write",

@@ -185,9 +185,23 @@ func (h *Handler) executePMSCheckIn(ctx context.Context, tx pgx.Tx, pre hospital
 	if int64(a.Slot) <= room.AmountMinor%int64(room.Quantity) {
 		amount++
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO folio_items(id,organisation_id,property_id,folio_id,kind,source_reference,quantity,amount_minor,currency,policy_snapshot,reason,created_by,business_day_id) VALUES($1,$2,$3,$4,'ACCOMMODATION',$5,1,$6,$7,$8,$9,$10,$11)`, ids.New(), t.Organisation, a.PropertyID, folio, "accepted-reservation-slot:"+a.ID.String(), amount, room.Currency, marshalCommercial(map[string]any{"accepted_quote": room.Snapshot, "reservation_room_id": room.ID, "slot": a.Slot, "quantity": room.Quantity, "gross_includes_accepted_components": true}), in.Reason, t.Account, day.ID); e != nil {
+	acceptedItemID := ids.New()
+	if _, e = tx.Exec(ctx, `INSERT INTO folio_items(id,organisation_id,property_id,folio_id,kind,source_reference,quantity,amount_minor,currency,policy_snapshot,reason,created_by,business_day_id) VALUES($1,$2,$3,$4,'ACCOMMODATION',$5,1,$6,$7,$8,$9,$10,$11)`, acceptedItemID, t.Organisation, a.PropertyID, folio, "accepted-reservation-slot:"+a.ID.String(), amount, room.Currency, marshalCommercial(map[string]any{"accepted_quote": room.Snapshot, "reservation_room_id": room.ID, "slot": a.Slot, "quantity": room.Quantity, "gross_includes_accepted_components": true}), in.Reason, t.Account, day.ID); e != nil {
 		return 0, nil, e
 	}
+	grossItem, e := hospitality.Load[hospitality.Item](ctx, tx, `SELECT to_jsonb(i) FROM folio_items i WHERE organisation_id=$1 AND id=$2`, t.Organisation, acceptedItemID)
+	if e != nil {
+		return 0, nil, e
+	}
+	initialFolio := hospitality.Folio{ID: folio, OrganisationID: t.Organisation, PropertyID: a.PropertyID, ReservationID: v.ID, StayID: stay, State: "OPEN", Currency: room.Currency, Version: 1}
+	detail, _, e := h.acceptedFolioFiscal(ctx, tx, initialFolio, grossItem)
+	if e != nil {
+		return 0, nil, e
+	}
+	if _, e = h.captureFolioFiscal(ctx, tx, t, initialFolio, grossItem, detail, "ACCEPTED_QUOTE", ids.Nil, "", in.Reason, false); e != nil {
+		return 0, nil, e
+	}
+
 	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state='OCCUPIED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
 		return 0, nil, e
 	}
@@ -258,7 +272,7 @@ func (h *Handler) pmsStayGet(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, e)
 		return
 	}
-	items, e := hospitality.Load[[]hospitality.Item](r.Context(), h.Auth.Service.Pool, `SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY created_at,id),'[]'::jsonb) FROM folio_items i WHERE organisation_id=$1 AND folio_id=$2`, t.Organisation, f.ID)
+	items, e := hospitality.FolioItems(r.Context(), h.Auth.Service.Pool, t.Organisation, f.ID)
 	if e != nil {
 		reply(w, r, 0, nil, e)
 		return
@@ -346,7 +360,14 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 	}(); e != nil {
 		return 0, nil, e
 	}
+	fiscalReady, e := hospitality.FiscalReady(ctx, tx, t.Organisation, f.ID)
+	if e != nil {
+		return 0, nil, e
+	}
 	state := "CLOSED"
+	if !fiscalReady {
+		state = "SETTLEMENT_PENDING"
+	}
 	if balance != 0 {
 		op := in
 		op.ApprovalID = ids.Nil

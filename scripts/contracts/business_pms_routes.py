@@ -3,6 +3,20 @@ import copy
 def register_pms(s,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
  uid=typ('ids.ID');integer={'type':'integer'}
+ shape('PMSFiscalReviewResult',review=ref('FiscalReview'),folio_version=integer,financial_effect={'const':'DETAIL_ONLY'},changed={'type':'boolean','example':True})
+ shape('PMSFiscalReviewList',items=arr(ref('FiscalReview')),limit=integer,offset=integer)
+ s['PMSItem']['description']='The accepted accommodation posting is one gross booking obligation. fiscal_review.breakdown is detail only; its components are never charged again.'
+ s['FiscalBreakdown']['properties']['state']['enum']=['ITEMIZED','LEGACY_AGGREGATE_REVIEW_REQUIRED','OPERATOR_REVIEWED']
+ s['FiscalReview']['properties']['state']['enum']=['ITEMIZED','LEGACY_AGGREGATE_REVIEW_REQUIRED','OPERATOR_REVIEWED']
+ s['FiscalReview']['properties']['source_kind']['enum']=['ACCEPTED_QUOTE','OPERATOR_ATTESTED']
+ s['FiscalReview']['properties']['digest'].update(pattern='^[a-f0-9]{64}$',example='a'*64)
+ s['FiscalBreakdown']['properties']['currency'].update(pattern='^[A-Z]{3}$',example='NGN')
+
+ s['FiscalBreakdown']['properties']['financial_effect']={'const':'DETAIL_ONLY'}
+ s['FiscalComponent']['properties']['kind']['enum']=['ACCOMMODATION_NET','ADD_ON_NET','TAX','FEE','ACCEPTED_SERVICES_NET']
+ s['PMSFiscalNetAllocation']['properties']['kind']['enum']=['ACCOMMODATION_NET','ADD_ON_NET']
+ s['QuoteSnapshot']['properties']['fiscal_allocation_version'].update(enum=['PROPORTIONAL_PRETAX_V1'],example='PROPORTIONAL_PRETAX_V1')
+
  s['PMSGroupBooking']=copy.deepcopy(s['ReservationCreate'])
  s['PMSGroupBooking']['properties']['source']['enum']=['GROUP','CORPORATE']
  s['PMSGroupBooking']['properties']['state']['enum']=['HOLD','CONFIRMED']
@@ -86,6 +100,8 @@ def register_pms(s,obj,arr,ref,typ):
  'pmsFolioReconcile':('folios:write','PMSVersionCommand','PMSFolioReconciled',200,False),
  'pmsCloseReviews':('folios:read',None,'PMSList',200,False),
  'pmsOperationExceptions':('pms:read',None,'PMSList',200,False),
+ 'pmsFiscalReviews':('folios:read',None,'PMSFiscalReviewList',200,False),
+ 'pmsFiscalReview':('folios:write','PMSFiscalReviewCommand','PMSFiscalReviewResult',201,True),
  'pmsFolioClose':('folios:write','PMSVersionCommand','PMSFolioClosed',200,True),
  'pmsFolioCloseReview':('folios:write','PMSFolioCloseReviewCommand','PMSFolioCloseReview',201,True),
  'pmsFolioReviewRevoke':('folios:write','PMSVersionCommand','PMSFolioReviewRevoked',201,True),
@@ -98,6 +114,7 @@ def pms_queries(handler):
 def pms_examples(uid):
  reason='Operator-reviewed current physical occupancy or obligation evidence'
  return {
+ 'PMSFiscalReviewCommand':{'folio_version':2,'item_id':uid,'expected_review_version':0,'reason':'Derive original accepted fiscal source detail without repricing or adding a charge'},
  'PMSFolioCloseReviewCommand':{'version':2,'automatic_close':True,'expires_at':'2026-12-02T01:00:00Z','reason':reason},
  'PMSGroupCreate':{'property_id':uid,'name':'Reviewed conference group','source_reference':'actual-group-sales-reference','billing_reference':'group-billing-authority-reference','reason':reason},
  'PMSGroupBlockCommand':{'booking':{'property_id':uid,'source':'GROUP','channel':'','source_reference':'actual-group-booking-reference','state':'HOLD','rooms':[{'product_id':uid,'quote_id':uid,'product_version':1,'pool_version':1,'date_from':'2026-12-01','date_to':'2026-12-03','quantity':1}],'guests':[{'guest_id':uid,'source_kind':'DIRECT','source_reference':'actual-registered-source-reference','is_primary':True}],'payment_responsibility':'PLATFORM_COLLECT','group_id':uid,'reason':reason}},

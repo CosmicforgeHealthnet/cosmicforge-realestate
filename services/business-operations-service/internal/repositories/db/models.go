@@ -1030,6 +1030,28 @@ type FolioCloseReviewRevocation struct {
 	CreatedAt      time.Time
 }
 
+type FolioFiscalReview struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	PropertyID           ids.ID
+	FolioID              ids.ID
+	FolioItemID          ids.ID
+	ReservationRoomID    ids.ID
+	SourceQuoteID        ids.ID
+	ReviewVersion        int64
+	ExpectedFolioVersion int64
+	State                string
+	SourceKind           string
+	Breakdown            []byte
+	Digest               string
+	ApprovalID           *ids.ID
+	EvidenceReference    string
+	Reason               string
+	CreatedBy            *ids.ID
+	CreatedByService     string
+	CreatedAt            time.Time
+}
+
 type FolioItem struct {
 	ID              ids.ID
 	OrganisationID  ids.ID

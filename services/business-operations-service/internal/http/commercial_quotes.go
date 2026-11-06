@@ -170,7 +170,7 @@ func (h *Handler) calculateQuote(ctx context.Context, tx pgx.Tx, t tenant, in Co
 	if e = revenue.CheckRestrictions(records, dates, property.Timezone, in.Adults, in.Children, now); e != nil {
 		return out, e
 	}
-	out = revenue.QuoteSnapshot{QuoteID: ids.New(), ProductID: p.ID, PropertyID: p.PropertyID, PoolID: pool.ID, ProductVersion: p.Version, PoolVersion: pool.Version, RatePlanID: plan.ID, RatePlanVersion: plan.Version, DateFrom: in.DateFrom, DateTo: in.DateTo, Adults: in.Adults, Children: in.Children, Quantity: in.Quantity, Channel: in.Channel, Restrictions: records, PolicyCode: p.PolicyCode, PolicyVersion: p.PolicyVersion, PromotionVersions: map[string]int64{}, AddOnVersions: map[string]int64{}, ExpiresAt: now.Add(5 * time.Minute), CalculatedAt: now, Rounding: "HALF_AWAY_FROM_ZERO", Nights: []revenue.QuoteNight{}, TaxProfileIDs: []ids.ID{}, Components: []revenue.ComponentAmount{}}
+	out = revenue.QuoteSnapshot{FiscalAllocationVersion: "PROPORTIONAL_PRETAX_V1", AddOnAmounts: []revenue.QuoteAddOnAmount{}, QuoteID: ids.New(), ProductID: p.ID, PropertyID: p.PropertyID, PoolID: pool.ID, ProductVersion: p.Version, PoolVersion: pool.Version, RatePlanID: plan.ID, RatePlanVersion: plan.Version, DateFrom: in.DateFrom, DateTo: in.DateTo, Adults: in.Adults, Children: in.Children, Quantity: in.Quantity, Channel: in.Channel, Restrictions: records, PolicyCode: p.PolicyCode, PolicyVersion: p.PolicyVersion, PromotionVersions: map[string]int64{}, AddOnVersions: map[string]int64{}, ExpiresAt: now.Add(5 * time.Minute), CalculatedAt: now, Rounding: "HALF_AWAY_FROM_ZERO", Nights: []revenue.QuoteNight{}, TaxProfileIDs: []ids.ID{}, Components: []revenue.ComponentAmount{}}
 	amounts := []money.Money{}
 	taxes := []CommercialTaxProfile{}
 	included := map[ids.ID]bool{}
@@ -372,6 +372,7 @@ func (h *Handler) calculateQuote(ctx context.Context, tx pgx.Tx, t tenant, in Co
 		}
 		out.AddOnVersions[id.String()] = addon.Version
 		if qty == 0 {
+			out.AddOnAmounts = append(out.AddOnAmounts, revenue.QuoteAddOnAmount{AddOnID: id, Version: addon.Version, Included: true, PerNight: d.PerNight, ExecutionReference: d.ExecutionReference})
 			continue
 		}
 		cost, e := money.New(d.AmountMinor, out.Currency)
@@ -392,6 +393,7 @@ func (h *Handler) calculateQuote(ctx context.Context, tx pgx.Tx, t tenant, in Co
 		if e != nil {
 			return out, e
 		}
+		out.AddOnAmounts = append(out.AddOnAmounts, revenue.QuoteAddOnAmount{AddOnID: id, Version: addon.Version, Quantity: qty, AmountMinor: cost.AmountMinor, PerNight: d.PerNight, ExecutionReference: d.ExecutionReference})
 		equal := make([]int64, len(days))
 		for i := range equal {
 			equal[i] = 1
