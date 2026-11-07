@@ -147,7 +147,9 @@ func (h *Handler) privacyTarget(r *http.Request, capability string, mfa bool) (t
 
 func activeLegalHold(ctx context.Context, q database.Querier, org, guest ids.ID) (bool, error) {
 	var held bool
-	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM legal_holds WHERE organisation_id=$1 AND guest_id=$2 AND state='ACTIVE')`, org, guest).Scan(&held)
+	// Holds attached to any record merged into the same canonical identity
+	// also protect it; a merge never escapes a legal hold.
+	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM legal_holds h WHERE h.organisation_id=$1 AND h.state='ACTIVE' AND (h.guest_id=$2 OR business_guest_canonical($1,h.guest_id)=business_guest_canonical($1,$2)))`, org, guest).Scan(&held)
 	return held, e
 }
 
@@ -558,7 +560,11 @@ func (h *Handler) ProcessDataRetention(ctx context.Context, limit int) error {
 			if _, e = tx.Exec(ctx, `UPDATE loyalty_accounts SET state='CLOSED',version=version+1,updated_at=now() WHERE organisation_id=$1 AND guest_id=$2 AND state<>'CLOSED'`, job.Org, job.GuestID); e != nil {
 				return e
 			}
-			result := map[string]any{"profile": "ANONYMISED", "preferences_cleared": prefs, "identity_links": "REVOKED", "loyalty_accounts": "CLOSED", "retained": []string{"reservations", "stays", "folios", "payment_evidence", "consent_history", "audit"}}
+			mergedErased, e := h.eraseMergedMembers(ctx, tx, job.Org, job.GuestID, erased)
+			if e != nil {
+				return e
+			}
+			result := map[string]any{"profile": "ANONYMISED", "preferences_cleared": prefs, "identity_links": "REVOKED", "loyalty_accounts": "CLOSED", "merged_records_anonymised": mergedErased, "retained": []string{"reservations", "stays", "folios", "payment_evidence", "consent_history", "audit", "merge_lineage"}}
 			if _, e = tx.Exec(ctx, `UPDATE data_retention_jobs SET state='COMPLETED',result=$2,lease_owner=NULL,lease_expires_at=NULL,last_error=NULL,updated_at=now() WHERE id=$1`, job.ID, marshalCommercial(result)); e != nil {
 				return e
 			}

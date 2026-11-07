@@ -141,6 +141,9 @@ func (h *Handler) reservationOverbook(w http.ResponseWriter, r *http.Request) {
 		if e = h.reservationCommit(ctx, tx, t, v, "OVERBOOKING_CONFIRMED", "reservation.modified.v1", in.Reason, map[string]any{"permit_id": permit, "policy_id": policy.ID, "policy_version": policy.Version, "maximum_excess_quantity": maximum, "physical_capacity_changed": false, "reconciliation_case_id": caseID, "recovery_reference": in.RecoveryReference, "physical_room_assignment_allowed": false}); e != nil {
 			return 0, nil, e
 		}
+		if _, e = h.openOverbookingRecovery(ctx, tx, t, v, permit, in.RecoveryReference); e != nil {
+			return 0, nil, e
+		}
 		if e = h.pauseOverbookedPoolChannels(ctx, tx, t, pool.ID, v.PropertyID); e != nil {
 			return 0, nil, e
 		}

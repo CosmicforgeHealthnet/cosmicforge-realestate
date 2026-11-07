@@ -75,6 +75,8 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 	}
 	projection := &portfolio.VerificationProjector{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Now: time.Now}
 	inventory := &businesshttp.Handler{Auth: &businessauth.Handler{Service: &businessauth.Service{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Sealer: sealer, Now: time.Now}}}
+	// Guest CRM notifications reuse the same signed Notification client.
+	inventory.Notification = sender
 	if endpoint := l.String("PAYMENT_SERVICE_URL", ""); endpoint != "" {
 		client, e := payment.New(endpoint, identity.Signer, 8*time.Second)
 		if e != nil {
@@ -167,6 +169,7 @@ func (r *Runtime) Run(ctx context.Context) error {
 					{"hospitality-arrivals", r.Inventory.ProcessPMSArrivals},
 					{"hospitality-day-automation", r.Inventory.ProcessPMSDayAutomation},
 					{"crm-data-retention", r.Inventory.ProcessDataRetention},
+					{"crm-notifications", r.Inventory.ProcessGuestNotifications},
 				} {
 					call, cancel := context.WithTimeout(ctx, 30*time.Second)
 					err := task.run(call, 50)

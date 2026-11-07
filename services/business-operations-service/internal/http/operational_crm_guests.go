@@ -50,6 +50,8 @@ func (h *Handler) registerCRM(r chi.Router) {
 	h.registerLoyaltyCRM(r)
 	h.registerPrivacyCRM(r)
 	h.registerCRMReports(r)
+	h.registerCRMMerge(r)
+	h.registerCRMNotifications(r)
 }
 func (h *Handler) crmSourceHash(org ids.ID, kind, reference string) string {
 	// These are opaque identifiers, never credentials or inferred contact
