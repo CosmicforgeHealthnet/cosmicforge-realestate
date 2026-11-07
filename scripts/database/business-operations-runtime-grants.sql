@@ -92,3 +92,5 @@ REVOKE DELETE,TRUNCATE ON guest_merges,guest_notification_templates,guest_notifi
 -- Section 9 quantity fragmentation ledger, slot maps and waitlist automation evidence.
 REVOKE UPDATE,DELETE,TRUNCATE ON reservation_quantity_changes,reservation_quantity_change_days,reservation_room_slot_maps,waitlist_automation_policies,waitlist_automation_runs,waitlist_automation_offers FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON inventory_release_signals,waitlist_automation_leases FROM cf_business_runtime;
+-- Section 10 in-house amendments: extension, early departure and unit-release history.
+REVOKE UPDATE,DELETE,TRUNCATE ON stay_extensions,stay_extension_payers,reservation_unit_releases,reservation_unit_release_days,stay_early_departures FROM cf_business_runtime;

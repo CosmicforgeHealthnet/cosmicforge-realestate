@@ -216,7 +216,19 @@ func (h *Handler) pmsFolioReconcile(w http.ResponseWriter, r *http.Request) {
 		// The accepted accommodation group comes first; unreleased payer
 		// agreements follow in acceptance order. Each receipt is applied once.
 		groups := []ids.ID{group}
-		agreementGroups, e := commercialJSONRows(ctx, tx, `SELECT to_jsonb(a.financial_group_id) FROM folio_collection_agreements a WHERE a.organisation_id=$1 AND a.folio_id=$2 AND NOT EXISTS(SELECT 1 FROM folio_collection_cancellations c WHERE c.organisation_id=a.organisation_id AND c.agreement_id=a.id) ORDER BY a.created_at,a.id LIMIT 200`, t.Organisation, id)
+		// In-house extension payers follow, each with its own accepted share.
+		agreementGroups, e := commercialJSONRows(ctx, tx, `SELECT to_jsonb(p.financial_group_id) FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id WHERE x.organisation_id=$1 AND x.folio_id=$2 ORDER BY x.date_from,p.payer_kind DESC,p.id LIMIT 200`, t.Organisation, id)
+		if e != nil {
+			return 0, nil, e
+		}
+		for _, raw := range agreementGroups {
+			var g ids.ID
+			if e = json.Unmarshal(raw, &g); e != nil {
+				return 0, nil, e
+			}
+			groups = append(groups, g)
+		}
+		agreementGroups, e = commercialJSONRows(ctx, tx, `SELECT to_jsonb(a.financial_group_id) FROM folio_collection_agreements a WHERE a.organisation_id=$1 AND a.folio_id=$2 AND NOT EXISTS(SELECT 1 FROM folio_collection_cancellations c WHERE c.organisation_id=a.organisation_id AND c.agreement_id=a.id) ORDER BY a.created_at,a.id LIMIT 200`, t.Organisation, id)
 		if e != nil {
 			return 0, nil, e
 		}

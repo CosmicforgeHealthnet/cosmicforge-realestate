@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/hospitality"
-	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
@@ -45,6 +44,7 @@ func (h *Handler) registerPMS(r chi.Router) {
 	h.registerPMSOffline(r)
 	h.registerPMSGroups(r)
 	h.registerPMSCollection(r)
+	h.registerPMSStayAmendments(r)
 	r.Get("/room-reconciliations", h.pmsRoomReconciliationReports)
 	r.Get("/room-status/{room_id}/safety-proof", h.pmsRoomSafetyProof)
 	r.Post("/room-status/{room_id}/reconcile", h.pmsRoomReconcile)
@@ -211,6 +211,13 @@ func (h *Handler) assignPhysicalRoom(ctx context.Context, tx pgx.Tx, pre reserva
 	if e != nil {
 		return 0, nil, e
 	}
+	// A unit slot extended in house keeps its exact contiguous extension chain.
+	chainEnd, e := reservations.StayChainEnd(ctx, tx, t.Organisation, room, in.Slot)
+	if e != nil {
+		return 0, nil, e
+	}
+	line := room
+	room.DateTo = chainEnd
 	if movingFrom != "" {
 		if movingFrom < room.DateFrom || movingFrom >= room.DateTo {
 			return 0, nil, apperrors.Conflict("ROOM_MOVE_ACCEPTED_DATES", "Room moves must remain within accepted canonical nights.")
@@ -220,7 +227,7 @@ func (h *Handler) assignPhysicalRoom(ctx context.Context, tx pgx.Tx, pre reserva
 	if in.Slot > room.Quantity {
 		return 0, nil, apperrors.InvalidRequest("Assignment slot exceeds accepted quantity.")
 	}
-	if e = reservations.RequirePhysicalBacking(ctx, tx, t.Organisation, room.ID, inventory.DateRange{DateFrom: room.DateFrom, DateTo: room.DateTo}); e != nil {
+	if e = requireStayChainBacking(ctx, tx, t.Organisation, line, in.Slot, room.DateFrom, room.DateTo); e != nil {
 		return 0, nil, e
 	}
 	if e = h.reservationFinancialEligibility(ctx, tx, t.Organisation, room.FinancialGroupID); e != nil {

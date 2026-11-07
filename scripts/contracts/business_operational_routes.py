@@ -1,6 +1,7 @@
 """Reviewed contracts for executable operational handlers; no future routes."""
 import re
 from business_pms_routes import register_pms,pms_queries,pms_examples
+from business_pms_amendment_routes import register_pms_amendments,pms_amendment_notes,pms_amendment_examples
 from business_crm_routes import register_crm,crm_queries,crm_examples
 from business_crm_merge_routes import register_crm_merge,crm_merge_queries,crm_merge_examples
 from business_reservation_quantity_routes import register_reservation_quantity,reservation_quantity_notes,reservation_quantity_queries,reservation_quantity_examples
@@ -125,6 +126,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  data.update(register_crm_merge(s,obj,arr,ref,typ))
  data.update(register_pms(s,obj,arr,ref,typ))
  data.update(register_reservation_quantity(s,obj,arr,ref,typ))
+ data.update(register_pms_amendments(s,obj,arr,ref,typ))
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
   for method,path,handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',p.read_text(encoding='utf-8')):
@@ -152,6 +154,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler=='pmsOfflineReplay':note+='FOLIO_POST requires folios:write; ASSIGN_ROOM/CHECK_IN require pms:write and all nested live capabilities/MFA/approvals. 202 retains a failed original operation and durable reconciliation task, never applied business success. '
    if handler.startswith('pmsCollectionAgreement'):note+='Ancillary payer agreements allocate actual non-accommodation folio items once; total allocations never exceed each remaining original obligation. Each agreement owns one dedicated financial group and queues the existing durable Payment policy/locked-quote/intent/receipt collection; 202 is never collected money. Corporate payers require a live profile, current property contract, active traveler association for the stay guest, recent MFA and exact independent COMMERCIAL_PMS_FOLIO_COLLECTION approval bound to amount and currency. Release is allowed only for a never-dispatched request or after authoritative Payment VERIFIED_FAILURE; a released agreement may be replaced once. Folio reconcile applies each current settled, funded, unreversed receipt once; reversal removes backing without rewriting history. '
    if handler=='pmsFolioPost':note+='amount_minor is the extended line total in accepted currency; quantity records actual source quantity, without implicit multiplication. '
+   note+=pms_amendment_notes(handler)
    if handler.startswith('pms'):note+='Physical rooms come from canonical stock. Check-in rechecks identity/readiness/risk/financial backing. Inspection requires room_status:inspect and recent MFA. Folio views additionally require folios:read. Independent exact approvals cover early arrival, compensating corrections and debt departure; guarantees never represent collected money. Device outcomes remain UNKNOWN without authenticated provider confirmation. '
    if handler.startswith(('crmPrivacy','crmLegalHold')):note+='Verified data-subject requests cover only Business-owned CRM data in the property scope and are due within 30 days. Export data is read live by a caller with guest_private:read and recent MFA, audited and returned no-store. Erasure needs an exact independent COMMERCIAL_GUEST_ERASURE approval, is blocked by any active legal hold, and anonymises the profile, preferences, identity links and loyalty accounts through a durable worker while reservations, stays, folios, payment evidence, consent history and audit are retained. Other services receive coordination references, never direct deletion. Releasing a legal hold needs exact independent COMMERCIAL_LEGAL_HOLD_RELEASE approval. '
    if handler.startswith(('crmVIP','crmSegment')):note+='VIP tiers are append-only, evidence-backed and expire. Segments use a closed list of source-backed criteria evaluated against authoritative stays, corporate associations, loyalty tiers, VIP classifications, consent and reservation sources; marketing eligibility always follows current MARKETING consent. Evaluations append membership history. '
@@ -196,6 +199,7 @@ def operational_examples(uid):
  **crm_merge_examples(uid),
  **pms_examples(uid),
  **reservation_quantity_examples(uid),
+ **pms_amendment_examples(uid),
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
  'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},
  'ReservationOverbookingPolicyCommand':{'property_id':uid,'pool_id':uid,'expected_version':0,'definition':{'max_quantity':1,'max_capacity_bps':10000,'allowed_sources':['DIRECT'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-10T00:00:00Z','policy_reference':'approved-exception-policy:v1'},'state':'ACTIVE','approval_id':uid,'reason':'Explicit independent property overbooking policy'},

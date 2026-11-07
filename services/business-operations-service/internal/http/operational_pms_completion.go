@@ -226,7 +226,7 @@ func (h *Handler) closePMSFolio(ctx context.Context, tx pgx.Tx, t tenant, f hosp
 	// Every accepted quantity slot must have an actual departed physical stay.
 	// Facility or unfulfilled mixed roots remain outside this hotel completion.
 	var ready bool
-	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms WHERE organisation_id=$1 AND reservation_id=$2 AND state='ACTIVE') AND NOT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id JOIN folios f ON f.organisation_id=s.organisation_id AND f.stay_id=s.id WHERE s.organisation_id=rr.organisation_id AND s.reservation_id=rr.reservation_id AND a.reservation_room_id=rr.id AND s.state='DEPARTED' AND f.state='CLOSED'))`, t.Organisation, v.ID).Scan(&ready)
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms WHERE organisation_id=$1 AND reservation_id=$2 AND state='ACTIVE') AND NOT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND `+stayExtensionLineExcluded+` AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id JOIN folios f ON f.organisation_id=s.organisation_id AND f.stay_id=s.id WHERE s.organisation_id=rr.organisation_id AND s.reservation_id=rr.reservation_id AND a.reservation_room_id=rr.id AND s.state='DEPARTED' AND f.state='CLOSED'))`, t.Organisation, v.ID).Scan(&ready)
 	if e != nil {
 		return out, e
 	}
