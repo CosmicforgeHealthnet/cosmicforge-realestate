@@ -2,7 +2,7 @@
 
 This is a status record for the 7 November 2026 completion pass on `staging`. It is **not** a declaration that Sections 8–11 are fully complete. Every row below is backed by named, executed tests or is explicitly marked PARTIAL/FAIL with the remaining internal work.
 
-Starting SHA: `7e57f13725b185c70230058c632e612fc8e5b946`. CI repair SHA: `d71ac6c50d51c3db98f16a0848fde91fbac56793`. Final SHA and workflow links: see section 7 (filled after the final push).
+Starting SHA: `7e57f13725b185c70230058c632e612fc8e5b946`. CI repair SHA: `d71ac6c50d51c3db98f16a0848fde91fbac56793`. Implementation SHA: `20725cd629692892214eb1b0282f88f0626066a4` (CI evidence in section 9).
 
 ## 1. Backend CI repair
 
@@ -99,3 +99,19 @@ New events: `hospitality.folio_collection.updated.v1`, `service_recovery.updated
 Payment/Admin refund and adjustment execution (no authorized Business-to-Admin remedy API; requests stay pending), live Payment collection/settlement configuration, Notification templates/delivery, Marketplace/OTA live supply and source contracts, Verification capacity assertions, cashier attestation producer, smart-access devices, market/cost datasets, staging deployment transport, real staging database/roles/secrets and NATS identities.
 
 **LIVE STAGING DEPLOYMENT: NOT CERTIFIED.** No VPS access, no production deployment, no change to `main`.
+
+## 9. CI evidence for implementation SHA `20725cd629692892214eb1b0282f88f0626066a4`
+
+| Workflow | Result | Run |
+|---|---|---|
+| Backend (20/20 jobs incl. process-level E2E) | PASS | [42359745790](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745790) |
+| Architecture structure | PASS | [42359745829](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745829) |
+| Contracts | PASS | [42359745799](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745799) |
+| Security | PASS | [42359745813](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745813) |
+| Images | PASS | [42359745789](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745789) |
+
+Business Linux race job 128365401793: 313 test/subtest passes (201 top-level tests), 0 failures, 0 skips. Subtests are not counted as journeys. E2E job 128376545969: `TestOwnerFunctionalJourneyWithRealServices` and its four journeys PASS.
+
+Business image from the Images run: `ghcr.io/cosmicforgehealthnet/cosmicforge-realestate/business-operations-service@sha256:5d869086e88ddad09451ea911ea3f3860ae8454ed4ffc57ab61003b86f4922a6`. A published image is not a staging deployment.
+
+The later commit that adds this section changes documentation only; its own workflow results are listed in the delivery summary.
