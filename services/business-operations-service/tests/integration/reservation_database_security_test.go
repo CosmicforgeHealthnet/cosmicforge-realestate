@@ -52,6 +52,12 @@ func TestBusinessReservationRuntimeRoleCannotRewriteFinancialOrSourceHistory(t *
 			t.Fatalf("incorrect immutable runtime privileges on %s: %v %v %v %v %v", table, read, insert, update, remove, truncate)
 		}
 	}
+	for _, table := range []string{"reservation_quantity_changes", "reservation_quantity_change_days", "reservation_room_slot_maps", "waitlist_automation_policies", "waitlist_automation_runs", "waitlist_automation_offers"} {
+		var update, remove bool
+		if e = db.Pool.QueryRow(t.Context(), `SELECT has_table_privilege($1,$2,'UPDATE'),has_table_privilege($1,$2,'DELETE')`, role, table).Scan(&update, &remove); e != nil || update || remove {
+			t.Fatalf("quantity/waitlist evidence mutable %s %v %v %v", table, update, remove, e)
+		}
+	}
 	for _, table := range []string{"reservations", "reservation_rooms", "reservation_financial_requests", "reservation_inventory_days"} {
 		var write, remove bool
 		if e = db.Pool.QueryRow(t.Context(), `SELECT has_table_privilege($1,$2,'UPDATE'),has_table_privilege($1,$2,'DELETE')`, role, table).Scan(&write, &remove); e != nil || !write || remove {

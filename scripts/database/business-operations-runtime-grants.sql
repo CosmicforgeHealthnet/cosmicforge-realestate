@@ -85,3 +85,7 @@ REVOKE DELETE,TRUNCATE ON service_recovery_cases,service_recovery_compensation_r
 -- Section 11 privacy lifecycle and classification history.
 REVOKE UPDATE,DELETE,TRUNCATE ON vip_classifications,guest_segments,guest_segment_memberships FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON privacy_requests,legal_holds,data_retention_jobs FROM cf_business_runtime;
+
+-- Section 9 quantity fragmentation ledger, slot maps and waitlist automation evidence.
+REVOKE UPDATE,DELETE,TRUNCATE ON reservation_quantity_changes,reservation_quantity_change_days,reservation_room_slot_maps,waitlist_automation_policies,waitlist_automation_runs,waitlist_automation_offers FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON inventory_release_signals,waitlist_automation_leases FROM cf_business_runtime;
