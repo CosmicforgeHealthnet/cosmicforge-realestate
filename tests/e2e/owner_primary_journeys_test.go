@@ -44,6 +44,26 @@ func (p *platformEnv) ownerCommand(tok, path string, body any) map[string]any {
 	return p.checked(p.asUser(tok, "POST", "/api/v1/owner"+path, body, ids.New().String()), 200)
 }
 
+// propertyLocalNow returns the current instant in the property's timezone.
+// Close to local midnight it waits for the rollover so date-only fields
+// cannot go stale between derivation and the service's own clock read.
+func (p *platformEnv) propertyLocalNow(tok string, pid ids.ID) time.Time {
+	p.t.Helper()
+	view := p.checked(p.asUser(tok, "GET", "/api/v1/owner/properties/"+pid.String(), nil, ""), 200)
+	zone, _ := view["timezone"].(string)
+	loc, err := time.LoadLocation(zone)
+	if err != nil {
+		p.t.Fatalf("property timezone %q: %v", zone, err)
+	}
+	now := time.Now().In(loc)
+	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
+	if wait := midnight.Sub(now); wait < 2*time.Minute {
+		time.Sleep(wait + time.Second)
+		now = time.Now().In(loc)
+	}
+	return now
+}
+
 func idOf(v map[string]any) string     { return v["id"].(string) }
 func versionOf(v map[string]any) int64 { return int64(v["version"].(float64)) }
 
@@ -206,7 +226,8 @@ func (p *platformEnv) certifyPrimaryOwnerJourneys(tok string, ownerID, propertyI
 		pid, lid := p.primaryListing(tok, "RESIDENTIAL", "APARTMENT", "SHORT_LET", map[string]any{"max_guests": 2, "min_nights": 1, "check_in_time": "00:00", "check_out_time": "11:00"}, map[string]any{"currency": "NGN", "base_amount_minor": 5000000, "base_period": "NIGHT", "payment_cycle": "PER_STAY"}, 5, deed)
 		p.checked(p.ifMatch(tok, "PUT", "/api/v1/owner/listings/"+lid.String()+"/shortlet/settings", 0, map[string]any{"max_guests": 2, "min_nights": 1, "max_nights": 30, "check_in_time": "00:00", "check_out_time": "11:00", "instant_book": true, "guest_verification_required": false, "payment_collection": "OFF_PLATFORM", "cancellation_policy": "MODERATE", "turnover_buffer_days": 1}), 200)
 		guest := serviceauth.Delegation{ActorDomain: platform.DomainMarketplace, ActorID: ids.New()}
-		now := time.Now().UTC()
+		// Date-only stay fields follow the property's calendar, not UTC.
+		now := p.propertyLocalNow(tok, pid)
 		body := map[string]any{"listing_id": lid, "check_in": now.Format(time.DateOnly), "check_out": now.AddDate(0, 0, 1).Format(time.DateOnly), "guests": 1, "guest_list": []map[string]any{{"display_name": "TEST guest", "primary": true}}}
 		booking := p.checked(p.actor(platform.MarketplaceService, guest, "POST", "/customer-shortlet-bookings", body), 201)
 		if r := p.actor(platform.MarketplaceService, serviceauth.Delegation{ActorDomain: platform.DomainMarketplace, ActorID: ids.New()}, "POST", "/customer-shortlet-bookings", body); r.status != 409 {
