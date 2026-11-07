@@ -97,6 +97,36 @@ func TestBusinessPMSEarlyDepartureReleasesUnusedNightsAndCreditsFolio(t *testing
 	}
 }
 
+// An extension collection that was queued but never read back is an unknown
+// Payment outcome: early departure records READBACK_REQUIRED (no invented
+// refund amount), and the stale collection never charges afterwards.
+func TestBusinessPMSEarlyDepartureWithUnknownExtensionCollectionStaysPending(t *testing.T) {
+	x := newPMSAmendFixture(t, true, 1)
+	c := x.c
+	cmd, _ := x.extension(0, 1, "RESERVATION_TERMS")
+	ext := commercialData[businesshttp.PMSStayExtensionResult](t, c.must(c.owner, "POST", "/stays/"+x.stays[0].String()+"/extensions", cmd, 201))
+	collect := businesshttp.PMSStayExtensionCollection{PaymentPolicyID: x.pay.policy.ID, PaymentPolicyVersion: x.pay.policy.Version, PaymentPolicyFamily: "HOTEL", PayerWalletID: ids.New(), ConsentReference: "explicit-extension-payer-consent", LegalPartyReference: "canonical-test-guest-party", Email: "disposable-guest@example.invalid", Schedule: "ONE_TIME", Reason: "Collect the accepted in-house extension share"}
+	path := "/stays/" + x.stays[0].String() + "/extensions/" + ext.ExtensionID.String() + "/payment-requests"
+	c.must(c.owner, "POST", path, collect, 202)
+	departure, terms := x.earlyDeparture(0)
+	if terms.Segments[1].Payers[0].Collection != "UNKNOWN" || terms.Segments[0].Payers[0].Collection != "COLLECTED" {
+		t.Fatalf("collection classification %+v", terms.Segments)
+	}
+	out := commercialData[businesshttp.PMSEarlyDepartureResult](t, c.must(c.owner, "POST", "/stays/"+x.stays[0].String()+"/early-departure", departure, 200))
+	if out.FinancialState != "READBACK_REQUIRED" || out.RefundableMinor != nil || out.RefundExecuted {
+		t.Fatalf("unknown outcome invented a refund %+v", out)
+	}
+	x.process()
+	if x.pay.collectionCalls != 1 {
+		t.Fatalf("stale extension collection charged after early departure: %d", x.pay.collectionCalls)
+	}
+	c.must(c.owner, "POST", path, collect, 409)
+	audit := commercialData[businesshttp.PMSAuditResult](t, c.must(c.owner, "POST", "/night-audit/validate", businesshttp.PMSAuditCommand{PropertyID: c.property.ID, Reason: "Validate the day with an unresolved early-departure outcome"}, 201))
+	if audit.Snapshot.Checks["UNRESOLVED_STAY_AMENDMENT_OBLIGATIONS"] < 1 || audit.State != "EXCEPTIONS" {
+		t.Fatalf("night audit ignored unknown outcome %+v", audit.Snapshot.Checks)
+	}
+}
+
 // A collected (platform) stay departs early: the collected unused share is a
 // refund obligation pending authorised Payment/Admin execution, never a
 // completed refund. Night audit blocks on it; a later Payment reversal removes

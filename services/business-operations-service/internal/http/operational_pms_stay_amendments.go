@@ -331,7 +331,9 @@ func (h *Handler) executePMSStayExtension(ctx context.Context, tx pgx.Tx, pre ho
 			payers[i].state = "PENDING"
 			continue
 		}
-		if !slices.Contains(policy.Definition.AllowedGuarantees, payers[i].responsibility) {
+		// Corporate credit is authorised by the current corporate contract and
+		// traveler association; a guest guarantee needs the reservation policy.
+		if payers[i].kind == "GUEST" && !slices.Contains(policy.Definition.AllowedGuarantees, payers[i].responsibility) {
 			return out, apperrors.PermissionDenied("The current approved reservation policy does not permit this extension guarantee.")
 		}
 		payers[i].state = "APPROVED_GUARANTEE"
@@ -410,7 +412,7 @@ func (h *Handler) executePMSStayExtension(ctx context.Context, tx pgx.Tx, pre ho
 			out.CollectionRequired = true
 		}
 	}
-	if e = h.pmsCommit(ctx, tx, t, v.PropertyID, extension, "stay_extension", "STAY_EXTENSION_ACCEPTED", "hospitality.stay.extension.accepted.v1", 1, map[string]any{"stay_id": s.ID, "reservation_id": v.ID, "extension_room_id": room.ID, "date_from": q.DateFrom, "date_to": q.DateTo, "payer_mode": in.PayerMode, "approval_id": approval, "reason": in.Reason}); e != nil {
+	if e = h.pmsCommit(ctx, tx, t, v.PropertyID, extension, "stay_extension", "STAY_EXTENSION_ACCEPTED", "hospitality.extension.accepted.v1", 1, map[string]any{"stay_id": s.ID, "reservation_id": v.ID, "extension_room_id": room.ID, "date_from": q.DateFrom, "date_to": q.DateTo, "payer_mode": in.PayerMode, "approval_id": approval, "reason": in.Reason}); e != nil {
 		return out, e
 	}
 	// The physical continuation is a new immutable assignment of the same room
@@ -542,15 +544,16 @@ func (h *Handler) pmsStayExtensionCollection(w http.ResponseWriter, r *http.Requ
 		}
 		var group ids.ID
 		var folioState string
-		e = tx.QueryRow(ctx, `SELECT p.financial_group_id,f.state FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id JOIN folios f ON f.organisation_id=x.organisation_id AND f.id=x.folio_id WHERE x.organisation_id=$1 AND x.id=$2 AND x.stay_id=$3 AND p.payer_kind='GUEST' AND p.responsibility='PLATFORM_COLLECT'`, t.Organisation, extensionID, pre.ID).Scan(&group, &folioState)
+		var departed bool
+		e = tx.QueryRow(ctx, `SELECT p.financial_group_id,f.state,EXISTS(SELECT 1 FROM stay_early_departures d WHERE d.organisation_id=x.organisation_id AND d.stay_id=x.stay_id) FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id JOIN folios f ON f.organisation_id=x.organisation_id AND f.id=x.folio_id WHERE x.organisation_id=$1 AND x.id=$2 AND x.stay_id=$3 AND p.payer_kind='GUEST' AND p.responsibility='PLATFORM_COLLECT'`, t.Organisation, extensionID, pre.ID).Scan(&group, &folioState, &departed)
 		if errors.Is(e, pgx.ErrNoRows) {
 			return 0, nil, apperrors.Conflict("STAY_EXTENSION_COLLECTION_NOT_REQUIRED", "Only a platform-collected guest extension share is collected here; guarantees remain folio obligations.")
 		}
 		if e != nil {
 			return 0, nil, e
 		}
-		if folioState == "CLOSED" || folioState == "DISPUTED" {
-			return 0, nil, apperrors.Conflict("STAY_EXTENSION_COLLECTION_STATE", "A closed or disputed folio cannot start a new collection.")
+		if departed || folioState == "CLOSED" || folioState == "DISPUTED" {
+			return 0, nil, apperrors.Conflict("STAY_EXTENSION_COLLECTION_STATE", "A closed, disputed or early-departure-revised extension cannot start a new collection.")
 		}
 		v, e := reservations.Get(ctx, tx, t.Organisation, pre.ReservationID)
 		if e != nil {
@@ -593,7 +596,8 @@ func (h *Handler) pmsStayExtensionCollection(w http.ResponseWriter, r *http.Requ
 // guest extension collection: the stay's folio must still be reviewable.
 func (h *Handler) stayExtensionCollectionAuthority(ctx context.Context, tx pgx.Tx, t tenant, job reservationFinancialJob) (bool, error) {
 	var folioState, reservationState string
-	e := tx.QueryRow(ctx, `SELECT f.state,r.state FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id JOIN folios f ON f.organisation_id=x.organisation_id AND f.id=x.folio_id JOIN reservations r ON r.organisation_id=x.organisation_id AND r.id=x.reservation_id WHERE p.organisation_id=$1 AND p.financial_group_id=$2 AND p.payer_kind='GUEST' AND p.responsibility='PLATFORM_COLLECT'`, job.OrganisationID, job.FinancialGroupID).Scan(&folioState, &reservationState)
+	var departed bool
+	e := tx.QueryRow(ctx, `SELECT f.state,r.state,EXISTS(SELECT 1 FROM stay_early_departures d WHERE d.organisation_id=x.organisation_id AND d.stay_id=x.stay_id) FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id JOIN folios f ON f.organisation_id=x.organisation_id AND f.id=x.folio_id JOIN reservations r ON r.organisation_id=x.organisation_id AND r.id=x.reservation_id WHERE p.organisation_id=$1 AND p.financial_group_id=$2 AND p.payer_kind='GUEST' AND p.responsibility='PLATFORM_COLLECT'`, job.OrganisationID, job.FinancialGroupID).Scan(&folioState, &reservationState, &departed)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return false, nil
 	}
@@ -603,7 +607,9 @@ func (h *Handler) stayExtensionCollectionAuthority(ctx context.Context, tx pgx.T
 	if _, _, e = h.authorize(ctx, tx, "folios:write", "PROPERTY", job.PropertyID, false); e != nil {
 		return true, e
 	}
-	if folioState == "CLOSED" || folioState == "DISPUTED" || reservationState != "CHECKED_IN" && reservationState != "CHECKED_OUT" {
+	// An early departure revised the extension obligation; the original amount
+	// is never collected afterwards. Remaining debt settles through the folio.
+	if departed || folioState == "CLOSED" || folioState == "DISPUTED" || reservationState != "CHECKED_IN" && reservationState != "CHECKED_OUT" {
 		return true, apperrors.Conflict("COLLECTION_AUTHORITY_STALE", "Extension folio or stay changed before collection; readback remains available.")
 	}
 	return true, nil
@@ -924,7 +930,7 @@ func (h *Handler) executePMSEarlyDeparture(ctx context.Context, tx pgx.Tx, pre h
 			return out, apperrors.Conflict("RESERVATION_STOCK_RECONCILIATION_REQUIRED", "Unused unit nights differ from their committed canonical provenance.")
 		}
 		out.ReleasedNights = append(out.ReleasedNights, nights...)
-		if e = h.pmsCommit(ctx, tx, t, v.PropertyID, release, "reservation_unit_release", "RESERVATION_UNIT_NIGHTS_RELEASED", "reservation.unit_nights.released.v1", 1, map[string]any{"reservation_id": v.ID, "reservation_room_id": seg.room.ID, "slot": seg.slot, "stay_id": s.ID, "kind": kind, "date_from": from, "date_to": seg.room.DateTo, "nights": nights, "early_departure_id": departure, "reason": in.Reason}); e != nil {
+		if e = h.pmsCommit(ctx, tx, t, v.PropertyID, release, "reservation_unit_release", "RESERVATION_UNIT_NIGHTS_RELEASED", "hospitality.unit_nights.released.v1", 1, map[string]any{"reservation_id": v.ID, "reservation_room_id": seg.room.ID, "slot": seg.slot, "stay_id": s.ID, "kind": kind, "date_from": from, "date_to": seg.room.DateTo, "nights": nights, "early_departure_id": departure, "reason": in.Reason}); e != nil {
 			return out, e
 		}
 	}
@@ -1007,7 +1013,7 @@ func (h *Handler) executePMSEarlyDeparture(ctx context.Context, tx pgx.Tx, pre h
 		}
 		out.RefundRequestIDs = append(out.RefundRequestIDs, id)
 	}
-	if e = h.pmsCommit(ctx, tx, t, v.PropertyID, departure, "stay_early_departure", "STAY_EARLY_DEPARTURE_RECORDED", "hospitality.stay.early_departure.recorded.v1", 1, map[string]any{"stay_id": s.ID, "reservation_id": v.ID, "departure_day": terms.DepartureDay, "unused_nights": terms.Terms.UnusedNights, "penalty_applied": terms.Terms.PenaltyApplied, "financial_state": state, "refund_executed": false, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
+	if e = h.pmsCommit(ctx, tx, t, v.PropertyID, departure, "stay_early_departure", "STAY_EARLY_DEPARTURE_RECORDED", "hospitality.early_departure.recorded.v1", 1, map[string]any{"stay_id": s.ID, "reservation_id": v.ID, "departure_day": terms.DepartureDay, "unused_nights": terms.Terms.UnusedNights, "penalty_applied": terms.Terms.PenaltyApplied, "financial_state": state, "refund_executed": false, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
 		return out, e
 	}
 	// The folio version increases once for the credit postings; departure then

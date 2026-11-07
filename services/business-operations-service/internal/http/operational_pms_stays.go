@@ -449,7 +449,6 @@ func (h *Handler) completePMSDeparture(ctx context.Context, tx pgx.Tx, t tenant,
 	return map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": status.State, "access_state": "UNKNOWN"}, nil
 }
 
-
 func validPMSCheckIn(in PMSCheckInCommand) bool {
 	return !(in.AssignmentID.ValidateV7() != nil || in.GuestID.ValidateV7() != nil || in.AssignmentVersion < 1 || in.ReservationVersion < 1 || in.RoomStatusVersion < 1 || !crm.Text(in.RegistrationReference, 5, 300) || !validStaffReason(in.Reason))
 }

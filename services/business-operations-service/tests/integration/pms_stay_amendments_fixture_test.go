@@ -33,7 +33,7 @@ type pmsOpenedStay struct {
 	FolioID ids.ID `json:"folio_id"`
 }
 
-func newPMSAmendFixture(t *testing.T, prepaid bool, quantity int) *pmsAmendFixture {
+func newPMSAmendFixture(t *testing.T, prepaid bool, quantity int, extraCapacity ...int) *pmsAmendFixture {
 	t.Helper()
 	c := newCommercialHTTPForArrival(t, 0)
 	c.approver = c.user()
@@ -56,6 +56,9 @@ func newPMSAmendFixture(t *testing.T, prepaid bool, quantity int) *pmsAmendFixtu
 		extra[end.AddDate(0, 0, i).Format(time.DateOnly)] = 0
 	}
 	capacity := x.capacity
+	if len(extraCapacity) > 0 {
+		capacity = extraCapacity[0]
+	}
 	c.must(c.owner, "PUT", "/inventory", businesshttp.CommercialCalendarCommand{PoolID: c.pool.ID, DateFrom: c.dates.DateTo, DateTo: end.AddDate(0, 0, 6).Format(time.DateOnly), Capacity: &capacity, ExpectedVersions: extra, Reason: "Open existing physical stock for in-house extensions"}, 200)
 	guests := []reservations.GuestCommand{}
 	for i := 0; i < quantity; i++ {

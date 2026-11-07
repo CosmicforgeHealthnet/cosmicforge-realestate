@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://contracts.cosmicforge.realestate/events/business/reservation.unit_nights.released.v1.schema.json",
-  "title": "reservation.unit_nights.released.v1",
-  "description": "Producer business-operations-service. Canonical subject realestate.business.reservation.unit_nights.released.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
+  "$id": "https://contracts.cosmicforge.realestate/events/business/hospitality.unit_nights.released.v1.schema.json",
+  "title": "hospitality.unit_nights.released.v1",
+  "description": "Producer business-operations-service. Canonical subject realestate.business.hospitality.unit_nights.released.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
   "allOf": [
     {
       "$ref": "../../schemas/event-envelope.schema.json"
@@ -10,7 +10,7 @@
   ],
   "properties": {
     "event_type": {
-      "const": "reservation.unit_nights.released.v1"
+      "const": "hospitality.unit_nights.released.v1"
     },
     "producer": {
       "const": "business-operations-service"

@@ -3,7 +3,6 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
-	"sync"
 	"testing"
 
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
@@ -83,10 +82,12 @@ func TestBusinessPMSStayExtensionValidAvailabilityAndReplay(t *testing.T) {
 	if n := x.count(`SELECT count(*) FROM reservation_versions WHERE reservation_id=$1 AND action='STAY_EXTENDED'`, x.v.Reservation.ID); n != 1 {
 		t.Fatal("extension lacks append-only reservation history")
 	}
-	if n := x.count(`SELECT count(*) FROM outbox_events WHERE event_type IN ('hospitality.stay.extended.v1','hospitality.stay.extension.accepted.v1')`); n != 2 {
+	if n := x.count(`SELECT count(*) FROM outbox_events WHERE event_type IN ('hospitality.stay.extended.v1','hospitality.extension.accepted.v1')`); n != 2 {
 		t.Fatalf("extension events %d", n)
 	}
-	list := commercialData[struct{ Items []json.RawMessage `json:"items"` }](t, c.must(c.owner, "GET", path, nil, 200))
+	list := commercialData[struct {
+		Items []json.RawMessage `json:"items"`
+	}](t, c.must(c.owner, "GET", path, nil, 200))
 	if len(list.Items) != 1 {
 		t.Fatalf("extension list %+v", list)
 	}
@@ -106,6 +107,3 @@ func TestBusinessPMSStayExtensionValidAvailabilityAndReplay(t *testing.T) {
 		t.Fatalf("extended reservation after departure %s %v", state, e)
 	}
 }
-
-var _ = json.Marshal
-var _ sync.Mutex

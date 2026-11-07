@@ -85,3 +85,5 @@ REVOKE DELETE,TRUNCATE ON service_recovery_cases,service_recovery_compensation_r
 -- Section 11 privacy lifecycle and classification history.
 REVOKE UPDATE,DELETE,TRUNCATE ON vip_classifications,guest_segments,guest_segment_memberships FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON privacy_requests,legal_holds,data_retention_jobs FROM cf_business_runtime;
+-- Section 10 in-house amendments: extension, early departure and unit-release history.
+REVOKE UPDATE,DELETE,TRUNCATE ON stay_extensions,stay_extension_payers,reservation_unit_releases,reservation_unit_release_days,stay_early_departures FROM cf_business_runtime;

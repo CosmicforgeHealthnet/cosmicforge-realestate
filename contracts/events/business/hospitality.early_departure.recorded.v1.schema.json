@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://contracts.cosmicforge.realestate/events/business/hospitality.stay.extension.accepted.v1.schema.json",
-  "title": "hospitality.stay.extension.accepted.v1",
-  "description": "Producer business-operations-service. Canonical subject realestate.business.hospitality.stay.extension.accepted.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
+  "$id": "https://contracts.cosmicforge.realestate/events/business/hospitality.early_departure.recorded.v1.schema.json",
+  "title": "hospitality.early_departure.recorded.v1",
+  "description": "Producer business-operations-service. Canonical subject realestate.business.hospitality.early_departure.recorded.v1. State and outbox commit atomically; at-least-once consumers deduplicate event_id. Secret-bearing Notification requests are encrypted, not plaintext.",
   "allOf": [
     {
       "$ref": "../../schemas/event-envelope.schema.json"
@@ -10,7 +10,7 @@
   ],
   "properties": {
     "event_type": {
-      "const": "hospitality.stay.extension.accepted.v1"
+      "const": "hospitality.early_departure.recorded.v1"
     },
     "producer": {
       "const": "business-operations-service"
