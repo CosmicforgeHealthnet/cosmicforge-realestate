@@ -31,6 +31,10 @@ type RMSPricingSnapshot struct {
 	Segments      []revenue.PricingSegment `json:"segments"`
 	Explanation   string                   `json:"explanation"`
 	Reason        string                   `json:"reason"`
+	Model         *revenue.ModelRef        `json:"model,omitempty"`
+	Features      []string                 `json:"features,omitempty"`
+	Confidence    string                   `json:"confidence,omitempty"`
+	Provenance    map[string]any           `json:"provenance,omitempty"`
 }
 type RMSRecommendation struct {
 	ID                ids.ID             `json:"id"`
@@ -50,6 +54,8 @@ type RMSRecommendation struct {
 	ApprovalID        *ids.ID            `json:"approval_id,omitempty"`
 	AppliedVersions   []ids.ID           `json:"applied_versions"`
 	CreatedBy         ids.ID             `json:"created_by"`
+	CreatedByService  string             `json:"created_by_service"`
+	AutomationRunID   *ids.ID            `json:"automation_run_id,omitempty"`
 }
 
 func (h *Handler) registerRMSRecommendations(r chi.Router) {
@@ -190,74 +196,89 @@ func (h *Handler) rmsRecommendationCreate(w http.ResponseWriter, r *http.Request
 		if e = h.rmsCurrentPolicy(ctx, tx, t, p); e != nil {
 			return 0, nil, e
 		}
-		f, e := loadRMSForecast(ctx, tx, t.Organisation, in.ForecastID)
-		if e != nil {
-			return 0, nil, e
-		}
-		if e = h.rmsForecastUsable(ctx, tx, t, p, f); e != nil {
-			return 0, nil, e
-		}
-		plan, e := revenue.GetPlan(ctx, tx, t.Organisation, p.RatePlanID)
-		if e != nil {
-			return 0, nil, e
-		}
-		if plan.State != "ACTIVE" {
-			return 0, nil, apperrors.Conflict("RATE_INACTIVE", "Recommendations require a current active canonical rate.")
-		}
-		source, e := loadRMSDemandSnapshot(ctx, tx, t.Organisation, f.SourceSnapshotID)
-		if e != nil {
-			return 0, nil, e
-		}
-		observed := map[string]revenue.DemandDay{}
-		for _, day := range source.Dataset.Days {
-			observed[day.Day] = day
-		}
-		segments := []revenue.PricingSegment{}
-		for _, day := range f.Result.Days {
-			prev, e := revenue.VersionForDay(ctx, tx, t.Organisation, plan.ID, day.Day)
-			if e != nil {
-				return 0, nil, e
-			}
-			if prev.Definition.ParentVersionID != nil || len(prev.Definition.Adjustments) > 0 || len(prev.Definition.Rules) > 0 {
-				return 0, nil, apperrors.Conflict("RMS_COMPLEX_RATE_REQUIRES_SCENARIO", "Derived/conditional rate recommendations require the canonical scenario adapter; no base-only mutation is permitted.")
-			}
-			amount, e := revenue.RecommendAmount(p.Definition, prev.Definition, day)
-			if e != nil {
-				return 0, nil, apperrors.Conflict("RMS_POLICY_BOUNDS", "Forecast or policy bounds do not permit this rate scenario.")
-			}
-			if in.ProposedAmountMinor != nil {
-				amount = *in.ProposedAmountMinor
-			}
-			next := prev.Definition
-			next.AmountMinor = amount
-			if next.Validate() != nil || amount < p.Definition.FloorMinor || amount > p.Definition.CeilingMinor || slices.Contains(p.Definition.BlackoutDates, day.Day) {
-				return 0, nil, apperrors.Conflict("RMS_POLICY_BOUNDS", "Proposed amount violates a canonical or RMS hard bound.")
-			}
-			end, _ := time.Parse(time.DateOnly, day.Day)
-			segments = append(segments, revenue.PricingSegment{DateFrom: day.Day, DateTo: end.AddDate(0, 0, 1).Format(time.DateOnly), Previous: prev, Proposed: next, CalendarVersion: observed[day.Day].CalendarVersion})
-		}
-		snapshot := RMSPricingSnapshot{Algorithm: "operator-bounded-occupancy-feedback-v1", PolicyVersion: p.Version, SourceDigest: f.SourceDigest, SourceAsOf: f.SourceAsOf, Segments: segments, Explanation: "Operator-configured occupancy feedback, bounded by canonical and RMS price limits; no calibrated price elasticity is asserted. Staff overrides are retained as explicit proposals.", Reason: in.Reason}
-		if in.ProposedAmountMinor != nil {
-			snapshot.Algorithm = "explicit-operator-scenario-v1"
-		}
-		digest := hashCommercialPayload(marshalCommercial(snapshot))
-		id := ids.New()
-		expires := h.Auth.Service.Now().UTC().Add(time.Duration(p.Definition.RecommendationTTLSeconds) * time.Second)
-		if expires.After(p.Definition.ExpiresAt) {
-			expires = p.Definition.ExpiresAt
-		}
-		if _, e = tx.Exec(ctx, `INSERT INTO pricing_recommendations(id,organisation_id,property_id,pool_id,rate_plan_id,policy_id,forecast_id,date_from,date_to,target_plan_version,change_digest,snapshot,expires_at,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8::date,$9::date,$10,$11,$12,$13,$14)`, id, t.Organisation, p.PropertyID, p.PoolID, plan.ID, p.ID, f.ID, f.DateFrom, f.DateTo, plan.Version, digest, marshalCommercial(snapshot), expires, t.Account); e != nil {
-			return 0, nil, e
-		}
-		if e = h.commercialCommit(ctx, tx, t, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "revenue.recommendation.changed.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
-			return 0, nil, e
-		}
-		if e = businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "pricing.recommendation.created.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
-			return 0, nil, e
-		}
-		out, e := loadRMSRecommendation(ctx, tx, t.Organisation, id)
+		out, e := h.createRMSRecommendation(ctx, tx, t, p, p.Definition, in.ForecastID, in.ProposedAmountMinor, in.Reason, nil)
 		return 201, out, e
 	})
+}
+
+// createRMSRecommendation builds an exact bounded proposal. The bounds may be
+// narrower than the policy (an automation activation) but never wider.
+func (h *Handler) createRMSRecommendation(ctx context.Context, tx pgx.Tx, t tenant, p RMSPolicy, bounds revenue.PricingPolicy, forecastID ids.ID, proposed *int64, reason string, runID *ids.ID) (RMSRecommendation, error) {
+	f, e := loadRMSForecast(ctx, tx, t.Organisation, forecastID)
+	if e != nil {
+		return RMSRecommendation{}, e
+	}
+	if e = h.rmsForecastUsable(ctx, tx, t, p, f); e != nil {
+		return RMSRecommendation{}, e
+	}
+	plan, e := revenue.GetPlan(ctx, tx, t.Organisation, p.RatePlanID)
+	if e != nil {
+		return RMSRecommendation{}, e
+	}
+	if plan.State != "ACTIVE" {
+		return RMSRecommendation{}, apperrors.Conflict("RATE_INACTIVE", "Recommendations require a current active canonical rate.")
+	}
+	source, e := loadRMSDemandSnapshot(ctx, tx, t.Organisation, f.SourceSnapshotID)
+	if e != nil {
+		return RMSRecommendation{}, e
+	}
+	observed := map[string]revenue.DemandDay{}
+	for _, day := range source.Dataset.Days {
+		observed[day.Day] = day
+	}
+	segments := []revenue.PricingSegment{}
+	for _, day := range f.Result.Days {
+		prev, e := revenue.VersionForDay(ctx, tx, t.Organisation, plan.ID, day.Day)
+		if e != nil {
+			return RMSRecommendation{}, e
+		}
+		if prev.Definition.ParentVersionID != nil || len(prev.Definition.Adjustments) > 0 || len(prev.Definition.Rules) > 0 {
+			return RMSRecommendation{}, apperrors.Conflict("RMS_COMPLEX_RATE_REQUIRES_SCENARIO", "Derived/conditional rate recommendations require the canonical scenario adapter; no base-only mutation is permitted.")
+		}
+		amount, e := revenue.RecommendAmount(bounds, prev.Definition, day)
+		if e != nil {
+			return RMSRecommendation{}, apperrors.Conflict("RMS_POLICY_BOUNDS", "Forecast or policy bounds do not permit this rate scenario.")
+		}
+		if proposed != nil {
+			amount = *proposed
+		}
+		next := prev.Definition
+		next.AmountMinor = amount
+		if next.Validate() != nil || amount < bounds.FloorMinor || amount > bounds.CeilingMinor || slices.Contains(bounds.BlackoutDates, day.Day) || slices.Contains(p.Definition.BlackoutDates, day.Day) {
+			return RMSRecommendation{}, apperrors.Conflict("RMS_POLICY_BOUNDS", "Proposed amount violates a canonical or RMS hard bound.")
+		}
+		end, _ := time.Parse(time.DateOnly, day.Day)
+		segments = append(segments, revenue.PricingSegment{DateFrom: day.Day, DateTo: end.AddDate(0, 0, 1).Format(time.DateOnly), Previous: prev, Proposed: next, CalendarVersion: observed[day.Day].CalendarVersion})
+	}
+	snapshot := RMSPricingSnapshot{Algorithm: "operator-bounded-occupancy-feedback-v1", PolicyVersion: p.Version, SourceDigest: f.SourceDigest, SourceAsOf: f.SourceAsOf, Segments: segments, Explanation: "Operator-configured occupancy feedback, bounded by canonical and RMS price limits; no calibrated price elasticity is asserted. Staff overrides are retained as explicit proposals.", Reason: reason}
+	if proposed != nil {
+		snapshot.Algorithm = "explicit-operator-scenario-v1"
+	}
+	snapshot.Model = &revenue.ModelRef{Key: f.Result.Model, Version: f.Result.AlgorithmVersion}
+	snapshot.Features = []string{"canonical_confirmed_nights", "physical_calendar", "current_canonical_rate_version", "policy_target_occupancy"}
+	snapshot.Confidence = f.Result.ConfidenceMethod
+	snapshot.Provenance = map[string]any{"forecast_id": f.ID, "source_snapshot_id": f.SourceSnapshotID, "history_coverage_bps": f.Result.HistoryCoverageBPS, "missing_inputs": f.Result.MissingInputs}
+	if runID != nil {
+		snapshot.Algorithm = "automation-bounded-occupancy-feedback-v1"
+		snapshot.Provenance["automation_run_id"] = *runID
+		snapshot.Provenance["proposed_by_service"] = "business-operations-service"
+	}
+	digest := hashCommercialPayload(marshalCommercial(snapshot))
+	id := ids.New()
+	expires := h.Auth.Service.Now().UTC().Add(time.Duration(p.Definition.RecommendationTTLSeconds) * time.Second)
+	if expires.After(p.Definition.ExpiresAt) {
+		expires = p.Definition.ExpiresAt
+	}
+	if _, e = tx.Exec(ctx, `INSERT INTO pricing_recommendations(id,organisation_id,property_id,pool_id,rate_plan_id,policy_id,forecast_id,date_from,date_to,target_plan_version,change_digest,snapshot,expires_at,created_by,automation_run_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8::date,$9::date,$10,$11,$12,$13,$14,$15)`, id, t.Organisation, p.PropertyID, p.PoolID, plan.ID, p.ID, f.ID, f.DateFrom, f.DateTo, plan.Version, digest, marshalCommercial(snapshot), expires, t.Account, runID); e != nil {
+		return RMSRecommendation{}, e
+	}
+	if e = h.commercialCommit(ctx, tx, t, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "revenue.recommendation.changed.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
+		return RMSRecommendation{}, e
+	}
+	if e = businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, p.PropertyID, id, "pricing_recommendation", "RMS_RECOMMENDATION_CREATED", "pricing.recommendation.created.v1", 1, map[string]any{"state": "DRAFT", "change_digest": digest, "policy_id": p.ID, "forecast_id": f.ID, "rates_changed": false}); e != nil {
+		return RMSRecommendation{}, e
+	}
+	return loadRMSRecommendation(ctx, tx, t.Organisation, id)
 }
 
 func (h *Handler) rmsRecommendationSimulate(w http.ResponseWriter, r *http.Request) {

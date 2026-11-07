@@ -305,9 +305,26 @@ func (h *Handler) rmsRecordDecision(ctx context.Context, tx pgx.Tx, t tenant, v 
 // Count absolute canonical movements, including manual changes and reversals,
 // against both budgets. Repeated up/down commands cannot reset a net-change cap.
 func (h *Handler) rmsMovementBudget(ctx context.Context, q database.Querier, t tenant, p RMSPolicy, s revenue.PricingSegment) error {
-	rows, e := q.Query(ctx, `SELECT amount_minor,created_at,definition->'parent_version_id',currency FROM rate_plan_versions WHERE organisation_id=$1 AND rate_plan_id=$2 AND effective_from<=$3::date AND effective_to>$3::date ORDER BY version`, t.Organisation, p.RatePlanID, s.DateFrom)
+	daily, cumulative, e := h.rmsMovementRemaining(ctx, q, t, p.RatePlanID, p.Definition.Currency, s.DateFrom, p.Definition.MaxDailyChangeBPS, p.Definition.MaxCumulativeChangeBPS, p.Definition.CumulativeDays)
 	if e != nil {
 		return e
+	}
+	delta := s.Proposed.AmountMinor - s.Previous.AmountMinor
+	if delta < 0 {
+		delta = -delta
+	}
+	if delta > daily || delta > cumulative {
+		return apperrors.Conflict("RMS_MOVEMENT_LIMIT", "Daily or cumulative absolute canonical rate movement exceeds policy.")
+	}
+	return nil
+}
+
+// rmsMovementRemaining returns the remaining absolute movement (minor units)
+// for one civil date under daily and cumulative basis-point budgets.
+func (h *Handler) rmsMovementRemaining(ctx context.Context, q database.Querier, t tenant, ratePlan ids.ID, currency, day string, dailyBPS, cumulativeBPS int64, cumulativeDays int) (int64, int64, error) {
+	rows, e := q.Query(ctx, `SELECT amount_minor,created_at,definition->'parent_version_id',currency FROM rate_plan_versions WHERE organisation_id=$1 AND rate_plan_id=$2 AND effective_from<=$3::date AND effective_to>$3::date ORDER BY version`, t.Organisation, ratePlan, day)
+	if e != nil {
+		return 0, 0, e
 	}
 	defer rows.Close()
 	type observation struct {
@@ -318,58 +335,53 @@ func (h *Handler) rmsMovementBudget(ctx context.Context, q database.Querier, t t
 	for rows.Next() {
 		var o observation
 		var parent []byte
-		var currency string
-		if e = rows.Scan(&o.amount, &o.at, &parent, &currency); e != nil {
-			return e
+		var c string
+		if e = rows.Scan(&o.amount, &o.at, &parent, &c); e != nil {
+			return 0, 0, e
 		}
-		if currency != p.Definition.Currency {
-			return apperrors.Conflict("RMS_MOVEMENT_CURRENCY", "Mixed-currency rate history cannot authorize a movement budget.")
+		if c != currency {
+			return 0, 0, apperrors.Conflict("RMS_MOVEMENT_CURRENCY", "Mixed-currency rate history cannot authorize a movement budget.")
 		}
 		if string(parent) != "" && string(parent) != "null" {
-			return apperrors.Conflict("RMS_MOVEMENT_UNKNOWN", "Derived rate history requires an authoritative movement adapter.")
+			return 0, 0, apperrors.Conflict("RMS_MOVEMENT_UNKNOWN", "Derived rate history requires an authoritative movement adapter.")
 		}
 		observations = append(observations, o)
 	}
 	if e = rows.Err(); e != nil {
-		return e
+		return 0, 0, e
 	}
 	if len(observations) == 0 {
-		return apperrors.Conflict("RMS_RATE_HISTORY_MISSING", "Canonical rate history required.")
+		return 0, 0, apperrors.Conflict("RMS_RATE_HISTORY_MISSING", "Canonical rate history required.")
 	}
-	for _, window := range []struct {
+	remaining := [2]int64{}
+	for i, window := range []struct {
 		duration time.Duration
 		limit    int64
-	}{{24 * time.Hour, p.Definition.MaxDailyChangeBPS}, {time.Duration(p.Definition.CumulativeDays) * 24 * time.Hour, p.Definition.MaxCumulativeChangeBPS}} {
+	}{{24 * time.Hour, dailyBPS}, {time.Duration(cumulativeDays) * 24 * time.Hour, cumulativeBPS}} {
 		cutoff := h.Auth.Service.Now().UTC().Add(-window.duration)
 		anchor := observations[0].amount
 		var movement int64
-		for i, o := range observations {
+		for j, o := range observations {
 			if o.at.Before(cutoff) {
 				anchor = o.amount
 				continue
 			}
-			if i > 0 {
-				delta := o.amount - observations[i-1].amount
+			if j > 0 {
+				delta := o.amount - observations[j-1].amount
 				if delta < 0 {
 					delta = -delta
 				}
 				if delta > 1000000000000000 || movement > 1000000000000000-delta {
-					return apperrors.Conflict("RMS_MOVEMENT_LIMIT", "Rate movement exceeds bounded policy arithmetic.")
+					return 0, 0, apperrors.Conflict("RMS_MOVEMENT_LIMIT", "Rate movement exceeds bounded policy arithmetic.")
 				}
 				movement += delta
 			}
 		}
-		delta := s.Proposed.AmountMinor - s.Previous.AmountMinor
-		if delta < 0 {
-			delta = -delta
-		}
 		budget, e := revenue.Ratio(anchor, window.limit, 10000)
 		if e != nil {
-			return e
+			return 0, 0, e
 		}
-		if delta > budget || movement > budget-delta {
-			return apperrors.Conflict("RMS_MOVEMENT_LIMIT", "Daily or cumulative absolute canonical rate movement exceeds policy.")
-		}
+		remaining[i] = budget - movement
 	}
-	return nil
+	return remaining[0], remaining[1], nil
 }

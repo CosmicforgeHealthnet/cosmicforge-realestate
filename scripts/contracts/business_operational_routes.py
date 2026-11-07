@@ -2,6 +2,7 @@
 import re
 from business_pms_routes import register_pms,pms_queries,pms_examples
 from business_crm_routes import register_crm,crm_queries,crm_examples
+from business_rms_automation_routes import register_rms_automation
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
@@ -121,6 +122,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  }
  data.update(register_crm(s,obj,arr,ref,typ))
  data.update(register_pms(s,obj,arr,ref,typ))
+ data.update(register_rms_automation(s,obj,arr,ref,typ))
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
   for method,path,handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',p.read_text(encoding='utf-8')):

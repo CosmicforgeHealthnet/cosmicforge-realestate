@@ -42,6 +42,7 @@ func (h *Handler) registerRMSPolicies(r chi.Router) {
 	r.Post("/revenue/policies", h.rmsPolicySave)
 	r.Get("/revenue/policies/{id}", h.rmsPolicyGet)
 	h.registerRMSRecommendations(r)
+	h.registerRMSAutomation(r)
 }
 func loadRMSPolicy(ctx context.Context, q database.Querier, org, id ids.ID) (RMSPolicy, error) {
 	raw, e := db.New().GetRMSPolicy(ctx, q, db.GetRMSPolicyParams{OrganisationID: org, ID: id})
@@ -99,10 +100,8 @@ func (h *Handler) rmsPolicySave(w http.ResponseWriter, r *http.Request) {
 		reply(w, r, 0, nil, apperrors.InvalidRequest("Explicit valid bounded RMS policy, scope, version, state and reason required."))
 		return
 	}
-	if in.State == "ACTIVE" && (in.Definition.Mode == "APPROVAL_AUTOMATION" || in.Definition.Mode == "AUTOPILOT_WITH_LIMITS") {
-		reply(w, r, 0, nil, apperrors.Unavailable("Automatic mode activation is unavailable. Save a paused configuration or use MANUAL/RECOMMEND_ONLY."))
-		return
-	}
+	// An automatic-mode policy is only a mandate. Execution additionally needs a
+	// separately approved automation activation bound to this exact version.
 	h.execute(w, r, "revenue:policy:"+in.RatePlanID.String(), in, "rms:write", "PROPERTY", in.PropertyID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
 		t, target, e := h.authorize(ctx, tx, "rms:write", "PROPERTY", in.PropertyID, true)
 		if e != nil {
