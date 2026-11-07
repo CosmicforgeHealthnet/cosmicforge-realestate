@@ -189,7 +189,7 @@ func (q *Queries) GetCommercialQuote(ctx context.Context, db DBTX, arg GetCommer
 }
 
 const getCommercialRateVersion = `-- name: GetCommercialRateVersion :one
-SELECT id, organisation_id, property_id, rate_plan_id, version, currency, amount_minor, definition, effective_from, effective_to, approval_id, reason, created_by, created_at FROM rate_plan_versions WHERE organisation_id=$1 AND id=$2
+SELECT id, organisation_id, property_id, rate_plan_id, version, currency, amount_minor, definition, effective_from, effective_to, approval_id, reason, created_by, created_at, created_by_service FROM rate_plan_versions WHERE organisation_id=$1 AND id=$2
 `
 
 type GetCommercialRateVersionParams struct {
@@ -215,6 +215,7 @@ func (q *Queries) GetCommercialRateVersion(ctx context.Context, db DBTX, arg Get
 		&i.Reason,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.CreatedByService,
 	)
 	return i, err
 }

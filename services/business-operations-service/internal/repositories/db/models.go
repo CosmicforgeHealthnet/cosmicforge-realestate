@@ -2472,9 +2472,11 @@ type PricingRecommendation struct {
 	Version           int64
 	ApprovalID        *ids.ID
 	AppliedVersions   []byte
-	CreatedBy         ids.ID
+	CreatedBy         *ids.ID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	CreatedByService  string
+	AutomationRunID   *ids.ID
 }
 
 type PricingSimulation struct {
@@ -2554,20 +2556,21 @@ type RatePlan struct {
 }
 
 type RatePlanVersion struct {
-	ID             ids.ID
-	OrganisationID ids.ID
-	PropertyID     ids.ID
-	RatePlanID     ids.ID
-	Version        int64
-	Currency       string
-	AmountMinor    int64
-	Definition     []byte
-	EffectiveFrom  pgtype.Date
-	EffectiveTo    pgtype.Date
-	ApprovalID     *ids.ID
-	Reason         string
-	CreatedBy      ids.ID
-	CreatedAt      time.Time
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RatePlanID       ids.ID
+	Version          int64
+	Currency         string
+	AmountMinor      int64
+	Definition       []byte
+	EffectiveFrom    pgtype.Date
+	EffectiveTo      pgtype.Date
+	ApprovalID       *ids.ID
+	Reason           string
+	CreatedBy        *ids.ID
+	CreatedAt        time.Time
+	CreatedByService string
 }
 
 type RateRelation struct {
@@ -3105,6 +3108,36 @@ type ReservationSourceRef struct {
 	CreatedAt             time.Time
 }
 
+type ReservationUnitRelease struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ReservationID  ids.ID
+	RoomID         ids.ID
+	Slot           int32
+	StayID         ids.ID
+	Kind           string
+	DateFrom       pgtype.Date
+	DateTo         pgtype.Date
+	Nights         int32
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type ReservationUnitReleaseDay struct {
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ReleaseID      ids.ID
+	RoomID         ids.ID
+	PoolID         ids.ID
+	Day            pgtype.Date
+	Slot           int32
+	QuantityBefore int32
+	QuantityAfter  int32
+	CreatedAt      time.Time
+}
+
 type ReservationVersion struct {
 	ID                 ids.ID
 	OrganisationID     ids.ID
@@ -3119,6 +3152,223 @@ type ReservationVersion struct {
 	CreatedBy          *ids.ID
 	CreatedByService   string
 	CreatedAt          time.Time
+}
+
+type RmsAdvancedDecision struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RecommendationID ids.ID
+	PreviousVersion  int64
+	PriorState       string
+	State            string
+	Action           string
+	ActorID          ids.ID
+	ApprovalID       *ids.ID
+	Reason           string
+	Evidence         []byte
+	CreatedAt        time.Time
+}
+
+type RmsAdvancedRecommendation struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	PoolID            ids.ID
+	RatePlanID        ids.ID
+	PolicyID          ids.ID
+	ForecastID        ids.ID
+	AnalyticsID       *ids.ID
+	Kind              string
+	Application       string
+	AdvisoryReason    string
+	DateFrom          pgtype.Date
+	DateTo            pgtype.Date
+	TargetPlanVersion int64
+	ChangeDigest      string
+	Proposal          []byte
+	ExpiresAt         time.Time
+	State             string
+	ApprovalID        *ids.ID
+	AppliedReference  []byte
+	Version           int64
+	CreatedBy         *ids.ID
+	CreatedByService  string
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type RmsAnalyticsSnapshot struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	ScopeKind        string
+	ScopeID          ids.ID
+	PropertyIds      []ids.ID
+	ModelID          ids.ID
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	AsOf             time.Time
+	InputDigest      string
+	ResultDigest     string
+	Result           []byte
+	Provenance       []byte
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
+type RmsAutomationActivation struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	BranchID            ids.ID
+	PoolID              ids.ID
+	RatePlanID          ids.ID
+	PolicyID            ids.ID
+	Mode                string
+	Limits              []byte
+	LimitsDigest        string
+	SponsorAccountID    ids.ID
+	SponsorMembershipID ids.ID
+	SponsorRoleID       ids.ID
+	ApprovalID          ids.ID
+	State               string
+	StateReason         string
+	EffectiveAt         time.Time
+	ExpiresAt           time.Time
+	NextRunAt           time.Time
+	Reason              string
+	Version             int64
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type RmsAutomationActivationHistory struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ActivationID      ids.ID
+	ActivationVersion int64
+	PriorState        *string
+	State             string
+	Reason            string
+	ApprovalID        *ids.ID
+	ActorID           *ids.ID
+	ActorService      string
+	CreatedAt         time.Time
+}
+
+type RmsAutomationJob struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ActivationID     *ids.ID
+	RunID            *ids.ID
+	RecommendationID *ids.ID
+	Kind             string
+	DedupeKey        string
+	State            string
+	AvailableAt      time.Time
+	Attempts         int32
+	LeaseOwner       *string
+	LeaseGeneration  int64
+	LeaseExpiresAt   *time.Time
+	LastError        *string
+	Result           []byte
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type RmsAutomationRun struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	ActivationID     ids.ID
+	Mode             string
+	Trigger          string
+	Stage            string
+	SnapshotID       *ids.ID
+	ForecastID       *ids.ID
+	RecommendationID *ids.ID
+	ApprovalID       *ids.ID
+	ChangeDigest     *string
+	BlockedCode      string
+	Evidence         []byte
+	RequestedBy      *ids.ID
+	CreatedByService string
+	Version          int64
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type RmsAutomationRunStage struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	RunID          ids.ID
+	Stage          string
+	Code           string
+	Evidence       []byte
+	ActorID        *ids.ID
+	ActorService   string
+	CreatedAt      time.Time
+}
+
+type RmsMarketInput struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	Kind             string
+	Channel          string
+	DateFrom         pgtype.Date
+	DateTo           pgtype.Date
+	ValueMinor       *int64
+	ValueBps         *int64
+	Currency         *string
+	Label            string
+	SourceReference  string
+	LicenceReference string
+	EvidenceDigest   string
+	ObservedAt       time.Time
+	CreatedBy        ids.ID
+	CreatedAt        time.Time
+}
+
+type RmsMonitoringFinding struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	ActivationID      *ids.ID
+	RecommendationID  *ids.ID
+	Kind              string
+	Severity          string
+	State             string
+	ActionTaken       string
+	DedupeKey         string
+	Evidence          []byte
+	Resolution        *string
+	ResolvedBy        *ids.ID
+	ResolvedByService *string
+	ResolvedAt        *time.Time
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type RmsOutcomeMeasurement struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	RecommendationID ids.ID
+	RunID            *ids.ID
+	Status           string
+	MeasuredAt       time.Time
+	SourceDigest     string
+	Result           []byte
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
 }
 
 type RmsPolicy struct {
@@ -3435,6 +3685,74 @@ type StaffScopeGrant struct {
 	Currency         *string
 	RequireMfa       bool
 	CreatedAt        time.Time
+}
+
+type StayEarlyDeparture struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	PropertyID             ids.ID
+	ReservationID          ids.ID
+	StayID                 ids.ID
+	FolioID                ids.ID
+	DepartureDay           pgtype.Date
+	DepartedAt             time.Time
+	UnusedNights           int32
+	Currency               string
+	UnusedMinor            int64
+	PenaltyMinor           int64
+	CreditMinor            int64
+	PlatformCollectedMinor *int64
+	RefundableMinor        *int64
+	FinancialState         string
+	PolicySnapshot         []byte
+	LineEffects            []byte
+	ApprovalID             ids.ID
+	ReservationVersion     int64
+	Reason                 string
+	CreatedBy              ids.ID
+	CreatedAt              time.Time
+}
+
+type StayExtension struct {
+	ID                   ids.ID
+	OrganisationID       ids.ID
+	PropertyID           ids.ID
+	ReservationID        ids.ID
+	StayID               ids.ID
+	PreviousAssignmentID ids.ID
+	AssignmentID         ids.ID
+	SourceRoomID         ids.ID
+	Slot                 int32
+	ExtensionRoomID      ids.ID
+	QuoteID              ids.ID
+	DateFrom             pgtype.Date
+	DateTo               pgtype.Date
+	AmountMinor          int64
+	Currency             string
+	PayerMode            string
+	FolioID              ids.ID
+	FolioItemID          ids.ID
+	ApprovalID           *ids.ID
+	ReservationVersion   int64
+	CommandDigest        string
+	Reason               string
+	CreatedBy            ids.ID
+	CreatedAt            time.Time
+}
+
+type StayExtensionPayer struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ExtensionID         ids.ID
+	PayerKind           string
+	CorporateCustomerID *ids.ID
+	CorporateContractID *ids.ID
+	FinancialGroupID    ids.ID
+	AmountMinor         int64
+	Currency            string
+	Responsibility      string
+	CreatedAt           time.Time
 }
 
 type StayHistoryProjection struct {
