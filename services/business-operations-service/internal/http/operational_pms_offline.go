@@ -19,15 +19,16 @@ import (
 )
 
 type PMSOfflineCommand struct {
-	PropertyID        ids.ID                `json:"property_id"`
-	ClientOperationID ids.ID                `json:"client_operation_id"`
-	OriginalActionAt  time.Time             `json:"original_action_at"`
-	Action            string                `json:"action"`
-	TargetID          ids.ID                `json:"target_id"`
-	FolioPosting      *PMSFolioPosting      `json:"folio_posting,omitempty"`
-	Assignment        *PMSAssignmentCommand `json:"assignment,omitempty"`
-	CheckIn           *PMSCheckInCommand    `json:"check_in,omitempty"`
-	Reason            string                `json:"reason"`
+	PropertyID        ids.ID                   `json:"property_id"`
+	ClientOperationID ids.ID                   `json:"client_operation_id"`
+	OriginalActionAt  time.Time                `json:"original_action_at"`
+	Action            string                   `json:"action"`
+	TargetID          ids.ID                   `json:"target_id"`
+	FolioPosting      *PMSFolioPosting         `json:"folio_posting,omitempty"`
+	Assignment        *PMSAssignmentCommand    `json:"assignment,omitempty"`
+	CheckIn           *PMSCheckInCommand       `json:"check_in,omitempty"`
+	Extension         *PMSStayExtensionCommand `json:"extension,omitempty"`
+	Reason            string                   `json:"reason"`
 }
 type PMSOfflineResult struct {
 	ID          ids.ID          `json:"id"`
@@ -68,9 +69,12 @@ func (h *Handler) pmsOfflineReplay(w http.ResponseWriter, r *http.Request) {
 	if in.CheckIn != nil {
 		count++
 	}
+	if in.Extension != nil {
+		count++
+	}
 	now := h.Auth.Service.Now()
 	cap := "pms:write"
-	valid := in.Action == "FOLIO_POST" && in.FolioPosting != nil && validPMSFolioPosting(*in.FolioPosting) || in.Action == "ASSIGN_ROOM" && in.Assignment != nil && validPMSAssignment(*in.Assignment) && in.TargetID == in.Assignment.ReservationID || in.Action == "CHECK_IN" && in.CheckIn != nil && validPMSCheckIn(*in.CheckIn)
+	valid := in.Action == "FOLIO_POST" && in.FolioPosting != nil && validPMSFolioPosting(*in.FolioPosting) || in.Action == "ASSIGN_ROOM" && in.Assignment != nil && validPMSAssignment(*in.Assignment) && in.TargetID == in.Assignment.ReservationID || in.Action == "CHECK_IN" && in.CheckIn != nil && validPMSCheckIn(*in.CheckIn) || in.Action == "EXTEND_STAY" && in.Extension != nil && validStayExtension(*in.Extension)
 	if count != 1 || !valid || in.PropertyID.ValidateV7() != nil || in.TargetID.ValidateV7() != nil || in.ClientOperationID.ValidateV7() != nil || in.OriginalActionAt.IsZero() || in.OriginalActionAt.After(now.Add(time.Minute)) || in.OriginalActionAt.Before(now.Add(-90*24*time.Hour)) || !validStaffReason(in.Reason) {
 		reply(w, r, 0, nil, apperrors.InvalidRequest("One supported typed command, original timestamp, stable UUIDv7 client operation, target, expected versions and property required."))
 		return
@@ -137,6 +141,16 @@ func (h *Handler) pmsOfflineReplay(w http.ResponseWriter, r *http.Request) {
 				commandErr = apperrors.PermissionDenied("Assignment does not belong to the exact route reservation and property.")
 			} else {
 				_, result, commandErr = h.executePMSCheckIn(ctx, save, pre, *in.CheckIn)
+			}
+		case "EXTEND_STAY":
+			// All nested stay, folio, stock, payer, MFA and approval gates apply.
+			pre, e := hospitality.GetStay(ctx, save, t.Organisation, in.TargetID)
+			if e != nil {
+				commandErr = e
+			} else if pre.PropertyID != in.PropertyID {
+				commandErr = apperrors.PermissionDenied("Stay does not belong to the authorized property.")
+			} else {
+				result, commandErr = h.executePMSStayExtension(ctx, save, pre, *in.Extension)
 			}
 		}
 		receipt := PMSOfflineResult{ID: ids.New(), State: "APPLIED", Result: marshalCommercial(result)}

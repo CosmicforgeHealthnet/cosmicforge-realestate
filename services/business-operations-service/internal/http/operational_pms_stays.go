@@ -380,62 +380,80 @@ func (h *Handler) executePMSCheckOut(ctx context.Context, tx pgx.Tx, pre hospita
 		}
 		state = "SETTLEMENT_PENDING"
 	}
-	now := h.Auth.Service.Now().UTC()
-	if _, e = tx.Exec(ctx, `UPDATE stay_records SET state='DEPARTED',checked_out_at=$3,reason=$4,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, now, in.Reason); e != nil {
+	out, e := h.completePMSDeparture(ctx, tx, t, s, a, v, f, balance, state, in.ApprovalID, in.Reason)
+	if e != nil {
 		return 0, nil, e
+	}
+	return 200, out, nil
+}
+
+// completePMSDeparture records the physical departure after the caller has
+// validated versions, balance, approvals and any in-house amendment. The
+// reservation stays CHECKED_IN while another accepted unit is still in house.
+func (h *Handler) completePMSDeparture(ctx context.Context, tx pgx.Tx, t tenant, s hospitality.Stay, a hospitality.Assignment, v reservations.Reservation, f hospitality.Folio, balance int64, state string, approvalID ids.ID, reason string) (map[string]any, error) {
+	id := s.ID
+	var e error
+	now := h.Auth.Service.Now().UTC()
+	if _, e = tx.Exec(ctx, `UPDATE stay_records SET state='DEPARTED',checked_out_at=$3,reason=$4,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, now, reason); e != nil {
+		return nil, e
 	}
 	if _, e = tx.Exec(ctx, `UPDATE room_assignment_days SET released_at=$3 WHERE organisation_id=$1 AND assignment_id=$2 AND released_at IS NULL`, t.Organisation, a.ID, now); e != nil {
-		return 0, nil, e
+		return nil, e
 	}
-	if _, e = tx.Exec(ctx, `UPDATE room_assignments SET state='RELEASED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, a.ID, in.Reason); e != nil {
-		return 0, nil, e
+	if _, e = tx.Exec(ctx, `UPDATE room_assignments SET state='RELEASED',reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, a.ID, reason); e != nil {
+		return nil, e
 	}
-	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state=CASE WHEN state IN ('BLOCKED','OUT_OF_ORDER') THEN state ELSE 'VACANT_DIRTY' END,reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, in.Reason); e != nil {
-		return 0, nil, e
+	if _, e = tx.Exec(ctx, `UPDATE room_status_current SET state=CASE WHEN state IN ('BLOCKED','OUT_OF_ORDER') THEN state ELSE 'VACANT_DIRTY' END,reason=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID, reason); e != nil {
+		return nil, e
 	}
 	if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, f.ID, state); e != nil {
-		return 0, nil, e
+		return nil, e
 	}
-	if _, e = h.queuePMSAccess(ctx, tx, t, id, a.ID, "REVOKE", in.Reason); e != nil {
-		return 0, nil, e
+	if _, e = h.queuePMSAccess(ctx, tx, t, id, a.ID, "REVOKE", reason); e != nil {
+		return nil, e
 	}
 	var pending bool
-	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND s.reservation_id=$2 AND a.reservation_room_id=rr.id AND s.state='DEPARTED'))`, t.Organisation, v.ID).Scan(&pending); e != nil {
-		return 0, nil, e
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservation_rooms rr WHERE rr.organisation_id=$1 AND rr.reservation_id=$2 AND rr.state='ACTIVE' AND `+stayExtensionLineExcluded+` AND rr.quantity<>(SELECT count(*) FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id WHERE s.organisation_id=$1 AND s.reservation_id=$2 AND a.reservation_room_id=rr.id AND s.state='DEPARTED'))`, t.Organisation, v.ID).Scan(&pending); e != nil {
+		return nil, e
 	}
 	next := "CHECKED_OUT"
 	if pending {
 		next = "CHECKED_IN"
 	}
 	if _, e = tx.Exec(ctx, `UPDATE reservations SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, next); e != nil {
-		return 0, nil, e
+		return nil, e
 	}
 	v, e = reservations.Get(ctx, tx, t.Organisation, v.ID)
 	if e != nil {
-		return 0, nil, e
+		return nil, e
 	}
-	if e = h.reservationCommit(ctx, tx, t, v, "CHECKED_OUT", "reservation.checked_out.v1", in.Reason, map[string]any{"stay_id": id, "folio_state": state, "balance_minor": balance}); e != nil {
-		return 0, nil, e
+	if e = h.reservationCommit(ctx, tx, t, v, "CHECKED_OUT", "reservation.checked_out.v1", reason, map[string]any{"stay_id": id, "folio_state": state, "balance_minor": balance}); e != nil {
+		return nil, e
 	}
 	status, e := hospitality.Load[hospitality.RoomStatus](ctx, tx, `SELECT to_jsonb(s) FROM room_status_current s WHERE organisation_id=$1 AND room_id=$2`, t.Organisation, a.RoomID)
 	if e != nil {
-		return 0, nil, e
+		return nil, e
 	}
-	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": status.State, "reason": in.Reason}); e != nil {
-		return 0, nil, e
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, status.ID, "room_status", "ROOM_VACATED", "room.status.changed.v1", status.Version, map[string]any{"stay_id": id, "room_id": a.RoomID, "state": status.State, "reason": reason}); e != nil {
+		return nil, e
 	}
-	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, a.ID, "room_assignment", "ASSIGNMENT_RELEASED", "hospitality.room.assigned.v1", a.Version+1, map[string]any{"stay_id": id, "reason": in.Reason}); e != nil {
-		return 0, nil, e
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, a.ID, "room_assignment", "ASSIGNMENT_RELEASED", "hospitality.room.assigned.v1", a.Version+1, map[string]any{"stay_id": id, "reason": reason}); e != nil {
+		return nil, e
 	}
-	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, f.ID, "folio", "FOLIO_DEPARTURE_REVIEWED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
-		return 0, nil, e
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, f.ID, "folio", "FOLIO_DEPARTURE_REVIEWED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"state": state, "outstanding_minor": balance, "approval_id": approvalID, "reason": reason}); e != nil {
+		return nil, e
 	}
-	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, id, "stay", "CHECKED_OUT", "hospitality.stay.checked_out.v1", s.Version+1, map[string]any{"reservation_id": v.ID, "folio_id": f.ID, "folio_state": state, "outstanding_minor": balance, "approval_id": in.ApprovalID, "reason": in.Reason}); e != nil {
-		return 0, nil, e
+	if e = h.pmsCommit(ctx, tx, t, s.PropertyID, id, "stay", "CHECKED_OUT", "hospitality.stay.checked_out.v1", s.Version+1, map[string]any{"reservation_id": v.ID, "folio_id": f.ID, "folio_state": state, "outstanding_minor": balance, "approval_id": approvalID, "reason": reason}); e != nil {
+		return nil, e
 	}
-	return 200, map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": status.State, "access_state": "UNKNOWN"}, nil
+	return map[string]any{"stay_id": id, "state": "DEPARTED", "folio_state": state, "balance_minor": balance, "reservation_version": v.Version, "room_state": status.State, "access_state": "UNKNOWN"}, nil
 }
+
 
 func validPMSCheckIn(in PMSCheckInCommand) bool {
 	return !(in.AssignmentID.ValidateV7() != nil || in.GuestID.ValidateV7() != nil || in.AssignmentVersion < 1 || in.ReservationVersion < 1 || in.RoomStatusVersion < 1 || !crm.Text(in.RegistrationReference, 5, 300) || !validStaffReason(in.Reason))
 }
+
+// stayExtensionLineExcluded removes in-house extension lines (alias rr) from
+// per-line unit counts: their nights continue an existing unit and stay.
+const stayExtensionLineExcluded = `NOT EXISTS(SELECT 1 FROM stay_extensions x WHERE x.organisation_id=rr.organisation_id AND x.extension_room_id=rr.id)`

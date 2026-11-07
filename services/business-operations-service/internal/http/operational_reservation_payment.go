@@ -328,6 +328,13 @@ func (h *Handler) runReservationFinancialJob(ctx context.Context, job reservatio
 			}
 			return h.commercialGate(ctx, tx, t, v.PropertyID)
 		}
+		// An in-house extension share is collected under its own stay authority.
+		if extension, e := h.stayExtensionCollectionAuthority(ctx, tx, t, job); extension || e != nil {
+			if e != nil {
+				return e
+			}
+			return h.commercialGate(ctx, tx, t, v.PropertyID)
+		}
 		if v.Version != in.Version || v.AllocationState != "ACTIVE" || !slices.Contains([]string{"HOLD", "PENDING_PAYMENT", "PENDING_APPROVAL", "CONFIRMED"}, v.State) || v.HoldExpiresAt != nil && !h.Auth.Service.Now().Before(*v.HoldExpiresAt) {
 			return apperrors.Conflict("COLLECTION_AUTHORITY_STALE", "Reservation or hold changed before collection; readback remains available.")
 		}
