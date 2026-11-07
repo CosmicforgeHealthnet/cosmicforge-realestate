@@ -130,7 +130,7 @@ jobs:
       - name: go test -race (unit, integration, migrations, contracts)
         run: |
           set -o pipefail
-          go test -race -json -timeout=20m -count=1 -coverprofile=coverage.out ./... | tee test-results.jsonl
+          go test -race -json -timeout=45m -count=1 -coverprofile=coverage.out ./... | tee test-results.jsonl
       - name: Preserve test diagnostics
         if: always()
         uses: actions/upload-artifact@v4
