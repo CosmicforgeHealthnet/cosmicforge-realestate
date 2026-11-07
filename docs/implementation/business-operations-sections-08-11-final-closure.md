@@ -1,117 +1,139 @@
-# Business Operations Sections 8–11 — closure pass (7 November 2026)
+# Business Operations Sections 8–11 — final internal closure (7 November 2026)
 
-This is a status record for the 7 November 2026 completion pass on `staging`. It is **not** a declaration that Sections 8–11 are fully complete. Every row below is backed by named, executed tests or is explicitly marked PARTIAL/FAIL with the remaining internal work.
+Scope: Sections 8 (RMS), 9 (canonical reservations), 10 (Hotel PMS) and 11 (Guest CRM) of `docs/specifications/CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0.md`, with annexes D.16, D.18, D.30, D.31, D.32, D.38, D.39 and G.4/G.5/G.6.
 
-Starting SHA: `7e57f13725b185c70230058c632e612fc8e5b946`. CI repair SHA: `d71ac6c50d51c3db98f16a0848fde91fbac56793`. Implementation SHA: `20725cd629692892214eb1b0282f88f0626066a4` (CI evidence in section 9).
+Starting SHA: `ce478fee5f33590181ef18edb8c8abfe618659f2`. Branch: `staging` only. Final SHA and CI runs: section 9.
 
-## 1. Backend CI repair
+This record classifies a requirement PASS only with executed implementation and test evidence. External-provider and live-deployment qualifications are listed separately in section 8 and are not used to excuse internal gaps.
 
-| Item | Evidence |
-|---|---|
-| Root cause | `tests/e2e/owner_primary_journeys_test.go` built short-let `check_in` from the UTC civil date. The service (`internal/usecases/shortlet.go`, `businessDate`) correctly compares against the property's `Africa/Lagos` business date. Between 23:00 and 24:00 UTC the UTC date is already in the past in Lagos, so the booking was correctly rejected with HTTP 400. |
-| Fix | Test fixture only. New helper `propertyLocalNow` reads the property's timezone through the Owner API, derives date-only fields in that calendar and waits out the last two minutes before local midnight. The production validator and service timezone are unchanged. |
-| Regression coverage | `services/individual-owner-service/tests/integration/shortlet_local_midnight_test.go` `TestShortletLagosMidnightBusinessDate` (controlled clock): booking before Lagos midnight, `CHECK_IN` rejected as `TOO_EARLY`, the stale UTC date rejected with the exact past-date error at 23:00 UTC, then check-in, checkout and turnover on the property-local date. |
-| Local results | New test PASS; Owner shortlet/clock integration tests PASS; `TestOwnerFunctionalJourneyWithRealServices` (all 4 journeys incl. `14_4_shortlet_hold_stay_access_turnover_completion`) PASS locally without `-race` (no C toolchain on the Windows workstation). |
-| CI on `d71ac6c` | Backend (all jobs, including the process-level E2E job) PASS, Architecture structure PASS, Contracts PASS, Security PASS, Images PASS (one api-gateway job failed exporting the GitHub Actions build cache after a successful image push; re-run of that job passed). |
+## 1. Delivery structure
+
+| Workstream | Migration | Main implementation | Merge commit |
+|---|---|---|---|
+| Section 10 in-house amendments (Phase A) | `00027_hospitality_stay_amendments.sql` | `internal/http/operational_pms_stay_amendments.go`, `internal/hospitality/amendments.go`, `internal/reservations/inhouse.go`, `internal/reservations/physical_backing.go` | Phase A merge |
+| Section 9 quantity fragmentation and waitlist automation (Phase B) | `00028_reservation_quantity_waitlist_automation.sql` | `internal/http/operational_reservation_quantity.go`, `operational_reservation_waitlist_automation.go`, `operational_reservation_recovery_link.go`, `internal/reservations/quantity.go` | Phase B merge |
+| Section 11 guest merge and notifications (Phase C) | `00029_guest_merge_notifications.sql` | `internal/http/operational_crm_merge*.go`, `operational_crm_notification*.go` | Phase C merge |
+| Section 8 RMS automation (Phase D) | `00030_rms_automation.sql` | `internal/http/operational_revenue_automation*.go`, `operational_revenue_analytics.go`, `operational_revenue_advanced.go`, `internal/revenue/rms_automation.go`, `rms_analytics.go` | Phase D merge |
+| Cross-domain journeys 9–10, schema-26 upgrade | — | `tests/integration/journey_platform_test.go`, `sections_08_11_upgrade_test.go` | `e5ca5ad` |
+
+Integration fixes made while merging: two independently written "approved overbooking opens a recovery case" hooks were reduced to one (`openOverbookingRecoveryCase`), so an overbooking opens exactly one case; contracts, catalogue and SQLC models were regenerated once over the merged tree.
 
 ## 2. Section 10 — Hotel PMS
 
-| Requirement | Implementation | Database | API | Tests | Status |
-|---|---|---|---|---|---|
-| Ancillary / additional-charge collection (meals, minibar, laundry, spa, transfer, events, damage, fees, other) | `internal/http/operational_pms_collection.go`, `internal/hospitality/collection.go` (preserved draft, finished) | `00024_folio_collection_agreements.sql`: `folio_collection_agreements`, `folio_collection_allocations`, `folio_collection_cancellations`, `reservation_financial_requests.folio_agreement_id` | `GET/POST /folios/{id}/collection-agreements`, `POST .../{agreement_id}/release`, `POST .../{agreement_id}/readback` | `TestBusinessPMSFolioSplitPayerCollectionConservesObligations` | PASS |
-| Folio collection agreements (guest, corporate, split, allocation limits, currency, approval, consent evidence, replacement, history) | Same; corporate payer requires live profile, current contract and active traveler association plus exact `COMMERCIAL_PMS_FOLIO_COLLECTION` approval and MFA | Agreement/allocation/release triggers conserve amounts, forbid accommodation re-collection, forbid reuse of accommodation financial groups, enforce single replacement | Same | Both PMS collection tests | PASS |
-| Partial and mixed payments | Separate Payment intents per payer through the existing durable Payment worker (policy → locked quote → intent → receipt); folio reconcile applies each settled, funded, unreversed receipt once | `folio_payment_references` target guard | `POST /folios/{id}/reconcile` (extended) | Split-payer test: guest settles first (balance keeps corporate + accommodation), then corporate; repeated reconcile does not double-apply | PASS |
-| Folio balance conservation | Responsibility view: total = accommodation + guest + corporate + unallocated − over-allocated; flags unverified mandatory payers | — | `GET /folios/{id}/collection-agreements` `responsibility` | Asserted before/after collection, settlement and release | PASS |
-| Never settle with unverified mandatory payer | Folio stays `SETTLEMENT_PENDING` while any balance (including pay-at-property accommodation) lacks settled Payment evidence | — | — | Split-payer test final assertion | PASS |
-| Unknown / failed / reversed outcomes | Failed collection releases only after authoritative `VERIFIED_FAILURE`; never-dispatched requests release once; reversal removes backing without rewriting history | Release guard | Release/readback routes | `TestBusinessPMSFolioCollectionReleaseReplacementAndVerifiedFailure`; reversal part of split-payer test | PASS |
-| Duplicate collection prevention | One collection per agreement; repeated worker passes read back, never re-collect | `UNIQUE(financial_group_id)` + request guard | — | `collectionCalls == 2` after two worker passes | PASS |
-| In-house extension (reservation + stay + stock + folio + access) | Not implemented in this pass | — | — | — | **FAIL** (internal work) |
-| Early departure (release unused nights, refund/credit obligation, access revocation, RMS signal) | Not implemented in this pass | — | — | — | **FAIL** (internal work) |
-| Existing PMS (assignment, check-in/out, moves, folios, cashier, night audit, day close, offline replay, groups, access, reconciliation) | Unchanged from prior certified implementation | — | — | Full Business suite (section 6) | PASS (prior scope) |
+| ID | Requirement | Implementation | Migration | API | Events | Executed tests | Status |
+|---|---|---|---|---|---|---|---|
+| S10-01 | In-house extension: reservation, stay, same physical room, Section 7 calendar availability and restrictions, immutable quote, committed stock, folio, payer responsibility, access, outbox | Quote must start at the current departure; stock committed through an internal hold + `CommitHold`; separate one-unit extension line linked to the in-house line; stay moved to a new assignment for the same room; folio accommodation item with fiscal detail; access grant revoked and reissued for the new window | 00027 `stay_extensions` (deferred continuity guard), `stay_extension_payers` (conservation guard); `business_hospitality_assignment_guard` allows assignment past the line only with extension rows | `GET/POST /stays/{id}/extensions` | `hospitality.stay.extended.v1`, `hospitality.extension.accepted.v1` | `TestBusinessPMSStayExtensionValidAvailabilityAndReplay`, `TestBusinessJourneyHotelOperationsExtensionChargesCheckoutNightAudit` | PASS |
+| S10-02 | Unavailable room or invalid rate rejects with no partial stock or folio change | Single transaction; conflicting stock or mismatched quote rolls back everything | — | same | — | `TestBusinessPMSStayExtensionConflictingInventoryLeavesNoPartialChange` | PASS |
+| S10-03 | Guest/corporate split liability for added nights | Payer shares must sum exactly to the extension amount; guaranteed shares need exact `COMMERCIAL_PMS_STAY_EXTENSION` approval; collection through the existing durable Payment worker | `stay_extension_payers` | `POST /stays/{id}/extensions/{extension_id}/payment-requests` (202 = queued only) | — | `TestBusinessPMSStayExtensionCorporateSplitAndEarlyDepartureAcrossChain`, `TestBusinessPMSStayExtensionCollectionSettlementAndReversal` | PASS |
+| S10-04 | Early departure: actual time, unused-night release, frozen policy evaluation, revised obligation, credit/refund references, folio adjustment, room release and status, access revocation, history | Frozen cancellation window/penalty applied to nights from the actual departure date; unit nights released through the ledger (other units unaffected); folio credit; checkout through the shared `completePMSDeparture`; prepaid amounts create a blocked refund request only; exact `COMMERCIAL_PMS_EARLY_DEPARTURE` approval and MFA | 00027 `stay_early_departures`, `reservation_unit_releases`, `reservation_unit_release_days`; `business_reservation_days_guard` allows quantity reduction only when ledgered | `GET /stays/{id}/early-departure/preview` (read-only), `GET/POST /stays/{id}/early-departure` | `hospitality.early_departure.recorded.v1`, `hospitality.unit_nights.released.v1` | `TestBusinessPMSEarlyDepartureReleasesUnusedNightsAndCreditsFolio`, `TestBusinessJourneyEarlyDepartureStockRefundCRMAndRMS` | PASS |
+| S10-05 | No refund complete until Payment/Admin confirms; unknown Payment outcome stays pending | Refund request blocked pending the owning service; unknown collection yields `READBACK_REQUIRED` with no refundable amount | — | — | — | `TestBusinessPMSEarlyDeparturePendingRefundAndPaymentReversal`, `TestBusinessPMSEarlyDepartureWithUnknownExtensionCollectionStaysPending` | PASS |
+| S10-06 | Partial room checkout for multi-room/group stays without completing or releasing the whole reservation | Per-unit release ledger; `RequirePhysicalBacking` subtracts ledgered released units per day; checkout "units still in house" excludes extension lines | 00027 | `GET /reservations/{id}/unit-releases` (per-date conservation report) | as above | `TestBusinessPMSPartialGroupCheckoutConservesStockPerDate` (original = remaining + released per date) | PASS |
+| S10-07 | Concurrent room changes fenced | Organisation lock, version checks, idempotency | — | — | — | `TestBusinessPMSConcurrentInHouseAmendmentsAreFenced` | PASS |
+| S10-08 | Payment reversal after amendment | Reconcile removes backing without rewriting history; folio stays settlement-pending | — | `POST /folios/{id}/reconcile` | — | `TestBusinessPMSStayExtensionCollectionSettlementAndReversal`, `TestBusinessPMSEarlyDeparturePendingRefundAndPaymentReversal` | PASS |
+| S10-09 | Access entitlement extension and revocation | Old grant revoked, new window issued; early departure revokes | — | — | — | `TestBusinessPMSStayExtensionAccessEntitlementWindow` | PASS |
+| S10-10 | Offline/replayed amendment | Offline replay supports `EXTEND_STAY`; idempotent replay returns the original result | 00027 extends `offline_operation_receipts_action_check` | `POST /front-desk/offline-operations` | — | `TestBusinessPMSOfflineStayExtensionReplay` | PASS |
+| S10-11 | Night audit detects unresolved amendment obligations; closed days keep immutable history | New hard exception `UNRESOLVED_STAY_AMENDMENT_OBLIGATIONS`; audit fingerprint covers the new tables | — | night-audit routes | — | Asserted in `TestBusinessPMSEarlyDeparturePendingRefundAndPaymentReversal` and J1 | PASS (detection). Business-day close after these flows is covered by the existing day-close tests, not repeated end to end because close requires the posting cutoff to pass |
+| S10-12 | Accommodation never billed twice; ancillary not double-collected; payer allocations conserved; settled amounts from authoritative readback | Extension lines are separate obligations; folio reconcile applies each settled, funded, unreversed receipt once | — | — | — | All S10 tests above plus the existing folio collection tests | PASS |
+| S10-13 | Existing PMS (assignment, check-in/out, moves, folios, cashier, night audit, day close, offline, groups, access, reconciliation) | Unchanged except check-in now maps split lines to their original quote slot | — | — | — | Full Business suite (section 6) | PASS |
 
-## 3. Section 11 — Guest CRM
+## 3. Section 9 — Reservations
 
-| Requirement | Implementation | Database (00025/00026) | API | Tests | Status |
-|---|---|---|---|---|---|
-| Service recovery lifecycle (OPEN → … → CLOSED, REJECTED/ESCALATED/CANCELLED/REOPEN), SLA, assignment, evidence | `operational_crm_recovery.go` | `service_recovery_cases`, `service_recovery_actions` | `/service-recovery/cases…` (7 routes) | `TestBusinessServiceRecoveryApprovedRemedyAndVerifiedOutcomes` | PASS |
-| Compensation with RBAC, MFA, exact digest-bound approval, SoD, verified outcome | Monetary/points remedies need `COMMERCIAL_SERVICE_RECOVERY_REMEDY`; non-monetary need a distinct approver; discount verified against the actual folio adjustment; loyalty benefit posts a ledger entry | `service_recovery_compensation_refs` with frozen terms | `/approval`, `/compensations/{id}/outcome` | Same test (403 without approval, 409 on stale digest, distinct-approver path) | PASS |
-| Refund never marked complete from a request | Refund / financial adjustment / booking credit stay `PENDING_EXTERNAL_CONTRACT`; case cannot resolve until a verified outcome or recorded guest decline | Case resolution guard | — | Same test (RESOLVE 409, execute refund 409) | PASS |
-| Loyalty programmes, rules, rewards (versioned, approved) | `operational_crm_loyalty.go` | `loyalty_programs`, `loyalty_rules`, `loyalty_rewards` | `/loyalty/programs…` | `TestBusinessLoyaltyAccrualRedemptionReversalAndDuplicateSafety` | PASS |
-| Enrollment with consent, accrual from verified completed stays, duplicate safety, tiers | Accrual requires a departed, canonically COMPLETED stay with a closed folio; unique per stay; concurrent duplicates produce exactly one entry | `loyalty_accounts`, `loyalty_transactions` + ledger guard | `/loyalty/accounts…` | Same test (403 without consent, concurrent 201/200, tier upgrade) | PASS |
-| Redemption, entitlements, no overdraft | Idempotent per request reference | `loyalty_redemptions`, `loyalty_entitlements` | `/redemptions` | Same test | PASS |
-| Reversal after cancellation/refund, expiry | Reconcile reverses earnings whose stay or financial backing no longer qualifies; negative balance restricts the account | `loyalty_reversals` | `/reconcile` | Same test (Payment reversal → reversal once, `REVIEW_REQUIRED`, tier back to BASE) | PASS |
-| Privacy requests (export, access, correction, erasure, restriction) | `operational_crm_privacy_lifecycle.go` | `privacy_requests` | `/guests/{id}/privacy-requests`, `/privacy-requests…` | `TestBusinessCRMPrivacyExportLegalHoldAndErasure` | PASS |
-| Legal holds | Hold blocks erasure in the application and in the database | `legal_holds`, guest-profile hold trigger | `/guests/{id}/legal-holds`, `/legal-holds/{id}/release` | Same test (direct anonymisation blocked) | PASS |
-| Retention / anonymisation worker | `ProcessDataRetention` on the existing worker scheduler; retains reservations, stays, folios, payment evidence, consent history and audit | `data_retention_jobs` | — | Same test (worker completion, replay no-op, irreversible) | PASS |
-| VIP classifications | Append-only, evidence-backed, expiring | `vip_classifications` | `/guests/{id}/vip` | `TestBusinessCRMVIPAndSourceBackedSegments` | PASS |
-| Segments and membership lifecycle | Closed source-backed criteria only (no protected characteristics); marketing eligibility follows current consent | `guest_segments`, `guest_segment_memberships` | `/guest-segments…` | Same test (withdrawal exits segment) | PASS |
-| CRM reporting | `operational_crm_reports.go` with documented numerator/denominator, null on zero denominators, unknown financial fields | — | `GET /crm/reports` | Assertions in loyalty and recovery tests | PASS |
-| Guest identity merge workflow | Not implemented (no automatic merge exists; email/phone-only merge remains impossible) | — | — | — | **FAIL** (internal work) |
-| CRM-triggered notifications through Notification Service | Not implemented in this pass | — | — | — | **FAIL** (internal work) |
+| ID | Requirement | Implementation | Migration | API | Events | Executed tests | Status |
+|---|---|---|---|---|---|---|---|
+| S9-01 | Partial-quantity cancellation | Accepted lines are never edited: the old line is superseded and replacement lines and per-day rows are appended; frozen cancellation policy obligation `PARTIAL_CANCELLED`; refunds stay pending | 00028 `reservation_quantity_changes`, `reservation_quantity_change_days` (CHECK original = remaining + transferred + released for quantity and amount; deferred per-day stock guard) | `POST /reservations/{id}/quantity-cancel` | `reservation.quantity_changed.v1`, `reservation.modified.v1` | `TestBusinessReservationQuantityPartialCancelSplitMergeConservation` | PASS |
+| S9-02 | Split a subset of units; merge eligible split-family quantities; reject cross-provider merges | Highest-slot tail partition keeps every original slot share; split to a new reservation with lineage; merge back requires identical product/pool/quote/dates/financial group/currency/channel/source | 00028 `reservation_room_slot_maps` | `POST /reservations/{id}/quantity-split`, `POST /reservations/{id}/quantity-merge`, `GET /reservations/{id}/quantity-changes` | `reservation.created.v1` (split target) | same test (cross-booking merge denied); unit `TestTailPartitionPreservesEverySlotAndConservesAmount` | PASS |
+| S9-03 | Conserve nightly inventory, price, tax, fees and financial responsibility; guest/room assignment updates; lineage; idempotency | Slot map drives folio fiscal partition at check-in, so billed + cancelled equals the accepted amount | 00028 | — | — | same test; J3 | PASS |
+| S9-04 | Concurrency proof of the conservation invariant on real PostgreSQL | Parallel cancel/split on one line | — | — | — | `TestBusinessReservationQuantityConcurrentChangesConserveStock` (two rounds of four concurrent commands, one winner each, per-date invariant holds) | PASS |
+| S9-05 | Durable inventory-release signal from any producer | Triggers on `inventory_calendar` (availability increase) and `inventory_holds` (cancel/expire) | 00028 `inventory_release_signals` | — | — | Waitlist tests; early departure produces signals through the same trigger | PASS |
+| S9-06 | Automatic waitlist: eligible selection, policy validation, priority and fairness, atomic hold, durable offer, expiry and hold release, next candidate, acceptance, audit/events, restart recovery, no duplicate offers for the last unit | `ProcessWaitlistAutomation` on the existing maintenance loop; per-property lease with generation fencing; priority, then fewest previous automatic offers, then FIFO; service identity, never a human; guest acceptance stays the existing accept endpoint | 00028 `waitlist_automation_policies`, `waitlist_automation_leases`, `waitlist_automation_runs`, `waitlist_automation_offers`; one live offer per entry | `GET/POST /waitlist-automation-policies` (automatic mode needs exact approval and MFA; MANUAL is the pause switch), `GET/POST /waitlist-automation-runs` | `reservation.waitlist.changed.v1`, `reservation.waitlist_policy.updated.v1` | `TestBusinessWaitlistAutomationReleaseOfferExpiryFairnessAndAcceptance` (three concurrent workers, one offer), `TestBusinessWaitlistAutomationRestartRecoveryFencingAndPause`, J4 | PASS |
+| S9-07 | Notification acceptance is not guest acceptance; waitlist communication | CRM notification planner reads authoritative `waitlist_offers` | 00029 | — | `guest.notification.updated.v1` | `TestBusinessCRMWaitlistNotificationsFollowAuthoritativeOffers` | PASS |
+| S9-08 | In-house amendments, early departure, partial checkout | See S10-01…S10-06 | 00027 | — | — | — | PASS |
+| S9-09 | Overbooking and recovery linkage | Approved overbooking opens one HIGH service-recovery case for the registered primary guest in the same transaction | — | existing overbooking confirm | `service_recovery.updated.v1` | `TestBusinessReservationOverbookingOpensGuestRecoveryCase`, J6 | PASS |
+| S9-10 | Corporate payer/guest composition | Corporate customer/contract now persisted on the reservation, so corporate rechecks and reporting apply | — | — | — | J5 `TestBusinessJourneyCorporateBookingSplitFolioAndReporting` | PASS |
+| S9-11 | Payment outage and recovery without duplicate effects; no false external acknowledgement | Existing durable finance worker; lost provider response recovered by readback | — | — | — | J9 `TestJourney09PaymentAndBrokerOutageRecoverWithoutDuplicateEffects`; existing signed intake tests | PASS |
+| S9-12 | Every documented lifecycle transition and supported source | Existing lifecycle and intake tests plus new quantity/waitlist tests | — | — | — | Full Business suite | PASS |
+| S9-13 | Quantity changes on physically assigned, already stayed, group-block/rooming, overbooked, partly released or uncertain-collection lines | Rejected by design; in-house unit departures use S10-06 | — | — | — | Assigned-line rejection asserted in S9-01 test | PASS (fail-closed scope) |
 
-All 16 previously listed `REQUIRED_CURRENT_WORK` catalogue tables now exist, are used by routes and have tests. Catalogue: 358 decisions, 237 implemented tables, 120 future-domain deferrals, **0 required current schema gaps**.
+## 4. Section 11 — Guest CRM
 
-## 4. Section 9 — Reservations
-
-| Requirement | Status |
-|---|---|
-| Existing canonical lifecycle, whole-line split/merge/partial cancellation, waitlist offer/accept, source intake, overbooking, Payment collection | PASS (prior scope, full suite) |
-| Folio payer agreements reuse the canonical reservation financial group and Payment worker without changing the reservation's accommodation financial state | PASS (PMS collection tests) |
-| Overbooking → CRM recovery case with approved remedy and verified outcome | PASS for the CRM side (`OVERBOOKING` issue type, recovery test); automatic case creation from an overbooking permit is not wired |
-| Quantity-level fragmentation (cancel/split/merge part of a line's quantity) | **FAIL** (internal work) |
-| Release-triggered automatic waitlist offers and expiry advancement | **FAIL** (internal work) |
-| In-house amendments (extension, early departure, partial room checkout) | **FAIL** (internal work) |
+| ID | Requirement | Implementation | Migration | API | Events | Executed tests | Status |
+|---|---|---|---|---|---|---|---|
+| S11-01 | Authorized guest merge: source-backed matching (never email/phone alone), verified ownership, preview, conflict detection, independent approval for high-risk merges, source identity preservation, reference reassignment, history conservation, consent preservation, sensitive-data controls, idempotency, lineage, reversal | Preview digest; execution needs `guest_privacy:write` + MFA, high-risk adds exact `COMMERCIAL_GUEST_MERGE` approval; references reassigned with append-only lineage; consent never widened; reversal restores references under `COMMERCIAL_GUEST_UNMERGE` | 00029 `guest_merges`, `guest_merge_references`; `business_guest_canonical()`; guard refuses MERGED without a merge row | `POST /guests/{id}/merge-previews`, `GET /guests/{id}/merges`, `GET /guest-merges/{id}`, `POST /guest-merges/{id}/execute`, `/cancel`, `/reverse` | `guest.merge.updated.v1` | `TestBusinessCRMGuestMergeApprovalConsentLegalHoldAndReversal` | PASS |
+| S11-02 | Duplicate source identity and cross-organisation denial | Tenant FKs and source checks | 00029 | — | — | `TestBusinessCRMGuestMergeSourceIdentityDuplicateAndTenantIsolation` | PASS |
+| S11-03 | Privacy/legal hold across merges | A hold on any merged record blocks erasure of the survivor; erasure of the survivor anonymises merged records | — | existing privacy routes | — | S11-01 test | PASS |
+| S11-04 | Guest history and loyalty references after merge | Source loyalty account keeps its key and links through lineage; merge blocked when both guests hold accounts in the same programme | — | — | — | J7 `TestBusinessJourneyLoyaltyHistoryNotificationsAndMerge` | PASS |
+| S11-05 | Durable CRM notifications for waitlist offers/expiry, reservation changes, arrival/stay, service recovery, compensation, loyalty and corporate updates | Planner derives jobs from authoritative transitions; unique per organisation, source, kind and recipient; existing signed Notification client with the job ID as idempotency key | 00029 `guest_notification_jobs`, `guest_notification_attempts` | `GET /guest-notifications`, `GET /guest-notifications/{id}`, `POST .../cancel`, `POST .../retry` | `guest.notification.updated.v1` | `TestBusinessCRMNotificationsDurableConsentSuppressionAndRecovery`, `TestBusinessCRMWaitlistNotificationsFollowAuthoritativeOffers`, J6, J7 | PASS |
+| S11-06 | Purpose, consent, authorized destination, approved templates, suppression, cancellation, retry/backoff, expiry, provider acceptance, readback, worker recovery, audit | Marketing requires current consent; protected destinations; versioned approved templates; suppression list; ACCEPTED only from the real client response; delivery always UNKNOWN (no delivery readback contract) | 00029 `guest_notification_templates`, `guest_notification_suppressions`, `waitlist_guest_bindings` | `GET/POST /guest-notification-templates` (`COMMERCIAL_GUEST_NOTIFICATION_TEMPLATE` + MFA), `POST .../retire`, `GET/POST /guests/{id}/notification-suppressions`, `POST .../lift`, `POST /waitlist/{id}/guest-binding` | `guest.notification_template.updated.v1` | Same tests (outage then recovery delivers once; duplicates avoided; withdrawal suppresses) | PASS |
+| S11-07 | Previously certified CRM workflows (profiles, corporate, VIP, segments, privacy, legal holds, retention, loyalty, recovery, compensation, consent, reporting) | Unchanged | — | — | — | Full Business suite | PASS |
 
 ## 5. Section 8 — RMS
 
-| Requirement | Status |
-|---|---|
-| Demand snapshots, pace, deterministic forecasts, manual recommendations, approvals, simulations, application, rollback | PASS (prior scope) |
-| `APPROVAL_AUTOMATION` workers and `AUTOPILOT_WITH_LIMITS` bounded execution | **FAIL** (internal work; modes remain policy labels that do not authorize execution, which fails closed) |
-| Advanced recommendations, forecast inputs, aggregation, simulations, drift monitoring | **FAIL** (internal work) |
+| ID | Requirement | Implementation | Migration | API | Events | Executed tests | Status |
+|---|---|---|---|---|---|---|---|
+| S8-01 | MANUAL and RECOMMEND_ONLY | Prior implementation | 00010/00011 | existing `/revenue/*` | existing | Existing RMS tests | PASS |
+| S8-02 | APPROVAL_AUTOMATION: capture → forecast → recommendation → policy → digest → approval submitted under an explicit service identity → independent human approval → recheck approval, authority, freshness and rate version → canonical application → events → channel delta → monitoring | Durable run with stages; sponsor cannot decide; automation never decides any approval | 00030 `rms_automation_runs`, `rms_automation_run_stages`, `rms_automation_jobs`; nullable `created_by` + `created_by_service` on `pricing_recommendations` and `rate_plan_versions` | `POST /revenue/automation-activations`, `/{id}/runs`, `GET /revenue/automation-runs[/{id}]`, `GET /revenue/automation-jobs` | `revenue.automation.run.changed.v1`, `pricing.applied.v1`, `rate_plan.changed.v1` | `TestBusinessRMSApprovalAutomationNeedsIndependentHumanApproval` | PASS |
+| S8-03 | AUTOPILOT_WITH_LIMITS: explicit authorized activation bound to scope, rate plans, floor, ceiling, daily and cumulative limits, threshold, blackouts, compliance, capacity, freshness, model, confidence, exposure; fencing; pause/kill switch; audit; retry; rollback | Activation needs `COMMERCIAL_RMS_AUTOMATION_ACTIVATION` approval + MFA (+ `rms:autopilot`); immutable limits; above-threshold changes fall back to approval; missing authority/data records a blocked run | 00030 `rms_automation_activations`, `rms_automation_activation_history` | `GET/POST /revenue/automation-activations`, `/{id}/pause`, `/{id}/resume`, `/{id}/revoke` | `revenue.automation.activation.changed.v1` | `TestBusinessRMSAutopilotRequiresExplicitAuthorizedActivation`, `TestBusinessRMSAutopilotAppliesOnceWithinLimitsAndRollsBack`, `TestBusinessRMSAutomationBlocksBlackoutStaleAndCumulativeLimits`; unit `TestAutomationLimitsCannotWidenPolicy`, `TestEvaluateAutomationBoundsAndModes` | PASS |
+| S8-04 | Durable workers (capture, pace, forecast, recommendation, approval submission/monitoring, application, freshness, expiry, outcome, drift, limits, pause, rollback review) surviving restart | `ProcessRMSAutomation` on the worker loop with lease generations; expiry stays in `ProcessRMSMaintenance` | 00030 | — | `revenue.outcome.measured.v1`, `revenue.monitoring.finding.changed.v1` | `TestBusinessRMSWorkerRestartRecoversExpiredLease`, `TestBusinessRMSHumanAutomationRaceIsFenced`, `TestBusinessRMSAutopilotAppliesOnceWithinLimitsAndRollsBack` (four concurrent workers, one version) | PASS |
+| S8-05 | Advanced recommendations (derived rate, range, min/max LOS, booking windows, early-booker, last-minute, long-stay, channel allocation, channel pricing/margin, overbooking advisory) through the canonical engine | Each kind maps to an existing canonical rate/restriction/promotion/allotment path or is ADVISORY with an explicit reason | 00030 `rms_advanced_recommendations`, `rms_advanced_decisions` | `GET/POST /revenue/advanced-recommendations`, `GET /{id}`, `POST /{id}/decision` (`COMMERCIAL_RMS_ADVANCED_CHANGE` + MFA) | `pricing.advanced_recommendation.changed.v1` | `TestBusinessRMSAdvancedRecommendationsApplyCanonicallyOrStayAdvisory`; unit `TestRecommendAdvancedKindsUseCanonicalOrAdvisory` | PASS |
+| S8-06 | Source-backed forecasting inputs and aggregation with provenance and reproducibility | Model `canonical-pace-cancellation-v1` registered; property/branch/portfolio, product, channel, weekday/seasonal, comparable periods, cancellation-adjusted; market inputs only through governed records with source and licence references | 00030 `rms_market_inputs`, `rms_analytics_snapshots` | `GET/POST /revenue/market-inputs`, `GET/POST /revenue/analytics`, `GET /revenue/analytics/{id}`, `GET /revenue/models` | `revenue.market_input.recorded.v1`, `revenue.analytics.snapshot.created.v1` | `TestBusinessRMSAnalyticsAggregationReproducibilityAndNonMutatingSimulation`; unit `TestAnalyzeDemandIsReproducibleAndSourceBacked` | PASS |
+| S8-07 | Simulation (occupancy, ADR, RevPAR, revenue, commissions, costs, contribution, LOS, promotions, allocation, alternatives); unknowns null | Non-mutating scenario simulation | — | `POST /revenue/scenario-simulations` | — | Same integration test (no writes); unit `TestSimulateScenariosKeepsUnknownCostsNull` | PASS |
+| S8-08 | Outcome monitoring and drift | Forecast error, actual vs predicted, applied-rate effectiveness, cancellation changes, freshness, policy exceptions; drift pauses activation | 00030 `rms_outcome_measurements`, `rms_monitoring_findings` | `GET /revenue/outcomes`, `GET /revenue/monitoring-findings`, `POST /revenue/monitoring-findings/{id}/resolve` | as S8-04 | J8 `TestBusinessJourneyRMSBookingDataToAutopilotChannelAndMonitoring`; unit `TestDetectDriftDefinedConditions` | PASS |
+| S8-09 | Rollback: safety pause, authorized compensating version with provenance, race protection, redistribution, reconciliation of unknown publication; never overwrite a newer approved rate | Worker pauses and queues review; rollback is a human-approved decision creating a new version; publication reconciliation keeps UNKNOWN until distribution records confirm | — | existing decision route `ROLLBACK` | — | `TestBusinessRMSRollbackNeverOverwritesIntervening`, `TestBusinessJourneyRMSUnknownChannelOutcomeNeverSucceeds` | PASS |
+| S8-10 | Marketplace search/conversion inputs | No source table exists in this repository | — | — | — | Reported as missing input (null) | External dependency (section 8) |
 
-## 6. Verification executed in this pass
+## 6. Cross-domain journey matrix
 
-Local workstation: Windows, disposable PostgreSQL 18 cluster on a scratch port, embedded disk-backed JetStream, no Docker and no C toolchain (so no local `-race`; Linux CI supplies race and container evidence).
-
-- New Business tests (all PASS): `TestBusinessPMSFolioSplitPayerCollectionConservesObligations`, `TestBusinessPMSFolioCollectionReleaseReplacementAndVerifiedFailure`, `TestBusinessServiceRecoveryApprovedRemedyAndVerifiedOutcomes`, `TestBusinessLoyaltyAccrualRedemptionReversalAndDuplicateSafety`, `TestBusinessCRMPrivacyExportLegalHoldAndErasure`, `TestBusinessCRMVIPAndSourceBackedSegments`.
-- New Owner test: `TestShortletLagosMidnightBusinessDate` PASS.
-- Business regression subset (PMS, reservation payments, contracts, migrations, catalogue, grants, CRM history, events, overbooking) PASS except the expected schema-version pin, which was updated.
-- gofmt (LF-normalised), go vet, staticcheck 2026.2.1, SQLC v1.31.1 diff, OpenAPI/Postman/route drift, event schema drift, database catalogue drift, architecture and Business ownership boundary scripts: PASS.
-
-These are 7 new top-level integration tests, not 33 independent end-to-end journeys. The requested full cross-domain journey list (booking → PMS → CRM → RMS → distribution, RMS automation, waitlist conversion, quantity fragmentation, in-house extension/early departure) is **not** covered by this pass.
-
-## 7. Contract inventory after this pass
-
-| Item | Before | After |
+| Journey | Test | Result (local, PostgreSQL 18, embedded JetStream) |
 |---|---|---|
-| Goose migrations | 23 | 26 |
-| Implemented tables | 217 | 237 |
-| Registered method/path pairs | 446 | 481 |
-| OpenAPI path templates | 322 | 351 |
-| Typed OpenAPI schemas | 427 | 473 |
-| Business event schemas | 81 | 89 |
+| J1 Hotel operations (property → inventory → rate → guest → reservation → assignment → check-in → extension/charges → payment reconciliation → checkout → folio → night audit) | `TestBusinessJourneyHotelOperationsExtensionChargesCheckoutNightAudit` | PASS |
+| J2 Early departure (policy adjustment, stock release, credit/refund reference, checkout, CRM/RMS updates) | `TestBusinessJourneyEarlyDepartureStockRefundCRMAndRMS` | PASS |
+| J3 Group fragmentation (split, partial cancel, financial conservation, remaining stays, checkout) | `TestBusinessJourneyGroupReservationFragmentationToCheckout` | PASS |
+| J4 Waitlist (full inventory, release, automatic hold, offer, acceptance, confirmed reservation) | `TestBusinessJourneyWaitlistReleaseToConfirmedReservation` | PASS |
+| J5 Corporate booking (eligible traveler, negotiated rate, assignment, split folio, payment status, corporate reporting) | `TestBusinessJourneyCorporateBookingSplitFolioAndReporting` | PASS |
+| J6 Customer recovery (overbooking, CRM case, authorized remedy, notification, verified outcome, closure) | `TestBusinessJourneyOverbookingRecoveryNotificationAndClosure` | PASS |
+| J7 Loyalty (completed stay, history, accrual, redemption, authorized reversal/reconciliation) | `TestBusinessJourneyLoyaltyHistoryNotificationsAndMerge` | PASS |
+| J8 RMS (booking data, forecast, recommendation, autopilot, canonical rate version, channel delta, monitoring) | `TestBusinessJourneyRMSBookingDataToAutopilotChannelAndMonitoring` | PASS |
+| J9 Failure recovery (Payment and NATS outage, durable pending state, worker recovery, no duplicate effects); Notification outage | `TestJourney09PaymentAndBrokerOutageRecoverWithoutDuplicateEffects`; `TestBusinessCRMNotificationsDurableConsentSuppressionAndRecovery`; `TestBusinessJourneyRMSUnknownChannelOutcomeNeverSucceeds` | PASS |
+| J10 Security (another organisation, suspended staff, non-delegable reservation authority, delegation expiry, unauthorized automation) | `TestJourney10TenantRevocationAndDelegationExpiryProtectReservations`; `TestBusinessRMSAutopilotRequiresExplicitAuthorizedActivation`; `TestBusinessCRMGuestMergeSourceIdentityDuplicateAndTenantIsolation` | PASS |
 
-New events: `hospitality.folio_collection.updated.v1`, `service_recovery.updated.v1`, `loyalty.program.updated.v1`, `loyalty.account.updated.v1`, `loyalty.transaction.recorded.v1`, `guest.privacy_request.updated.v1`, `guest.legal_hold.updated.v1`, `guest.segment.updated.v1` (published on the existing Business stream under `business.*`).
+These are 20 named journey tests. They are not counted as hundreds of independent journeys; subtests are not journeys.
 
-## 8. External dependencies (unchanged, not used to hide internal gaps)
+## 7. Database, API and event totals
 
-Payment/Admin refund and adjustment execution (no authorized Business-to-Admin remedy API; requests stay pending), live Payment collection/settlement configuration, Notification templates/delivery, Marketplace/OTA live supply and source contracts, Verification capacity assertions, cashier attestation producer, smart-access devices, market/cost datasets, staging deployment transport, real staging database/roles/secrets and NATS identities.
-
-**LIVE STAGING DEPLOYMENT: NOT CERTIFIED.** No VPS access, no production deployment, no change to `main`.
-
-## 9. CI evidence for implementation SHA `20725cd629692892214eb1b0282f88f0626066a4`
-
-| Workflow | Result | Run |
+| Item | Before (`ce478fe`) | After |
 |---|---|---|
-| Backend (20/20 jobs incl. process-level E2E) | PASS | [42359745790](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745790) |
-| Architecture structure | PASS | [42359745829](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745829) |
-| Contracts | PASS | [42359745799](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745799) |
-| Security | PASS | [42359745813](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745813) |
-| Images | PASS | [42359745789](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42359745789) |
+| Goose migrations | 26 | 30 (00027–00030 additive; 00001–00026 unchanged) |
+| Implemented tables | 237 | 268 |
+| Catalogue decisions | 358 | 389 (120 future-domain deferrals, 0 required current schema gaps) |
+| Registered method/path pairs | 481 | 537 |
+| OpenAPI path templates | 351 | 397 |
+| Typed OpenAPI schemas | 473 | 558 |
+| Business event schemas | 89 | 105 (all 89 preserved) |
 
-Business Linux race job 128365401793: 313 test/subtest passes (201 top-level tests), 0 failures, 0 skips. Subtests are not counted as journeys. E2E job 128376545969: `TestOwnerFunctionalJourneyWithRealServices` and its four journeys PASS.
+Migration evidence: fresh database to version 30 (`TestOutboxMigrationFromEmptyDatabase`), populated schema 26 upgraded twice with unchanged stock, price, quantity and history and an operable cancellation afterwards (`TestBusinessSections0811UpgradeFromPopulatedSchema26`), existing populated upgrades from schemas 11, 18 and 22, runtime-role grants (`scripts/database/business-operations-runtime-grants.sql` revokes UPDATE/DELETE on every new history table), SQLC regenerated with v1.31.1.
 
-Business image from the Images run: `ghcr.io/cosmicforgehealthnet/cosmicforge-realestate/business-operations-service@sha256:5d869086e88ddad09451ea911ea3f3860ae8454ed4ffc57ab61003b86f4922a6`. A published image is not a staging deployment.
+## 8. External dependencies and live staging
 
-The later commit that adds this section changes documentation only; its own workflow results are listed in the delivery summary.
+Repository-side contracts are implemented and fail closed; none of these is used to hide an internal gap.
+
+| Dependency | Repository behaviour | Owner action |
+|---|---|---|
+| Payment/Admin refund and adjustment execution | Early-departure, partial-cancellation and recovery refunds remain blocked/pending | Provide an authorized Business-to-Admin remedy API |
+| Live Payment collection and settlement | Durable worker with readback; unknown outcomes stay pending | Production Payment configuration |
+| Notification production delivery | Jobs record provider acceptance only; delivery UNKNOWN; rejected templates mark the job FAILED for review | Create the guest notification templates in Notification Service; delivery-status readback contract |
+| Marketplace/OTA live supply, search and conversion data | Signed intake and acknowledgements after durable commit; search/conversion reported missing | Live provider access and a source contract |
+| External market, holiday, competitor and cost datasets | Only governed records with source and licence references | Licensed data feed |
+| Verification operating-capacity authority | Fails closed when absent | Capacity assertion operation |
+| Cashier financial attestation, smart-access devices | Manual evidence; device outcomes UNKNOWN | Provider adapters |
+| Staging deployment transport, database, credentials, NATS identities | Not available to this pass | Authorized deployment |
+
+**LIVE STAGING: NOT CERTIFIED.** No VPS/SSH access, no production deployment, no change to `main`. A published image is not a deployment.
+
+## 9. Verification evidence
+
+Local workstation (Windows, disposable PostgreSQL 18 on a scratch port, embedded disk-backed JetStream, no Docker and no C toolchain, so race and container evidence come from Linux CI):
+
+- Full Business module suite on the fully merged tree: see final delivery summary for counts.
+- gofmt (LF-normalised) on every changed Go file, `go vet`, staticcheck, OpenAPI/Postman/route drift, event schema drift and database catalogue drift `--check`, architecture and Business ownership boundary scripts: PASS.
+
+CI on the final SHA: recorded in the delivery summary (Backend, Architecture structure, Contracts, Security, Images).

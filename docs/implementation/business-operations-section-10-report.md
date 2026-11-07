@@ -125,3 +125,9 @@ Status: **FAIL — required domain workflows remain unimplemented**. This is an 
 No Section 10 migration is claimed. Goose 00010 and 00011 belong to RMS. No PMS workflow/security/concurrency/E2E test is certified. Existing reservation/inventory regression and image smoke results certify their actual scope only. Future smart-access operations require an authenticated owning contract/provider certification; that external dependency does not excuse the unfinished internal PMS work. The full requirement matrix is in the Sections 8–11 audit and combined certificate.
 
 </details>
+
+## Final internal closure (7 November 2026)
+
+Section 10 is closed at the repository level. Migration `00027_hospitality_stay_amendments.sql` adds stay extensions and their payer shares, per-unit release ledgers and early-departure records, and widens two existing guards only for ledgered changes. Extension commits Section 7 stock through a hold, keeps the same physical room, posts the folio charge, reissues access and supports guest/corporate split liability with exact approval. Early departure applies the frozen policy, releases unused unit nights without splitting multi-unit lines, credits the folio, revokes access and leaves refunds pending the owning Payment/Admin service. Night audit adds `UNRESOLVED_STAY_AMENDMENT_OBLIGATIONS`. Evidence: `pms_stay_amendments_test.go`, `pms_stay_amendment_flows_test.go`, `pms_early_departure_test.go`, `journey_pms_test.go`, unit tests in `internal/hospitality/amendments_test.go`.
+
+Full requirement matrix: [business-operations-sections-08-11-final-closure.md](business-operations-sections-08-11-final-closure.md).

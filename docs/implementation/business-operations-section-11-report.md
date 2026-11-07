@@ -56,3 +56,9 @@ Status: **FAIL — required domain workflows remain unimplemented**. This is an 
 No Section 11 migration or workflow/security/concurrency/E2E certification is claimed. Goose 00011 is RMS governance. Missing owning-service operations include source identity linking/readback, eligible Notification templates/delivery configuration and Admin-authorized refund handoff/readback. Business Operations must not merge identities from email/phone alone, impersonate Admin, execute Payment provider operations or mark a conflict/customer recovery resolved from inventory reconciliation. Existing tests prove the fail-closed reservation boundary, not completed CRM functionality. The Sections 8–11 audit and combined certificate retain every high-level requirement and status.
 
 </details>
+
+## Final internal closure (7 November 2026)
+
+Section 11 is closed at the repository level. Migration `00029_guest_merge_notifications.sql` adds guest merges with append-only reference lineage, reversal, templates, suppressions, waitlist guest bindings, notification jobs and attempts. Merges are source-backed only, preview conflicts, require MFA and exact independent approval when high risk, never widen consent and keep legal holds effective across merged records. `ProcessGuestNotifications` derives jobs from authoritative transitions for ten notification kinds and sends them through the existing signed Notification client, recording provider acceptance only (delivery UNKNOWN). Evidence: `crm_merge_test.go`, `crm_notifications_test.go`, `journey_crm_test.go`. Production templates and delivery readback remain Notification Service actions.
+
+Full requirement matrix: [business-operations-sections-08-11-final-closure.md](business-operations-sections-08-11-final-closure.md).

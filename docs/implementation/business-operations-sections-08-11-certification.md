@@ -1,5 +1,8 @@
 ## 7 November 2026 closure pass
 
+> **Superseded on 7 November 2026 by the final internal closure.** The row-level statuses below are the historical certification baseline. Current status, with implementation, migration, API, event and executed-test evidence for every Section 8–11 requirement, is in [business-operations-sections-08-11-final-closure.md](business-operations-sections-08-11-final-closure.md). Summary: Section 8 RMS — all four modes executable (APPROVAL_AUTOMATION and AUTOPILOT_WITH_LIMITS with durable workers), advanced recommendations, analytics, simulation, monitoring and rollback: internal PASS. Section 9 reservations — quantity-level cancel/split/merge, automatic waitlist, in-house amendments, overbooking-to-recovery and corporate composition: internal PASS. Section 10 PMS — extension, early departure, partial room checkout and amendment financial integration: internal PASS. Section 11 CRM — authorized guest merge/reversal and durable Notification integration: internal PASS. External provider items and live staging remain separately qualified; **LIVE STAGING: NOT CERTIFIED**.
+
+
 Sections 8–11 remain **PARTIAL**. The Backend CI defect is repaired and certified on `d71ac6c`. PMS ancillary/mixed-payer collection and the Section 11 recovery, loyalty, privacy, VIP, segment and reporting workflows are implemented and tested. See `business-operations-sections-08-11-final-closure.md` for the requirement matrix, tests and CI evidence of the 7 November 2026 closure pass.
 
 ## Schema23 candidate verification — November 6
