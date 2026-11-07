@@ -2,7 +2,7 @@
 
 Scope: Sections 8 (RMS), 9 (canonical reservations), 10 (Hotel PMS) and 11 (Guest CRM) of `docs/specifications/CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0.md`, with annexes D.16, D.18, D.30, D.31, D.32, D.38, D.39 and G.4/G.5/G.6.
 
-Starting SHA: `ce478fee5f33590181ef18edb8c8abfe618659f2`. Branch: `staging` only. Final SHA and CI runs: section 9.
+Starting SHA: `ce478fee5f33590181ef18edb8c8abfe618659f2`. Branch: `staging` only. Code-certified SHA `c078934` and CI runs: section 9.
 
 This record classifies a requirement PASS only with executed implementation and test evidence. External-provider and live-deployment qualifications are listed separately in section 8 and are not used to excuse internal gaps.
 
@@ -133,7 +133,36 @@ Repository-side contracts are implemented and fail closed; none of these is used
 
 Local workstation (Windows, disposable PostgreSQL 18 on a scratch port, embedded disk-backed JetStream, no Docker and no C toolchain, so race and container evidence come from Linux CI):
 
-- Full Business module suite on the fully merged tree: see final delivery summary for counts.
+- Full Business module suite on the fully merged tree (`CF_REQUIRE_INTEGRATION=1`, `go test -json -count=1 ./...`): 252 top-level tests PASS, 0 FAIL, 0 SKIP; integration package 1441.8 s.
 - gofmt (LF-normalised) on every changed Go file, `go vet`, staticcheck, OpenAPI/Postman/route drift, event schema drift and database catalogue drift `--check`, architecture and Business ownership boundary scripts: PASS.
 
-CI on the final SHA: recorded in the delivery summary (Backend, Architecture structure, Contracts, Security, Images).
+Linux CI.
+
+The first push of the merged tree (`7899f63`) passed Contracts, Security, Repository structure and Images. Backend failed only because the `go test` 20-minute package alarm fired in the Business integration package: 149 of 195 integration tests had passed and the running test was 4 s old, with no assertion failure and no hang ([run](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42395697182)). The baseline (`ce478fe`) already took about 19 minutes. Commit `c078934` raised the package alarm to 45 minutes; no test was skipped, disabled or changed.
+
+CI on the code-certified SHA `c0789348c636d21138c12a51d91f11002b580a25`, all five workflows SUCCESS:
+
+| Workflow | Run |
+|---|---|
+| Backend (lint, `go test -race` per module, architecture, SQLC currency, end-to-end) | [https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608188](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608188) |
+| Contracts | [https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608247](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608247) |
+| Security | [https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608245](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608245) |
+| Repository structure | [https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608241](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608241) |
+| Images | [https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608166](https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/42405608166) |
+
+Backend `go test -race` results on `c078934` (from the uploaded `test-results.jsonl` artifacts):
+
+| Module | Test/subtest PASS | Top-level PASS | FAIL / SKIP |
+|---|---|---|---|
+| services/business-operations-service | 364 | 252 (integration package 1400.7 s) | 0 / 0 |
+| services/individual-owner-service | 181 | 158 | 0 / 0 |
+| services/payment-service | 176 | 91 | 0 / 0 |
+| shared/go | 140 | 140 | 0 / 0 |
+| services/notification-service | 50 | 40 | 0 / 0 |
+| services/verification-service | 26 | 26 | 0 / 0 |
+| services/media-document-service | 25 | 25 | 0 / 0 |
+| gateway/api-gateway | 25 | 25 | 0 / 0 |
+
+Business Operations image built from `c078934`: `ghcr.io/cosmicforgehealthnet/cosmicforge-realestate/business-operations-service@sha256:4520fafe2f7e6b5c643075a77d4e46087cf77e3346c1aa1352b8f37e4017984c` (tag `sha-c0789348c636d21138c12a51d91f11002b580a25`, from the `image-digests` deployment-input artifact). This image is published, not deployed: see section 8.
+
+Commits after `c078934` change documentation only. Their CI runs are recorded in the delivery summary.
