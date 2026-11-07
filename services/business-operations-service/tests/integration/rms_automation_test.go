@@ -240,7 +240,7 @@ func TestBusinessRMSAutopilotAppliesOnceWithinLimitsAndRollsBack(t *testing.T) {
 		t.Fatal("canonical channel delta was not durably recorded")
 	}
 	var publication string
-	if e := x.db.Pool.QueryRow(t.Context(), `SELECT result->>'state' FROM rms_automation_jobs WHERE recommendation_id=$1 AND kind='RECONCILE_PUBLICATION'`, rec.ID).Scan(&publication); e != nil || publication != "NO_ACTIVE_CHANNEL_CONNECTIONS" {
+	if e := x.db.Pool.QueryRow(t.Context(), `SELECT result->>'state' FROM rms_automation_jobs WHERE recommendation_id=$1 AND kind='RECONCILE_PUBLICATION'`, rec.ID).Scan(&publication); e != nil || publication != "NO_ACTIVE_PUBLICATIONS" {
 		t.Fatalf("publication reconciliation %q %v", publication, e)
 	}
 	var stages int

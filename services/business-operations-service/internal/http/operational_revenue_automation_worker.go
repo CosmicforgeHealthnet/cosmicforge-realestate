@@ -1085,33 +1085,42 @@ func (h *Handler) rmsReconcilePublication(ctx context.Context, tx pgx.Tx, t tena
 	if e = tx.QueryRow(ctx, `SELECT created_at FROM pricing_decisions WHERE organisation_id=$1 AND recommendation_id=$2 AND state='APPLIED'`, t.Organisation, v.ID).Scan(&appliedAt); e != nil {
 		return rmsJobOutcome{}, e
 	}
-	var connections, unconfirmed, failed int
-	if e = tx.QueryRow(ctx, `SELECT (SELECT count(*) FROM channel_connections WHERE organisation_id=$1 AND property_id=$2 AND state IN ('CONNECTED','DEGRADED')),(SELECT count(*) FROM listing_publication p JOIN channel_connections c ON c.organisation_id=p.organisation_id AND c.id=p.connection_id WHERE p.organisation_id=$1 AND c.property_id=$2 AND p.desired_state='PUBLISHED' AND p.delivery_state<>'CONFIRMED'),(SELECT count(*) FROM channel_sync_jobs WHERE organisation_id=$1 AND property_id=$2 AND created_at>=$3 AND state IN ('QUARANTINED','FAILED_FINAL'))`, t.Organisation, v.PropertyID, appliedAt).Scan(&connections, &unconfirmed, &failed); e != nil {
+	var connections, published, behind, unconfirmed, failed int
+	var ageSeconds float64
+	if e = tx.QueryRow(ctx, `WITH conns AS (SELECT id FROM channel_connections WHERE organisation_id=$1 AND property_id=$2 AND state IN ('CONNECTED','DEGRADED')), applied AS (SELECT coalesce(max(sequence),0) AS seq FROM commercial_history WHERE organisation_id=$1 AND entity_id=$4 AND operation='RMS_CANONICAL_RATE_APPLIED' AND snapshot->>'recommendation_id'=$5::text)
+SELECT (SELECT count(*) FROM conns),
+ (SELECT count(*) FROM listing_publication p WHERE p.organisation_id=$1 AND p.connection_id IN (SELECT id FROM conns) AND p.desired_state='PUBLISHED'),
+ (SELECT count(*) FROM channel_sync_cursors c WHERE c.organisation_id=$1 AND c.connection_id IN (SELECT id FROM conns) AND c.last_history_sequence<(SELECT seq FROM applied)),
+ (SELECT count(*) FROM listing_publication p WHERE p.organisation_id=$1 AND p.connection_id IN (SELECT id FROM conns) AND p.desired_state='PUBLISHED' AND p.delivery_state<>'CONFIRMED'),
+ (SELECT count(*) FROM channel_sync_jobs WHERE organisation_id=$1 AND property_id=$2 AND created_at>=$3 AND state IN ('QUARANTINED','FAILED_FINAL')),
+ extract(epoch FROM now()-$3)::float8`, t.Organisation, v.PropertyID, appliedAt, v.RatePlanID, v.ID.String()).Scan(&connections, &published, &behind, &unconfirmed, &failed, &ageSeconds); e != nil {
 		return rmsJobOutcome{}, e
 	}
-	result := map[string]any{"connections": connections, "unconfirmed_publications": unconfirmed, "failed_sync_jobs": failed, "external_delivery_confirmed": false}
+	age := time.Duration(ageSeconds) * time.Second
+	result := map[string]any{"connections": connections, "published_listings": published, "cursors_behind_change": behind, "unconfirmed_publications": unconfirmed, "failed_sync_jobs": failed, "external_delivery_confirmed": false}
 	now := h.Auth.Service.Now().UTC()
 	key := "recommendation:" + v.ID.String() + ":publication-unknown"
-	if connections == 0 {
-		result["state"] = "NO_ACTIVE_CHANNEL_CONNECTIONS"
+	if connections == 0 || published == 0 {
+		result["state"] = "NO_ACTIVE_PUBLICATIONS"
 		return rmsDone(result), nil
 	}
-	if unconfirmed > 0 || failed > 0 {
+	if behind > 0 || unconfirmed > 0 || failed > 0 {
 		result["state"] = "UNKNOWN"
-		if now.Sub(appliedAt) >= 15*time.Minute || failed > 0 {
+		if age >= 15*time.Minute || failed > 0 {
 			action := "NONE"
-			if now.Sub(appliedAt) >= time.Hour {
+			if age >= time.Hour {
 				action = "ROLLBACK_REVIEW_QUEUED"
 			}
 			if _, e = h.rmsFinding(ctx, tx, t, v.PropertyID, job.ActivationID, &v.ID, "PUBLICATION_UNKNOWN", "WARNING", action, key, result); e != nil {
 				return rmsJobOutcome{}, e
 			}
 		}
-		if now.Sub(appliedAt) > 7*24*time.Hour {
+		if age > 7*24*time.Hour {
 			return rmsDone(result), nil
 		}
 		return rmsLater(now.Add(5*time.Minute), result), nil
 	}
+	result["delivery_observed"] = "ALL_PUBLICATIONS_CONFIRMED_AFTER_CHANGE"
 	result["state"] = "CONFIRMED_BY_DISTRIBUTION_RECORDS"
 	if _, e = tx.Exec(ctx, `UPDATE rms_monitoring_findings SET state='RESOLVED',resolution='Distribution records confirm every publication',resolved_by_service='business-operations-service',resolved_at=now(),version=version+1,updated_at=now() WHERE organisation_id=$1 AND dedupe_key=$2 AND state='OPEN'`, t.Organisation, key); e != nil {
 		return rmsJobOutcome{}, e
