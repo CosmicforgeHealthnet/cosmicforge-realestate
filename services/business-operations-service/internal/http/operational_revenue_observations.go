@@ -74,29 +74,35 @@ func (h *Handler) rmsDemandCreate(w http.ResponseWriter, r *http.Request) {
 		if e = inventory.CheckStockAuthority(ctx, tx, pool); e != nil {
 			return 0, nil, e
 		}
-		property, e := portfolio.Get(ctx, tx, t.Organisation, in.PropertyID)
-		if e != nil {
-			return 0, nil, e
-		}
-		data, historyFrom, e := h.captureRMSDemand(ctx, tx, t, pool, property, in)
-		if e != nil {
-			return 0, nil, e
-		}
-		id := ids.New()
-		digest := hashCommercialPayload(marshalCommercial(data))
-		provenance := map[string]any{"source_service": "business-operations-service", "source_tables": []string{"inventory_calendar", "inventory_holds", "reservation_inventory_days", "reservation_rooms", "reservations"}, "scope": "PHYSICAL_POOL", "pool_version": pool.Version, "property_version": property.Version, "history_from": historyFrom, "historical_calendar_filled": false, "room_revenue_attribution": "EXACT_ACCEPTED_ACCOMMODATION_ALLOCATED_BY_FROZEN_NIGHT_WEIGHTS", "realized_financial_truth": false, "dataset_schema_version": 1}
-		if _, e = tx.Exec(ctx, `INSERT INTO demand_snapshots(id,organisation_id,property_id,pool_id,date_from,date_to,as_of,currency,source_digest,dataset,provenance,created_by) VALUES($1,$2,$3,$4,$5::date,$6::date,$7,$8,$9,$10,$11,$12)`, id, t.Organisation, in.PropertyID, pool.ID, in.DateFrom, in.DateTo, data.AsOf, data.Currency, digest, marshalCommercial(data), marshalCommercial(provenance), t.Account); e != nil {
-			return 0, nil, e
-		}
-		if e = h.captureRMSPace(ctx, tx, t, id, in, data); e != nil {
-			return 0, nil, e
-		}
-		if e = h.commercialCommit(ctx, tx, t, in.PropertyID, id, "demand_snapshot", "RMS_DEMAND_CAPTURED", "revenue.demand_snapshot.created.v1", 1, map[string]any{"snapshot_id": id, "pool_id": pool.ID, "source_digest": digest, "as_of": data.AsOf, "date_from": in.DateFrom, "date_to": in.DateTo, "observed_calendar_days": len(data.Days), "realized_financial_truth": false}); e != nil {
-			return 0, nil, e
-		}
-		out, e := loadRMSDemandSnapshot(ctx, tx, t.Organisation, id)
+		out, e := h.createRMSDemandSnapshot(ctx, tx, t, pool, in)
 		return 201, out, e
 	})
+}
+
+// createRMSDemandSnapshot captures owned demand facts and the matching pace
+// snapshot in the caller's owning transaction (human command or RMS worker).
+func (h *Handler) createRMSDemandSnapshot(ctx context.Context, tx pgx.Tx, t tenant, pool inventory.Pool, in RMSDemandCommand) (RMSDemandSnapshot, error) {
+	property, e := portfolio.Get(ctx, tx, t.Organisation, in.PropertyID)
+	if e != nil {
+		return RMSDemandSnapshot{}, e
+	}
+	data, historyFrom, e := h.captureRMSDemand(ctx, tx, t, pool, property, in)
+	if e != nil {
+		return RMSDemandSnapshot{}, e
+	}
+	id := ids.New()
+	digest := hashCommercialPayload(marshalCommercial(data))
+	provenance := map[string]any{"source_service": "business-operations-service", "source_tables": []string{"inventory_calendar", "inventory_holds", "reservation_inventory_days", "reservation_rooms", "reservations"}, "scope": "PHYSICAL_POOL", "pool_version": pool.Version, "property_version": property.Version, "history_from": historyFrom, "historical_calendar_filled": false, "room_revenue_attribution": "EXACT_ACCEPTED_ACCOMMODATION_ALLOCATED_BY_FROZEN_NIGHT_WEIGHTS", "realized_financial_truth": false, "dataset_schema_version": 1}
+	if _, e = tx.Exec(ctx, `INSERT INTO demand_snapshots(id,organisation_id,property_id,pool_id,date_from,date_to,as_of,currency,source_digest,dataset,provenance,created_by) VALUES($1,$2,$3,$4,$5::date,$6::date,$7,$8,$9,$10,$11,$12)`, id, t.Organisation, in.PropertyID, pool.ID, in.DateFrom, in.DateTo, data.AsOf, data.Currency, digest, marshalCommercial(data), marshalCommercial(provenance), t.Account); e != nil {
+		return RMSDemandSnapshot{}, e
+	}
+	if e = h.captureRMSPace(ctx, tx, t, id, in, data); e != nil {
+		return RMSDemandSnapshot{}, e
+	}
+	if e = h.commercialCommit(ctx, tx, t, in.PropertyID, id, "demand_snapshot", "RMS_DEMAND_CAPTURED", "revenue.demand_snapshot.created.v1", 1, map[string]any{"snapshot_id": id, "pool_id": pool.ID, "source_digest": digest, "as_of": data.AsOf, "date_from": in.DateFrom, "date_to": in.DateTo, "observed_calendar_days": len(data.Days), "realized_financial_truth": false}); e != nil {
+		return RMSDemandSnapshot{}, e
+	}
+	return loadRMSDemandSnapshot(ctx, tx, t.Organisation, id)
 }
 func (h *Handler) captureRMSDemand(ctx context.Context, tx pgx.Tx, t tenant, pool inventory.Pool, property portfolio.Node, in RMSDemandCommand) (revenue.DemandDataset, string, error) {
 	data := revenue.DemandDataset{Currency: property.Currency, Timezone: property.Timezone, Basis: "CONFIRMED_COMMITTED_DEMAND", AsOf: h.Auth.Service.Now().UTC().Truncate(time.Microsecond), Days: []revenue.DemandDay{}, MissingInputs: []string{"realized_stays", "payment_refund_reconciled_revenue", "marketplace_conversion_attribution", "calibrated_price_elasticity", "verified_market_holiday_event_inputs"}}

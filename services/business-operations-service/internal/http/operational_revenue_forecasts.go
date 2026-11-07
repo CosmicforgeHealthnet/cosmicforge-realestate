@@ -85,30 +85,36 @@ func (h *Handler) rmsForecastCreate(w http.ResponseWriter, r *http.Request) {
 				return 0, nil, apperrors.Conflict("RMS_REVISION_SCOPE", "A forecast revision requires the same pool/date scope and a non-older source observation.")
 			}
 		}
-		result, e := revenue.ForecastDemand(source.Dataset, in.Configuration, source.DateFrom, source.DateTo)
-		if e != nil {
-			return 0, nil, apperrors.Conflict("RMS_FORECAST_SOURCE_INVALID", "The retained observation cannot support this explicit model configuration.")
-		}
-		var model struct {
-			ID ids.ID `json:"id"`
-		}
-		raw, e := db.New().GetRMSForecastModel(ctx, tx, db.GetRMSForecastModelParams{ModelKey: revenue.BaselineForecastModel, Version: 1})
-		if e != nil {
-			return 0, nil, e
-		}
-		if e = json.Unmarshal(raw, &model); e != nil {
-			return 0, nil, e
-		}
-		id := ids.New()
-		if _, e = tx.Exec(ctx, `INSERT INTO forecast_runs(id,organisation_id,property_id,pool_id,model_id,source_snapshot_id,source_as_of,source_digest,date_from,date_to,configuration,result,status,supersedes_id,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10::date,$11,$12,$13,$14,$15)`, id, t.Organisation, source.PropertyID, source.PoolID, model.ID, source.ID, source.AsOf, source.SourceDigest, source.DateFrom, source.DateTo, marshalCommercial(in.Configuration), marshalCommercial(result), result.Status, in.SupersedesID, t.Account); e != nil {
-			return 0, nil, e
-		}
-		if e = h.commercialCommit(ctx, tx, t, source.PropertyID, id, "forecast_run", "RMS_FORECAST_CREATED", "revenue.forecast.created.v1", 1, map[string]any{"forecast_id": id, "model_id": model.ID, "model_version": 1, "source_snapshot_id": source.ID, "source_digest": source.SourceDigest, "source_as_of": source.AsOf, "status": result.Status, "history_coverage_bps": result.HistoryCoverageBPS, "is_calibrated_probability": false, "rates_changed": false, "capacity_changed": false}); e != nil {
-			return 0, nil, e
-		}
-		out, e := loadRMSForecast(ctx, tx, t.Organisation, id)
+		out, e := h.createRMSForecastRun(ctx, tx, t, source, in.Configuration, in.SupersedesID)
 		return 201, out, e
 	})
+}
+
+// createRMSForecastRun stores one reproducible baseline forecast for a retained
+// observation. The registered model version and source digest are bound.
+func (h *Handler) createRMSForecastRun(ctx context.Context, tx pgx.Tx, t tenant, source RMSDemandSnapshot, config revenue.ForecastConfiguration, supersedes *ids.ID) (RMSForecastRun, error) {
+	result, e := revenue.ForecastDemand(source.Dataset, config, source.DateFrom, source.DateTo)
+	if e != nil {
+		return RMSForecastRun{}, apperrors.Conflict("RMS_FORECAST_SOURCE_INVALID", "The retained observation cannot support this explicit model configuration.")
+	}
+	var model struct {
+		ID ids.ID `json:"id"`
+	}
+	raw, e := db.New().GetRMSForecastModel(ctx, tx, db.GetRMSForecastModelParams{ModelKey: revenue.BaselineForecastModel, Version: 1})
+	if e != nil {
+		return RMSForecastRun{}, e
+	}
+	if e = json.Unmarshal(raw, &model); e != nil {
+		return RMSForecastRun{}, e
+	}
+	id := ids.New()
+	if _, e = tx.Exec(ctx, `INSERT INTO forecast_runs(id,organisation_id,property_id,pool_id,model_id,source_snapshot_id,source_as_of,source_digest,date_from,date_to,configuration,result,status,supersedes_id,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10::date,$11,$12,$13,$14,$15)`, id, t.Organisation, source.PropertyID, source.PoolID, model.ID, source.ID, source.AsOf, source.SourceDigest, source.DateFrom, source.DateTo, marshalCommercial(config), marshalCommercial(result), result.Status, supersedes, t.Account); e != nil {
+		return RMSForecastRun{}, e
+	}
+	if e = h.commercialCommit(ctx, tx, t, source.PropertyID, id, "forecast_run", "RMS_FORECAST_CREATED", "revenue.forecast.created.v1", 1, map[string]any{"forecast_id": id, "model_id": model.ID, "model_version": 1, "source_snapshot_id": source.ID, "source_digest": source.SourceDigest, "source_as_of": source.AsOf, "status": result.Status, "history_coverage_bps": result.HistoryCoverageBPS, "is_calibrated_probability": false, "rates_changed": false, "capacity_changed": false}); e != nil {
+		return RMSForecastRun{}, e
+	}
+	return loadRMSForecast(ctx, tx, t.Organisation, id)
 }
 func (h *Handler) rmsForecastList(w http.ResponseWriter, r *http.Request) {
 	t, e := h.load(r.Context(), h.Auth.Service.Pool)

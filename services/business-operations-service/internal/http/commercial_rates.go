@@ -258,7 +258,7 @@ func (h *Handler) writeRateVersion(ctx context.Context, tx pgx.Tx, t tenant, pro
 	if !approval.IsZero() {
 		approvalRef = approval
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO rate_plan_versions(id,organisation_id,property_id,rate_plan_id,version,currency,amount_minor,definition,effective_from,effective_to,approval_id,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10::date,$11,$12,$13)`, id, t.Organisation, property, plan, number, d.Currency, d.AmountMinor, raw, from, to, approvalRef, reason, t.Account); e != nil {
+	if _, e = tx.Exec(ctx, `INSERT INTO rate_plan_versions(id,organisation_id,property_id,rate_plan_id,version,currency,amount_minor,definition,effective_from,effective_to,approval_id,reason,created_by,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10::date,$11,$12,$13,$14)`, id, t.Organisation, property, plan, number, d.Currency, d.AmountMinor, raw, from, to, approvalRef, reason, t.Account, h.Auth.Service.Now().UTC()); e != nil {
 		return revenue.RateVersion{}, e
 	}
 	if d.ParentVersionID != nil {
@@ -432,49 +432,56 @@ func (h *Handler) restrictionCreate(w http.ResponseWriter, r *http.Request) {
 		if e != nil {
 			return 0, nil, e
 		}
-		if in.ProductID != nil {
-			p, e := inventory.GetProduct(ctx, tx, t.Organisation, *in.ProductID)
-			if e != nil {
-				return 0, nil, e
-			}
-			if p.PropertyID != in.PropertyID || in.PoolID != nil && *in.PoolID != p.PoolID || in.RatePlanID != nil && (p.RatePlanID == nil || *in.RatePlanID != *p.RatePlanID) {
-				return 0, nil, apperrors.InvalidRequest("Restriction product, pool and rate scope must describe the same canonical product.")
-			}
-		}
-		existing, e := commercialJSONRows(ctx, tx, `SELECT to_jsonb(r) FROM rate_restrictions r WHERE organisation_id=$1 AND property_id=$2 AND state='ACTIVE' AND date_from<$4::date AND date_to>$3::date AND (channel='' OR $5='' OR channel=$5) AND (pool_id IS NULL OR $6::uuid IS NULL OR pool_id=$6) AND (product_id IS NULL OR $7::uuid IS NULL OR product_id=$7) AND (rate_plan_id IS NULL OR $8::uuid IS NULL OR rate_plan_id=$8) ORDER BY id LIMIT 1001`, t.Organisation, in.PropertyID, in.DateFrom, in.DateTo, in.Channel, in.PoolID, in.ProductID, in.RatePlanID)
-		if e != nil {
-			return 0, nil, e
-		}
-		if len(existing) > 1000 {
-			return 0, nil, apperrors.Conflict("RESTRICTION_REVIEW_REQUIRED", "Too many overlapping restrictions; consolidate policy before publishing.")
-		}
-		for _, raw := range existing {
-			var record revenue.RestrictionRecord
-			if e = json.Unmarshal(raw, &record); e != nil {
-				return 0, nil, e
-			}
-			overlap := len(record.Definition.Weekdays) == 0 || len(in.Definition.Weekdays) == 0
-			for _, day := range in.Definition.Weekdays {
-				overlap = overlap || slicesCommercialDay(record.Definition.Weekdays, day)
-			}
-			if overlap {
-				if _, e = revenue.Intersect([]revenue.Restriction{in.Definition, record.Definition}); e != nil {
-					return 0, nil, apperrors.Conflict("RESTRICTION_CONFLICT", "The overlapping hard windows cannot be satisfied together.")
-				}
-			}
-		}
-		id := ids.New()
-		raw, _ := json.Marshal(in.Definition)
-		if _, e = tx.Exec(ctx, `INSERT INTO rate_restrictions(id,organisation_id,property_id,pool_id,product_id,rate_plan_id,channel,date_from,date_to,definition,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8::date,$9::date,$10,$11,$12)`, id, t.Organisation, in.PropertyID, in.PoolID, in.ProductID, in.RatePlanID, in.Channel, in.DateFrom, in.DateTo, raw, in.Reason, t.Account); e != nil {
-			return 0, nil, e
-		}
-		record, e := typedJSON[revenue.RestrictionRecord](ctx, tx, `SELECT to_jsonb(r) FROM rate_restrictions r WHERE organisation_id=$1 AND id=$2`, t.Organisation, id)
-		if e != nil {
-			return 0, nil, e
-		}
-		e = h.commercialCommit(ctx, tx, t, in.PropertyID, id, "rate_restriction", "RESTRICTION_CREATED", businessEvents.InventoryChanged, 1, record)
+		record, e := h.createRestriction(ctx, tx, t, in)
 		return 201, record, e
 	})
+}
+
+// createRestriction validates overlap feasibility and appends one canonical
+// restriction in the caller's owning transaction (staff or approved RMS).
+func (h *Handler) createRestriction(ctx context.Context, tx pgx.Tx, t tenant, in CommercialRestrictionCreate) (revenue.RestrictionRecord, error) {
+	if in.ProductID != nil {
+		p, e := inventory.GetProduct(ctx, tx, t.Organisation, *in.ProductID)
+		if e != nil {
+			return revenue.RestrictionRecord{}, e
+		}
+		if p.PropertyID != in.PropertyID || in.PoolID != nil && *in.PoolID != p.PoolID || in.RatePlanID != nil && (p.RatePlanID == nil || *in.RatePlanID != *p.RatePlanID) {
+			return revenue.RestrictionRecord{}, apperrors.InvalidRequest("Restriction product, pool and rate scope must describe the same canonical product.")
+		}
+	}
+	existing, e := commercialJSONRows(ctx, tx, `SELECT to_jsonb(r) FROM rate_restrictions r WHERE organisation_id=$1 AND property_id=$2 AND state='ACTIVE' AND date_from<$4::date AND date_to>$3::date AND (channel='' OR $5='' OR channel=$5) AND (pool_id IS NULL OR $6::uuid IS NULL OR pool_id=$6) AND (product_id IS NULL OR $7::uuid IS NULL OR product_id=$7) AND (rate_plan_id IS NULL OR $8::uuid IS NULL OR rate_plan_id=$8) ORDER BY id LIMIT 1001`, t.Organisation, in.PropertyID, in.DateFrom, in.DateTo, in.Channel, in.PoolID, in.ProductID, in.RatePlanID)
+	if e != nil {
+		return revenue.RestrictionRecord{}, e
+	}
+	if len(existing) > 1000 {
+		return revenue.RestrictionRecord{}, apperrors.Conflict("RESTRICTION_REVIEW_REQUIRED", "Too many overlapping restrictions; consolidate policy before publishing.")
+	}
+	for _, raw := range existing {
+		var record revenue.RestrictionRecord
+		if e = json.Unmarshal(raw, &record); e != nil {
+			return revenue.RestrictionRecord{}, e
+		}
+		overlap := len(record.Definition.Weekdays) == 0 || len(in.Definition.Weekdays) == 0
+		for _, day := range in.Definition.Weekdays {
+			overlap = overlap || slicesCommercialDay(record.Definition.Weekdays, day)
+		}
+		if overlap {
+			if _, e = revenue.Intersect([]revenue.Restriction{in.Definition, record.Definition}); e != nil {
+				return revenue.RestrictionRecord{}, apperrors.Conflict("RESTRICTION_CONFLICT", "The overlapping hard windows cannot be satisfied together.")
+			}
+		}
+	}
+	id := ids.New()
+	raw, _ := json.Marshal(in.Definition)
+	if _, e = tx.Exec(ctx, `INSERT INTO rate_restrictions(id,organisation_id,property_id,pool_id,product_id,rate_plan_id,channel,date_from,date_to,definition,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8::date,$9::date,$10,$11,$12)`, id, t.Organisation, in.PropertyID, in.PoolID, in.ProductID, in.RatePlanID, in.Channel, in.DateFrom, in.DateTo, raw, in.Reason, t.Account); e != nil {
+		return revenue.RestrictionRecord{}, e
+	}
+	record, e := typedJSON[revenue.RestrictionRecord](ctx, tx, `SELECT to_jsonb(r) FROM rate_restrictions r WHERE organisation_id=$1 AND id=$2`, t.Organisation, id)
+	if e != nil {
+		return revenue.RestrictionRecord{}, e
+	}
+	e = h.commercialCommit(ctx, tx, t, in.PropertyID, id, "rate_restriction", "RESTRICTION_CREATED", businessEvents.InventoryChanged, 1, record)
+	return record, e
 }
 func slicesCommercialDay(days []int, day int) bool {
 	for _, d := range days {

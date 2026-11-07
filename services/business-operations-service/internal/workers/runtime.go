@@ -152,6 +152,14 @@ func (r *Runtime) Run(ctx context.Context) error {
 			if err != nil && ctx.Err() == nil {
 				r.log.Error("reservation financial reconciliation failed", "error", err.Error())
 			}
+			// Durable leased RMS automation jobs: schedule, capture, forecast,
+			// recommend, approval submission/monitoring, application and monitoring.
+			call, cancel = context.WithTimeout(ctx, 30*time.Second)
+			err = r.Inventory.ProcessRMSAutomation(call, 10)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("rms automation batch failed", "error", err.Error())
+			}
 		}
 		if !time.Now().Before(nextMaintenance) {
 			nextMaintenance = time.Now().Add(time.Minute)
