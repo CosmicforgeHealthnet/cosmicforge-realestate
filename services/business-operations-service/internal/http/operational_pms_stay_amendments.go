@@ -172,6 +172,9 @@ func requireStayChainBacking(ctx context.Context, q database.Querier, org ids.ID
 			return e
 		}
 	}
+	if to <= line.DateTo {
+		return nil
+	}
 	rows, e := commercialJSONRows(ctx, q, `SELECT jsonb_build_object('room_id',extension_room_id,'date_from',date_from,'date_to',date_to) FROM stay_extensions WHERE organisation_id=$1 AND source_room_id=$2 AND slot=$3 AND date_to>$4::date AND date_from<$5::date ORDER BY date_from`, org, line.ID, slot, from, to)
 	if e != nil {
 		return e
@@ -594,7 +597,7 @@ func (h *Handler) pmsStayExtensionCollection(w http.ResponseWriter, r *http.Requ
 
 // stayExtensionCollectionAuthority is the in-house authority for a queued
 // guest extension collection: the stay's folio must still be reviewable.
-func (h *Handler) stayExtensionCollectionAuthority(ctx context.Context, tx pgx.Tx, t tenant, job reservationFinancialJob) (bool, error) {
+func (h *Handler) stayExtensionCollectionAuthority(ctx context.Context, tx pgx.Tx, _ tenant, job reservationFinancialJob) (bool, error) {
 	var folioState, reservationState string
 	var departed bool
 	e := tx.QueryRow(ctx, `SELECT f.state,r.state,EXISTS(SELECT 1 FROM stay_early_departures d WHERE d.organisation_id=x.organisation_id AND d.stay_id=x.stay_id) FROM stay_extension_payers p JOIN stay_extensions x ON x.organisation_id=p.organisation_id AND x.id=p.extension_id JOIN folios f ON f.organisation_id=x.organisation_id AND f.id=x.folio_id JOIN reservations r ON r.organisation_id=x.organisation_id AND r.id=x.reservation_id WHERE p.organisation_id=$1 AND p.financial_group_id=$2 AND p.payer_kind='GUEST' AND p.responsibility='PLATFORM_COLLECT'`, job.OrganisationID, job.FinancialGroupID).Scan(&folioState, &reservationState, &departed)

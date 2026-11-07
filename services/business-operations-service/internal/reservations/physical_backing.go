@@ -18,8 +18,16 @@ func RequirePhysicalBacking(ctx context.Context, q database.Querier, org, room i
 	if e != nil {
 		return e
 	}
+	released := `0`
+	ledger, e := inHouseSchema(ctx, q)
+	if e != nil {
+		return e
+	}
+	if ledger {
+		released = `(SELECT count(*) FROM reservation_unit_release_days u WHERE u.organisation_id=d.organisation_id AND u.room_id=d.room_id AND u.day=d.day)`
+	}
 	var backed bool
-	e = q.QueryRow(ctx, `SELECT count(*)=$5 AND coalesce(bool_and(r.state='ACTIVE' AND root.state IN ('CONFIRMED','CHECKED_IN') AND d.released_at IS NULL AND d.quantity=r.quantity-(SELECT count(*) FROM reservation_unit_release_days u WHERE u.organisation_id=d.organisation_id AND u.room_id=d.room_id AND u.day=d.day) AND d.overbooked_quantity=coalesce((SELECT sum(j.quantity) FROM reservation_overbooking_releases j WHERE j.organisation_id=d.organisation_id AND j.room_id=d.room_id AND j.day=d.day AND j.kind='CONVERTED'),0)),false) FROM reservation_inventory_days d JOIN reservation_rooms r ON r.organisation_id=d.organisation_id AND r.id=d.room_id JOIN reservations root ON root.organisation_id=r.organisation_id AND root.id=r.reservation_id WHERE d.organisation_id=$1 AND d.room_id=$2 AND d.day>=$3::date AND d.day<$4::date`, org, room, dates.DateFrom, dates.DateTo, len(days)).Scan(&backed)
+	e = q.QueryRow(ctx, `SELECT count(*)=$5 AND coalesce(bool_and(r.state='ACTIVE' AND root.state IN ('CONFIRMED','CHECKED_IN') AND d.released_at IS NULL AND d.quantity=r.quantity-`+released+` AND d.overbooked_quantity=coalesce((SELECT sum(j.quantity) FROM reservation_overbooking_releases j WHERE j.organisation_id=d.organisation_id AND j.room_id=d.room_id AND j.day=d.day AND j.kind='CONVERTED'),0)),false) FROM reservation_inventory_days d JOIN reservation_rooms r ON r.organisation_id=d.organisation_id AND r.id=d.room_id JOIN reservations root ON root.organisation_id=r.organisation_id AND root.id=r.reservation_id WHERE d.organisation_id=$1 AND d.room_id=$2 AND d.day>=$3::date AND d.day<$4::date`, org, room, dates.DateFrom, dates.DateTo, len(days)).Scan(&backed)
 	if e != nil {
 		return e
 	}

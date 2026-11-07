@@ -83,10 +83,23 @@ func ReleaseUnitNights(ctx context.Context, tx pgx.Tx, org, actor, releaseID ids
 	return out, nil
 }
 
+// inHouseSchema reports whether the in-house amendment ledger exists. During a
+// rolling upgrade an older schema has no extensions or released unit nights,
+// so the original accepted line remains the complete answer.
+func inHouseSchema(ctx context.Context, q database.Querier) (bool, error) {
+	var ready bool
+	e := q.QueryRow(ctx, `SELECT to_regclass('reservation_unit_release_days') IS NOT NULL AND to_regclass('stay_extensions') IS NOT NULL`).Scan(&ready)
+	return ready, e
+}
+
 // StayChainEnd is the exclusive end of one unit slot: the accepted line end or
 // the last contiguous in-house extension of that slot.
 func StayChainEnd(ctx context.Context, q database.Querier, org ids.ID, room Room, slot int) (string, error) {
+	ready, e := inHouseSchema(ctx, q)
+	if e != nil || !ready {
+		return room.DateTo, e
+	}
 	var end string
-	e := q.QueryRow(ctx, `SELECT greatest($3::date,coalesce(max(date_to),$3::date))::text FROM stay_extensions WHERE organisation_id=$1 AND source_room_id=$2 AND slot=$4`, org, room.ID, room.DateTo, slot).Scan(&end)
+	e = q.QueryRow(ctx, `SELECT greatest($3::date,coalesce(max(date_to),$3::date))::text FROM stay_extensions WHERE organisation_id=$1 AND source_room_id=$2 AND slot=$4`, org, room.ID, room.DateTo, slot).Scan(&end)
 	return end, e
 }

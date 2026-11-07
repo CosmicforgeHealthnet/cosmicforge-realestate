@@ -275,17 +275,22 @@ func TestBusinessPMSConcurrentInHouseAmendmentsAreFenced(t *testing.T) {
 	}
 	// Same-stay race: an extension and an early departure prepared against the
 	// same versions; the loser sees the winner's version change.
-	ext, eq := x.extension(1, 1, "RESERVATION_TERMS")
-	departure, _ := x.earlyDeparture(1)
+	// The race winner's unit owns the next free extension night.
+	w := 0
+	if x.count(`SELECT count(*) FROM stay_extensions WHERE stay_id=$1`, x.stays[1]) == 1 {
+		w = 1
+	}
+	ext, eq := x.extension(w, 1, "RESERVATION_TERMS")
+	departure, _ := x.earlyDeparture(w)
 	ext.ReservationVersion = departure.ReservationVersion
-	ext = x.approveExtension(1, ext, eq.AmountMinor)
+	ext = x.approveExtension(w, ext, eq.AmountMinor)
 	results := make(chan int, 2)
 	go func() {
-		code, _ := c.call(c.owner, "POST", "/stays/"+x.stays[1].String()+"/extensions", ext, nil)
+		code, _ := c.call(c.owner, "POST", "/stays/"+x.stays[w].String()+"/extensions", ext, nil)
 		results <- code
 	}()
 	go func() {
-		code, _ := c.call(c.owner, "POST", "/stays/"+x.stays[1].String()+"/early-departure", departure, nil)
+		code, _ := c.call(c.owner, "POST", "/stays/"+x.stays[w].String()+"/early-departure", departure, nil)
 		results <- code
 	}()
 	a, b := <-results, <-results
