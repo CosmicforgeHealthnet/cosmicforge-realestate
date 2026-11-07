@@ -58,6 +58,8 @@ func (h *Handler) registerReservations(r chi.Router) {
 	h.registerReservationWaitlistRejection(r)
 	h.registerReservationAmendments(r)
 	h.registerReservationLineage(r)
+	h.registerReservationQuantity(r)
+	h.registerReservationWaitlistAutomation(r)
 	h.registerReservationConflicts(r)
 	h.registerReservationOverbooking(r)
 }

@@ -89,3 +89,6 @@ REVOKE DELETE,TRUNCATE ON privacy_requests,legal_holds,data_retention_jobs FROM 
 -- Section 11 guest merge lineage and durable notifications.
 REVOKE UPDATE,DELETE,TRUNCATE ON guest_merge_references,guest_notification_attempts,waitlist_guest_bindings FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON guest_merges,guest_notification_templates,guest_notification_suppressions,guest_notification_jobs FROM cf_business_runtime;
+-- Section 9 quantity fragmentation ledger, slot maps and waitlist automation evidence.
+REVOKE UPDATE,DELETE,TRUNCATE ON reservation_quantity_changes,reservation_quantity_change_days,reservation_room_slot_maps,waitlist_automation_policies,waitlist_automation_runs,waitlist_automation_offers FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON inventory_release_signals,waitlist_automation_leases FROM cf_business_runtime;

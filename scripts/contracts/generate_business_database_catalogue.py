@@ -109,7 +109,7 @@ for entry in entries:
             ('workforce',('staff_','branches','departments','teams','regions','role_','permissions')),
             ('approvals',('approval_','delegation_grants','break_glass_')),
             ('portfolio',('inventory_graph_versions','inventory_nodes','inventory_edges','inventory_edge_','inventory_history','inventory_external_','inventory_import_','inventory_verification_','inventory_media_','space_graphs','digital_twin_refs','portfolios','developments','development_phases','parcels','properties','buildings','blocks','floors','units','room_types','rooms','facilities','common_areas','assets')),
-            ('inventory',('inventory_pools','inventory_pool_members','inventory_calendar','inventory_holds','inventory_hold_days','inventory_allotments','inventory_allotment_days','sellable_products')),
+            ('inventory',('inventory_pools','inventory_pool_members','inventory_calendar','inventory_holds','inventory_hold_days','inventory_allotments','inventory_allotment_days','inventory_release_signals','sellable_products')),
             ('reservations',('reservations','reservation_','waitlist_')),
             ('hospitality',('group_blocks','rooming_lists','master_folios','master_folio_members','event_bookings','offline_','cash_','cashier_','night_audit','night_audits','night_audit_','business_day_','room_status_','room_reconciliation_','room_assignments','room_assignment_','stay_records','folios','folio_','hospitality_','guest_requests','access_grant_references')),
             ('crm',('crm_history_','stay_history_projection','loyalty_','vip_classifications','service_recovery_','privacy_requests','legal_holds','data_retention_jobs','guest_','consents','customer_accounts_projection','corporate_')),

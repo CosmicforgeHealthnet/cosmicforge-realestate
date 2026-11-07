@@ -3,6 +3,7 @@ import re
 from business_pms_routes import register_pms,pms_queries,pms_examples
 from business_crm_routes import register_crm,crm_queries,crm_examples
 from business_crm_merge_routes import register_crm_merge,crm_merge_queries,crm_merge_examples
+from business_reservation_quantity_routes import register_reservation_quantity,reservation_quantity_notes,reservation_quantity_queries,reservation_quantity_examples
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
@@ -123,6 +124,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  data.update(register_crm(s,obj,arr,ref,typ))
  data.update(register_crm_merge(s,obj,arr,ref,typ))
  data.update(register_pms(s,obj,arr,ref,typ))
+ data.update(register_reservation_quantity(s,obj,arr,ref,typ))
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
   for method,path,handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',p.read_text(encoding='utf-8')):
@@ -157,7 +159,8 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler.startswith('loyalty'):note+='Optional policy-driven loyalty: points are domain benefits, never money or a Payment wallet. Programme and rule versions need recent MFA and exact independent COMMERCIAL_LOYALTY_PROGRAM approval. Enrolment requires current LOYALTY consent. Accrual requires an actual departed, canonically COMPLETED stay with a closed folio and is unique per stay; duplicates replay without new points. Reconcile reverses earnings whose stay or financial backing no longer qualifies and retires expired points; negative balances restrict the account for review. Redemption is idempotent per request reference and cannot overdraw. '
    if handler.startswith('crm'):note+='Guest/corporate records are property-scoped; contact/accessibility fields use protected storage and purpose-specific capabilities/current consent. Source identity links require authenticated evidence and exact independent approval. Marketplace accounts and Payment financial outcomes remain externally owned. '
    if handler.startswith('rms'):note+='Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. '
-   if handler.startswith('reservationWaitlist'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
+   note+=reservation_quantity_notes(handler)
+   if handler.startswith('reservationWaitlist') and not handler.startswith('reservationWaitlistAutomation'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
    route.__globals__['R'][-1]['handler']=handler
    if handler=='pmsFiscalReview':route.__globals__['R'][-1]['success_statuses']=[200];route.__globals__['R'][-1]['success_example_overrides']={'200':{'changed':False}};route.__globals__['R'][-1]['success_description_overrides']={'200':'Original source detail unchanged; no new version or charge.'}
@@ -173,6 +176,8 @@ def operational_queries(handler):
  if pms is not None:return pms
  merge=crm_merge_queries(handler)
  if merge is not None:return merge
+ quantity=reservation_quantity_queries(handler)
+ if quantity is not None:return quantity
  crm=crm_queries(handler)
  if crm is not None:return crm
  if handler=='rmsMetricsGet':return [('snapshot_id','uuid',True)]
@@ -190,6 +195,7 @@ def operational_examples(uid):
  **crm_examples(uid),
  **crm_merge_examples(uid),
  **pms_examples(uid),
+ **reservation_quantity_examples(uid),
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
  'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},
  'ReservationOverbookingPolicyCommand':{'property_id':uid,'pool_id':uid,'expected_version':0,'definition':{'max_quantity':1,'max_capacity_bps':10000,'allowed_sources':['DIRECT'],'effective_at':'2026-11-01T00:00:00Z','expires_at':'2026-11-10T00:00:00Z','policy_reference':'approved-exception-policy:v1'},'state':'ACTIVE','approval_id':uid,'reason':'Explicit independent property overbooking policy'},

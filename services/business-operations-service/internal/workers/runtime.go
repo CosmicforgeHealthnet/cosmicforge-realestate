@@ -161,6 +161,7 @@ func (r *Runtime) Run(ctx context.Context) error {
 					run  func(context.Context, int) error
 				}{
 					{"reservation", r.Inventory.ProcessReservationMaintenance},
+					{"reservation-waitlist-automation", r.Inventory.ProcessWaitlistAutomation},
 					{"commercial", r.Inventory.ProcessCommercialMaintenance},
 					{"rms", r.Inventory.ProcessRMSMaintenance},
 					{"hospitality", r.Inventory.ProcessHospitalityMaintenance},
