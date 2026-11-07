@@ -1253,6 +1253,134 @@ type GuestIdentityLink struct {
 	UpdatedAt           time.Time
 }
 
+type GuestMerge struct {
+	ID                         ids.ID
+	OrganisationID             ids.ID
+	PropertyID                 ids.ID
+	SourceGuestID              ids.ID
+	TargetGuestID              ids.ID
+	MatchBasis                 string
+	OwnershipEvidenceReference string
+	Risk                       string
+	State                      string
+	Preview                    []byte
+	PreviewDigest              string
+	SourceVersion              int64
+	TargetVersion              int64
+	PreviewExpiresAt           time.Time
+	ApprovalID                 *ids.ID
+	MergedBy                   *ids.ID
+	MergedAt                   *time.Time
+	ReversalReason             *string
+	ReversalApprovalID         *ids.ID
+	ReversedBy                 *ids.ID
+	ReversedAt                 *time.Time
+	Reason                     string
+	Version                    int64
+	CreatedBy                  ids.ID
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
+}
+
+type GuestMergeReference struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	MergeID        ids.ID
+	EntityType     string
+	EntityID       ids.ID
+	FromGuestID    ids.ID
+	ToGuestID      ids.ID
+	Operation      string
+	Details        []byte
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type GuestNotificationAttempt struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	JobID                  ids.ID
+	Attempt                int32
+	Outcome                string
+	Detail                 string
+	ProviderNotificationID *ids.ID
+	ActorID                *ids.ID
+	CreatedAt              time.Time
+}
+
+type GuestNotificationJob struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	PropertyID             ids.ID
+	RecipientKind          string
+	GuestID                *ids.ID
+	CorporateID            *ids.ID
+	ResolvedGuestID        *ids.ID
+	SourceKind             string
+	SourceID               ids.ID
+	Kind                   string
+	Purpose                string
+	ConsentPurposes        []string
+	State                  string
+	TemplateID             *ids.ID
+	TemplateVersion        *int64
+	Channel                *string
+	Variables              []byte
+	Attempts               int32
+	MaxAttempts            int32
+	AvailableAt            time.Time
+	ExpiresAt              time.Time
+	LeaseOwner             *string
+	LeaseGeneration        int64
+	LeaseExpiresAt         *time.Time
+	ProviderNotificationID *ids.ID
+	ProviderSuppressed     []byte
+	DeliveryStatus         string
+	OutcomeReason          *string
+	LastError              *string
+	AcceptedAt             *time.Time
+	Version                int64
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+}
+
+type GuestNotificationSuppression struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	GuestID           ids.ID
+	Scope             string
+	Kind              *string
+	State             string
+	EvidenceReference string
+	Reason            string
+	LiftReason        *string
+	LiftedBy          *ids.ID
+	LiftedAt          *time.Time
+	Version           int64
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+}
+
+type GuestNotificationTemplate struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	Kind                string
+	Version             int64
+	ProviderTemplateKey string
+	Purpose             string
+	Channels            []string
+	State               string
+	ApprovalID          ids.ID
+	Reason              string
+	CreatedBy           ids.ID
+	CreatedAt           time.Time
+	RetiredBy           *ids.ID
+	RetiredAt           *time.Time
+}
+
 type GuestPreference struct {
 	ID                   ids.ID
 	OrganisationID       ids.ID
@@ -1870,6 +1998,18 @@ type InventoryPoolMember struct {
 	NodeID         ids.ID
 	Capacity       int32
 	NodeVersion    int64
+}
+
+type InventoryReleaseSignal struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	PoolID         ids.ID
+	Day            pgtype.Date
+	Source         string
+	ObservedAt     time.Time
+	ProcessedAt    *time.Time
+	RunID          *ids.ID
 }
 
 type InventoryVerificationLink struct {
@@ -2836,6 +2976,57 @@ type ReservationPriceSnapshot struct {
 	CreatedAt        time.Time
 }
 
+type ReservationQuantityChange struct {
+	ID                            ids.ID
+	OrganisationID                ids.ID
+	PropertyID                    ids.ID
+	ReservationID                 ids.ID
+	TargetReservationID           ids.ID
+	Action                        string
+	SourceRoomIds                 []ids.ID
+	FamilyRootRoomID              ids.ID
+	RemainingRoomID               ids.ID
+	TransferredRoomID             *ids.ID
+	CancelledRoomID               *ids.ID
+	OriginalQuantity              int32
+	RemainingQuantity             int32
+	TransferredQuantity           int32
+	ReleasedQuantity              int32
+	OriginalAmountMinor           int64
+	RemainingAmountMinor          int64
+	TransferredAmountMinor        int64
+	ReleasedAmountMinor           int64
+	OriginalAccommodationMinor    *int64
+	RemainingAccommodationMinor   *int64
+	TransferredAccommodationMinor *int64
+	ReleasedAccommodationMinor    *int64
+	Currency                      string
+	SourceVersion                 int64
+	TargetVersion                 int64
+	ApprovalID                    *ids.ID
+	RequestDigest                 string
+	Reason                        string
+	CreatedBy                     ids.ID
+	CreatedAt                     time.Time
+}
+
+type ReservationQuantityChangeDay struct {
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	ChangeID            ids.ID
+	PoolID              ids.ID
+	Day                 pgtype.Date
+	OriginalQuantity    int32
+	RemainingQuantity   int32
+	TransferredQuantity int32
+	ReleasedQuantity    int32
+	OriginalAllotted    int32
+	RemainingAllotted   int32
+	TransferredAllotted int32
+	ReleasedAllotted    int32
+	CreatedAt           time.Time
+}
+
 type ReservationRiskProjection struct {
 	ID               ids.ID
 	OrganisationID   ids.ID
@@ -2884,6 +3075,16 @@ type ReservationRoom struct {
 	CreatedBy          *ids.ID
 	CreatedByService   string
 	CreatedAt          time.Time
+}
+
+type ReservationRoomSlotMap struct {
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	RoomID         ids.ID
+	RootRoomID     ids.ID
+	RootQuantity   int32
+	SourceSlots    []int32
+	CreatedAt      time.Time
 }
 
 type ReservationSourceRef struct {
@@ -3340,6 +3541,67 @@ type VipClassification struct {
 	CreatedAt         time.Time
 }
 
+type WaitlistAutomationLease struct {
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	LeaseOwner      *string
+	LeaseGeneration int64
+	LeaseExpiresAt  *time.Time
+	LastCompletedAt *time.Time
+	RunRequestedAt  *time.Time
+	UpdatedAt       time.Time
+}
+
+type WaitlistAutomationOffer struct {
+	OfferID         ids.ID
+	OrganisationID  ids.ID
+	PropertyID      ids.ID
+	EntryID         ids.ID
+	RunID           ids.ID
+	PolicyID        ids.ID
+	PolicyVersion   int64
+	AttemptNumber   int32
+	LeaseGeneration int64
+	CreatedAt       time.Time
+}
+
+type WaitlistAutomationPolicy struct {
+	ID                      ids.ID
+	OrganisationID          ids.ID
+	PropertyID              ids.ID
+	Version                 int64
+	Mode                    string
+	Channel                 string
+	OfferSeconds            int32
+	MaxOffersPerEntry       int32
+	MaxOffersPerRun         int32
+	ApprovalID              *ids.ID
+	AuthorizingMembershipID ids.ID
+	AuthorizingRoleID       ids.ID
+	EffectiveAt             time.Time
+	ExpiresAt               time.Time
+	Reason                  string
+	CreatedBy               ids.ID
+	CreatedAt               time.Time
+}
+
+type WaitlistAutomationRun struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	PolicyID         *ids.ID
+	PolicyVersion    *int64
+	LeaseOwner       string
+	LeaseGeneration  int64
+	Trigger          string
+	State            string
+	OffersCreated    int32
+	SignalsProcessed int32
+	Evaluations      []byte
+	CreatedByService string
+	CreatedAt        time.Time
+}
+
 type WaitlistEntry struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -3360,6 +3622,17 @@ type WaitlistEntry struct {
 	CreatedBy             *ids.ID
 	CreatedByService      string
 	CreatedAt             time.Time
+}
+
+type WaitlistGuestBinding struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	EntryID           ids.ID
+	GuestID           ids.ID
+	EvidenceReference string
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
 }
 
 type WaitlistOffer struct {
