@@ -2,6 +2,7 @@
 import re
 from business_pms_routes import register_pms,pms_queries,pms_examples
 from business_crm_routes import register_crm,crm_queries,crm_examples
+from business_crm_merge_routes import register_crm_merge,crm_merge_queries,crm_merge_examples
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
@@ -120,6 +121,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  'reservationLineageGet':('reservations:read',None,'ReservationRawList',200,False),
  }
  data.update(register_crm(s,obj,arr,ref,typ))
+ data.update(register_crm_merge(s,obj,arr,ref,typ))
  data.update(register_pms(s,obj,arr,ref,typ))
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
@@ -169,6 +171,8 @@ def register_operations(root,s,route,obj,arr,ref,typ):
 def operational_queries(handler):
  pms=pms_queries(handler)
  if pms is not None:return pms
+ merge=crm_merge_queries(handler)
+ if merge is not None:return merge
  crm=crm_queries(handler)
  if crm is not None:return crm
  if handler=='rmsMetricsGet':return [('snapshot_id','uuid',True)]
@@ -184,6 +188,7 @@ def operational_examples(uid):
  policy={'allowed_payment_policy_ids':[uid],'allow_source_cancellation':False,'max_guarantee_minor':100000,'allowed_sources':['DIRECT','MARKETPLACE'],'allowed_guarantees':['PAY_AT_PROPERTY'],'hold_seconds':600,'require_approval':False,'require_risk_clear':True,'cancellation_hours':24,'cancellation_penalty_bps':5000,'no_show_grace_hours':2,'no_show_retain_nights':1,'check_in_local':'14:00','check_out_local':'11:00','policy_reference':'operator-approved-hotel-terms:v1'}
  return {
  **crm_examples(uid),
+ **crm_merge_examples(uid),
  **pms_examples(uid),
  'ReservationConflictDecision':{'version':1,'action':'RETRY','approval_id':uid,'reason':'Retry the exact authenticated receipt after independent inventory review','evidence_references':['approved-source-reconciliation-reference']},
  'ReservationWaitlistRejection':{'version':2,'offer_version':1,'continue_waiting':True,'reason':'Decline this offer and keep the original request waiting'},

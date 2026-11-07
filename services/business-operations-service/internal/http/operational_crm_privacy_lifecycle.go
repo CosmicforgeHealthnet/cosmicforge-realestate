@@ -147,7 +147,9 @@ func (h *Handler) privacyTarget(r *http.Request, capability string, mfa bool) (t
 
 func activeLegalHold(ctx context.Context, q database.Querier, org, guest ids.ID) (bool, error) {
 	var held bool
-	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM legal_holds WHERE organisation_id=$1 AND guest_id=$2 AND state='ACTIVE')`, org, guest).Scan(&held)
+	// Holds attached to any record merged into the same canonical identity
+	// also protect it; a merge never escapes a legal hold.
+	e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM legal_holds h WHERE h.organisation_id=$1 AND h.state='ACTIVE' AND (h.guest_id=$2 OR business_guest_canonical($1,h.guest_id)=business_guest_canonical($1,$2)))`, org, guest).Scan(&held)
 	return held, e
 }
 
