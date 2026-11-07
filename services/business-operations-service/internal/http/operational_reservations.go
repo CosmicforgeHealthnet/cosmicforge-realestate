@@ -294,7 +294,7 @@ func (h *Handler) createReservationTx(ctx context.Context, tx pgx.Tx, t tenant, 
 			return out, apperrors.PermissionDenied("Active group scope does not match this property.")
 		}
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO reservations(id,organisation_id,property_id,source,channel,source_reference,state,group_id,policy_id,policy_snapshot,payment_responsibility,financial_state,amount_minor,currency,date_from,date_to,hold_expires_at,reason,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::date,$16::date,$17,$18,$19)`, id, t.Organisation, in.PropertyID, in.Source, in.Channel, in.SourceReference, initialReservationState(state), group, policy.ID, marshalCommercial(policy.Definition), in.PaymentResponsibility, financial, amount, currency, from, to, deadline, in.Reason, t.Account); e != nil {
+	if _, e = tx.Exec(ctx, `INSERT INTO reservations(id,organisation_id,property_id,source,channel,source_reference,state,group_id,policy_id,policy_snapshot,payment_responsibility,financial_state,amount_minor,currency,date_from,date_to,hold_expires_at,reason,created_by,corporate_id,corporate_contract_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::date,$16::date,$17,$18,$19,$20,$21)`, id, t.Organisation, in.PropertyID, in.Source, in.Channel, in.SourceReference, initialReservationState(state), group, policy.ID, marshalCommercial(policy.Definition), in.PaymentResponsibility, financial, amount, currency, from, to, deadline, in.Reason, t.Account, in.CorporateID, in.CorporateContractID); e != nil {
 		return out, e
 	}
 	var guaranteeApproval any

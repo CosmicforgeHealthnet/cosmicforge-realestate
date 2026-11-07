@@ -85,3 +85,7 @@ REVOKE DELETE,TRUNCATE ON service_recovery_cases,service_recovery_compensation_r
 -- Section 11 privacy lifecycle and classification history.
 REVOKE UPDATE,DELETE,TRUNCATE ON vip_classifications,guest_segments,guest_segment_memberships FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON privacy_requests,legal_holds,data_retention_jobs FROM cf_business_runtime;
+
+-- Section 11 guest merge lineage and durable notifications.
+REVOKE UPDATE,DELETE,TRUNCATE ON guest_merge_references,guest_notification_attempts,waitlist_guest_bindings FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON guest_merges,guest_notification_templates,guest_notification_suppressions,guest_notification_jobs FROM cf_business_runtime;

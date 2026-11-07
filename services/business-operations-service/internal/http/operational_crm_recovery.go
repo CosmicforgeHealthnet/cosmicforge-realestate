@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/crm"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
@@ -604,4 +605,30 @@ func (h *Handler) crmRecoveryCompensationOutcome(w http.ResponseWriter, r *http.
 		out, e := loadRecoveryCase(ctx, tx, t.Organisation, c.ID, now, false)
 		return 200, map[string]any{"case": out, "compensation_id": comp.ID, "state": state, "execution_reference": reference}, e
 	})
+}
+
+// openOverbookingRecovery opens the customer recovery case for an approved
+// overbooking in the same transaction as the confirming staff decision. Only a
+// registered guest in property scope receives a case; otherwise the
+// reconciliation case carries the obligation and nothing is invented.
+func (h *Handler) openOverbookingRecovery(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, permit ids.ID, recoveryReference string) (*ids.ID, error) {
+	var guest ids.ID
+	e := tx.QueryRow(ctx, `SELECT g.guest_id FROM reservation_guests g JOIN guest_property_scopes s ON s.organisation_id=g.organisation_id AND s.guest_id=g.guest_id AND s.property_id=g.property_id AND s.state='ACTIVE' JOIN guest_profiles p ON p.organisation_id=g.organisation_id AND p.id=g.guest_id AND p.state IN ('ACTIVE','RESTRICTED') WHERE g.organisation_id=$1 AND g.reservation_id=$2 AND g.guest_id IS NOT NULL ORDER BY g.is_primary DESC,g.created_at,g.id LIMIT 1`, t.Organisation, v.ID).Scan(&guest)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if e != nil {
+		return nil, e
+	}
+	now := h.Auth.Service.Now().UTC()
+	id := ids.New()
+	evidence := "overbooking-permit:" + permit.String()
+	if _, e = tx.Exec(ctx, `INSERT INTO service_recovery_cases(id,organisation_id,property_id,guest_id,reservation_id,issue_type,severity,summary,evidence_reference,sla_due_at,created_by) VALUES($1,$2,$3,$4,$5,'OVERBOOKING','HIGH',$6,$7,$8,$9)`, id, t.Organisation, v.PropertyID, guest, v.ID, "Approved overbooking requires customer recovery: "+recoveryReference, evidence, now.Add(recoverySLA("HIGH")), t.Account); e != nil {
+		return nil, e
+	}
+	c, e := loadRecoveryCase(ctx, tx, t.Organisation, id, now, false)
+	if e != nil {
+		return nil, e
+	}
+	return &id, h.recoveryCommit(ctx, tx, t, c, 1, "OPENED", "OPEN", "OPEN", evidence, map[string]any{"issue_type": "OVERBOOKING", "severity": "HIGH", "overbooking_permit_id": permit, "automatic": true})
 }

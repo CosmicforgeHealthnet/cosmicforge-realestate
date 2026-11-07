@@ -259,6 +259,22 @@ func TestBusinessCRMGuestMergeSourceIdentityDuplicateAndTenantIsolation(t *testi
 		t.Fatalf("original source identities changed %d %v", links, e)
 	}
 
+	// Erasure of the canonical identity also removes the merged record's
+	// protected data while keeping its lineage.
+	erase := commercialData[privacyView](t, c.must(c.owner, "POST", "/guests/"+a.Guest.ID.String()+"/privacy-requests", businesshttp.CRMPrivacyRequestCommand{Kind: "ERASURE", RequesterKind: "GUEST", VerificationReference: "verified-erasure-identity-reference", Reason: "Record a verified erasure request"}, 201))
+	decision := businesshttp.CRMPrivacyDecision{Version: 1, Decision: "APPROVE", Reason: "Approve the verified erasure request"}
+	erasureOp := decision
+	decision.ApprovalID = c.approval("COMMERCIAL_GUEST_ERASURE", "guest_privacy:write", "", nil, "", map[string]any{"privacy_request_id": erase.ID, "guest_id": a.Guest.ID, "command": erasureOp})
+	c.must(c.owner, "POST", "/privacy-requests/"+erase.ID.String()+"/decision", decision, 200)
+	if e = c.domain.ProcessDataRetention(t.Context(), 10); e != nil {
+		t.Fatal(e)
+	}
+	var memberState, memberReference string
+	var activeLinks int
+	if e = c.db.Pool.QueryRow(t.Context(), `SELECT state,registration_reference,(SELECT count(*) FROM guest_identity_links WHERE guest_id=g.id AND state='ACTIVE') FROM guest_profiles g WHERE id=$1`, b.Guest.ID).Scan(&memberState, &memberReference, &activeLinks); e != nil || memberState != "MERGED" || !strings.HasPrefix(memberReference, "anonymised:") || activeLinks != 0 {
+		t.Fatalf("merged record kept protected data %s/%s/%d %v", memberState, memberReference, activeLinks, e)
+	}
+
 	// Another organisation can neither see nor merge these guests.
 	outsider := c.user()
 	c.secure(outsider)
