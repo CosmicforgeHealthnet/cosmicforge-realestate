@@ -71,6 +71,26 @@ END $$;
 -- +goose StatementEnd
 CREATE CONSTRAINT TRIGGER reservation_quantity_change_day_integrity AFTER INSERT ON reservation_quantity_change_days DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION business_quantity_change_day_guard();
 
+-- A replacement line keeps the original accepted quote. Its slots map to the
+-- original quote slots (ascending), so folio gross and fiscal detail for each
+-- unit equal the original slot partition: no repricing after fragmentation.
+CREATE TABLE reservation_room_slot_maps (
+ organisation_id uuid NOT NULL,property_id uuid NOT NULL,room_id uuid PRIMARY KEY,root_room_id uuid NOT NULL,root_quantity integer NOT NULL CHECK(root_quantity BETWEEN 1 AND 1000),
+ source_slots integer[] NOT NULL CHECK(cardinality(source_slots) BETWEEN 1 AND 1000),created_at timestamptz NOT NULL DEFAULT now(),
+ FOREIGN KEY(organisation_id,property_id,room_id) REFERENCES reservation_rooms(organisation_id,property_id,id),FOREIGN KEY(organisation_id,root_room_id) REFERENCES reservation_rooms(organisation_id,id)
+);
+-- +goose StatementBegin
+CREATE FUNCTION business_room_slot_map_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
+ IF NOT EXISTS(SELECT 1 FROM reservation_rooms r WHERE r.organisation_id=NEW.organisation_id AND r.id=NEW.room_id AND r.quantity=cardinality(NEW.source_slots))
+  OR NOT EXISTS(SELECT 1 FROM reservation_rooms r WHERE r.organisation_id=NEW.organisation_id AND r.id=NEW.root_room_id AND r.quantity=NEW.root_quantity AND r.previous_room_id IS NULL)
+  OR EXISTS(SELECT 1 FROM unnest(NEW.source_slots) WITH ORDINALITY s(slot,i) WHERE s.slot<1 OR s.slot>NEW.root_quantity OR (i>1 AND s.slot<=NEW.source_slots[i-1]))
+ THEN RAISE EXCEPTION 'Slot map must be a strictly ascending subset of the original accepted quote slots' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+-- +goose StatementEnd
+CREATE TRIGGER reservation_room_slot_map_guard BEFORE INSERT ON reservation_room_slot_maps FOR EACH ROW EXECUTE FUNCTION business_room_slot_map_guard();
+CREATE TRIGGER reservation_room_slot_maps_immutable BEFORE UPDATE OR DELETE OR TRUNCATE ON reservation_room_slot_maps FOR EACH STATEMENT EXECUTE FUNCTION business_immutable_history();
+
 -- Optional, independently approved per-property automation. MANUAL versions
 -- reduce authority (pause/kill switch) and need no approval. Latest version wins.
 CREATE TABLE waitlist_automation_policies (
@@ -184,6 +204,8 @@ DROP FUNCTION IF EXISTS business_calendar_release_signal();
 DROP TABLE IF EXISTS inventory_release_signals;
 DROP FUNCTION IF EXISTS business_release_signal_guard();
 DROP TABLE IF EXISTS waitlist_automation_policies;
+DROP TABLE IF EXISTS reservation_room_slot_maps;
+DROP FUNCTION IF EXISTS business_room_slot_map_guard();
 DROP TABLE IF EXISTS reservation_quantity_change_days;
 DROP FUNCTION IF EXISTS business_quantity_change_day_guard();
 DROP TABLE IF EXISTS reservation_quantity_changes;

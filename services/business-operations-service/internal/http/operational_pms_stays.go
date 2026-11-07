@@ -185,8 +185,12 @@ func (h *Handler) executePMSCheckIn(ctx context.Context, tx pgx.Tx, pre hospital
 	if int64(a.Slot) <= room.AmountMinor%int64(room.Quantity) {
 		amount++
 	}
+	sourceSlot, sourceQuantity, e := reservations.SourceSlot(ctx, tx, t.Organisation, room, a.Slot)
+	if e != nil {
+		return 0, nil, e
+	}
 	acceptedItemID := ids.New()
-	if _, e = tx.Exec(ctx, `INSERT INTO folio_items(id,organisation_id,property_id,folio_id,kind,source_reference,quantity,amount_minor,currency,policy_snapshot,reason,created_by,business_day_id) VALUES($1,$2,$3,$4,'ACCOMMODATION',$5,1,$6,$7,$8,$9,$10,$11)`, acceptedItemID, t.Organisation, a.PropertyID, folio, "accepted-reservation-slot:"+a.ID.String(), amount, room.Currency, marshalCommercial(map[string]any{"accepted_quote": room.Snapshot, "reservation_room_id": room.ID, "slot": a.Slot, "quantity": room.Quantity, "gross_includes_accepted_components": true}), in.Reason, t.Account, day.ID); e != nil {
+	if _, e = tx.Exec(ctx, `INSERT INTO folio_items(id,organisation_id,property_id,folio_id,kind,source_reference,quantity,amount_minor,currency,policy_snapshot,reason,created_by,business_day_id) VALUES($1,$2,$3,$4,'ACCOMMODATION',$5,1,$6,$7,$8,$9,$10,$11)`, acceptedItemID, t.Organisation, a.PropertyID, folio, "accepted-reservation-slot:"+a.ID.String(), amount, room.Currency, marshalCommercial(map[string]any{"accepted_quote": room.Snapshot, "reservation_room_id": room.ID, "slot": sourceSlot, "quantity": sourceQuantity, "gross_includes_accepted_components": true}), in.Reason, t.Account, day.ID); e != nil {
 		return 0, nil, e
 	}
 	grossItem, e := hospitality.Load[hospitality.Item](ctx, tx, `SELECT to_jsonb(i) FROM folio_items i WHERE organisation_id=$1 AND id=$2`, t.Organisation, acceptedItemID)

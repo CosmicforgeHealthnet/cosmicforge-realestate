@@ -131,6 +131,10 @@ func (h *Handler) reservationOverbook(w http.ResponseWriter, r *http.Request) {
 		if _, e = tx.Exec(ctx, `INSERT INTO reservation_conflicts(id,organisation_id,property_id,reservation_id,source_reference,classification,evidence,reason,created_by) VALUES($1,$2,$3,$4,$5,'APPROVED_OVERBOOKING_RECOVERY',$6,$7,$8)`, caseID, t.Organisation, v.PropertyID, v.ID, "OVERBOOKING:"+permit.String(), marshalCommercial(map[string]any{"permit_id": permit, "pool_id": pool.ID, "recovery_reference": in.RecoveryReference, "customer_recovery_completed": false}), in.Reason, t.Account); e != nil {
 			return 0, nil, e
 		}
+		recoveryCase, e := h.openOverbookingRecoveryCase(ctx, tx, t, v, permit, in.Reason)
+		if e != nil {
+			return 0, nil, e
+		}
 		if _, e = tx.Exec(ctx, `UPDATE reservations SET state='CONFIRMED',confirmed_at=$3,hold_expires_at=NULL,version=version+1,reason=$4,updated_at=$3 WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, now, in.Reason); e != nil {
 			return 0, nil, e
 		}
@@ -138,7 +142,7 @@ func (h *Handler) reservationOverbook(w http.ResponseWriter, r *http.Request) {
 		if e != nil {
 			return 0, nil, e
 		}
-		if e = h.reservationCommit(ctx, tx, t, v, "OVERBOOKING_CONFIRMED", "reservation.modified.v1", in.Reason, map[string]any{"permit_id": permit, "policy_id": policy.ID, "policy_version": policy.Version, "maximum_excess_quantity": maximum, "physical_capacity_changed": false, "reconciliation_case_id": caseID, "recovery_reference": in.RecoveryReference, "physical_room_assignment_allowed": false}); e != nil {
+		if e = h.reservationCommit(ctx, tx, t, v, "OVERBOOKING_CONFIRMED", "reservation.modified.v1", in.Reason, map[string]any{"permit_id": permit, "policy_id": policy.ID, "policy_version": policy.Version, "maximum_excess_quantity": maximum, "physical_capacity_changed": false, "reconciliation_case_id": caseID, "recovery_reference": in.RecoveryReference, "service_recovery_case_id": recoveryCase, "physical_room_assignment_allowed": false}); e != nil {
 			return 0, nil, e
 		}
 		if e = h.pauseOverbookedPoolChannels(ctx, tx, t, pool.ID, v.PropertyID); e != nil {

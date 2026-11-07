@@ -2,9 +2,11 @@ package reservations
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/jackc/pgx/v5"
@@ -110,4 +112,45 @@ func DecommitCalendar(ctx context.Context, tx pgx.Tx, org, actor ids.ID, d Quant
 		return apperrors.Conflict("RESERVATION_STOCK_RECONCILIATION_REQUIRED", "Committed stock differs from its canonical reservation provenance.")
 	}
 	return nil
+}
+
+// SlotMap returns the original accepted quote quantity and, for each line
+// slot (ascending), the original quote slot it represents. Lines that were
+// never fragmented map one-to-one onto their own accepted quote.
+func SlotMap(ctx context.Context, q database.Querier, org ids.ID, room Room) (ids.ID, int, []int, error) {
+	var root ids.ID
+	var quantity int
+	var slots []int32
+	e := q.QueryRow(ctx, `SELECT root_room_id,root_quantity,source_slots FROM reservation_room_slot_maps WHERE organisation_id=$1 AND room_id=$2`, org, room.ID).Scan(&root, &quantity, &slots)
+	if errors.Is(e, pgx.ErrNoRows) {
+		out := make([]int, room.Quantity)
+		for i := range out {
+			out[i] = i + 1
+		}
+		return room.ID, room.Quantity, out, nil
+	}
+	if e != nil {
+		return root, 0, nil, e
+	}
+	out := make([]int, len(slots))
+	for i, v := range slots {
+		out[i] = int(v)
+	}
+	if len(out) != room.Quantity {
+		return root, 0, nil, apperrors.Conflict("RESERVATION_SLOT_MAP_MISMATCH", "Line slots must map exactly onto the original accepted quote.")
+	}
+	return root, quantity, out, nil
+}
+
+// SourceSlot maps a physical assignment slot of a line onto the original
+// accepted quote slot used for its frozen folio and fiscal partition.
+func SourceSlot(ctx context.Context, q database.Querier, org ids.ID, room Room, slot int) (int, int, error) {
+	_, quantity, slots, e := SlotMap(ctx, q, org, room)
+	if e != nil {
+		return 0, 0, e
+	}
+	if slot < 1 || slot > len(slots) {
+		return 0, 0, apperrors.Conflict("RESERVATION_SLOT_MAP_MISMATCH", "The assignment slot is outside the accepted line quantity.")
+	}
+	return slots[slot-1], quantity, nil
 }

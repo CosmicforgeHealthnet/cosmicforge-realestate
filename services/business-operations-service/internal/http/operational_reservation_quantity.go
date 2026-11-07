@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
@@ -207,7 +208,11 @@ func (h *Handler) reservationQuantityCommand(w http.ResponseWriter, r *http.Requ
 		if e != nil {
 			return 0, nil, e
 		}
-		remainingLine, e := h.appendQuantityLine(ctx, tx, t, v.ID, line, line.Quantity-in.Quantity, remaining, remainingAcc, "ACTIVE", now)
+		slots, e := lineSlots(ctx, tx, t.Organisation, line)
+		if e != nil {
+			return 0, nil, e
+		}
+		remainingLine, e := h.appendQuantityLine(ctx, tx, t, v.ID, line, slots.head(line.Quantity-in.Quantity), remaining, remainingAcc, "ACTIVE", now)
 		if e != nil {
 			return 0, nil, e
 		}
@@ -227,13 +232,13 @@ func (h *Handler) reservationQuantityCommand(w http.ResponseWriter, r *http.Requ
 					return 0, nil, e
 				}
 			}
-			child, e := h.appendQuantityLine(ctx, tx, t, destination.ID, line, in.Quantity, tail, tailAcc, "ACTIVE", now)
+			child, e := h.appendQuantityLine(ctx, tx, t, destination.ID, line, slots.tail(in.Quantity), tail, tailAcc, "ACTIVE", now)
 			if e != nil {
 				return 0, nil, e
 			}
 			transferred = &child
 		} else {
-			record, e := h.appendQuantityLine(ctx, tx, t, v.ID, line, in.Quantity, tail, tailAcc, "CANCELLED", now)
+			record, e := h.appendQuantityLine(ctx, tx, t, v.ID, line, slots.tail(in.Quantity), tail, tailAcc, "CANCELLED", now)
 			if e != nil {
 				return 0, nil, e
 			}
@@ -339,6 +344,24 @@ func (h *Handler) reservationQuantityCommand(w http.ResponseWriter, r *http.Requ
 		}
 		return h.quantityResult(ctx, tx, t.Organisation, change.ID, v.ID, destination.ID)
 	})
+}
+
+// quantitySlots is the original-quote slot map carried by a replacement line.
+type quantitySlots struct {
+	root     ids.ID
+	quantity int
+	slots    []int
+}
+
+func lineSlots(ctx context.Context, tx pgx.Tx, org ids.ID, line reservations.Room) (quantitySlots, error) {
+	root, quantity, slots, e := reservations.SlotMap(ctx, tx, org, line)
+	return quantitySlots{root: root, quantity: quantity, slots: slots}, e
+}
+func (s quantitySlots) head(n int) quantitySlots {
+	return quantitySlots{root: s.root, quantity: s.quantity, slots: append([]int(nil), s.slots[:n]...)}
+}
+func (s quantitySlots) tail(n int) quantitySlots {
+	return quantitySlots{root: s.root, quantity: s.quantity, slots: append([]int(nil), s.slots[len(s.slots)-n:]...)}
 }
 
 func nilIfNil(reference, value *int64) *int64 {
@@ -454,7 +477,20 @@ func (h *Handler) reservationQuantityMerge(w http.ResponseWriter, r *http.Reques
 			totalAcc = &value
 		}
 		now := h.Auth.Service.Now().UTC()
-		merged, e := h.appendQuantityLine(ctx, tx, t, v.ID, targetLine, targetLine.Quantity+sourceLine.Quantity, total, totalAcc, "ACTIVE", now)
+		slotsA, e := lineSlots(ctx, tx, t.Organisation, targetLine)
+		if e != nil {
+			return 0, nil, e
+		}
+		slotsB, e := lineSlots(ctx, tx, t.Organisation, sourceLine)
+		if e != nil {
+			return 0, nil, e
+		}
+		if slotsA.root != slotsB.root || slotsA.quantity != slotsB.quantity {
+			return 0, nil, apperrors.Conflict("RESERVATION_QUANTITY_MERGE_INCOMPATIBLE", "Only lines of one original accepted quote can merge.")
+		}
+		union := quantitySlots{root: slotsA.root, quantity: slotsA.quantity, slots: append(append([]int(nil), slotsA.slots...), slotsB.slots...)}
+		slices.Sort(union.slots)
+		merged, e := h.appendQuantityLine(ctx, tx, t, v.ID, targetLine, union, total, totalAcc, "ACTIVE", now)
 		if e != nil {
 			return 0, nil, e
 		}
@@ -611,9 +647,13 @@ func sameReservationSourceContract(ctx context.Context, tx pgx.Tx, org, a, b ids
 
 // appendQuantityLine appends an immutable replacement line that keeps the
 // accepted quote, snapshot, acceptance time and financial responsibility.
-func (h *Handler) appendQuantityLine(ctx context.Context, tx pgx.Tx, t tenant, reservation ids.ID, source reservations.Room, quantity int, amount int64, accommodation *int64, state string, now time.Time) (ids.ID, error) {
+func (h *Handler) appendQuantityLine(ctx context.Context, tx pgx.Tx, t tenant, reservation ids.ID, source reservations.Room, slots quantitySlots, amount int64, accommodation *int64, state string, now time.Time) (ids.ID, error) {
 	id := ids.New()
+	quantity := len(slots.slots)
 	if _, e := tx.Exec(ctx, `INSERT INTO reservation_rooms(id,organisation_id,property_id,reservation_id,financial_group_id,product_id,pool_id,quote_id,date_from,date_to,quantity,adults,children,amount_minor,currency,accommodation_minor,snapshot,accepted_at,state,previous_room_id,created_by,updated_at) SELECT $3,organisation_id,property_id,$4,financial_group_id,product_id,pool_id,quote_id,date_from,date_to,$5,adults,children,$6,currency,$7,snapshot,accepted_at,$8,id,$9,$10 FROM reservation_rooms WHERE organisation_id=$1 AND id=$2`, t.Organisation, source.ID, id, reservation, quantity, amount, accommodation, state, t.Account, now); e != nil {
+		return id, e
+	}
+	if _, e := tx.Exec(ctx, `INSERT INTO reservation_room_slot_maps(organisation_id,property_id,room_id,root_room_id,root_quantity,source_slots) SELECT organisation_id,property_id,$2,$3,$4,$5 FROM reservation_rooms WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, slots.root, slots.quantity, slots.slots); e != nil {
 		return id, e
 	}
 	if state == "ACTIVE" {
