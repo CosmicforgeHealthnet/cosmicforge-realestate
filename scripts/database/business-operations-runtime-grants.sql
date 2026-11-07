@@ -74,3 +74,14 @@ REVOKE UPDATE,DELETE,TRUNCATE ON room_reconciliation_reports FROM cf_business_ru
 -- Bounded physical access and retained provider/manual evidence.
 REVOKE UPDATE,DELETE,TRUNCATE ON hospitality_access_configurations,hospitality_access_observations FROM cf_business_runtime;
 REVOKE DELETE,TRUNCATE ON access_grant_references,hospitality_access_jobs FROM cf_business_runtime;
+
+-- Folio payer agreements, allocations and releases are append-only evidence.
+REVOKE UPDATE,DELETE,TRUNCATE ON folio_collection_agreements,folio_collection_allocations,folio_collection_cancellations FROM cf_business_runtime;
+
+-- Section 11 recovery and loyalty: append-only ledgers and decisions.
+REVOKE UPDATE,DELETE,TRUNCATE ON service_recovery_actions,loyalty_programs,loyalty_rules,loyalty_rewards,loyalty_transactions,loyalty_redemptions,loyalty_reversals FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON service_recovery_cases,service_recovery_compensation_refs,loyalty_accounts,loyalty_entitlements FROM cf_business_runtime;
+
+-- Section 11 privacy lifecycle and classification history.
+REVOKE UPDATE,DELETE,TRUNCATE ON vip_classifications,guest_segments,guest_segment_memberships FROM cf_business_runtime;
+REVOKE DELETE,TRUNCATE ON privacy_requests,legal_holds,data_retention_jobs FROM cf_business_runtime;

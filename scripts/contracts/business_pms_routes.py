@@ -113,7 +113,25 @@ def register_pms(s,obj,arr,ref,typ):
  shape('PMSMasterFolioCreated',id=uid,group_id=uid,currency={'type':'string'},source_folio_count=integer,payment_execution={'const':'PAYMENT_SERVICE'})
  shape('PMSMasterFolioView',id=uid,group_id=uid,currency={'type':'string'},billing_reference={'type':'string'},items=arr({'type':'object','additionalProperties':True}),balance_minor=integer,all_source_folios_closed={'type':'boolean'},basis={'const':'CURRENT_SOURCE_FOLIOS_AND_PAYMENT_READBACKS'})
  shape('PMSEventBookingCreated',id=uid,reservation_id=uid,reservation_state={'type':'string'},date_from={'type':'string','format':'date'},date_to={'type':'string','format':'date'},capacity_authority={'const':'CANONICAL_RESERVATION'},conversation_verified={'const':False})
+ s['FolioCollectionClaim']['properties']['amount_minor'].update(minimum=1,maximum=1000000000000)
+ s['PMSCollectionAgreementCommand']['properties']['payer_type']['enum']=['GUEST','CORPORATE_BOOKER']
+ s['PMSCollectionAgreementCommand']['properties']['payment_policy_family']['enum']=['HOTEL','SHORT_LET']
+ s['PMSCollectionAgreementCommand']['properties']['allocations'].update(minItems=1,maxItems=50)
+ s['PMSCollectionReleaseCommand']['properties']['disposition']['enum']=['NEVER_DISPATCHED','VERIFIED_FAILURE']
+ s['PMSCollectionAgreement']['properties']['payer_type']['enum']=['GUEST','CORPORATE_BOOKER']
+ s['PMSCollectionAgreement']['properties']['collection_state']['enum']=['RELEASED','REVERSAL_REVIEW_REQUIRED','FAILED','OUTCOME_UNKNOWN','APPLIED','PARTIALLY_APPLIED','COLLECTED_SETTLEMENT_PENDING','SETTLED_UNAPPLIED','QUEUED','PENDING']
+ s['PMSCollectionAgreement']['properties']['allocations']={'type':'array','items':obj({'item_id':uid,'amount_minor':integer},['item_id','amount_minor'],True)}
+ for field in ('corporate_customer_id','corporate_contract_id','replaces_agreement_id','approval_id'):s['PMSCollectionAgreement']['properties'][field]={'anyOf':[uid,{'type':'null'}]}
+ for field in ('disposition','provider_state','settlement_state','request_state'):s['PMSCollectionAgreement']['properties'][field]={'type':['string','null']}
+ shape('PMSCollectionAgreementList',folio_id=uid,items=arr(ref('PMSCollectionAgreement')),responsibility=ref('PMSFolioResponsibility'),payment_truth={'const':'PAYMENT_SERVICE'})
+ shape('PMSCollectionQueued',id=uid,financial_group_id=uid,request_id=uid,amount_minor=integer,currency={'type':'string','pattern':'^[A-Z]{3}$','example':'NGN'},folio_version=integer,state={'const':'QUEUED'},payment_authority={'const':'payment-service'},collection_confirmed={'const':False})
+ shape('PMSCollectionReleased',id=uid,released={'const':True},disposition={'enum':['NEVER_DISPATCHED','VERIFIED_FAILURE']},folio_version=integer)
+ shape('PMSCollectionReadbackQueued',id=uid,state={'const':'QUEUED'},payment_authority={'const':'payment-service'})
  return {
+ 'pmsCollectionAgreements':('folios:read',None,'PMSCollectionAgreementList',200,False),
+ 'pmsCollectionAgreementCreate':('folios:write','PMSCollectionAgreementCommand','PMSCollectionQueued',202,False),
+ 'pmsCollectionAgreementRelease':('folios:write','PMSCollectionReleaseCommand','PMSCollectionReleased',200,False),
+ 'pmsCollectionAgreementReadback':('folios:write','PMSCollectionReadbackCommand','PMSCollectionReadbackQueued',202,False),
  'pmsGroups':('pms:read',None,'PMSList',200,False),
  'pmsGroupCreate':('pms:write','PMSGroupCreate','PMSGroup',201,False),
  'pmsGroupGet':('pms:read',None,'PMSGroupDetail',200,False),
@@ -230,5 +248,8 @@ def pms_examples(uid):
  'PMSVersionCommand':{'version':1,'reason':reason},
  'PMSCheckInCommand':{'assignment_id':uid,'assignment_version':1,'reservation_version':2,'room_status_version':3,'guest_id':uid,'registration_reference':'captured-registration-evidence-reference','reason':reason},
  'PMSCheckoutCommand':{'stay_id':uid,'version':1,'reservation_version':3,'folio_version':1,'approval_id':uid,'reason':reason},
+ 'PMSCollectionAgreementCommand':{'folio_version':3,'payer_type':'CORPORATE_BOOKER','corporate_customer_id':uid,'corporate_contract_id':uid,'allocations':[{'item_id':uid,'amount_minor':2000}],'payment_policy_id':uid,'payment_policy_version':'operator-configured-version','payment_policy_family':'HOTEL','payer_wallet_id':uid,'consent_reference':'owning-payer-consent-reference','legal_party_reference':'canonical-corporate-payer-party','email':'disposable@example.invalid','schedule':'ONE_TIME','approval_id':uid,'reason':'Assign the exact accepted incidentals to the consenting corporate payer'},
+ 'PMSCollectionReleaseCommand':{'folio_version':4,'disposition':'NEVER_DISPATCHED','reason':'Release a never-dispatched payer allocation before collection'},
+ 'PMSCollectionReadbackCommand':{'folio_version':4,'reason':'Read the original owning Payment receipt after provider settlement'},
  'PMSFolioPosting':{'version':1,'kind':'MEALS','source_reference':'actual-restaurant-order-reference','quantity':1,'amount_minor':1200,'currency':'NGN','policy_reference':'accepted-menu-and-tax-policy-reference','reason':reason},
  }

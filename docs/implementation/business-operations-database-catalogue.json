@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00023_hospitality_access.sql",
+  "latest_migration": "00026_guest_privacy_segments.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -530,10 +530,24 @@
       "category": "Annex supplement",
       "owner_package": "internal/crm",
       "owning_section": "D.32 Guest CRM, Loyalty and Service Recovery",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -1036,11 +1050,28 @@
       "category": "CRM/marketing/support",
       "owner_package": "internal/crm",
       "owning_section": "11 / 14 / D.8 / D.22",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "service_recovery_guest",
+          "service_recovery_queue"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "support_cases",
@@ -3516,149 +3547,6 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
-      "specified_table": "guest_segments",
-      "canonical_table": "guest_segments",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_entitlements",
-      "canonical_table": "loyalty_entitlements",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_programs",
-      "canonical_table": "loyalty_programs",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_redemptions",
-      "canonical_table": "loyalty_redemptions",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_reversals",
-      "canonical_table": "loyalty_reversals",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_rewards",
-      "canonical_table": "loyalty_rewards",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_rules",
-      "canonical_table": "loyalty_rules",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "loyalty_transactions",
-      "canonical_table": "loyalty_transactions",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "service_recovery_actions",
-      "canonical_table": "service_recovery_actions",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "service_recovery_compensation_refs",
-      "canonical_table": "service_recovery_compensation_refs",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
-      "specified_table": "vip_classifications",
-      "canonical_table": "vip_classifications",
-      "specification": "Master completion Sections 8\u201311",
-      "category": "Required current persistence",
-      "owner_package": "internal/crm",
-      "owning_section": "11",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Owned organisation/property-safe references only; no cross-service database access."
-    },
-    {
       "specified_table": "business_day_closes",
       "canonical_table": "business_day_closes",
       "specification": "Section 5",
@@ -4520,11 +4408,27 @@
       "category": "Risk/privacy/access",
       "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "data_retention_work"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "dispute_evidence_refs",
@@ -4598,11 +4502,27 @@
       "category": "Risk/privacy/access",
       "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "legal_hold_active"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "privacy_requests",
@@ -4611,11 +4531,27 @@
       "category": "Risk/privacy/access",
       "owner_package": "internal/crm",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "REQUIRED_CURRENT_WORK",
-      "schema": null,
-      "repository": "Planned internal/crm repository with owning-section migration",
-      "dependency": "Unfinished internal Sections 8\u201311 workflow; implement its owned migration, commands and tests. This is not an external provider or future-section blocker.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "privacy_request_queue"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 13,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "risk_cases",
@@ -5761,6 +5697,91 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "folio_collection_agreements",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00024_folio_collection_agreements.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 8,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "folio_collection_scope"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 5,
+        "check_constraint_count": 14,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "folio_collection_allocations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00024_folio_collection_agreements.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "folio_collection_source_budget"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "folio_collection_cancellations",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/hospitality",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00024_folio_collection_agreements.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/hospitality owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "folio_fiscal_reviews",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -5979,6 +6000,62 @@
         "immutable": false,
         "unique_constraint_count": 2,
         "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_segment_memberships",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [
+          "guest_segment_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "guest_segments",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 6,
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
@@ -6948,6 +7025,199 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_entitlements",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_programs",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_redemptions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 4,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_reversals",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_rewards",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 7,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_rules",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "loyalty_rule_current"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "loyalty_transactions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "loyalty_ledger"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 9,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "master_folio_members",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -7359,13 +7629,16 @@
         "versioned": true,
         "lifecycle": true,
         "indexes": [
+          "financial_folio_request_scope",
           "reservation_financial_requests_scope",
           "reservation_financial_work"
         ],
         "immutable": false,
         "unique_constraint_count": 3,
         "check_constraint_count": 4,
-        "altered_in": []
+        "altered_in": [
+          "00024_folio_collection_agreements.sql"
+        ]
       },
       "repository": "internal/repositories/db (SQLC); internal/reservations owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
@@ -7870,6 +8143,60 @@
     },
     {
       "specified_table": "(supporting table)",
+      "canonical_table": "service_recovery_actions",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "service_recovery_compensation_refs",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00025_guest_recovery_loyalty.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 14,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
       "canonical_table": "staff_handovers",
       "specification": "Supporting implementation",
       "category": "Supporting persistence",
@@ -7982,6 +8309,33 @@
         "altered_in": []
       },
       "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
+      "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
+      "isolation": "Service-local; parent tenant keys and command authorization."
+    },
+    {
+      "specified_table": "(supporting table)",
+      "canonical_table": "vip_classifications",
+      "specification": "Supporting implementation",
+      "category": "Supporting persistence",
+      "owner_package": "internal/crm",
+      "owning_section": "10",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00026_guest_privacy_segments.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 2,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 5,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/crm owning command/query interfaces",
       "dependency": "Supporting secure/transactional operation, immutable history, normalized relationships or recovery.",
       "isolation": "Service-local; parent tenant keys and command authorization."
     },

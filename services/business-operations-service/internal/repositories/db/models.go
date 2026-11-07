@@ -891,6 +891,26 @@ type CustomerAccountsProjection struct {
 	CreatedAt           time.Time
 }
 
+type DataRetentionJob struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	GuestID          ids.ID
+	PrivacyRequestID *ids.ID
+	Action           string
+	State            string
+	LeaseOwner       *string
+	LeaseGeneration  int64
+	LeaseExpiresAt   *time.Time
+	Attempts         int32
+	AvailableAt      time.Time
+	LastError        *string
+	Result           []byte
+	CreatedBy        ids.ID
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
 type DelegationGrant struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -1028,6 +1048,56 @@ type FolioCloseReviewRevocation struct {
 	OrganisationID ids.ID
 	PropertyID     ids.ID
 	ReviewID       ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type FolioCollectionAgreement struct {
+	ID                  ids.ID
+	OrganisationID      ids.ID
+	PropertyID          ids.ID
+	FolioID             ids.ID
+	ReservationID       ids.ID
+	FinancialGroupID    ids.ID
+	RequestReference    ids.ID
+	FolioVersion        int64
+	AmountMinor         int64
+	Currency            string
+	PayerType           string
+	CorporateCustomerID *ids.ID
+	CorporateContractID *ids.ID
+	ConsentReference    string
+	EffectiveAt         time.Time
+	ReplacesAgreementID *ids.ID
+	SourceDigest        string
+	CommandDigest       string
+	Snapshot            []byte
+	AcceptedPolicy      []byte
+	ApprovalID          *ids.ID
+	Reason              string
+	CreatedBy           ids.ID
+	CreatedAt           time.Time
+}
+
+type FolioCollectionAllocation struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	FolioID        ids.ID
+	AgreementID    ids.ID
+	FolioItemID    ids.ID
+	AmountMinor    int64
+	Currency       string
+	SourceSnapshot []byte
+}
+
+type FolioCollectionCancellation struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	AgreementID    ids.ID
+	Disposition    string
 	Reason         string
 	CreatedBy      ids.ID
 	CreatedAt      time.Time
@@ -1237,6 +1307,34 @@ type GuestRequest struct {
 	CreatedBy         ids.ID
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+}
+
+type GuestSegment struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	SegmentKey     ids.ID
+	Version        int64
+	Name           string
+	Kind           string
+	Definition     []byte
+	State          string
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type GuestSegmentMembership struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	SegmentID      ids.ID
+	EvaluationID   ids.ID
+	GuestID        ids.ID
+	State          string
+	SourceDigest   string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
 }
 
 type GuestStayHistory struct {
@@ -1787,6 +1885,23 @@ type InventoryVerificationLink struct {
 	Version           int64
 }
 
+type LegalHold struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	GuestID            ids.ID
+	Scope              string
+	AuthorityReference string
+	State              string
+	Reason             string
+	ReleaseApprovalID  *ids.ID
+	ReleasedBy         *ids.ID
+	ReleasedAt         *time.Time
+	Version            int64
+	CreatedBy          ids.ID
+	CreatedAt          time.Time
+}
+
 type Listing struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -1849,6 +1964,131 @@ type ListingVersion struct {
 	Reason          string
 	CreatedBy       ids.ID
 	CreatedAt       time.Time
+}
+
+type LoyaltyAccount struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProgramKey     ids.ID
+	GuestID        ids.ID
+	State          string
+	Tier           string
+	ConsentID      ids.ID
+	Version        int64
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type LoyaltyEntitlement struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	AccountID         ids.ID
+	RedemptionID      ids.ID
+	RewardID          ids.ID
+	State             string
+	ValidUntil        time.Time
+	ConsumedReference *string
+	Version           int64
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type LoyaltyProgram struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProgramKey     ids.ID
+	Version        int64
+	Name           string
+	State          string
+	Definition     []byte
+	EffectiveAt    time.Time
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type LoyaltyRedemption struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	AccountID        ids.ID
+	RewardID         ids.ID
+	TransactionID    ids.ID
+	Points           int64
+	RequestReference ids.ID
+	Reason           string
+	CreatedBy        ids.ID
+	CreatedAt        time.Time
+}
+
+type LoyaltyReversal struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	AccountID             ids.ID
+	OriginalTransactionID ids.ID
+	ReversalTransactionID ids.ID
+	ReasonCode            string
+	SourceDigest          string
+	CreatedAt             time.Time
+}
+
+type LoyaltyReward struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProgramKey     ids.ID
+	RewardKey      ids.ID
+	Version        int64
+	Name           string
+	Kind           string
+	PointsCost     int64
+	State          string
+	ValidityDays   int32
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type LoyaltyRule struct {
+	ID             ids.ID
+	OrganisationID ids.ID
+	PropertyID     ids.ID
+	ProgramKey     ids.ID
+	RuleKey        ids.ID
+	Version        int64
+	Kind           string
+	State          string
+	Definition     []byte
+	EffectiveAt    time.Time
+	ApprovalID     *ids.ID
+	Reason         string
+	CreatedBy      ids.ID
+	CreatedAt      time.Time
+}
+
+type LoyaltyTransaction struct {
+	ID               ids.ID
+	OrganisationID   ids.ID
+	PropertyID       ids.ID
+	AccountID        ids.ID
+	Kind             string
+	Points           int64
+	SourceKind       string
+	SourceID         ids.ID
+	SourceDigest     string
+	RuleIds          []ids.ID
+	ProgramVersion   *int64
+	ExpiresAt        *time.Time
+	Evidence         []byte
+	CreatedBy        *ids.ID
+	CreatedByService string
+	CreatedAt        time.Time
 }
 
 type MasterFolio struct {
@@ -2109,6 +2349,30 @@ type PricingSimulation struct {
 	CreatedAt        time.Time
 }
 
+type PrivacyRequest struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	PropertyID            ids.ID
+	GuestID               ids.ID
+	Kind                  string
+	State                 string
+	RequesterKind         string
+	VerificationReference string
+	Correction            []byte
+	DueAt                 time.Time
+	ApprovalID            *ids.ID
+	Result                []byte
+	ResultDigest          *string
+	Coordination          []byte
+	Reason                string
+	DecidedBy             *ids.ID
+	CompletedAt           *time.Time
+	Version               int64
+	CreatedBy             ids.ID
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type ProcessedEvent struct {
 	Consumer    string
 	EventID     ids.ID
@@ -2359,6 +2623,7 @@ type ReservationFinancialRequest struct {
 	CreatedBy         *ids.ID
 	CreatedByService  string
 	CreatedAt         time.Time
+	FolioAgreementID  *ids.ID
 }
 
 type ReservationGroup struct {
@@ -2803,6 +3068,75 @@ type SellableProduct struct {
 	UpdatedAt      time.Time
 }
 
+type ServiceRecoveryAction struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	CaseID            ids.ID
+	CaseVersion       int64
+	Action            string
+	FromState         string
+	ToState           string
+	EvidenceReference *string
+	Details           []byte
+	CreatedBy         ids.ID
+	CreatedAt         time.Time
+}
+
+type ServiceRecoveryCase struct {
+	ID                     ids.ID
+	OrganisationID         ids.ID
+	PropertyID             ids.ID
+	GuestID                ids.ID
+	ReservationID          *ids.ID
+	StayID                 *ids.ID
+	IssueType              string
+	Severity               string
+	State                  string
+	Summary                string
+	EvidenceReference      string
+	AssignedTo             *ids.ID
+	SlaDueAt               time.Time
+	Remedy                 []byte
+	RemedyDigest           *string
+	RemedyAmountMinor      int64
+	Currency               *string
+	ApprovalID             *ids.ID
+	Outcome                *string
+	CommunicationReference *string
+	FollowUpAt             *time.Time
+	ResolvedAt             *time.Time
+	ClosedAt               *time.Time
+	ReopenedCount          int32
+	Version                int64
+	CreatedBy              ids.ID
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+}
+
+type ServiceRecoveryCompensationRef struct {
+	ID                 ids.ID
+	OrganisationID     ids.ID
+	PropertyID         ids.ID
+	CaseID             ids.ID
+	Ordinal            int32
+	Kind               string
+	AmountMinor        int64
+	Currency           *string
+	Points             int64
+	RemedyDigest       string
+	ApprovalID         *ids.ID
+	State              string
+	ExecutionKind      *string
+	ExecutionReference *ids.ID
+	EvidenceReference  *string
+	Dependency         *string
+	Version            int64
+	CreatedBy          ids.ID
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 type SpaceGraph struct {
 	ID               ids.ID
 	OrganisationID   ids.ID
@@ -2988,6 +3322,21 @@ type VerificationLinkHistory struct {
 	ExpiresAt         *time.Time
 	ProviderUpdatedAt *time.Time
 	ActorID           *ids.ID
+	CreatedAt         time.Time
+}
+
+type VipClassification struct {
+	ID                ids.ID
+	OrganisationID    ids.ID
+	PropertyID        ids.ID
+	GuestID           ids.ID
+	Version           int64
+	Tier              string
+	Basis             string
+	EvidenceReference string
+	ExpiresAt         *time.Time
+	Reason            string
+	CreatedBy         ids.ID
 	CreatedAt         time.Time
 }
 

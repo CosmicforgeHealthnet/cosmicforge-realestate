@@ -1,3 +1,7 @@
+## 7 November 2026 closure pass
+
+Sections 8–11 remain **PARTIAL**. The Backend CI defect is repaired and certified on `d71ac6c`. PMS ancillary/mixed-payer collection and the Section 11 recovery, loyalty, privacy, VIP, segment and reporting workflows are implemented and tested. See `business-operations-sections-08-11-final-closure.md` for the requirement matrix, tests and CI evidence of the 7 November 2026 closure pass.
+
 ## Schema23 candidate verification — November 6
 
 The full Business module passed **307 tests, zero failed/skipped**, on disposable PostgreSQL18 and real embedded disk-backed JetStream: `go test -p2 ./... -timeout=20m -count=1 -json` (integration package766.951s). An earlier default ten-minute run timed out after278 completed cases while the active test had run for one second; no assertion failure preceded that aggregate package deadline. The bounded twenty-minute rerun uses the same timeout already present in CI; no CI limit/test/security gate was weakened.

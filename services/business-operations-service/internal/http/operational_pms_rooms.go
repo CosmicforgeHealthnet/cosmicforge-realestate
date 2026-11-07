@@ -44,6 +44,7 @@ func (h *Handler) registerPMS(r chi.Router) {
 	h.registerPMSCashier(r)
 	h.registerPMSOffline(r)
 	h.registerPMSGroups(r)
+	h.registerPMSCollection(r)
 	r.Get("/room-reconciliations", h.pmsRoomReconciliationReports)
 	r.Get("/room-status/{room_id}/safety-proof", h.pmsRoomSafetyProof)
 	r.Post("/room-status/{room_id}/reconcile", h.pmsRoomReconcile)

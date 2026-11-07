@@ -2,6 +2,7 @@ package businesshttp
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"slices"
@@ -212,6 +213,20 @@ func (h *Handler) pmsFolioReconcile(w http.ResponseWriter, r *http.Request) {
 		if e = tx.QueryRow(ctx, `SELECT rr.financial_group_id FROM stay_records s JOIN room_assignments a ON a.organisation_id=s.organisation_id AND a.id=s.assignment_id JOIN reservation_rooms rr ON rr.organisation_id=a.organisation_id AND rr.id=a.reservation_room_id WHERE s.organisation_id=$1 AND s.id=$2`, t.Organisation, f.StayID).Scan(&group); e != nil {
 			return 0, nil, e
 		}
+		// The accepted accommodation group comes first; unreleased payer
+		// agreements follow in acceptance order. Each receipt is applied once.
+		groups := []ids.ID{group}
+		agreementGroups, e := commercialJSONRows(ctx, tx, `SELECT to_jsonb(a.financial_group_id) FROM folio_collection_agreements a WHERE a.organisation_id=$1 AND a.folio_id=$2 AND NOT EXISTS(SELECT 1 FROM folio_collection_cancellations c WHERE c.organisation_id=a.organisation_id AND c.agreement_id=a.id) ORDER BY a.created_at,a.id LIMIT 200`, t.Organisation, id)
+		if e != nil {
+			return 0, nil, e
+		}
+		for _, raw := range agreementGroups {
+			var g ids.ID
+			if e = json.Unmarshal(raw, &g); e != nil {
+				return 0, nil, e
+			}
+			groups = append(groups, g)
+		}
 		type proof struct {
 			ID          ids.ID `json:"id"`
 			IntentID    ids.ID `json:"intent_id"`
@@ -219,32 +234,41 @@ func (h *Handler) pmsFolioReconcile(w http.ResponseWriter, r *http.Request) {
 			Currency    string `json:"currency"`
 			Available   int64  `json:"available"`
 		}
-		p, e := hospitality.Load[proof](ctx, tx, `SELECT to_jsonb(p)||jsonb_build_object('available',p.amount_minor-coalesce((SELECT sum(a.amount_minor) FROM folio_payment_references a WHERE a.organisation_id=p.organisation_id AND a.financial_group_id=p.financial_group_id),0)) FROM reservation_payment_projections p JOIN reservation_payment_bindings b ON b.organisation_id=p.organisation_id AND b.financial_group_id=p.financial_group_id AND b.intent_id=p.intent_id WHERE p.organisation_id=$1 AND p.financial_group_id=$2 AND p.id=(SELECT latest.id FROM reservation_payment_projections latest WHERE latest.organisation_id=$1 AND latest.financial_group_id=$2 ORDER BY observed_at DESC,id DESC LIMIT 1) AND p.provider_state='VERIFIED_SUCCESS' AND p.settlement_state='SETTLED' AND p.funding_confirmed AND p.reversed_minor=0 AND p.remedy_version=1 AND NOT p.remedy_review_required AND p.expires_at>$3`, t.Organisation, group, h.Auth.Service.Now())
-		if e != nil {
-			var app *apperrors.Error
-			if !errors.As(e, &app) || app.Status != 404 {
+		var usable []ids.ID
+		var projections []ids.ID
+		for _, g := range groups {
+			p, e := hospitality.Load[proof](ctx, tx, `SELECT to_jsonb(p)||jsonb_build_object('available',p.amount_minor-coalesce((SELECT sum(a.amount_minor) FROM folio_payment_references a WHERE a.organisation_id=p.organisation_id AND a.financial_group_id=p.financial_group_id),0)) FROM reservation_payment_projections p JOIN reservation_payment_bindings b ON b.organisation_id=p.organisation_id AND b.financial_group_id=p.financial_group_id AND b.intent_id=p.intent_id WHERE p.organisation_id=$1 AND p.financial_group_id=$2 AND p.id=(SELECT latest.id FROM reservation_payment_projections latest WHERE latest.organisation_id=$1 AND latest.financial_group_id=$2 ORDER BY observed_at DESC,id DESC LIMIT 1) AND p.provider_state='VERIFIED_SUCCESS' AND p.settlement_state='SETTLED' AND p.funding_confirmed AND p.reversed_minor=0 AND p.remedy_version=1 AND NOT p.remedy_review_required AND p.expires_at>$3`, t.Organisation, g, h.Auth.Service.Now())
+			if e != nil {
+				var app *apperrors.Error
+				if !errors.As(e, &app) || app.Status != 404 {
+					return 0, nil, e
+				}
+				continue
+			}
+			usable = append(usable, g)
+			projections = append(projections, p.ID)
+			balance, e := hospitality.Balance(ctx, tx, t.Organisation, id, h.Auth.Service.Now())
+			if e != nil {
 				return 0, nil, e
 			}
+			amount := min(balance, p.Available)
+			var prior bool
+			if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM folio_payment_references WHERE organisation_id=$1 AND folio_id=$2 AND financial_group_id=$3)`, t.Organisation, id, g).Scan(&prior); e != nil {
+				return 0, nil, e
+			}
+			if amount > 0 && !prior {
+				if p.Currency != f.Currency {
+					return 0, nil, apperrors.Conflict("FOLIO_CURRENCY_MISMATCH", "Financial evidence cannot change accepted currency.")
+				}
+				if _, e = tx.Exec(ctx, `INSERT INTO folio_payment_references(id,organisation_id,property_id,folio_id,financial_group_id,intent_id,payment_projection_id,amount_minor,currency,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, ids.New(), t.Organisation, f.PropertyID, id, g, p.IntentID, p.ID, amount, f.Currency, t.Account); e != nil {
+					return 0, nil, e
+				}
+			}
+		}
+		if len(usable) == 0 {
 			return 0, nil, apperrors.Conflict("FOLIO_PAYMENT_READBACK_REQUIRED", "Current bound settled, funded and unreversed Payment receipt required; collection/guarantee alone cannot settle a folio.")
 		}
 		balance, e := hospitality.Balance(ctx, tx, t.Organisation, id, h.Auth.Service.Now())
-		if e != nil {
-			return 0, nil, e
-		}
-		amount := min(balance, p.Available)
-		var prior bool
-		if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM folio_payment_references WHERE organisation_id=$1 AND folio_id=$2 AND financial_group_id=$3)`, t.Organisation, id, group).Scan(&prior); e != nil {
-			return 0, nil, e
-		}
-		if amount > 0 && !prior {
-			if p.Currency != f.Currency {
-				return 0, nil, apperrors.Conflict("FOLIO_CURRENCY_MISMATCH", "Financial evidence cannot change accepted currency.")
-			}
-			if _, e = tx.Exec(ctx, `INSERT INTO folio_payment_references(id,organisation_id,property_id,folio_id,financial_group_id,intent_id,payment_projection_id,amount_minor,currency,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, ids.New(), t.Organisation, f.PropertyID, id, group, p.IntentID, p.ID, amount, f.Currency, t.Account); e != nil {
-				return 0, nil, e
-			}
-		}
-		balance, e = hospitality.Balance(ctx, tx, t.Organisation, id, h.Auth.Service.Now())
 		if e != nil {
 			return 0, nil, e
 		}
@@ -255,7 +279,7 @@ func (h *Handler) pmsFolioReconcile(w http.ResponseWriter, r *http.Request) {
 		if _, e = tx.Exec(ctx, `UPDATE folios SET state=$3,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, id, state); e != nil {
 			return 0, nil, e
 		}
-		if e = h.pmsCommit(ctx, tx, t, f.PropertyID, id, "folio", "FOLIO_PAYMENT_RECONCILED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"financial_group_id": group, "payment_projection_id": p.ID, "state": state, "balance_minor": balance, "reason": in.Reason}); e != nil {
+		if e = h.pmsCommit(ctx, tx, t, f.PropertyID, id, "folio", "FOLIO_PAYMENT_RECONCILED", "hospitality.folio.updated.v1", f.Version+1, map[string]any{"financial_group_id": group, "applied_financial_group_ids": usable, "payment_projection_ids": projections, "state": state, "balance_minor": balance, "reason": in.Reason}); e != nil {
 			return 0, nil, e
 		}
 		out, e := hospitality.GetFolio(ctx, tx, t.Organisation, id)

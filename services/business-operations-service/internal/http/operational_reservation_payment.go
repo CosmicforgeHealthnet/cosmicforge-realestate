@@ -64,6 +64,7 @@ type reservationFinancialJob struct {
 	LeaseOwner        string          `json:"lease_owner"`
 	LeaseGeneration   int64           `json:"lease_generation"`
 	Attempts          int             `json:"attempts"`
+	FolioAgreementID  *ids.ID         `json:"folio_agreement_id"`
 }
 type protectedFinancialRequest struct {
 	KeyID      string `json:"key_id"`
@@ -321,6 +322,12 @@ func (h *Handler) runReservationFinancialJob(ctx context.Context, job reservatio
 		if !slices.Contains(v.PolicySnapshot.AllowedPaymentPolicyIDs, in.PaymentPolicyID) {
 			return apperrors.PermissionDenied("Original accepted property contract does not authorise this financial policy.")
 		}
+		if job.FolioAgreementID != nil {
+			if e = h.folioCollectionAuthority(ctx, tx, t, job); e != nil {
+				return e
+			}
+			return h.commercialGate(ctx, tx, t, v.PropertyID)
+		}
 		if v.Version != in.Version || v.AllocationState != "ACTIVE" || !slices.Contains([]string{"HOLD", "PENDING_PAYMENT", "PENDING_APPROVAL", "CONFIRMED"}, v.State) || v.HoldExpiresAt != nil && !h.Auth.Service.Now().Before(*v.HoldExpiresAt) {
 			return apperrors.Conflict("COLLECTION_AUTHORITY_STALE", "Reservation or hold changed before collection; readback remains available.")
 		}
@@ -341,7 +348,15 @@ func (h *Handler) runReservationFinancialJob(ctx context.Context, job reservatio
 	if policy.Key == "SHORT_LET" {
 		kind = "ACCOMMODATION"
 	}
-	quote := payment.Quote{ID: payload.QuoteID, Domain: string(platform.DomainBusinessOperations), BusinessRef: group.ID.String(), PayerWalletID: in.PayerWalletID, PayerType: in.PayerType, PayerConsentRef: in.ConsentReference, LegalPartyRef: in.LegalPartyReference, QuoteVersion: group.ID.String() + ":" + strconv.FormatInt(group.AgreementVersion, 10), AgreementRef: group.ReservationID.String(), AgreementVersion: strconv.FormatInt(group.AgreementVersion, 10), PolicyID: policy.ID, Currency: group.Currency, Jurisdiction: policy.Jurisdiction, Schedule: in.Schedule, AmountMinor: group.RequiredAmountMinor, Components: []payment.Component{{Ref: group.ID.String(), Kind: kind, AmountMinor: group.RequiredAmountMinor, PayerRef: in.LegalPartyReference, Recurrence: "ONE_TIME", ServiceEvidenceRef: "business-reservation:" + group.ReservationID.String() + ":" + strconv.FormatInt(group.AgreementVersion, 10)}}}
+	components := []payment.Component{{Ref: group.ID.String(), Kind: kind, AmountMinor: group.RequiredAmountMinor, PayerRef: in.LegalPartyReference, Recurrence: "ONE_TIME", ServiceEvidenceRef: "business-reservation:" + group.ReservationID.String() + ":" + strconv.FormatInt(group.AgreementVersion, 10)}}
+	if job.FolioAgreementID != nil {
+		// Ancillary obligations use their own Payment policy components; the
+		// accepted accommodation component is never part of a folio agreement.
+		if components, e = h.folioCollectionComponents(call, job, policy.Key, in.LegalPartyReference); e != nil {
+			return out, e
+		}
+	}
+	quote := payment.Quote{ID: payload.QuoteID, Domain: string(platform.DomainBusinessOperations), BusinessRef: group.ID.String(), PayerWalletID: in.PayerWalletID, PayerType: in.PayerType, PayerConsentRef: in.ConsentReference, LegalPartyRef: in.LegalPartyReference, QuoteVersion: group.ID.String() + ":" + strconv.FormatInt(group.AgreementVersion, 10), AgreementRef: group.ReservationID.String(), AgreementVersion: strconv.FormatInt(group.AgreementVersion, 10), PolicyID: policy.ID, Currency: group.Currency, Jurisdiction: policy.Jurisdiction, Schedule: in.Schedule, AmountMinor: group.RequiredAmountMinor, Components: components}
 	locked, e := h.Payment.Lock(callCtx, quote, job.IdempotencyKey+":quote")
 	if e != nil {
 		return out, e
@@ -473,8 +488,12 @@ func (h *Handler) finishReservationFinancialJob(ctx context.Context, job reserva
 		if _, e = tx.Exec(ctx, `UPDATE reservation_financial_groups SET state=$3,version=version+1,updated_at=$4 WHERE organisation_id=$1 AND id=$2`, job.OrganisationID, group.ID, financial, now); e != nil {
 			return e
 		}
-		if e = h.projectReservationFinancialRoots(ctx, tx, job, observation, financial, now); e != nil {
-			return e
+		// Folio payer agreements never change the reservation's accepted
+		// accommodation financial state; they reconcile through the folio.
+		if job.FolioAgreementID == nil {
+			if e = h.projectReservationFinancialRoots(ctx, tx, job, observation, financial, now); e != nil {
+				return e
+			}
 		}
 		if e = h.reconcileReservationRefundReviews(ctx, tx, job); e != nil {
 			return e

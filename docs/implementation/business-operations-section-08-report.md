@@ -1,3 +1,7 @@
+## 7 November 2026 closure pass — Section 8 RMS
+
+Status: **PARTIAL**. No RMS behaviour changed in this pass. `APPROVAL_AUTOMATION` and `AUTOPILOT_WITH_LIMITS` remain policy labels that do not authorize automatic execution (fail closed). Automatic workers, advanced recommendations/inputs/aggregation/simulations and drift monitoring remain internal work. See `business-operations-sections-08-11-final-closure.md` for the requirement matrix, tests and CI evidence of the 7 November 2026 closure pass.
+
 ## Current completion pass
 
 Section 8 remains PARTIAL. This pass adds genuine guest/stay/folio prerequisites for future realized outcomes, but does not yet complete RMS automatic modes, advanced recommendation families or outcome pipelines. No PMS fixture or accepted reservation is labeled realized financial revenue. Existing RMS behavior is preserved and remains in full regression checks.

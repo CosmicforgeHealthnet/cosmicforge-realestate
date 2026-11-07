@@ -46,6 +46,10 @@ func (h *Handler) registerCRM(r chi.Router) {
 	r.Get("/guests/{id}/consents", h.crmGuestConsents)
 	r.Post("/guests/{id}/consents", h.crmGuestConsent)
 	h.registerCorporateCRM(r)
+	h.registerRecoveryCRM(r)
+	h.registerLoyaltyCRM(r)
+	h.registerPrivacyCRM(r)
+	h.registerCRMReports(r)
 }
 func (h *Handler) crmSourceHash(org ids.ID, kind, reference string) string {
 	// These are opaque identifiers, never credentials or inferred contact

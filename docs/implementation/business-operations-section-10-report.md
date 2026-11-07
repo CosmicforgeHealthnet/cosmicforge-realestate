@@ -1,3 +1,7 @@
+## 7 November 2026 closure pass — Section 10 PMS
+
+Status: **PARTIAL**. Implemented: ancillary collection through folio payer agreements (migration 00024, preserved and finished draft), guest/corporate/split responsibility with conserved allocations, separate Payment intents per payer, partial settlement, verified-failure release and single replacement, reversal handling and a folio responsibility view; a folio never settles while any mandatory obligation lacks settled Payment evidence. Tests: `TestBusinessPMSFolioSplitPayerCollectionConservesObligations`, `TestBusinessPMSFolioCollectionReleaseReplacementAndVerifiedFailure`. Remaining internal work: in-house extension and early departure. See `business-operations-sections-08-11-final-closure.md` for the requirement matrix, tests and CI evidence of the 7 November 2026 closure pass.
+
 ## Schema23 bounded access workflow — November 6
 
 Section10 remains **PARTIAL overall**. The seven canonical routes under `/api/v1/business` are `GET/POST /hospitality-access-configurations`, `GET /access-grants`, `GET /access-grants/{id}`, and `POST /access-grants/{id}/request`, `/acknowledge`, `/retry`. All mutate through current PMS+inspection scope, recent MFA, exact versions, idempotency and immutable evidence. Configuration requires independent exact approval, direct recorded maker authority and bounded expiry. Security reads are scoped/audited/no-store. Manual key/card handover and return work against actual operator evidence; a browser cannot assert smart-device success.
