@@ -52,6 +52,7 @@ var components = []component{
 	{"media-document-service", "../../services/media-document-service", []string{"api", "worker", "migrate"}},
 	{"notification-service", "../../services/notification-service", []string{"api", "worker", "migrate"}},
 	{"individual-owner-service", "../../services/individual-owner-service", []string{"api", "worker", "migrate"}},
+	{"marketplace-service", "../../services/marketplace-service", []string{"api", "migrate"}},
 }
 
 var binDir string

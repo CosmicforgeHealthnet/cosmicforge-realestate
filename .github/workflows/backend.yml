@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service, services/business-operations-service, tests/e2e]
+        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service, services/business-operations-service, services/marketplace-service, tests/e2e]
     defaults:
       run:
         working-directory: ${{ matrix.module }}
@@ -88,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service, services/business-operations-service]
+        module: [shared/go, gateway/api-gateway, services/verification-service, services/media-document-service, services/notification-service, services/individual-owner-service, services/payment-service, services/business-operations-service, services/marketplace-service]
     services:
       postgres:
         image: postgres:16-alpine

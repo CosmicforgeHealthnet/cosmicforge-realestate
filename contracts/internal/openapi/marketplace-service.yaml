@@ -1,0 +1,418 @@
+openapi: 3.1.0
+info:
+  title: "marketplace-service \u2014 internal Business supply API"
+  version: 1.0.0
+  description: 'Marketplace-owned receiving side of the Business Operations supply contract (business-supply.v1). Only business-operations-service may call it, with a service JWT (`aud: marketplace-service`)
+    carrying the organisation delegation; body organisation values must match the signed delegation. Commands require `Idempotency-Key` equal to the command idempotency key; a replay returns the original
+    acknowledgement, a different command under the same key returns 409, a payload whose canonical hash does not match returns 400 and a stale canonical version returns 409. Readback of an unknown command
+    is 404 (never a fabricated success). Marketplace stores its own projection in marketplace_db and never reads Business databases.'
+servers:
+- url: http://marketplace-service:8080
+security:
+- serviceJWT: []
+paths:
+  /internal/v1/business-supply/connections/validate:
+    post:
+      operationId: validateSupplyConnection
+      summary: Register or re-validate a first-party seller connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Connection'
+      responses:
+        '200':
+          description: Validated connection authority
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Authorization'
+        '400': &id001
+          $ref: '#/components/responses/Error'
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+  /internal/v1/business-supply/commands:
+    post:
+      operationId: applySupplyCommand
+      summary: Durably accept one supply command exactly once
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 300
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+      responses:
+        '200':
+          description: Durable acknowledgement
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Acknowledgement'
+        '400': *id001
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+  /internal/v1/business-supply/commands/{key}:
+    get:
+      operationId: readbackSupplyCommand
+      summary: Authoritative readback of an accepted command
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: connection_id
+        in: query
+        required: true
+        schema: &id002
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Accepted command
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Acknowledgement'
+        '400': *id001
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+  /internal/v1/business-supply/connections/{id}/events:
+    get:
+      operationId: pollSupplyEvents
+      summary: Cursor page of Marketplace customer events
+      parameters:
+      - &id003
+        name: id
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Event page
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PollResult'
+        '400': *id001
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+  /internal/v1/business-supply/connections/{id}/mapping-inspection:
+    post:
+      operationId: inspectSupplyObject
+      summary: Prove Marketplace object binding for a mapping
+      parameters:
+      - *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingReference'
+      responses:
+        '200':
+          description: Mapping proof
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MappingProof'
+        '400': *id001
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+  /internal/v1/business-supply/connections/{id}/listing:
+    get:
+      operationId: readSupplyListing
+      summary: Storefront projection readback
+      parameters:
+      - *id003
+      responses:
+        '200':
+          description: Current listing projection
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Listing'
+        '400': *id001
+        '401': *id001
+        '403': *id001
+        '404': *id001
+        '409': *id001
+components:
+  securitySchemes:
+    serviceJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: service+jwt (EdDSA)
+  responses:
+    Error:
+      description: Error envelope
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - error
+            properties:
+              error:
+                type: object
+                required:
+                - code
+                - message
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                  request_id:
+                    type: string
+  schemas:
+    Connection:
+      type: object
+      required:
+      - connection_id
+      - organisation_id
+      - property_id
+      - provider_account_id
+      - credential_reference
+      properties:
+        connection_id: *id002
+        organisation_id: *id002
+        property_id: *id002
+        provider_account_id:
+          type: string
+          minLength: 3
+          maxLength: 200
+        credential_reference:
+          type: string
+          minLength: 3
+          maxLength: 300
+    Authorization:
+      type: object
+      required:
+      - provider_account_id
+      - property_id
+      - validation_reference
+      - expires_at
+      - capabilities
+      properties:
+        provider_account_id:
+          type: string
+        property_id: *id002
+        validation_reference:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        capabilities:
+          type: array
+          items:
+            type: string
+    Command:
+      type: object
+      required:
+      - contract_version
+      - job_id
+      - connection
+      - kind
+      - canonical_version
+      - idempotency_key
+      - payload_hash
+      - payload
+      properties:
+        contract_version:
+          const: business-supply.v1
+        job_id: *id002
+        connection:
+          $ref: '#/components/schemas/Connection'
+        kind:
+          enum:
+          - CONTENT
+          - ARI
+          - WITHDRAW
+          - PAUSE
+          - RECONCILE
+        canonical_version:
+          type: integer
+          minimum: 1
+        idempotency_key:
+          type: string
+        payload_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        payload: {}
+    Acknowledgement:
+      type: object
+      required:
+      - provider_request_id
+      - connection_id
+      - canonical_version
+      - payload_hash
+      - state
+      - durable
+      - observed_at
+      properties:
+        provider_request_id:
+          type: string
+        connection_id: *id002
+        canonical_version:
+          type: integer
+          minimum: 1
+        payload_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        state:
+          enum:
+          - PUBLISHED
+          - SYNCHRONIZED
+          - WITHDRAWN
+          - PAUSED
+        durable:
+          type: boolean
+        observed_at:
+          type: string
+          format: date-time
+    PollResult:
+      type: object
+      required:
+      - cursor
+      - next_cursor
+      - events
+      properties:
+        cursor:
+          type: string
+        next_cursor:
+          type: string
+        events:
+          type: array
+          items:
+            type: object
+    MappingReference:
+      type: object
+      required:
+      - kind
+      - external_id
+      - canonical_id
+      properties:
+        kind:
+          enum:
+          - PROPERTY
+          - PRODUCT
+          - RATE_PLAN
+        external_id:
+          type: string
+        canonical_id: *id002
+        canonical_version:
+          type: integer
+        expected_mapping_version:
+          type: integer
+    MappingProof:
+      type: object
+      required:
+      - kind
+      - external_id
+      - property_external_id
+      - provider_account_id
+      - reference
+      properties:
+        kind:
+          type: string
+        external_id:
+          type: string
+        property_external_id:
+          type: string
+        provider_account_id:
+          type: string
+        reference:
+          type: string
+    Listing:
+      type: object
+      required:
+      - connection_id
+      - property_id
+      - projections
+      properties:
+        connection_id: *id002
+        property_id: *id002
+        projections:
+          type: array
+          items:
+            type: object
+            required:
+            - kind
+            - canonical_version
+            - payload_hash
+            - publication_state
+            - payload
+            - updated_at
+            properties:
+              kind:
+                enum:
+                - CONTENT
+                - ARI
+              canonical_version:
+                type: integer
+              payload_hash:
+                type: string
+              publication_state:
+                enum:
+                - PUBLISHED
+                - PAUSED
+                - WITHDRAWN
+              payload: {}
+              updated_at:
+                type: string
+                format: date-time
