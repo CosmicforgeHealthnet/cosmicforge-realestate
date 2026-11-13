@@ -3,6 +3,10 @@ package e2e
 import (
 	"bytes"
 	"database/sql"
+	"encoding/base32"
+	"encoding/json"
+	"io"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -271,9 +275,11 @@ func TestCrossServiceCertificationFlows(t *testing.T) {
 			t.Fatalf("confirmation %+v", checkout)
 		}
 	})
+	var artisan string
+	var artisanID ids.ID
 	t.Run("4 maintenance artisan work verified and resolved by Business", func(t *testing.T) {
 		p.t, b.t = t, t
-		artisan, artisanID := p.domainUser(platform.DomainArtisan, "tunde@artisan.cross")
+		artisan, artisanID = p.domainUser(platform.DomainArtisan, "tunde@artisan.cross")
 		evidence := []ids.ID{p.upload(b.owner.access, "DOCUMENT", "report.pdf", "application/pdf", pdf("maintenance report"), map[string]any{"document_type": "MAINTENANCE_REPORT"})}
 		wo := b.opsCreate(b.owner, "/work-orders", map[string]any{"scope_id": b.property, "subject_id": b.unit, "kind": "REPAIR", "title": "Fix bathroom leak", "reason": "Guest report"})
 		approval := b.approval("COMMERCIAL_WORK_ORDER", "maintenance:approve", "", nil, "", map[string]any{"domain": "work_order", "record_id": wo.ID, "action": "APPROVE", "version": wo.Version}, "PROPERTY", b.property)
@@ -437,6 +443,167 @@ func TestCrossServiceCertificationFlows(t *testing.T) {
 		if ms.State != "CERTIFIED" {
 			t.Fatalf("milestone %+v", ms)
 		}
+	})
+
+	var reviewer, supervisor, caseID string
+	var sup *bizUser
+	t.Run("7 Business dispute Admin maker-checker decision and authoritative outcome", func(t *testing.T) {
+		p.t, b.t = t, t
+		evidence := []ids.ID{p.upload(b.owner.access, "DOCUMENT", "deposit.pdf", "application/pdf", pdf("deposit deduction evidence"), map[string]any{"document_type": "DISPUTE_EVIDENCE"})}
+		d := b.opsCreate(b.owner, "/disputes", map[string]any{"scope_id": b.property, "kind": "DEPOSIT", "title": "Deposit deduction dispute", "counterparty_reference": "tenant:lekki-suite-101", "attributes": map[string]any{"claim_summary": "Guest contests a cleaning deduction"}})
+		d = b.opsMove(b.owner, "/disputes", d, map[string]any{"action": "COLLECT_EVIDENCE"})
+		d = b.opsMove(b.owner, "/disputes", d, map[string]any{"action": "SUBMIT", "external_reference": "platform-review", "evidence_refs": evidence})
+		reviewer, _ = p.domainUser(platform.DomainAdmin, "reviewer@admin.cross")
+		supervisor, _ = p.domainUser(platform.DomainAdmin, "supervisor@admin.cross")
+		const base = "/api/v1/admin"
+		var enrol struct {
+			Secret string `json:"secret"`
+		}
+		mustStatus(t, p.as(supervisor, "POST", base+"/mfa/enrol", nil), 201).data(t, &enrol)
+		secret, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(enrol.Secret)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sup = &bizUser{totpSecret: secret}
+		mustStatus(t, p.as(supervisor, "POST", base+"/mfa/confirm", map[string]any{"code": sup.code(t)}), 200)
+		// The Admin worker opens a case from the Business dispute event.
+		eventually(t, 60*time.Second, "Admin dispute case from Business event", func() bool {
+			var list struct {
+				Items []struct {
+					ID              string `json:"id"`
+					SourceReference string `json:"source_reference"`
+				} `json:"items"`
+			}
+			p.as(reviewer, "GET", base+"/cases?kind=DISPUTE", nil).data(t, &list)
+			for _, c := range list.Items {
+				if c.SourceReference == d.ID.String() {
+					caseID = c.ID
+				}
+			}
+			return caseID != ""
+		})
+		mustStatus(t, p.as(reviewer, "POST", base+"/cases/"+caseID+"/claim", map[string]any{}), 200)
+		mustStatus(t, p.as(reviewer, "POST", base+"/cases/"+caseID+"/propose", map[string]any{"outcome": "PARTIALLY_UPHELD", "rationale": "Cleaning evidence supports half of the deduction"}), 200)
+		mustStatus(t, p.as(reviewer, "POST", base+"/cases/"+caseID+"/decide", map[string]any{"rationale": "Reviewer cannot decide"}), 403)
+		decide := func(code string) response {
+			body, _ := json.Marshal(map[string]any{"rationale": "Half of the deduction is justified by the evidence"})
+			req, _ := http.NewRequest("POST", p.gateway+base+"/cases/"+caseID+"/decide", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Authorization", "Bearer "+supervisor)
+			req.Header.Set("Idempotency-Key", "decide-"+ids.New().String())
+			if code != "" {
+				req.Header.Set("X-MFA-Code", code)
+			}
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer res.Body.Close()
+			raw, _ := io.ReadAll(res.Body)
+			return response{status: res.StatusCode, body: raw}
+		}
+		mustStatus(t, decide(""), 403)
+		if r := mustStatus(t, decide(sup.code(t)), 200); !strings.Contains(string(r.body), `"DECIDED"`) {
+			t.Fatalf("decision %s", r.body)
+		}
+		// The decision is the authoritative outcome on the Business dispute.
+		d = b.opsGet("/disputes/" + d.ID.String())
+		if d.State != "DECIDED" {
+			t.Fatalf("business dispute %+v", d)
+		}
+		d = b.opsMove(b.owner, "/disputes", d, map[string]any{"action": "RESOLVE", "evidence_refs": evidence})
+		if d.State != "RESOLVED" {
+			t.Fatalf("resolution %+v", d)
+		}
+	})
+
+	t.Run("8 duplicates broker outage worker recovery and revoked permission", func(t *testing.T) {
+		p.t, b.t = t, t
+		if artisan == "" || caseID == "" {
+			t.Skip("depends on flows 4 and 7")
+		}
+		assign := func(title string) (opsRecord, opsRecord) {
+			wo := b.opsCreate(b.owner, "/work-orders", map[string]any{"scope_id": b.property, "subject_id": b.unit, "kind": "REPAIR", "title": title, "reason": "Guest report"})
+			approval := b.approval("COMMERCIAL_WORK_ORDER", "maintenance:approve", "", nil, "", map[string]any{"domain": "work_order", "record_id": wo.ID, "action": "APPROVE", "version": wo.Version}, "PROPERTY", b.property)
+			wo = dataOf[opsRecord](t, b.must(b.owner, "POST", "/work-orders/"+wo.ID.String()+"/approve", map[string]any{"version": wo.Version, "approval_id": approval, "reason": "Approve repair"}, 200))
+			wo = b.opsMove(b.owner, "/work-orders", wo, map[string]any{"action": "ASSIGN", "external_reference": "artisan-" + ids.New().String()[30:]})
+			return wo, b.opsCreate(b.owner, "/work-orders/"+wo.ID.String()+"/provider-assignments", map[string]any{"kind": "ARTISAN", "title": title,
+				"counterparty_reference": "artisan-service:account:" + artisanID.String(), "attributes": map[string]any{"scope_of_work": title}, "reason": "Assign artisan"})
+		}
+		workCount := func() int {
+			var list struct {
+				Items []struct {
+					ID ids.ID `json:"id"`
+				} `json:"items"`
+			}
+			p.as(artisan, "GET", "/api/v1/artisan/work-requests", nil).data(t, &list)
+			return len(list.Items)
+		}
+		before := workCount()
+		// Broker outage and a crashed consumer: Business keeps accepting
+		// commands (transactional outbox); delivery resumes after recovery.
+		p.nats.Shutdown()
+		p.killWorker(platform.ArtisanService)
+		wo, pa := assign("Repair during broker outage")
+		if workCount() != before {
+			t.Fatal("projection appeared without a broker")
+		}
+		p.nats.Restart()
+		p.restartWorker(platform.ArtisanService)
+		var workID string
+		eventually(t, 90*time.Second, "assignment delivered after broker and worker recovery", func() bool {
+			var list struct {
+				Items []struct {
+					ID                   string `json:"id"`
+					BusinessAssignmentID string `json:"business_assignment_id"`
+				} `json:"items"`
+			}
+			p.as(artisan, "GET", "/api/v1/artisan/work-requests", nil).data(t, &list)
+			for _, it := range list.Items {
+				if it.BusinessAssignmentID == pa.ID.String() {
+					workID = it.ID
+				}
+			}
+			return workID != ""
+		})
+		// A duplicate command (same Idempotency-Key) replays one effect.
+		key := "accept-" + ids.New().String()
+		first := send(t, "POST", p.gateway+"/api/v1/artisan/work-requests/"+workID+"/accept", artisan, "", map[string]any{}, key)
+		second := send(t, "POST", p.gateway+"/api/v1/artisan/work-requests/"+workID+"/accept", artisan, "", map[string]any{}, key)
+		if first.status != 200 || second.status != 200 || string(dataRaw(first)) != string(dataRaw(second)) {
+			t.Fatalf("duplicate replay %d %d %s %s", first.status, second.status, first.body, second.body)
+		}
+		if got := b.opsGet("/work-orders/" + wo.ID.String() + "/provider-assignments/" + pa.ID.String()); got.State != "ACCEPTED" || got.Version != pa.Version+1 {
+			t.Fatalf("one accepted transition expected %+v (created at v%d)", got, pa.Version)
+		}
+		// Revoked permission: an Admin restriction suspends the account in
+		// the owning service; lifting it restores access.
+		r := mustStatus(t, p.as(reviewer, "POST", "/api/v1/admin/restrictions", map[string]any{"case_id": caseID, "subject_service": "artisan-service", "subject_account_id": artisanID, "reason": "Restriction pending dispute outcome"}), 201)
+		var restriction struct {
+			ID string `json:"id"`
+		}
+		r.data(t, &restriction)
+		step := func(path string) response {
+			body, _ := json.Marshal(map[string]any{"reason": "Supervisor decision on restriction"})
+			req, _ := http.NewRequest("POST", p.gateway+path, bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Authorization", "Bearer "+supervisor)
+			req.Header.Set("Idempotency-Key", "restriction-"+ids.New().String())
+			req.Header.Set("X-MFA-Code", sup.code(t))
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer res.Body.Close()
+			raw, _ := io.ReadAll(res.Body)
+			return response{status: res.StatusCode, body: raw}
+		}
+		mustStatus(t, step("/api/v1/admin/restrictions/"+restriction.ID+"/approve"), 200)
+		if r := p.as(artisan, "GET", "/api/v1/artisan/work-requests", nil); r.status != 403 {
+			t.Fatalf("restricted account still served %d", r.status)
+		}
+		mustStatus(t, step("/api/v1/admin/restrictions/"+restriction.ID+"/lift"), 200)
+		mustStatus(t, p.as(artisan, "GET", "/api/v1/artisan/work-requests", nil), 200)
 	})
 }
 

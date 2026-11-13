@@ -299,19 +299,26 @@ func startCrossPlatform(t *testing.T) *crossEnv {
 	return p
 }
 
-// restartWorker stops and restarts a service worker (recovery scenarios).
-func (p *crossEnv) restartWorker(s platform.Service) {
+// killWorker crashes a service worker (no graceful shutdown).
+func (p *crossEnv) killWorker(s platform.Service) {
 	p.t.Helper()
 	name := string(s) + " worker"
 	for i, pr := range p.procs {
-		if pr.name != name || pr.cmd.ProcessState != nil {
+		if pr.name != name {
 			continue
 		}
 		_ = pr.cmd.Process.Kill()
-		_, _ = pr.cmd.Process.Wait()
+		_ = pr.cmd.Wait()
 		p.procs = append(p.procs[:i], p.procs[i+1:]...)
-		break
+		return
 	}
+}
+
+// restartWorker starts a (crashed or stopped) service worker again.
+func (p *crossEnv) restartWorker(s platform.Service) {
+	p.t.Helper()
+	p.killWorker(s)
+	name := string(s) + " worker"
 	p.start(name, string(s)+"-worker", p.env[s])
 	waitReady(p.t, "http://"+p.env[s]["HTTP_ADDR"])
 }
