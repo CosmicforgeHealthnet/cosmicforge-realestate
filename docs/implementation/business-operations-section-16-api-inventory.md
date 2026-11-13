@@ -980,7 +980,7 @@ Machine-readable inventory: `business-operations-section-16-api-inventory.json` 
 | POST | `/api/v1/business/reservation-policies` | reservations:approve | MFA | reservationPolicyCreate | `internal/http/operational_reservations.go:48` |
 | GET | `/api/v1/business/reservations` | reservations:read |  | reservationList | `internal/http/operational_reservations.go:49` |
 | POST | `/api/v1/business/reservations` | reservations:write |  | reservationCreate | `internal/http/operational_reservations.go:50` |
-| GET | `/api/v1/business/reservations/{id}` | reservations:read |  | reservationGet | `internal/http/operational_reservations.go:51` |
+| GET | `/api/v1/business/reservations/{id}` | reservations:read |  | internalReservationStatus | `internal/http/commercial_channel_intake.go:33` |
 | GET | `/api/v1/business/reservations/{id}/history` | reservations:read |  | reservationHistory | `internal/http/operational_reservations.go:52` |
 | GET | `/api/v1/business/reservations/{id}/cancellation-obligations` | reservations:read |  | reservationCancellationObligations | `internal/http/operational_reservations.go:53` |
 | GET | `/api/v1/business/reservation-command-center` | reservations:read |  | reservationCommandCenter | `internal/http/operational_reservations.go:54` |

@@ -14,7 +14,7 @@ DOC = ROOT / 'docs/implementation'
 routes = json.loads((SERVICE / 'contracts/routes.json').read_text(encoding='utf-8'))
 previous = {(r['method'], r['path']): r for r in json.loads((DOC / 'business-operations-section-16-api-inventory.json').read_text(encoding='utf-8'))['routes']}
 registrations = {}
-for go in SERVICE.joinpath('internal').rglob('*.go'):
+for go in sorted(SERVICE.joinpath('internal').rglob('*.go')):
     if go.name.endswith('_test.go'):
         continue
     for n, line in enumerate(go.read_text(encoding='utf-8').splitlines(), 1):

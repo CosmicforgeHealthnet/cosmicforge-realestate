@@ -12334,8 +12334,8 @@
    "capability": "reservations:read",
    "step_up": false,
    "idempotent": false,
-   "handler": "reservationGet",
-   "source": "internal/http/operational_reservations.go:51",
+   "handler": "internalReservationStatus",
+   "source": "internal/http/commercial_channel_intake.go:33",
    "annex_e": true,
    "openapi": true,
    "postman": true
