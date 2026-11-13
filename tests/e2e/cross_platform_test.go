@@ -10,15 +10,15 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"crypto/ed25519"
 	"crypto/hmac"
 	"crypto/sha512"
-	"encoding/hex"
-	"io"
-	"crypto/ed25519"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -135,7 +135,7 @@ type crossEnv struct {
 	adminMFAKey []byte
 	// providerAccount is the Payment provider account the double serves.
 	providerAccount ids.ID
-	env         map[platform.Service]map[string]string
+	env             map[platform.Service]map[string]string
 }
 
 // business_operations_db is a fixed name (Business refuses any other).
