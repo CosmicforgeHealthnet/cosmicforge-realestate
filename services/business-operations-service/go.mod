@@ -2,7 +2,7 @@ module github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-
 
 go 1.26.0
 
-toolchain go1.26.10
+toolchain go1.26.11
 
 require (
 	github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go v0.0.0

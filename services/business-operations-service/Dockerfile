@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-ARG GO_VERSION=1.26.10
+ARG GO_VERSION=1.26.11
 FROM golang:${GO_VERSION}-alpine AS build
 ENV CGO_ENABLED=0 GOWORK=off GOTOOLCHAIN=local GOFLAGS=-trimpath
 WORKDIR /src

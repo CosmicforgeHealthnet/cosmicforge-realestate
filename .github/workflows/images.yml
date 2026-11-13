@@ -90,7 +90,7 @@ jobs:
       - uses: actions/setup-go@v5
         if: matrix.component == 'business-operations-service'
         with:
-          go-version: "1.26.10"
+          go-version: "1.26.11"
           cache-dependency-path: tests/e2e/go.sum
       - name: Business API worker migration and broker recovery containers
         if: matrix.component == 'business-operations-service'
