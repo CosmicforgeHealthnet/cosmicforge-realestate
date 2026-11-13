@@ -1,0 +1,19 @@
+# Business Operations — Section 27 competitive acceptance (evidence-backed)
+
+Verdicts cover what this repository implements and tests. Appendix A benchmarks
+name competitor capability areas, but no competitor product was inspected or
+benchmarked in this environment; every "exceeds competitor" claim is therefore
+marked **comparison evidence incomplete** rather than asserted.
+
+| # | Criterion | Repository verdict | Evidence (APIs / tests) | Competitive comparison |
+|---|---|---|---|---|
+| 1 | Multi-channel canonical inventory synchronization | PASS_VERIFIED (internal); OTA activation EXTERNAL_ACTIVATION_DEFERRED | Canonical inventory calendar, holds, oversell prevention; channel sync jobs with delta, quarantine, readback, outage recovery. `TestBusinessCommercialSignedPublicationAmbiguousCommitReadbackAndPause`, `TestBusinessCommercialChannelOutageLeaseRecoveryAndCanonicalRestrictionPause`, `commercial_inventory_test.go` | Incomplete |
+| 2 | First-party CosmicForge Marketplace | PASS_VERIFIED for supply publication/readback; customer reservation production NEEDS_INTEGRATION | New marketplace-service receiver (business-supply.v1) with its own DB; `TestMarketplaceBusinessSupplyContractRealProcess` (real processes), `TestMarketplaceSupplyExactlyOnceAppendOnlyAndExpiry`. Marketplace is primary; Booking.com/Airbnb stay disabled adapters and do not block it | Incomplete |
+| 3 | RMS explainability and enterprise controls | PASS_VERIFIED | Forecast/recommendation provenance, approval, bounded autopilot, rollback. `rms_*_test.go`, `TestBusinessJourneyRMSBookingDataToAutopilotChannelAndMonitoring`, `TestBusinessJourneyRMSUnknownChannelOutcomeNeverSucceeds` | Incomplete |
+| 4 | Hotel / short-let operational depth | PASS_VERIFIED | PMS front desk, folios, cashier, night audit, groups, access, offline; plus Annex D checklists, lost & found, linen, short-let settings, service catalogue. `journey_pms_test.go`, `pms_*_test.go`, `TestAnnexDHospitalityChecklistsLostFoundLinenSettingsServicesExperiments` | Incomplete |
+| 5 | Enterprise RBAC and approvals | PASS_VERIFIED | Scoped grants, MFA step-up, exact independent approvals bound to version/amount, separation of duties, delegation expiry. `approvals_http_test.go`, `security_concurrency_test.go`, every Annex D journey (403 for self-approval / same actor) | Incomplete |
+| 6 | Messaging / AI integration with CF Meet | PARTIAL — CF Meet contract in external repository; contexts fail closed | `TestBusinessInboxCFMeetAuthorityPendingThenEstablishedWithoutMessageStorage`, `TestBusinessInboxAIGroundingInjectionActionCardsAndApprovedAutoReply` | Incomplete |
+| 7 | Reviews and service recovery | PASS_VERIFIED | `TestBusinessReviewsVerifiedIntakeDedupHistoryQualityLoopAndMetrics`, `TestBusinessReviewResponsesPolicyApprovalAmbiguousReadbackAndDisputes`, `TestJourneyJ12ExternalReviewImportDedupAndTombstone` | Incomplete |
+| 8 | Net channel profitability | PASS_VERIFIED | `commercial_profitability_test.go`, channel settlement expectations (`TestBusinessFinanceChannelRemittanceReconciliationAndCloseBlocking`) | Incomplete |
+| 9 | Native residential / commercial / land / development operations | PASS_VERIFIED | Annex D.9–D.13 lifecycles added in 00038 with Payment-readback settlement and professional certification gates: `TestAnnexDResidentialRentalLifecycleFromOfferToDepositRelease`, `TestAnnexDCommercialLOITermsLeaseServiceChargeLifecycle`, `TestAnnexDLandTitleAllocationDueDiligenceAndClosingMilestones`, `TestAnnexDSaleOfferUnitHoldConditionsPaymentMilestonesClosing`, `TestAnnexDOffPlanProgressCertificationVariationAndConservation` | Incomplete |
+| 10 | OpenAPI / Postman frontend handoff | PASS_VERIFIED | 995 handlers = 995 OpenAPI operations = 995 Postman requests; Annex E 213/213; generator `--check --validate` gates | Incomplete |

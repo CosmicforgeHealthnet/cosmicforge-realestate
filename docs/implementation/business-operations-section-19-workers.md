@@ -34,3 +34,30 @@ All workers run inside the existing worker process (`cmd/worker` → `internal/w
 | Support SLA escalation | inside `ProcessInboxSLA` | — | — |
 
 Scheduling: `ProcessCommunications` runs every second; `ProcessReputation`, `ProcessMarketing`, `ProcessFinance`, `ProcessOperations`, `ProcessReports` run in the existing one-minute maintenance loop. Failures are logged per domain and retried on the next tick; quarantined/blocked states require an authorised operator action (cancel, retry, resolve).
+
+## Addendum — migration 00038 date-driven sweeps
+
+All run inside `ProcessOperations` (Section 16 worker) under the explicit service identity, per-record transaction, `FOR UPDATE` lock, database-guarded edge and idempotent re-run (an already-moved record yields INVALID_TRANSITION and is skipped). Generated into `opsGeneratedSweeps`.
+
+| Domain | From → to | Trigger column | Action |
+|---|---|---|---|
+| rental_offer | ISSUED → EXPIRED | `ends_at` <= now | OFFER_EXPIRED |
+| rent_obligation | SCHEDULED → DUE | `starts_at` <= now | OBLIGATION_DUE |
+| rent_obligation | DUE/LINKED → OVERDUE | `ends_at` <= now | OBLIGATION_OVERDUE |
+| notice | SERVED/ACKNOWLEDGED → EFFECTIVE | `starts_at` <= now | NOTICE_EFFECTIVE |
+| renewal_case | OPEN/OFFERED → LAPSED | `ends_at` <= now | RENEWAL_LAPSED |
+| commercial_loi | ISSUED → EXPIRED | `ends_at` <= now | LOI_EXPIRED |
+| land_allocation | PROVISIONAL → RELEASED | `ends_at` <= now | ALLOCATION_HOLD_EXPIRED |
+| sale_allocation | HELD → EXPIRED | `ends_at` <= now | UNIT_HOLD_EXPIRED |
+| warranty | ACTIVE → EXPIRED | `ends_at` <= now | WARRANTY_EXPIRED |
+| service_contract | ACTIVE/EXPIRING → EXPIRED | `ends_at` <= now | CONTRACT_EXPIRED |
+| service_contract | ACTIVE → EXPIRING | `ends_at` within 30 days | CONTRACT_EXPIRING |
+| risk_signal | OBSERVED → EXPIRED | `ends_at` <= now | SIGNAL_EXPIRED |
+| financing_consent | GRANTED → EXPIRED | `ends_at` <= now | CONSENT_EXPIRED |
+| api_credential | ACTIVE/ROTATING → EXPIRED | `ends_at` <= now | CREDENTIAL_EXPIRED |
+| fx_rate_ref | ACTIVE → STALE | `ends_at` <= now | FX_RATE_STALE |
+| content_suggestion | SUGGESTED → EXPIRED | `ends_at` <= now | SUGGESTION_EXPIRED |
+| market_benchmark | ACTIVE → STALE | `ends_at` <= now | BENCHMARK_STALE |
+| tenancy rent schedule | periodic tenancies kept 3 scheduled periods ahead | `scheduleRentObligations` | SCHEDULED |
+
+Tested: residential journey (DUE→OVERDUE), sale hold expiry, warranty expiry, service contract EXPIRING, FX STALE.
