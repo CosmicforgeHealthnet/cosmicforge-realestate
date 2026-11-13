@@ -633,14 +633,23 @@ func (h *Handler) internalManagerAuthorization(w http.ResponseWriter, r *http.Re
 func (h *Handler) internalDataRoomAuthorization(w http.ResponseWriter, r *http.Request) {
 	p, ok := serviceauth.PrincipalFrom(r.Context())
 	id, e := pathCommercialID(r)
-	if !ok || p.Service != platform.MediaDocumentService || p.Delegation.OrganizationID.IsZero() || e != nil {
-		reply(w, r, 0, nil, apperrors.PermissionDenied("Signed Media & Document service and organisation required."))
+	if !ok || p.Service != platform.MediaDocumentService && p.Service != platform.ProfessionalServicesService || p.Delegation.OrganizationID.IsZero() || e != nil {
+		reply(w, r, 0, nil, apperrors.PermissionDenied("Signed Media & Document or Professional Services service and organisation required."))
 		return
 	}
 	rec, e := opsGet[OpsRecord](r.Context(), h.Auth.Service.Pool, "data_room_grants", p.Delegation.OrganizationID, id)
 	if e != nil {
 		reply(w, r, 0, nil, e)
 		return
+	}
+	if p.Service == platform.ProfessionalServicesService {
+		// A professional sees only grants on their own appointment.
+		account, ae := ids.ParseV7(r.URL.Query().Get("account_id"))
+		var counterparty string
+		if ae != nil || h.Auth.Service.Pool.QueryRow(r.Context(), `SELECT counterparty_reference FROM professional_appointments WHERE organisation_id=$1 AND id=$2`, p.Delegation.OrganizationID, rec.ParentID).Scan(&counterparty) != nil || counterparty != PartnerReference(platform.ProfessionalServicesService, account) {
+			reply(w, r, 0, nil, apperrors.NotFound("RESOURCE_NOT_FOUND", "Resource not found."))
+			return
+		}
 	}
 	now := h.Auth.Service.Now().UTC()
 	allowed := rec.State == "ACTIVE" && rec.EndsAt != nil && now.Before(*rec.EndsAt)

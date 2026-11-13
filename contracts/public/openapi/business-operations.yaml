@@ -46453,8 +46453,8 @@
       "get": {
         "operationId": "GET_internal_v1_business_supply_data_room_grants_id_authorization",
         "summary": "GET /internal/v1/business-supply/data-room-grants/{id}/authorization",
-        "description": "Private service network only. signed:media-document-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
-        "x-permission": "signed:media-document-service",
+        "description": "Private service network only. signed:media-document-service|professional-services-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+        "x-permission": "signed:media-document-service|professional-services-service",
         "x-step-up": false,
         "x-idempotency-key": false,
         "parameters": [
@@ -55562,6 +55562,919 @@
                     "request_id": "example-request"
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/business-supply/partner-records/{domain}/{id}": {
+      "get": {
+        "operationId": "GET_internal_v1_business_supply_partner_records_domain_id",
+        "summary": "GET /internal/v1/business-supply/partner-records/{domain}/{id}",
+        "description": "Private service network only. signed:artisan-service|professional-services-service|admin-service|property-manager-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+        "x-permission": "signed:artisan-service|professional-services-service|admin-service|property-manager-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PartnerRecord"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "domain": "example",
+                    "record": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "scope_kind": "example",
+                      "scope_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "parent_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "subject_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "kind": "example",
+                      "state": "example",
+                      "title": "example",
+                      "counterparty_reference": "example",
+                      "external_reference": "example",
+                      "amount_minor": 1,
+                      "currency": "example",
+                      "starts_at": "2026-10-30T12:00:00Z",
+                      "ends_at": "2026-10-30T12:00:00Z",
+                      "attributes": {},
+                      "evidence_refs": {},
+                      "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "assigned_to": "019a5fb0-0000-7000-8000-000000000001",
+                      "last_actor_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "last_action": "example",
+                      "closed_at": "2026-10-30T12:00:00Z",
+                      "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                      "created_at": "2026-10-30T12:00:00Z",
+                      "version": 1
+                    },
+                    "attributes": {},
+                    "allowed_actions": [
+                      "example"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ]
+      }
+    },
+    "/internal/v1/business-supply/partner-records/{domain}/{id}/transitions": {
+      "post": {
+        "operationId": "POST_internal_v1_business_supply_partner_records_domain_id_transitions",
+        "summary": "POST /internal/v1/business-supply/partner-records/{domain}/{id}/transitions",
+        "description": "Private service network only. signed:artisan-service|professional-services-service|admin-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+        "x-permission": "signed:artisan-service|professional-services-service|admin-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PartnerRecord"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "domain": "example",
+                    "record": {
+                      "id": "019a5fb0-0000-7000-8000-000000000001",
+                      "scope_kind": "example",
+                      "scope_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "parent_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "subject_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "kind": "example",
+                      "state": "example",
+                      "title": "example",
+                      "counterparty_reference": "example",
+                      "external_reference": "example",
+                      "amount_minor": 1,
+                      "currency": "example",
+                      "starts_at": "2026-10-30T12:00:00Z",
+                      "ends_at": "2026-10-30T12:00:00Z",
+                      "attributes": {},
+                      "evidence_refs": {},
+                      "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "assigned_to": "019a5fb0-0000-7000-8000-000000000001",
+                      "last_actor_id": "019a5fb0-0000-7000-8000-000000000001",
+                      "last_action": "example",
+                      "closed_at": "2026-10-30T12:00:00Z",
+                      "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                      "created_at": "2026-10-30T12:00:00Z",
+                      "version": 1
+                    },
+                    "attributes": {},
+                    "allowed_actions": [
+                      "example"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerTransition"
+              },
+              "example": {
+                "account_id": "019a5fb0-0000-7000-8000-000000000001",
+                "action": "example",
+                "reason": "example"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/business-supply/manager-assignments/{id}/maintenance-requests": {
+      "post": {
+        "operationId": "POST_internal_v1_business_supply_manager_assignments_id_maintenance_requests",
+        "summary": "POST /internal/v1/business-supply/manager-assignments/{id}/maintenance-requests",
+        "description": "Private service network only. signed:property-manager-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+        "x-permission": "signed:property-manager-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/OpsRecord"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "scope_kind": "example",
+                    "scope_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "parent_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "subject_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "kind": "example",
+                    "state": "example",
+                    "title": "example",
+                    "counterparty_reference": "example",
+                    "external_reference": "example",
+                    "amount_minor": 1,
+                    "currency": "example",
+                    "starts_at": "2026-10-30T12:00:00Z",
+                    "ends_at": "2026-10-30T12:00:00Z",
+                    "attributes": {},
+                    "evidence_refs": {},
+                    "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "assigned_to": "019a5fb0-0000-7000-8000-000000000001",
+                    "last_actor_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "last_action": "example",
+                    "closed_at": "2026-10-30T12:00:00Z",
+                    "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                    "created_at": "2026-10-30T12:00:00Z",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManagerActionRequest"
+              },
+              "example": {
+                "account_id": "019a5fb0-0000-7000-8000-000000000001",
+                "request_key": "example",
+                "kind": "example",
+                "title": "example",
+                "reason": "example"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/business-supply/professional-appointments/{id}/findings": {
+      "post": {
+        "operationId": "POST_internal_v1_business_supply_professional_appointments_id_findings",
+        "summary": "POST /internal/v1/business-supply/professional-appointments/{id}/findings",
+        "description": "Private service network only. signed:professional-services-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
+        "x-permission": "signed:professional-services-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/OpsRecord"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "019a5fb0-0000-7000-8000-000000000001",
+                    "scope_kind": "example",
+                    "scope_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "parent_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "subject_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "kind": "example",
+                    "state": "example",
+                    "title": "example",
+                    "counterparty_reference": "example",
+                    "external_reference": "example",
+                    "amount_minor": 1,
+                    "currency": "example",
+                    "starts_at": "2026-10-30T12:00:00Z",
+                    "ends_at": "2026-10-30T12:00:00Z",
+                    "attributes": {},
+                    "evidence_refs": {},
+                    "approval_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "assigned_to": "019a5fb0-0000-7000-8000-000000000001",
+                    "last_actor_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "last_action": "example",
+                    "closed_at": "2026-10-30T12:00:00Z",
+                    "created_by": "019a5fb0-0000-7000-8000-000000000001",
+                    "created_at": "2026-10-30T12:00:00Z",
+                    "version": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfessionalFindingCreate"
+              },
+              "example": {
+                "account_id": "019a5fb0-0000-7000-8000-000000000001",
+                "finding_key": "example",
+                "kind": "example",
+                "title": "example",
+                "evidence_refs": [
+                  "019a5fb0-0000-7000-8000-000000000001"
+                ],
+                "professional_verification_reference": "example",
+                "reason": "example"
               }
             }
           }
@@ -226618,6 +227531,43 @@
           "code"
         ]
       },
+      "ManagerActionRequest": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "account_id",
+          "request_key",
+          "kind",
+          "title",
+          "reason"
+        ]
+      },
       "MappingReference": {
         "type": "object",
         "properties": {
@@ -233231,6 +234181,84 @@
           "relation"
         ]
       },
+      "PartnerRecord": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/components/schemas/OpsRecord"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "allowed_actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "domain",
+          "record",
+          "attributes",
+          "allowed_actions"
+        ]
+      },
+      "PartnerTransition": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "action": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "external_reference": {
+            "type": "string"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "account_id",
+          "action",
+          "reason"
+        ]
+      },
       "Password": {
         "type": "object",
         "properties": {
@@ -234076,6 +235104,51 @@
           "version",
           "created_at",
           "updated_at"
+        ]
+      },
+      "ProfessionalFindingCreate": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "finding_key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          "professional_verification_reference": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "account_id",
+          "finding_key",
+          "kind",
+          "title",
+          "evidence_refs",
+          "professional_verification_reference",
+          "reason"
         ]
       },
       "ProfilePatch": {

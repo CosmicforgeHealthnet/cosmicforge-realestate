@@ -40,10 +40,11 @@ for r in routes:
     key = (r['method'], r['path'])
     old = previous.get(key)
     rel = re.sub(r'^/api/v1/business', '', r['path'])
+    internal_rel = re.sub(r'^/internal/v1/business-supply', '', r['path'])
     handler, source = registrations.get((r['method'], rel)) or registrations.get(key) or (old or {}).get('handler'), None
     if isinstance(handler, tuple):
         handler, source = handler
-    reg = registrations.get((r['method'], rel)) or registrations.get(key)
+    reg = registrations.get((r['method'], rel)) or registrations.get(key) or (r['path'].startswith('/internal/') and registrations.get((r['method'], internal_rel)))
     if reg:
         handler, source = reg
     elif old:

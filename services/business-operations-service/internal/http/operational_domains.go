@@ -438,7 +438,10 @@ func (h *Handler) opsDomainCommit(ctx context.Context, tx pgx.Tx, t tenant, d *o
 	if rec.PropertyID != nil {
 		property = *rec.PropertyID
 	}
-	return h.opsCommit(ctx, tx, t, property, rec.ID, d.Key, action, from, rec.State, d.Event, rec.Version, map[string]any{"domain": d.Key, "kind": rec.Kind, "scope_kind": rec.ScopeKind, "scope_id": rec.ScopeID, "parent_id": rec.ParentID, "subject_id": rec.SubjectID, "amount_minor": rec.AmountMinor, "currency": rec.Currency, "approval_id": rec.ApprovalID, "reason": reason})
+	return h.opsCommit(ctx, tx, t, property, rec.ID, d.Key, action, from, rec.State, d.Event, rec.Version, map[string]any{"domain": d.Key, "kind": rec.Kind, "scope_kind": rec.ScopeKind, "scope_id": rec.ScopeID, "parent_id": rec.ParentID, "subject_id": rec.SubjectID, "amount_minor": rec.AmountMinor, "currency": rec.Currency, "approval_id": rec.ApprovalID, "reason": reason,
+		// Partner services (artisan, professional, property manager, admin)
+		// act on records that name them as counterparty.
+		"title": rec.Title, "counterparty_reference": rec.CounterpartyReference, "external_reference": rec.ExternalReference, "starts_at": rec.StartsAt, "ends_at": rec.EndsAt, "version": rec.Version, "attributes": publicAttributes(d.Key, rec.Attributes)})
 }
 
 func (h *Handler) opsRequireApproval(ctx context.Context, tx pgx.Tx, t tenant, target workforce.Target, d *opsDomain, a *opsApproval, approvalID ids.ID, operation map[string]any, amount *int64, currency string) error {
