@@ -465,7 +465,6 @@ func dataRaw(r response) []byte {
 	return env.Data
 }
 
-
 type opsRecord struct {
 	ID      ids.ID `json:"id"`
 	Version int64  `json:"version"`
