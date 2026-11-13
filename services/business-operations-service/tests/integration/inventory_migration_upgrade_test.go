@@ -235,7 +235,7 @@ func TestBusinessReservationMigrationUpgradesOnlyUnrestrictedInitialOwner(t *tes
 
 	var next, unchanged ids.ID
 	var version, caps, audits int
-	if e = db.Pool.QueryRow(t.Context(), `SELECT m.role_id,r.version,(SELECT count(*) FROM role_permissions WHERE role_id=m.role_id AND permission IN (SELECT code FROM permissions WHERE code LIKE 'reservations:%' OR code LIKE 'reservation_risk:%' OR code LIKE 'rms:%' OR code LIKE 'pms:%' OR code LIKE 'room_status:%' OR code LIKE 'folios:%' OR code LIKE 'cashier:%' OR code LIKE 'night_audit:%' OR code LIKE 'guests:%' OR code LIKE 'guest_private:%' OR code LIKE 'guest_privacy:%' OR code LIKE 'corporate:%' OR code LIKE 'loyalty:%' OR code LIKE 'recovery:%')) FROM staff_memberships m JOIN role_templates r ON r.id=m.role_id WHERE m.id=$1`, member).Scan(&next, &version, &caps); e != nil || next == role || version != 4 || caps != 42 {
+	if e = db.Pool.QueryRow(t.Context(), `SELECT m.role_id,r.version,(SELECT count(*) FROM role_permissions WHERE role_id=m.role_id AND permission IN (SELECT code FROM permissions WHERE code LIKE 'reservations:%' OR code LIKE 'reservation_risk:%' OR code LIKE 'rms:%' OR code LIKE 'pms:%' OR code LIKE 'room_status:%' OR code LIKE 'folios:%' OR code LIKE 'cashier:%' OR code LIKE 'night_audit:%' OR code LIKE 'guests:%' OR code LIKE 'guest_private:%' OR code LIKE 'guest_privacy:%' OR code LIKE 'corporate:%' OR code LIKE 'loyalty:%' OR code LIKE 'recovery:%')) FROM staff_memberships m JOIN role_templates r ON r.id=m.role_id WHERE m.id=$1`, member).Scan(&next, &version, &caps); e != nil || next == role || version != 5 || caps != 42 {
 		t.Fatalf("Owner upgrade %s %d %d %v", next, version, caps, e)
 	}
 	if e = db.Pool.QueryRow(t.Context(), `SELECT role_id FROM staff_memberships WHERE id=$1`, staffMember).Scan(&unchanged); e != nil || unchanged != limited {
@@ -243,5 +243,11 @@ func TestBusinessReservationMigrationUpgradesOnlyUnrestrictedInitialOwner(t *tes
 	}
 	if e = db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM audit_events WHERE action='SECTIONS811_OWNER_CAPABILITY_MIGRATION'`).Scan(&audits); e != nil || audits != 1 {
 		t.Fatalf("Missing immutable migration audit %d %v", audits, e)
+	}
+	// Migration 00032 upgrades the same unrestricted Owner once more for the
+	// Sections 12-24 capabilities, again recorded as immutable history.
+	var sections1224 int
+	if e = db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM audit_events WHERE action='SECTIONS1224_OWNER_CAPABILITY_MIGRATION' AND target_id=$1`, member).Scan(&sections1224); e != nil || sections1224 != 1 {
+		t.Fatalf("Missing Sections 12-24 owner migration audit %d %v", sections1224, e)
 	}
 }

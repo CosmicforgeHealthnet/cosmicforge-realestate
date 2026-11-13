@@ -106,10 +106,10 @@ type LeadConvertCommand struct {
 }
 
 type MarketingSegmentCreate struct {
-	PropertyID     ids.ID `json:"property_id"`
+	PropertyID      ids.ID `json:"property_id"`
 	GuestSegmentKey ids.ID `json:"guest_segment_key"`
-	Name           string `json:"name"`
-	Reason         string `json:"reason"`
+	Name            string `json:"name"`
+	Reason          string `json:"reason"`
 }
 
 type Campaign struct {
@@ -1365,7 +1365,7 @@ func (h *Handler) conversionReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	reply(w, r, 200, map[string]any{"property_id": property, "date_from": from.Format(time.DateOnly), "stages": stages,
-		"rates_bps": map[string]any{"listing_view_rate": rate("LISTING_VIEW", "IMPRESSION"), "inquiry_rate": rate("INQUIRY", "LISTING_VIEW"), "inquiry_to_hold": rate("HOLD", "INQUIRY"), "hold_to_reservation": rate("RESERVATION", "HOLD"), "reservation_to_completed_stay": rate("COMPLETED_STAY", "RESERVATION"), "review_rate": rate("REVIEW", "COMPLETED_STAY"), "repeat_stay_rate": rate("REPEAT", "COMPLETED_STAY")},
+		"rates_bps":     map[string]any{"listing_view_rate": rate("LISTING_VIEW", "IMPRESSION"), "inquiry_rate": rate("INQUIRY", "LISTING_VIEW"), "inquiry_to_hold": rate("HOLD", "INQUIRY"), "hold_to_reservation": rate("RESERVATION", "HOLD"), "reservation_to_completed_stay": rate("COMPLETED_STAY", "RESERVATION"), "review_rate": rate("REVIEW", "COMPLETED_STAY"), "repeat_stay_rate": rate("REPEAT", "COMPLETED_STAY")},
 		"lead_response": map[string]any{"leads": leads, "responded": responded, "sla_breached": breached, "average_first_response_seconds": avgResponse},
 		"basis":         "SOURCED_STAGES_ONLY_UNKNOWN_DENOMINATORS_NULL"}, nil)
 }

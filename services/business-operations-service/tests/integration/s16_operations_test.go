@@ -178,7 +178,9 @@ func TestBusinessDevelopmentAllocationMilestonesSnagsAndHandover(t *testing.T) {
 	ms = opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "START"}, 200)
 	ms = opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "REQUEST_CERTIFICATION", EvidenceRefs: []ids.ID{ids.New()}}, 200)
 	opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 403)
-	ms = opsMove(c, c.approver, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	if ms = opsMove(c, c.approver, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 200); ms.State != "CERTIFIED" {
+		t.Fatal(ms.State)
+	}
 	hold := time.Now().UTC().Add(72 * time.Hour)
 	price := int64(45000000)
 	c.must(c.owner, "POST", base+"/allocations", businesshttp.OpsRecordCreate{SubjectID: &c.unit.ID, Kind: "OFF_PLAN", Title: "Outside unit", CounterpartyReference: "buyer:outside", AmountMinor: &price, Currency: "NGN", EndsAt: &hold, Reason: "Wrong development"}, 403)
@@ -294,4 +296,50 @@ func (c *commercialHarness) rootGet(path string, headers map[string]string) (int
 		c.t.Fatal(e)
 	}
 	return response.StatusCode, result
+}
+
+// J26: commercial and land owning workflows on actual domain records —
+// LOI evidence, negotiated amount, exact approval bound to the record
+// version and amount, signature, activation and closing; land due
+// diligence, approval and completion on a real parcel scope.
+func TestBusinessCommercialDealAndLandTransactionApprovedLifecycles(t *testing.T) {
+	c := newCommercialHTTP(t)
+	for _, capability := range []string{"leasing:write", "leasing:read", "land:write", "land:read"} {
+		c.grant(c.approver, capability)
+	}
+	opsRec(c, c.owner, "POST", "/commercial/deals", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "LEASE", Title: "Deal without counterparty", Reason: "Missing counterparty"}, 400)
+	deal := opsRec(c, c.owner, "POST", "/commercial/deals", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "LEASE", Title: "Office lease unit 101", CounterpartyReference: "tenant:acme-ltd", Reason: "Commercial enquiry"}, 201)
+	opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "ISSUE_LOI"}, 400)
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "ISSUE_LOI", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	rent := int64(1800000000)
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "NEGOTIATE", AmountMinor: &rent, Currency: "NGN"}, 200)
+	opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "APPROVE"}, 403)
+	approval := c.approval("COMMERCIAL_DEAL", "leasing:write", "", &rent, "NGN", map[string]any{"domain": "commercial_deal", "record_id": deal.ID, "action": "APPROVE", "version": deal.Version})
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "APPROVE", ApprovalID: approval}, 200)
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "SIGN", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "ACTIVATE"}, 200)
+	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "CLOSE", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	if deal.State != "CLOSED" || deal.ApprovalID == nil || *deal.ApprovalID != approval || deal.AmountMinor == nil || *deal.AmountMinor != rent {
+		t.Fatalf("deal %+v", deal)
+	}
+	opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "LOSE"}, 409)
+
+	branch := c.inventoryBranch(c.owner)
+	parcel := c.inventoryNode(c.owner, "/parcels", map[string]any{"branch_id": branch, "code": "PLOT-7", "name": "Plot 7", "attributes": map[string]any{"classification": "RESIDENTIAL_PLOT", "area_square_metres": "900.00", "survey_reference": "SURVEY-007", "geometry": map[string]any{"type": "Polygon", "coordinates": [][][]float64{{{3, 6}, {4, 6}, {4, 7}, {3, 7}, {3, 6}}}}}})
+	opsRec(c, c.owner, "POST", "/land/transactions", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, Kind: "SALE", Title: "Wrong scope", CounterpartyReference: "buyer:ade", Reason: "Property is not a parcel"}, 403)
+	land := opsRec(c, c.owner, "POST", "/land/transactions", businesshttp.OpsRecordCreate{ScopeID: &parcel.ID, Kind: "SALE", Title: "Sale of plot 7", CounterpartyReference: "buyer:ade", Reason: "Land sale enquiry"}, 201)
+	land = opsMove(c, c.owner, "/land/transactions", land, businesshttp.OpsRecordTransition{Action: "START_DUE_DILIGENCE", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	price := int64(4500000000)
+	landApproval := c.approvalAt("COMMERCIAL_LAND_TRANSACTION", "land:write", "", &price, "NGN", map[string]any{"domain": "land_transaction", "record_id": land.ID, "action": "APPROVE", "version": land.Version}, "PARCEL", parcel.ID)
+	other := price + 1
+	opsMove(c, c.owner, "/land/transactions", land, businesshttp.OpsRecordTransition{Action: "APPROVE", ApprovalID: landApproval, AmountMinor: &other, Currency: "NGN"}, 403)
+	land = opsMove(c, c.owner, "/land/transactions", land, businesshttp.OpsRecordTransition{Action: "APPROVE", ApprovalID: landApproval, AmountMinor: &price, Currency: "NGN"}, 200)
+	land = opsMove(c, c.owner, "/land/transactions", land, businesshttp.OpsRecordTransition{Action: "COMPLETE", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	if land.State != "COMPLETED" || land.ScopeKind != "PARCEL" {
+		t.Fatalf("land %+v", land)
+	}
+	var history int
+	if err := c.db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM operations_history WHERE entity_id IN ($1,$2)`, deal.ID, land.ID).Scan(&history); err != nil || history < 9 {
+		t.Fatalf("history %d %v", history, err)
+	}
 }

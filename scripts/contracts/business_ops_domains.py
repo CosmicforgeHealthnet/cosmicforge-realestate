@@ -211,16 +211,19 @@ def go():
         out.append(f"\t\tParent: {go_str(d.get('parent', ''))}, ParentInBody: {str(bool(d.get('parent_in_body'))).lower()}, Subject: {go_str(d.get('subject', ''))}, SubjectRequired: {str(bool(d.get('subject_required'))).lower()}, CounterpartyRequired: {str(bool(d.get('counterparty_required'))).lower()},")
         out.append(f"\t\tAmountRequired: {str(bool(d.get('amount_required'))).lower()}, StartsRequired: {str(bool(d.get('starts_required'))).lower()}, EndsRequired: {str(bool(d.get('ends_required'))).lower()}, CreateMFA: {str(bool(d.get('create_mfa'))).lower()},")
         ca = d.get('create_approval')
+        edge_list = f"Edges: []string{{{', '.join(go_str(e) for e in edges(d))}}},"
         if ca:
-            out.append(f"\t\tCreateApproval: &opsApproval{{Privilege: approvals.{ca[1]}}},")
-        out.append(f"\t\tEdges: []string{{{', '.join(go_str(e) for e in edges(d))}}},")
+            out.append(f"\t\tCreateApproval: &opsApproval{{Privilege: approvals.{ca[1]}}}, {edge_list}")
+        else:
+            out.append(f"\t\t{edge_list}")
         out.append('\t\tTransitions: map[string]opsTransition{')
+        width = max(len(go_str(n)) + 1 for n in d['transitions'])
         for name, t in d['transitions'].items():
             appr = 'nil'
             if t['approval']:
                 a = t['approval']
                 appr = f"&opsApproval{{Commercial: {go_str(a[1])}, Capability: {go_str(a[2])}, BindAmount: {str(a[3]).lower()}}}" if a[0] == 'COMMERCIAL' else f"&opsApproval{{Privilege: approvals.{a[1]}}}"
-            out.append(f"\t\t\t{go_str(name)}: {{From: []string{{{', '.join(go_str(f) for f in t['frm'])}}}, To: {go_str(t['to'])}, Capability: {go_str(t['cap'] or '')}, MFA: {str(t['mfa']).lower()}, Approval: {appr}, Evidence: {str(t['evidence']).lower()}, Distinct: {str(t['distinct']).lower()}, Assignee: {str(t['assignee']).lower()}, Amount: {str(t['amount']).lower()}, Reference: {str(t['reference']).lower()}}},")
+            out.append(f"\t\t\t{(go_str(name) + ':').ljust(width)} {{From: []string{{{', '.join(go_str(f) for f in t['frm'])}}}, To: {go_str(t['to'])}, Capability: {go_str(t['cap'] or '')}, MFA: {str(t['mfa']).lower()}, Approval: {appr}, Evidence: {str(t['evidence']).lower()}, Distinct: {str(t['distinct']).lower()}, Assignee: {str(t['assignee']).lower()}, Amount: {str(t['amount']).lower()}, Reference: {str(t['reference']).lower()}}},")
         out.append('\t\t},')
         out.append('\t},')
     out.append('}')
@@ -246,14 +249,15 @@ def go():
     for d in DOMAINS:
         n = camel(d['key'])
         k = go_str(d['key'])
-        out.append(f'func (h *Handler) ops{n}List(w http.ResponseWriter, r *http.Request)   {{ h.opsDomainList(w, r, opsDomains[{k}]) }}')
-        out.append(f'func (h *Handler) ops{n}Create(w http.ResponseWriter, r *http.Request) {{ h.opsDomainCreate(w, r, opsDomains[{k}]) }}')
-        out.append(f'func (h *Handler) ops{n}Get(w http.ResponseWriter, r *http.Request)    {{ h.opsDomainGet(w, r, opsDomains[{k}]) }}')
-        out.append(f'func (h *Handler) ops{n}Transition(w http.ResponseWriter, r *http.Request) {{ h.opsDomainTransition(w, r, opsDomains[{k}], "") }}')
+        funcs = [('List', f'h.opsDomainList(w, r, opsDomains[{k}])'), ('Create', f'h.opsDomainCreate(w, r, opsDomains[{k}])'), ('Get', f'h.opsDomainGet(w, r, opsDomains[{k}])'), ('Transition', f'h.opsDomainTransition(w, r, opsDomains[{k}], "")')]
         if d.get('revoke_route'):
-            out.append(f'func (h *Handler) ops{n}Revoke(w http.ResponseWriter, r *http.Request) {{ h.opsDomainTransition(w, r, opsDomains[{k}], "REVOKE") }}')
+            funcs.append(('Revoke', f'h.opsDomainTransition(w, r, opsDomains[{k}], "REVOKE")'))
         if d.get('approve_route'):
-            out.append(f'func (h *Handler) ops{n}Approve(w http.ResponseWriter, r *http.Request) {{ h.opsDomainTransition(w, r, opsDomains[{k}], "APPROVE") }}')
+            funcs.append(('Approve', f'h.opsDomainTransition(w, r, opsDomains[{k}], "APPROVE")'))
+        for suffix, body in funcs:
+            out.append(f'func (h *Handler) ops{n}{suffix}(w http.ResponseWriter, r *http.Request) {{')
+            out.append('\t' + body)
+            out.append('}')
     out.append('')
     return '\n'.join(out)
 

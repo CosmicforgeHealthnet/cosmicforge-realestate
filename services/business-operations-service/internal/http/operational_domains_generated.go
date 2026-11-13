@@ -19,12 +19,12 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"PLANNED>ASSIGNED", "ASSIGNED>ASSIGNED", "REWORK>ASSIGNED", "ASSIGNED>IN_PROGRESS", "REWORK>IN_PROGRESS", "IN_PROGRESS>INSPECTION", "INSPECTION>DONE", "INSPECTION>REWORK", "PLANNED>CANCELLED", "ASSIGNED>CANCELLED"},
 		Transitions: map[string]opsTransition{
-			"ASSIGN": {From: []string{"PLANNED", "ASSIGNED", "REWORK"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: true, Amount: false, Reference: false},
-			"START": {From: []string{"ASSIGNED", "REWORK"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ASSIGN":            {From: []string{"PLANNED", "ASSIGNED", "REWORK"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: true, Amount: false, Reference: false},
+			"START":             {From: []string{"ASSIGNED", "REWORK"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"SUBMIT_INSPECTION": {From: []string{"IN_PROGRESS"}, To: "INSPECTION", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"PASS": {From: []string{"INSPECTION"}, To: "DONE", Capability: "room_status:inspect", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"FAIL": {From: []string{"INSPECTION"}, To: "REWORK", Capability: "room_status:inspect", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"PLANNED", "ASSIGNED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"PASS":              {From: []string{"INSPECTION"}, To: "DONE", Capability: "room_status:inspect", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"FAIL":              {From: []string{"INSPECTION"}, To: "REWORK", Capability: "room_status:inspect", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":            {From: []string{"PLANNED", "ASSIGNED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"maintenance_request": {
@@ -34,10 +34,10 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"OPEN>TRIAGED", "OPEN>WORK_ORDER_CREATED", "TRIAGED>WORK_ORDER_CREATED", "TRIAGED>CLOSED", "WORK_ORDER_CREATED>CLOSED", "OPEN>REJECTED", "TRIAGED>REJECTED"},
 		Transitions: map[string]opsTransition{
-			"TRIAGE": {From: []string{"OPEN"}, To: "TRIAGED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"TRIAGE":          {From: []string{"OPEN"}, To: "TRIAGED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"LINK_WORK_ORDER": {From: []string{"OPEN", "TRIAGED"}, To: "WORK_ORDER_CREATED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"CLOSE": {From: []string{"TRIAGED", "WORK_ORDER_CREATED"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"REJECT": {From: []string{"OPEN", "TRIAGED"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CLOSE":           {From: []string{"TRIAGED", "WORK_ORDER_CREATED"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REJECT":          {From: []string{"OPEN", "TRIAGED"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"work_order": {
@@ -48,14 +48,14 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"DRAFT>QUOTE_REQUESTED", "QUOTE_REQUESTED>QUOTED", "DRAFT>APPROVED", "QUOTED>APPROVED", "APPROVED>ASSIGNED", "ASSIGNED>IN_PROGRESS", "REWORK>IN_PROGRESS", "IN_PROGRESS>COMPLETED", "COMPLETED>VERIFIED", "COMPLETED>REWORK", "VERIFIED>REWORK", "DRAFT>CANCELLED", "QUOTE_REQUESTED>CANCELLED", "QUOTED>CANCELLED", "APPROVED>CANCELLED", "ASSIGNED>CANCELLED"},
 		Transitions: map[string]opsTransition{
 			"REQUEST_QUOTE": {From: []string{"DRAFT"}, To: "QUOTE_REQUESTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RECORD_QUOTE": {From: []string{"QUOTE_REQUESTED"}, To: "QUOTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: true, Reference: true},
-			"APPROVE": {From: []string{"DRAFT", "QUOTED"}, To: "APPROVED", Capability: "maintenance:approve", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_WORK_ORDER", Capability: "maintenance:approve", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"ASSIGN": {From: []string{"APPROVED"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"START": {From: []string{"ASSIGNED", "REWORK"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"COMPLETE": {From: []string{"IN_PROGRESS"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"VERIFY": {From: []string{"COMPLETED"}, To: "VERIFIED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"REWORK": {From: []string{"COMPLETED", "VERIFIED"}, To: "REWORK", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"DRAFT", "QUOTE_REQUESTED", "QUOTED", "APPROVED", "ASSIGNED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RECORD_QUOTE":  {From: []string{"QUOTE_REQUESTED"}, To: "QUOTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: true, Reference: true},
+			"APPROVE":       {From: []string{"DRAFT", "QUOTED"}, To: "APPROVED", Capability: "maintenance:approve", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_WORK_ORDER", Capability: "maintenance:approve", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ASSIGN":        {From: []string{"APPROVED"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"START":         {From: []string{"ASSIGNED", "REWORK"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"COMPLETE":      {From: []string{"IN_PROGRESS"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"VERIFY":        {From: []string{"COMPLETED"}, To: "VERIFIED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"REWORK":        {From: []string{"COMPLETED", "VERIFIED"}, To: "REWORK", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":        {From: []string{"DRAFT", "QUOTE_REQUESTED", "QUOTED", "APPROVED", "ASSIGNED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"preventive_schedule": {
@@ -65,7 +65,7 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: true, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"ACTIVE>PAUSED", "PAUSED>ACTIVE", "ACTIVE>RETIRED", "PAUSED>RETIRED"},
 		Transitions: map[string]opsTransition{
-			"PAUSE": {From: []string{"ACTIVE"}, To: "PAUSED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"PAUSE":  {From: []string{"ACTIVE"}, To: "PAUSED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"RESUME": {From: []string{"PAUSED"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"RETIRE": {From: []string{"ACTIVE", "PAUSED"}, To: "RETIRED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
@@ -77,10 +77,10 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: true, CreateMFA: false,
 		Edges: []string{"PROPOSED>ACTIVE", "ACTIVE>SUSPENDED", "EXPIRING>SUSPENDED", "SUSPENDED>ACTIVE", "PROPOSED>REVOKED", "ACTIVE>REVOKED", "SUSPENDED>REVOKED", "EXPIRING>REVOKED", "ACTIVE>TERMINATED", "SUSPENDED>TERMINATED", "EXPIRING>TERMINATED", "ACTIVE>EXPIRING", "ACTIVE>EXPIRED", "EXPIRING>EXPIRED", "SUSPENDED>EXPIRED"},
 		Transitions: map[string]opsTransition{
-			"ACTIVATE": {From: []string{"PROPOSED"}, To: "ACTIVE", Capability: "", MFA: true, Approval: &opsApproval{Privilege: approvals.ActionExternalManagerAccess}, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"SUSPEND": {From: []string{"ACTIVE", "EXPIRING"}, To: "SUSPENDED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"RESUME": {From: []string{"SUSPENDED"}, To: "ACTIVE", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"REVOKE": {From: []string{"PROPOSED", "ACTIVE", "SUSPENDED", "EXPIRING"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ACTIVATE":  {From: []string{"PROPOSED"}, To: "ACTIVE", Capability: "", MFA: true, Approval: &opsApproval{Privilege: approvals.ActionExternalManagerAccess}, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SUSPEND":   {From: []string{"ACTIVE", "EXPIRING"}, To: "SUSPENDED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RESUME":    {From: []string{"SUSPENDED"}, To: "ACTIVE", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REVOKE":    {From: []string{"PROPOSED", "ACTIVE", "SUSPENDED", "EXPIRING"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"TERMINATE": {From: []string{"ACTIVE", "SUSPENDED", "EXPIRING"}, To: "TERMINATED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
@@ -91,8 +91,8 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"OPEN>LOCKED", "LOCKED>OPEN", "OPEN>ARCHIVED", "LOCKED>ARCHIVED"},
 		Transitions: map[string]opsTransition{
-			"LOCK": {From: []string{"OPEN"}, To: "LOCKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"UNLOCK": {From: []string{"LOCKED"}, To: "OPEN", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"LOCK":    {From: []string{"OPEN"}, To: "LOCKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"UNLOCK":  {From: []string{"LOCKED"}, To: "OPEN", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"ARCHIVE": {From: []string{"OPEN", "LOCKED"}, To: "ARCHIVED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
@@ -103,11 +103,11 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"REQUESTED>ACCEPTED", "ACCEPTED>IN_PROGRESS", "IN_PROGRESS>REPORT_SUBMITTED", "REPORT_SUBMITTED>COMPLETED", "REQUESTED>CANCELLED", "ACCEPTED>CANCELLED", "IN_PROGRESS>CANCELLED"},
 		Transitions: map[string]opsTransition{
-			"ACCEPT": {From: []string{"REQUESTED"}, To: "ACCEPTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"START": {From: []string{"ACCEPTED"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ACCEPT":        {From: []string{"REQUESTED"}, To: "ACCEPTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"START":         {From: []string{"ACCEPTED"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"SUBMIT_REPORT": {From: []string{"IN_PROGRESS"}, To: "REPORT_SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"COMPLETE": {From: []string{"REPORT_SUBMITTED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"REQUESTED", "ACCEPTED", "IN_PROGRESS"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"COMPLETE":      {From: []string{"REPORT_SUBMITTED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":        {From: []string{"REQUESTED", "ACCEPTED", "IN_PROGRESS"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"data_room_grant": {
@@ -115,8 +115,7 @@ var opsDomains = map[string]*opsDomain{
 		Kinds: []string{"VIEW_ONLY", "WATERMARKED_DOWNLOAD"}, States: []string{"ACTIVE", "REVOKED", "EXPIRED"},
 		Parent: "professional_appointment", ParentInBody: false, Subject: "DATA_ROOM", SubjectRequired: true, CounterpartyRequired: false,
 		AmountRequired: false, StartsRequired: false, EndsRequired: true, CreateMFA: true,
-		CreateApproval: &opsApproval{Privilege: approvals.ActionProfessionalDataRoomGrant},
-		Edges: []string{"ACTIVE>REVOKED", "ACTIVE>EXPIRED"},
+		CreateApproval: &opsApproval{Privilege: approvals.ActionProfessionalDataRoomGrant}, Edges: []string{"ACTIVE>REVOKED", "ACTIVE>EXPIRED"},
 		Transitions: map[string]opsTransition{
 			"REVOKE": {From: []string{"ACTIVE"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
@@ -128,9 +127,9 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"SUBMITTED>SCREENING", "SCREENING>APPROVED", "SUBMITTED>REJECTED", "SCREENING>REJECTED", "SUBMITTED>WITHDRAWN", "SCREENING>WITHDRAWN", "APPROVED>WITHDRAWN", "APPROVED>CONVERTED"},
 		Transitions: map[string]opsTransition{
-			"SCREEN": {From: []string{"SUBMITTED"}, To: "SCREENING", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"APPROVE": {From: []string{"SCREENING"}, To: "APPROVED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"REJECT": {From: []string{"SUBMITTED", "SCREENING"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SCREEN":   {From: []string{"SUBMITTED"}, To: "SCREENING", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"APPROVE":  {From: []string{"SCREENING"}, To: "APPROVED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"REJECT":   {From: []string{"SUBMITTED", "SCREENING"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"WITHDRAW": {From: []string{"SUBMITTED", "SCREENING", "APPROVED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
@@ -142,11 +141,11 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"DRAFT>PENDING_SIGNATURE", "PENDING_SIGNATURE>ACTIVE", "ACTIVE>NOTICE_GIVEN", "NOTICE_GIVEN>ENDED", "ACTIVE>TERMINATED", "NOTICE_GIVEN>TERMINATED", "DRAFT>CANCELLED", "PENDING_SIGNATURE>CANCELLED"},
 		Transitions: map[string]opsTransition{
 			"SEND_FOR_SIGNATURE": {From: []string{"DRAFT"}, To: "PENDING_SIGNATURE", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"ACTIVATE": {From: []string{"PENDING_SIGNATURE"}, To: "ACTIVE", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_TENANCY", Capability: "residential:write", BindAmount: true}, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"GIVE_NOTICE": {From: []string{"ACTIVE"}, To: "NOTICE_GIVEN", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"END": {From: []string{"NOTICE_GIVEN"}, To: "ENDED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"TERMINATE": {From: []string{"ACTIVE", "NOTICE_GIVEN"}, To: "TERMINATED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"DRAFT", "PENDING_SIGNATURE"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ACTIVATE":           {From: []string{"PENDING_SIGNATURE"}, To: "ACTIVE", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_TENANCY", Capability: "residential:write", BindAmount: true}, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"GIVE_NOTICE":        {From: []string{"ACTIVE"}, To: "NOTICE_GIVEN", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"END":                {From: []string{"NOTICE_GIVEN"}, To: "ENDED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"TERMINATE":          {From: []string{"ACTIVE", "NOTICE_GIVEN"}, To: "TERMINATED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":             {From: []string{"DRAFT", "PENDING_SIGNATURE"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"commercial_deal": {
@@ -158,11 +157,11 @@ var opsDomains = map[string]*opsDomain{
 		Transitions: map[string]opsTransition{
 			"ISSUE_LOI": {From: []string{"LEAD"}, To: "LOI", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"NEGOTIATE": {From: []string{"LOI"}, To: "NEGOTIATION", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: true, Reference: false},
-			"APPROVE": {From: []string{"NEGOTIATION"}, To: "APPROVED", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_DEAL", Capability: "leasing:write", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"SIGN": {From: []string{"APPROVED"}, To: "SIGNED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"ACTIVATE": {From: []string{"SIGNED"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CLOSE": {From: []string{"ACTIVE"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"LOSE": {From: []string{"LEAD", "LOI", "NEGOTIATION", "APPROVED"}, To: "LOST", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"APPROVE":   {From: []string{"NEGOTIATION"}, To: "APPROVED", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_DEAL", Capability: "leasing:write", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SIGN":      {From: []string{"APPROVED"}, To: "SIGNED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ACTIVATE":  {From: []string{"SIGNED"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CLOSE":     {From: []string{"ACTIVE"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"LOSE":      {From: []string{"LEAD", "LOI", "NEGOTIATION", "APPROVED"}, To: "LOST", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"land_transaction": {
@@ -173,9 +172,9 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"DRAFT>DUE_DILIGENCE", "DUE_DILIGENCE>APPROVED", "APPROVED>COMPLETED", "DRAFT>CANCELLED", "DUE_DILIGENCE>CANCELLED", "APPROVED>CANCELLED"},
 		Transitions: map[string]opsTransition{
 			"START_DUE_DILIGENCE": {From: []string{"DRAFT"}, To: "DUE_DILIGENCE", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"APPROVE": {From: []string{"DUE_DILIGENCE"}, To: "APPROVED", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_LAND_TRANSACTION", Capability: "land:write", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: true, Reference: false},
-			"COMPLETE": {From: []string{"APPROVED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"DRAFT", "DUE_DILIGENCE", "APPROVED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"APPROVE":             {From: []string{"DUE_DILIGENCE"}, To: "APPROVED", Capability: "", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_LAND_TRANSACTION", Capability: "land:write", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: true, Reference: false},
+			"COMPLETE":            {From: []string{"APPROVED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":              {From: []string{"DRAFT", "DUE_DILIGENCE", "APPROVED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"sale_transaction": {
@@ -185,10 +184,10 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"UNDER_OFFER>APPROVED", "APPROVED>CONTRACTED", "CONTRACTED>COMPLETED", "LISTED>WITHDRAWN", "UNDER_OFFER>WITHDRAWN", "UNDER_OFFER>FALLEN_THROUGH", "APPROVED>FALLEN_THROUGH", "CONTRACTED>FALLEN_THROUGH", "LISTED>UNDER_OFFER"},
 		Transitions: map[string]opsTransition{
-			"APPROVE": {From: []string{"UNDER_OFFER"}, To: "APPROVED", Capability: "sales:approve", MFA: true, Approval: &opsApproval{Privilege: approvals.ActionBulkDisposalOrSale}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CONTRACT": {From: []string{"APPROVED"}, To: "CONTRACTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"COMPLETE": {From: []string{"CONTRACTED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"WITHDRAW": {From: []string{"LISTED", "UNDER_OFFER"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"APPROVE":      {From: []string{"UNDER_OFFER"}, To: "APPROVED", Capability: "sales:approve", MFA: true, Approval: &opsApproval{Privilege: approvals.ActionBulkDisposalOrSale}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CONTRACT":     {From: []string{"APPROVED"}, To: "CONTRACTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"COMPLETE":     {From: []string{"CONTRACTED"}, To: "COMPLETED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"WITHDRAW":     {From: []string{"LISTED", "UNDER_OFFER"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"FALL_THROUGH": {From: []string{"UNDER_OFFER", "APPROVED", "CONTRACTED"}, To: "FALLEN_THROUGH", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
@@ -199,9 +198,9 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: true, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"SUBMITTED>ACCEPTED", "COUNTERED>ACCEPTED", "SUBMITTED>REJECTED", "COUNTERED>REJECTED", "SUBMITTED>COUNTERED", "SUBMITTED>WITHDRAWN", "COUNTERED>WITHDRAWN"},
 		Transitions: map[string]opsTransition{
-			"ACCEPT": {From: []string{"SUBMITTED", "COUNTERED"}, To: "ACCEPTED", Capability: "sales:approve", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"REJECT": {From: []string{"SUBMITTED", "COUNTERED"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"COUNTER": {From: []string{"SUBMITTED"}, To: "COUNTERED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: true, Reference: false},
+			"ACCEPT":   {From: []string{"SUBMITTED", "COUNTERED"}, To: "ACCEPTED", Capability: "sales:approve", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REJECT":   {From: []string{"SUBMITTED", "COUNTERED"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"COUNTER":  {From: []string{"SUBMITTED"}, To: "COUNTERED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: true, Reference: false},
 			"WITHDRAW": {From: []string{"SUBMITTED", "COUNTERED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
@@ -212,11 +211,11 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: true, CreateMFA: false,
 		Edges: []string{"PLANNED>IN_PROGRESS", "DELAYED>IN_PROGRESS", "IN_PROGRESS>CERTIFICATION_PENDING", "CERTIFICATION_PENDING>CERTIFIED", "CERTIFICATION_PENDING>IN_PROGRESS", "PLANNED>DELAYED", "IN_PROGRESS>DELAYED"},
 		Transitions: map[string]opsTransition{
-			"START": {From: []string{"PLANNED", "DELAYED"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"START":                 {From: []string{"PLANNED", "DELAYED"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"REQUEST_CERTIFICATION": {From: []string{"IN_PROGRESS"}, To: "CERTIFICATION_PENDING", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CERTIFY": {From: []string{"CERTIFICATION_PENDING"}, To: "CERTIFIED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"REJECT_CERTIFICATION": {From: []string{"CERTIFICATION_PENDING"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"MARK_DELAYED": {From: []string{"PLANNED", "IN_PROGRESS"}, To: "DELAYED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CERTIFY":               {From: []string{"CERTIFICATION_PENDING"}, To: "CERTIFIED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"REJECT_CERTIFICATION":  {From: []string{"CERTIFICATION_PENDING"}, To: "IN_PROGRESS", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"MARK_DELAYED":          {From: []string{"PLANNED", "IN_PROGRESS"}, To: "DELAYED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"development_allocation": {
@@ -226,12 +225,12 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: true, StartsRequired: false, EndsRequired: true, CreateMFA: false,
 		Edges: []string{"HELD>RESERVED", "RESERVED>ALLOCATED", "ALLOCATED>CONTRACTED", "CONTRACTED>HANDED_OVER", "HELD>RELEASED", "RESERVED>RELEASED", "ALLOCATED>CANCELLED", "CONTRACTED>CANCELLED", "AVAILABLE>HELD"},
 		Transitions: map[string]opsTransition{
-			"RESERVE": {From: []string{"HELD"}, To: "RESERVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"ALLOCATE": {From: []string{"RESERVED"}, To: "ALLOCATED", Capability: "sales:approve", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_DEVELOPMENT_ALLOCATION", Capability: "sales:approve", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CONTRACT": {From: []string{"ALLOCATED"}, To: "CONTRACTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RESERVE":   {From: []string{"HELD"}, To: "RESERVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ALLOCATE":  {From: []string{"RESERVED"}, To: "ALLOCATED", Capability: "sales:approve", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_DEVELOPMENT_ALLOCATION", Capability: "sales:approve", BindAmount: true}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CONTRACT":  {From: []string{"ALLOCATED"}, To: "CONTRACTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"HAND_OVER": {From: []string{"CONTRACTED"}, To: "HANDED_OVER", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"RELEASE": {From: []string{"HELD", "RESERVED"}, To: "RELEASED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CANCEL": {From: []string{"ALLOCATED", "CONTRACTED"}, To: "CANCELLED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RELEASE":   {From: []string{"HELD", "RESERVED"}, To: "RELEASED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"CANCEL":    {From: []string{"ALLOCATED", "CONTRACTED"}, To: "CANCELLED", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"snag_item": {
@@ -241,11 +240,11 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"OPEN>ASSIGNED", "ASSIGNED>FIXED", "OPEN>FIXED", "FIXED>VERIFIED", "FIXED>OPEN", "OPEN>REJECTED"},
 		Transitions: map[string]opsTransition{
-			"ASSIGN": {From: []string{"OPEN"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"ASSIGN":     {From: []string{"OPEN"}, To: "ASSIGNED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
 			"MARK_FIXED": {From: []string{"ASSIGNED", "OPEN"}, To: "FIXED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"VERIFY": {From: []string{"FIXED"}, To: "VERIFIED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"REOPEN": {From: []string{"FIXED"}, To: "OPEN", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"REJECT": {From: []string{"OPEN"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"VERIFY":     {From: []string{"FIXED"}, To: "VERIFIED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"REOPEN":     {From: []string{"FIXED"}, To: "OPEN", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REJECT":     {From: []string{"OPEN"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"warranty_case": {
@@ -255,10 +254,10 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"OPEN>ACCEPTED", "ACCEPTED>IN_REPAIR", "IN_REPAIR>RESOLVED", "OPEN>REJECTED"},
 		Transitions: map[string]opsTransition{
-			"ACCEPT": {From: []string{"OPEN"}, To: "ACCEPTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"ACCEPT":       {From: []string{"OPEN"}, To: "ACCEPTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"START_REPAIR": {From: []string{"ACCEPTED"}, To: "IN_REPAIR", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RESOLVE": {From: []string{"IN_REPAIR"}, To: "RESOLVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"REJECT": {From: []string{"OPEN"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RESOLVE":      {From: []string{"IN_REPAIR"}, To: "RESOLVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"REJECT":       {From: []string{"OPEN"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"risk_case": {
@@ -268,13 +267,13 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"OPEN>UNDER_REVIEW", "UNDER_REVIEW>RESTRICTION_PROPOSED", "RESTRICTION_PROPOSED>RESTRICTED", "RESTRICTED>APPEALED", "APPEALED>RESTRICTED", "UNDER_REVIEW>CLEARED", "RESTRICTION_PROPOSED>CLEARED", "RESTRICTED>CLEARED", "APPEALED>CLEARED", "CLEARED>CLOSED"},
 		Transitions: map[string]opsTransition{
-			"REVIEW": {From: []string{"OPEN"}, To: "UNDER_REVIEW", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: true, Amount: false, Reference: false},
+			"REVIEW":              {From: []string{"OPEN"}, To: "UNDER_REVIEW", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: true, Amount: false, Reference: false},
 			"PROPOSE_RESTRICTION": {From: []string{"UNDER_REVIEW"}, To: "RESTRICTION_PROPOSED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"APPROVE_RESTRICTION": {From: []string{"RESTRICTION_PROPOSED"}, To: "RESTRICTED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"APPEAL": {From: []string{"RESTRICTED"}, To: "APPEALED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"UPHOLD": {From: []string{"APPEALED"}, To: "RESTRICTED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"CLEAR": {From: []string{"UNDER_REVIEW", "RESTRICTION_PROPOSED", "RESTRICTED", "APPEALED"}, To: "CLEARED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
-			"CLOSE": {From: []string{"CLEARED"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"APPEAL":              {From: []string{"RESTRICTED"}, To: "APPEALED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"UPHOLD":              {From: []string{"APPEALED"}, To: "RESTRICTED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"CLEAR":               {From: []string{"UNDER_REVIEW", "RESTRICTION_PROPOSED", "RESTRICTED", "APPEALED"}, To: "CLEARED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"CLOSE":               {From: []string{"CLEARED"}, To: "CLOSED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"dispute": {
@@ -285,10 +284,10 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"OPEN>EVIDENCE_COLLECTION", "EVIDENCE_COLLECTION>SUBMITTED", "SUBMITTED>DECIDED", "DECIDED>RESOLVED", "OPEN>WITHDRAWN", "EVIDENCE_COLLECTION>WITHDRAWN", "SUBMITTED>WITHDRAWN"},
 		Transitions: map[string]opsTransition{
 			"COLLECT_EVIDENCE": {From: []string{"OPEN"}, To: "EVIDENCE_COLLECTION", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"SUBMIT": {From: []string{"EVIDENCE_COLLECTION"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RECORD_DECISION": {From: []string{"SUBMITTED"}, To: "DECIDED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RESOLVE": {From: []string{"DECIDED"}, To: "RESOLVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"WITHDRAW": {From: []string{"OPEN", "EVIDENCE_COLLECTION", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SUBMIT":           {From: []string{"EVIDENCE_COLLECTION"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"RECORD_DECISION":  {From: []string{"SUBMITTED"}, To: "DECIDED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"RESOLVE":          {From: []string{"DECIDED"}, To: "RESOLVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"WITHDRAW":         {From: []string{"OPEN", "EVIDENCE_COLLECTION", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"financing_offer": {
@@ -298,11 +297,11 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: true, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"REQUESTED>CONSENTED", "CONSENTED>SUBMITTED", "SUBMITTED>APPROVED", "SUBMITTED>DECLINED", "REQUESTED>WITHDRAWN", "CONSENTED>WITHDRAWN", "SUBMITTED>WITHDRAWN"},
 		Transitions: map[string]opsTransition{
-			"RECORD_CONSENT": {From: []string{"REQUESTED"}, To: "CONSENTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"SUBMIT": {From: []string{"CONSENTED"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"RECORD_CONSENT":  {From: []string{"REQUESTED"}, To: "CONSENTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SUBMIT":          {From: []string{"CONSENTED"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
 			"RECORD_APPROVAL": {From: []string{"SUBMITTED"}, To: "APPROVED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RECORD_DECLINE": {From: []string{"SUBMITTED"}, To: "DECLINED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"WITHDRAW": {From: []string{"REQUESTED", "CONSENTED", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RECORD_DECLINE":  {From: []string{"SUBMITTED"}, To: "DECLINED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"WITHDRAW":        {From: []string{"REQUESTED", "CONSENTED", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"insurance_policy": {
@@ -322,11 +321,11 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: true, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"DRAFT>SUBMITTED", "SUBMITTED>UNDER_REVIEW", "UNDER_REVIEW>SETTLED", "UNDER_REVIEW>REJECTED", "DRAFT>WITHDRAWN", "SUBMITTED>WITHDRAWN"},
 		Transitions: map[string]opsTransition{
-			"SUBMIT": {From: []string{"DRAFT"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RECORD_REVIEW": {From: []string{"SUBMITTED"}, To: "UNDER_REVIEW", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"SUBMIT":            {From: []string{"DRAFT"}, To: "SUBMITTED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"RECORD_REVIEW":     {From: []string{"SUBMITTED"}, To: "UNDER_REVIEW", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
 			"RECORD_SETTLEMENT": {From: []string{"UNDER_REVIEW"}, To: "SETTLED", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"RECORD_REJECTION": {From: []string{"UNDER_REVIEW"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"WITHDRAW": {From: []string{"DRAFT", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RECORD_REJECTION":  {From: []string{"UNDER_REVIEW"}, To: "REJECTED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"WITHDRAW":          {From: []string{"DRAFT", "SUBMITTED"}, To: "WITHDRAWN", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"access_device": {
@@ -336,9 +335,9 @@ var opsDomains = map[string]*opsDomain{
 		AmountRequired: false, StartsRequired: false, EndsRequired: false, CreateMFA: false,
 		Edges: []string{"REGISTERED>ACTIVE", "OFFLINE>ACTIVE", "ACTIVE>OFFLINE", "REGISTERED>RETIRED", "ACTIVE>RETIRED", "OFFLINE>RETIRED"},
 		Transitions: map[string]opsTransition{
-			"ACTIVATE": {From: []string{"REGISTERED", "OFFLINE"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
+			"ACTIVATE":     {From: []string{"REGISTERED", "OFFLINE"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
 			"MARK_OFFLINE": {From: []string{"ACTIVE"}, To: "OFFLINE", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"RETIRE": {From: []string{"REGISTERED", "ACTIVE", "OFFLINE"}, To: "RETIRED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"RETIRE":       {From: []string{"REGISTERED", "ACTIVE", "OFFLINE"}, To: "RETIRED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"access_grant": {
@@ -349,7 +348,7 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"REQUESTED>ACTIVE", "REQUESTED>REVOKED", "ACTIVE>REVOKED", "REQUESTED>EXPIRED", "ACTIVE>EXPIRED"},
 		Transitions: map[string]opsTransition{
 			"ACTIVATE": {From: []string{"REQUESTED"}, To: "ACTIVE", Capability: "", MFA: false, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: true},
-			"REVOKE": {From: []string{"REQUESTED", "ACTIVE"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REVOKE":   {From: []string{"REQUESTED", "ACTIVE"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 	"integration_client": {
@@ -360,8 +359,8 @@ var opsDomains = map[string]*opsDomain{
 		Edges: []string{"DRAFT>ACTIVE", "SUSPENDED>ACTIVE", "ACTIVE>SUSPENDED", "DRAFT>REVOKED", "ACTIVE>REVOKED", "SUSPENDED>REVOKED"},
 		Transitions: map[string]opsTransition{
 			"ACTIVATE": {From: []string{"DRAFT", "SUSPENDED"}, To: "ACTIVE", Capability: "", MFA: true, Approval: nil, Evidence: true, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"SUSPEND": {From: []string{"ACTIVE"}, To: "SUSPENDED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"REVOKE": {From: []string{"DRAFT", "ACTIVE", "SUSPENDED"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"SUSPEND":  {From: []string{"ACTIVE"}, To: "SUSPENDED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
+			"REVOKE":   {From: []string{"DRAFT", "ACTIVE", "SUSPENDED"}, To: "REVOKED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},
 }
@@ -478,110 +477,324 @@ func (h *Handler) registerOpsDomains(r chi.Router) {
 	r.Post("/integrations/{id}/transitions", h.opsIntegrationClientTransition)
 }
 
-func (h *Handler) opsHousekeepingTaskList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["housekeeping_task"]) }
-func (h *Handler) opsHousekeepingTaskCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["housekeeping_task"]) }
-func (h *Handler) opsHousekeepingTaskGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["housekeeping_task"]) }
-func (h *Handler) opsHousekeepingTaskTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["housekeeping_task"], "") }
-func (h *Handler) opsMaintenanceRequestList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["maintenance_request"]) }
-func (h *Handler) opsMaintenanceRequestCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["maintenance_request"]) }
-func (h *Handler) opsMaintenanceRequestGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["maintenance_request"]) }
-func (h *Handler) opsMaintenanceRequestTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["maintenance_request"], "") }
-func (h *Handler) opsWorkOrderList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["work_order"]) }
-func (h *Handler) opsWorkOrderCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["work_order"]) }
-func (h *Handler) opsWorkOrderGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["work_order"]) }
-func (h *Handler) opsWorkOrderTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["work_order"], "") }
-func (h *Handler) opsWorkOrderApprove(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["work_order"], "APPROVE") }
-func (h *Handler) opsPreventiveScheduleList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["preventive_schedule"]) }
-func (h *Handler) opsPreventiveScheduleCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["preventive_schedule"]) }
-func (h *Handler) opsPreventiveScheduleGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["preventive_schedule"]) }
-func (h *Handler) opsPreventiveScheduleTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["preventive_schedule"], "") }
-func (h *Handler) opsManagerAssignmentList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["manager_assignment"]) }
-func (h *Handler) opsManagerAssignmentCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["manager_assignment"]) }
-func (h *Handler) opsManagerAssignmentGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["manager_assignment"]) }
-func (h *Handler) opsManagerAssignmentTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["manager_assignment"], "") }
-func (h *Handler) opsManagerAssignmentRevoke(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["manager_assignment"], "REVOKE") }
-func (h *Handler) opsDataRoomList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["data_room"]) }
-func (h *Handler) opsDataRoomCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["data_room"]) }
-func (h *Handler) opsDataRoomGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["data_room"]) }
-func (h *Handler) opsDataRoomTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["data_room"], "") }
-func (h *Handler) opsProfessionalAppointmentList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["professional_appointment"]) }
-func (h *Handler) opsProfessionalAppointmentCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["professional_appointment"]) }
-func (h *Handler) opsProfessionalAppointmentGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["professional_appointment"]) }
-func (h *Handler) opsProfessionalAppointmentTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["professional_appointment"], "") }
-func (h *Handler) opsDataRoomGrantList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["data_room_grant"]) }
-func (h *Handler) opsDataRoomGrantCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["data_room_grant"]) }
-func (h *Handler) opsDataRoomGrantGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["data_room_grant"]) }
-func (h *Handler) opsDataRoomGrantTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["data_room_grant"], "") }
-func (h *Handler) opsRentalApplicationList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["rental_application"]) }
-func (h *Handler) opsRentalApplicationCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["rental_application"]) }
-func (h *Handler) opsRentalApplicationGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["rental_application"]) }
-func (h *Handler) opsRentalApplicationTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["rental_application"], "") }
-func (h *Handler) opsTenancyList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["tenancy"]) }
-func (h *Handler) opsTenancyCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["tenancy"]) }
-func (h *Handler) opsTenancyGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["tenancy"]) }
-func (h *Handler) opsTenancyTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["tenancy"], "") }
-func (h *Handler) opsCommercialDealList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["commercial_deal"]) }
-func (h *Handler) opsCommercialDealCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["commercial_deal"]) }
-func (h *Handler) opsCommercialDealGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["commercial_deal"]) }
-func (h *Handler) opsCommercialDealTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["commercial_deal"], "") }
-func (h *Handler) opsLandTransactionList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["land_transaction"]) }
-func (h *Handler) opsLandTransactionCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["land_transaction"]) }
-func (h *Handler) opsLandTransactionGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["land_transaction"]) }
-func (h *Handler) opsLandTransactionTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["land_transaction"], "") }
-func (h *Handler) opsSaleTransactionList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["sale_transaction"]) }
-func (h *Handler) opsSaleTransactionCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["sale_transaction"]) }
-func (h *Handler) opsSaleTransactionGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["sale_transaction"]) }
-func (h *Handler) opsSaleTransactionTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["sale_transaction"], "") }
-func (h *Handler) opsSaleOfferList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["sale_offer"]) }
-func (h *Handler) opsSaleOfferCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["sale_offer"]) }
-func (h *Handler) opsSaleOfferGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["sale_offer"]) }
-func (h *Handler) opsSaleOfferTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["sale_offer"], "") }
-func (h *Handler) opsConstructionMilestoneList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["construction_milestone"]) }
-func (h *Handler) opsConstructionMilestoneCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["construction_milestone"]) }
-func (h *Handler) opsConstructionMilestoneGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["construction_milestone"]) }
-func (h *Handler) opsConstructionMilestoneTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["construction_milestone"], "") }
-func (h *Handler) opsDevelopmentAllocationList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["development_allocation"]) }
-func (h *Handler) opsDevelopmentAllocationCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["development_allocation"]) }
-func (h *Handler) opsDevelopmentAllocationGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["development_allocation"]) }
-func (h *Handler) opsDevelopmentAllocationTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["development_allocation"], "") }
-func (h *Handler) opsSnagItemList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["snag_item"]) }
-func (h *Handler) opsSnagItemCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["snag_item"]) }
-func (h *Handler) opsSnagItemGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["snag_item"]) }
-func (h *Handler) opsSnagItemTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["snag_item"], "") }
-func (h *Handler) opsWarrantyCaseList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["warranty_case"]) }
-func (h *Handler) opsWarrantyCaseCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["warranty_case"]) }
-func (h *Handler) opsWarrantyCaseGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["warranty_case"]) }
-func (h *Handler) opsWarrantyCaseTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["warranty_case"], "") }
-func (h *Handler) opsRiskCaseList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["risk_case"]) }
-func (h *Handler) opsRiskCaseCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["risk_case"]) }
-func (h *Handler) opsRiskCaseGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["risk_case"]) }
-func (h *Handler) opsRiskCaseTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["risk_case"], "") }
-func (h *Handler) opsDisputeList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["dispute"]) }
-func (h *Handler) opsDisputeCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["dispute"]) }
-func (h *Handler) opsDisputeGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["dispute"]) }
-func (h *Handler) opsDisputeTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["dispute"], "") }
-func (h *Handler) opsFinancingOfferList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["financing_offer"]) }
-func (h *Handler) opsFinancingOfferCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["financing_offer"]) }
-func (h *Handler) opsFinancingOfferGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["financing_offer"]) }
-func (h *Handler) opsFinancingOfferTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["financing_offer"], "") }
-func (h *Handler) opsInsurancePolicyList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["insurance_policy"]) }
-func (h *Handler) opsInsurancePolicyCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["insurance_policy"]) }
-func (h *Handler) opsInsurancePolicyGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["insurance_policy"]) }
-func (h *Handler) opsInsurancePolicyTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["insurance_policy"], "") }
-func (h *Handler) opsInsuranceClaimList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["insurance_claim"]) }
-func (h *Handler) opsInsuranceClaimCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["insurance_claim"]) }
-func (h *Handler) opsInsuranceClaimGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["insurance_claim"]) }
-func (h *Handler) opsInsuranceClaimTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["insurance_claim"], "") }
-func (h *Handler) opsAccessDeviceList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["access_device"]) }
-func (h *Handler) opsAccessDeviceCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["access_device"]) }
-func (h *Handler) opsAccessDeviceGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["access_device"]) }
-func (h *Handler) opsAccessDeviceTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["access_device"], "") }
-func (h *Handler) opsAccessGrantList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["access_grant"]) }
-func (h *Handler) opsAccessGrantCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["access_grant"]) }
-func (h *Handler) opsAccessGrantGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["access_grant"]) }
-func (h *Handler) opsAccessGrantTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["access_grant"], "") }
-func (h *Handler) opsAccessGrantRevoke(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["access_grant"], "REVOKE") }
-func (h *Handler) opsIntegrationClientList(w http.ResponseWriter, r *http.Request)   { h.opsDomainList(w, r, opsDomains["integration_client"]) }
-func (h *Handler) opsIntegrationClientCreate(w http.ResponseWriter, r *http.Request) { h.opsDomainCreate(w, r, opsDomains["integration_client"]) }
-func (h *Handler) opsIntegrationClientGet(w http.ResponseWriter, r *http.Request)    { h.opsDomainGet(w, r, opsDomains["integration_client"]) }
-func (h *Handler) opsIntegrationClientTransition(w http.ResponseWriter, r *http.Request) { h.opsDomainTransition(w, r, opsDomains["integration_client"], "") }
+func (h *Handler) opsHousekeepingTaskList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["housekeeping_task"])
+}
+func (h *Handler) opsHousekeepingTaskCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["housekeeping_task"])
+}
+func (h *Handler) opsHousekeepingTaskGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["housekeeping_task"])
+}
+func (h *Handler) opsHousekeepingTaskTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["housekeeping_task"], "")
+}
+func (h *Handler) opsMaintenanceRequestList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["maintenance_request"])
+}
+func (h *Handler) opsMaintenanceRequestCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["maintenance_request"])
+}
+func (h *Handler) opsMaintenanceRequestGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["maintenance_request"])
+}
+func (h *Handler) opsMaintenanceRequestTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["maintenance_request"], "")
+}
+func (h *Handler) opsWorkOrderList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["work_order"])
+}
+func (h *Handler) opsWorkOrderCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["work_order"])
+}
+func (h *Handler) opsWorkOrderGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["work_order"])
+}
+func (h *Handler) opsWorkOrderTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["work_order"], "")
+}
+func (h *Handler) opsWorkOrderApprove(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["work_order"], "APPROVE")
+}
+func (h *Handler) opsPreventiveScheduleList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["preventive_schedule"])
+}
+func (h *Handler) opsPreventiveScheduleCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["preventive_schedule"])
+}
+func (h *Handler) opsPreventiveScheduleGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["preventive_schedule"])
+}
+func (h *Handler) opsPreventiveScheduleTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["preventive_schedule"], "")
+}
+func (h *Handler) opsManagerAssignmentList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["manager_assignment"])
+}
+func (h *Handler) opsManagerAssignmentCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["manager_assignment"])
+}
+func (h *Handler) opsManagerAssignmentGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["manager_assignment"])
+}
+func (h *Handler) opsManagerAssignmentTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["manager_assignment"], "")
+}
+func (h *Handler) opsManagerAssignmentRevoke(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["manager_assignment"], "REVOKE")
+}
+func (h *Handler) opsDataRoomList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["data_room"])
+}
+func (h *Handler) opsDataRoomCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["data_room"])
+}
+func (h *Handler) opsDataRoomGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["data_room"])
+}
+func (h *Handler) opsDataRoomTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["data_room"], "")
+}
+func (h *Handler) opsProfessionalAppointmentList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["professional_appointment"])
+}
+func (h *Handler) opsProfessionalAppointmentCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["professional_appointment"])
+}
+func (h *Handler) opsProfessionalAppointmentGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["professional_appointment"])
+}
+func (h *Handler) opsProfessionalAppointmentTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["professional_appointment"], "")
+}
+func (h *Handler) opsDataRoomGrantList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["data_room_grant"])
+}
+func (h *Handler) opsDataRoomGrantCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["data_room_grant"])
+}
+func (h *Handler) opsDataRoomGrantGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["data_room_grant"])
+}
+func (h *Handler) opsDataRoomGrantTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["data_room_grant"], "")
+}
+func (h *Handler) opsRentalApplicationList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["rental_application"])
+}
+func (h *Handler) opsRentalApplicationCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["rental_application"])
+}
+func (h *Handler) opsRentalApplicationGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["rental_application"])
+}
+func (h *Handler) opsRentalApplicationTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["rental_application"], "")
+}
+func (h *Handler) opsTenancyList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["tenancy"])
+}
+func (h *Handler) opsTenancyCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["tenancy"])
+}
+func (h *Handler) opsTenancyGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["tenancy"])
+}
+func (h *Handler) opsTenancyTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["tenancy"], "")
+}
+func (h *Handler) opsCommercialDealList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["commercial_deal"])
+}
+func (h *Handler) opsCommercialDealCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["commercial_deal"])
+}
+func (h *Handler) opsCommercialDealGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["commercial_deal"])
+}
+func (h *Handler) opsCommercialDealTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["commercial_deal"], "")
+}
+func (h *Handler) opsLandTransactionList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["land_transaction"])
+}
+func (h *Handler) opsLandTransactionCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["land_transaction"])
+}
+func (h *Handler) opsLandTransactionGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["land_transaction"])
+}
+func (h *Handler) opsLandTransactionTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["land_transaction"], "")
+}
+func (h *Handler) opsSaleTransactionList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["sale_transaction"])
+}
+func (h *Handler) opsSaleTransactionCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["sale_transaction"])
+}
+func (h *Handler) opsSaleTransactionGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["sale_transaction"])
+}
+func (h *Handler) opsSaleTransactionTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["sale_transaction"], "")
+}
+func (h *Handler) opsSaleOfferList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["sale_offer"])
+}
+func (h *Handler) opsSaleOfferCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["sale_offer"])
+}
+func (h *Handler) opsSaleOfferGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["sale_offer"])
+}
+func (h *Handler) opsSaleOfferTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["sale_offer"], "")
+}
+func (h *Handler) opsConstructionMilestoneList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["construction_milestone"])
+}
+func (h *Handler) opsConstructionMilestoneCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["construction_milestone"])
+}
+func (h *Handler) opsConstructionMilestoneGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["construction_milestone"])
+}
+func (h *Handler) opsConstructionMilestoneTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["construction_milestone"], "")
+}
+func (h *Handler) opsDevelopmentAllocationList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["development_allocation"])
+}
+func (h *Handler) opsDevelopmentAllocationCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["development_allocation"])
+}
+func (h *Handler) opsDevelopmentAllocationGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["development_allocation"])
+}
+func (h *Handler) opsDevelopmentAllocationTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["development_allocation"], "")
+}
+func (h *Handler) opsSnagItemList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["snag_item"])
+}
+func (h *Handler) opsSnagItemCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["snag_item"])
+}
+func (h *Handler) opsSnagItemGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["snag_item"])
+}
+func (h *Handler) opsSnagItemTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["snag_item"], "")
+}
+func (h *Handler) opsWarrantyCaseList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["warranty_case"])
+}
+func (h *Handler) opsWarrantyCaseCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["warranty_case"])
+}
+func (h *Handler) opsWarrantyCaseGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["warranty_case"])
+}
+func (h *Handler) opsWarrantyCaseTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["warranty_case"], "")
+}
+func (h *Handler) opsRiskCaseList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["risk_case"])
+}
+func (h *Handler) opsRiskCaseCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["risk_case"])
+}
+func (h *Handler) opsRiskCaseGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["risk_case"])
+}
+func (h *Handler) opsRiskCaseTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["risk_case"], "")
+}
+func (h *Handler) opsDisputeList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["dispute"])
+}
+func (h *Handler) opsDisputeCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["dispute"])
+}
+func (h *Handler) opsDisputeGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["dispute"])
+}
+func (h *Handler) opsDisputeTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["dispute"], "")
+}
+func (h *Handler) opsFinancingOfferList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["financing_offer"])
+}
+func (h *Handler) opsFinancingOfferCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["financing_offer"])
+}
+func (h *Handler) opsFinancingOfferGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["financing_offer"])
+}
+func (h *Handler) opsFinancingOfferTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["financing_offer"], "")
+}
+func (h *Handler) opsInsurancePolicyList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["insurance_policy"])
+}
+func (h *Handler) opsInsurancePolicyCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["insurance_policy"])
+}
+func (h *Handler) opsInsurancePolicyGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["insurance_policy"])
+}
+func (h *Handler) opsInsurancePolicyTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["insurance_policy"], "")
+}
+func (h *Handler) opsInsuranceClaimList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["insurance_claim"])
+}
+func (h *Handler) opsInsuranceClaimCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["insurance_claim"])
+}
+func (h *Handler) opsInsuranceClaimGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["insurance_claim"])
+}
+func (h *Handler) opsInsuranceClaimTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["insurance_claim"], "")
+}
+func (h *Handler) opsAccessDeviceList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["access_device"])
+}
+func (h *Handler) opsAccessDeviceCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["access_device"])
+}
+func (h *Handler) opsAccessDeviceGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["access_device"])
+}
+func (h *Handler) opsAccessDeviceTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["access_device"], "")
+}
+func (h *Handler) opsAccessGrantList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["access_grant"])
+}
+func (h *Handler) opsAccessGrantCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["access_grant"])
+}
+func (h *Handler) opsAccessGrantGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["access_grant"])
+}
+func (h *Handler) opsAccessGrantTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["access_grant"], "")
+}
+func (h *Handler) opsAccessGrantRevoke(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["access_grant"], "REVOKE")
+}
+func (h *Handler) opsIntegrationClientList(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainList(w, r, opsDomains["integration_client"])
+}
+func (h *Handler) opsIntegrationClientCreate(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainCreate(w, r, opsDomains["integration_client"])
+}
+func (h *Handler) opsIntegrationClientGet(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainGet(w, r, opsDomains["integration_client"])
+}
+func (h *Handler) opsIntegrationClientTransition(w http.ResponseWriter, r *http.Request) {
+	h.opsDomainTransition(w, r, opsDomains["integration_client"], "")
+}

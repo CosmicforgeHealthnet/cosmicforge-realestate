@@ -86,7 +86,7 @@ for line in annex.splitlines():
 mapped = {e['canonical_table'] for e in entries}
 for name, schema in sorted(tables.items()):
     if name not in mapped:
-        entries.append({'specified_table': '(supporting table)', 'canonical_table': name, 'specification': 'Supporting implementation', 'category': 'Supporting persistence', 'owner_package': 'internal/reservations' if name.startswith(('reservation_','waitlist_')) else 'Existing owning migration/domain', 'owning_section': '10' if int(schema['migration'][:5])>=13 else '11' if int(schema['migration'][:5])==12 else '8' if int(schema['migration'][:5]) in (10,11) else '9' if int(schema['migration'][:5]) in (8,9) else '3–7' if int(schema['migration'][:5]) >= 6 else '1–4', 'decision': 'SCHEMA_PRESENT', 'schema': schema, 'repository': 'Owning bounded context; no cross-service implementation imports.', 'dependency': 'Supporting secure/transactional operation, immutable history, normalized relationships or recovery.', 'isolation': 'Service-local; parent tenant keys and command authorization.'})
+        entries.append({'specified_table': '(supporting table)', 'canonical_table': name, 'specification': 'Supporting implementation', 'category': 'Supporting persistence', 'owner_package': 'internal/reservations' if name.startswith(('reservation_','waitlist_')) else 'Existing owning migration/domain', 'owning_section': {31:'12',32:'21',33:'13',34:'14',35:'15',36:'16',37:'16'}.get(int(schema['migration'][:5]),'10') if int(schema['migration'][:5])>=13 else '11' if int(schema['migration'][:5])==12 else '8' if int(schema['migration'][:5]) in (10,11) else '9' if int(schema['migration'][:5]) in (8,9) else '3–7' if int(schema['migration'][:5]) >= 6 else '1–4', 'decision': 'SCHEMA_PRESENT', 'schema': schema, 'repository': 'Owning bounded context; no cross-service implementation imports.', 'dependency': 'Supporting secure/transactional operation, immutable history, normalized relationships or recovery.', 'isolation': 'Service-local; parent tenant keys and command authorization.'})
 current_required={'group_blocks','rooming_lists','event_bookings','master_folios','guest_stay_history','guest_segments','vip_classifications','loyalty_programs','loyalty_rules','loyalty_accounts','loyalty_entitlements','loyalty_transactions','loyalty_rewards','loyalty_redemptions','loyalty_reversals','service_recovery_cases','service_recovery_actions','service_recovery_compensation_refs','privacy_requests','legal_holds','data_retention_jobs'}
 known={e['canonical_table'] for e in entries}
 for name in sorted(current_required-known):
@@ -104,7 +104,18 @@ annex_owners={1:'organisation',2:'auth',3:'workforce',4:'finance',5:'portfolio',
 for entry in entries:
     name=entry['canonical_table']
     owner=None
-    groups=[('auth',('business_auth_','business_external_','business_refresh_','business_registration_','business_accounts','business_credentials','business_sessions','business_devices','business_mfa','security_events','sso_','scim_','mfa_','refresh_','password_','authentication_','external_identity_')),
+    groups=[('support',('messaging_connections','communication_contexts','inbox_threads','inbox_assignments','inbox_message_receipts','inbox_sla_policies','inbox_sync_cursors','quick_reply_templates','scheduled_replies','scheduled_reply_attempts','support_cases')),
+            ('automation',('ai_knowledge_entries','ai_suggestions','action_cards','automation_rules','automation_runs')),
+            ('reputation',('review_','reputation_metrics','quality_')),
+            ('crm',('lead_','leads','segments','campaigns','campaign_','attribution_touchpoints','funnel_observations','conversion_projection_cursors')),
+            ('content',('brand_profiles','storefront_','upsell_')),
+            ('finance',('financial_','fiscal_periods','cost_centres','budgets','budget_lines','obligation_adjustments','expense_requests','payout_','revenue_split_rules','channel_settlement_expectations')),
+            ('housekeeping',('housekeeping_tasks',)),('maintenance',('maintenance_requests','work_orders','preventive_schedules')),('delegation',('manager_assignment_refs',)),
+            ('professional',('data_rooms','data_room_grants','professional_appointments')),('residential',('rental_applications','tenancies')),('commercial',('commercial_deals',)),
+            ('land',('land_transactions',)),('sales',('sale_transactions','sale_offers')),('development',('construction_milestones','development_allocations','snag_items','warranty_cases')),
+            ('risk',('risk_cases','disputes')),('financing',('finance_offer_refs',)),('insurance',('insurance_',)),('access',('access_devices','access_grants')),
+            ('integrations',('integration_clients',)),('analytics',('report_jobs','analytics_snapshots')),('events',('operations_history',)),
+            ('auth',('business_auth_','business_external_','business_refresh_','business_registration_','business_accounts','business_credentials','business_sessions','business_devices','business_mfa','security_events','sso_','scim_','mfa_','refresh_','password_','authentication_','external_identity_')),
             ('organisation',('organisations','organisation_','capability_packs','verification_links','verification_link_history','business_account_profiles')),
             ('workforce',('staff_','branches','departments','teams','regions','role_','permissions')),
             ('approvals',('approval_','delegation_grants','break_glass_')),

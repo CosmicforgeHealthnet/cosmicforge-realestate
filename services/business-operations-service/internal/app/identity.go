@@ -4,7 +4,9 @@ import (
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/cfmeet"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/messaging"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
@@ -60,6 +62,11 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		domain.Media = client
 	}
 	domain.InvitationAcceptURL = loader.String("BUSINESS_INVITATION_ACCEPT_URL", "")
+	// No CF Meet or external messaging/review partner contract is deployed:
+	// these boundaries fail closed until an authenticated adapter is added.
+	domain.CFMeet = cfmeet.Unavailable{}
+	domain.Messaging = map[string]messaging.Adapter{"MARKETPLACE": messaging.Disabled{Name: "MARKETPLACE"}, "BOOKING_COM": messaging.Disabled{Name: "BOOKING_COM"}, "AIRBNB": messaging.Disabled{Name: "AIRBNB"}, "DIRECT_WEB": messaging.Disabled{Name: "DIRECT_WEB"}}
+	domain.ReviewAdapters = map[string]messaging.ReviewAdapter{"MARKETPLACE_VERIFIED_STAY": messaging.DisabledReviews{}, "BOOKING_COM": messaging.DisabledReviews{}, "AIRBNB": messaging.DisabledReviews{}}
 	a.Router = NewRouter(a.Health, handler.Router, domain.InternalDistributionRouter(identity.Verifier), domain.DistributionWebhookRouter(identity.Verifier))
 	return nil
 }

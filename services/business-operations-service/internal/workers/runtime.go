@@ -154,6 +154,14 @@ func (r *Runtime) Run(ctx context.Context) error {
 			}
 			// Durable leased RMS automation jobs: schedule, capture, forecast,
 			// recommend, approval submission/monitoring, application and monitoring.
+			// Section 12: CF Meet contexts, provider inbox sync, scheduled
+			// reply dispatch with readback, SLA escalation (leased, fenced).
+			call, cancel = context.WithTimeout(ctx, 20*time.Second)
+			err = r.Inventory.ProcessCommunications(call, 20)
+			cancel()
+			if err != nil && ctx.Err() == nil {
+				r.log.Error("communication workers failed", "error", err.Error())
+			}
 			call, cancel = context.WithTimeout(ctx, 30*time.Second)
 			err = r.Inventory.ProcessRMSAutomation(call, 10)
 			cancel()
@@ -179,6 +187,11 @@ func (r *Runtime) Run(ctx context.Context) error {
 					{"hospitality-day-automation", r.Inventory.ProcessPMSDayAutomation},
 					{"crm-data-retention", r.Inventory.ProcessDataRetention},
 					{"crm-notifications", r.Inventory.ProcessGuestNotifications},
+					{"reputation", r.Inventory.ProcessReputation},
+					{"marketing", r.Inventory.ProcessMarketing},
+					{"finance", r.Inventory.ProcessFinance},
+					{"operations", r.Inventory.ProcessOperations},
+					{"analytics-reports", r.Inventory.ProcessReports},
 				} {
 					call, cancel := context.WithTimeout(ctx, 30*time.Second)
 					err := task.run(call, 50)

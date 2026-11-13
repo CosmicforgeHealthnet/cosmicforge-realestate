@@ -6,6 +6,8 @@ import json,re,sys,copy,os,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 SERVICE=ROOT/'services/business-operations-service'
+USED_OPERATION_IDS=set()
+
 def write_contract(path,text):
  path.parent.mkdir(parents=True,exist_ok=True)
  if not path.resolve().is_relative_to(ROOT.resolve()):raise RuntimeError('Contract output outside repository')
@@ -372,7 +374,7 @@ def include(s):
  elif isinstance(s,list):
   for v in s:include(v)
 O={'openapi':'3.1.0','info':{'title':'CosmicForge Business Operations â€” Sections 3â€“7','version':'1.4.0','description':'Canonical public prefix /api/v1/business. The explicit legacy /api/v1/business-operations alias has identical authentication and handlers; it is not a second API. All traffic crosses the Gateway; direct service calls require its signed internal identity. Trusted tenant comes from live session and membership, never an X-Organisation-ID override. Provider-specific assertion paths return 503 when unavailable. No SSO provider or downstream money movement is claimed.'},'servers':[{'url':'{base_url}','variables':{'base_url':{'default':'http://localhost:8080'}}}],'security':[{'BusinessBearer':[]}],'paths':{},'components':{'securitySchemes':{'BusinessBearer':{'type':'http','scheme':'bearer','bearerFormat':'Ed25519 JWT'}},'schemas':{}}}
-folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','05 Listings & Content','06 Inventory & Availability','07 Rate Plans, Restrictions & Promotions','08 Channel Manager','09 Revenue Management','10 Reservations','11 Front Desk','12 Folio, Cashier & Night Audit','13 Guest CRM & Marketing','_Internal','_Webhooks','_Admin')}
+folders={n:{'name':n,'item':[]} for n in ('00 Auth & Security','01 Organisation & Staff','02 Roles, Permissions & Approvals','03 Portfolio & Property Hierarchy','04 Authority & Verification','05 Listings & Content','06 Inventory & Availability','07 Rate Plans, Restrictions & Promotions','08 Channel Manager','09 Revenue Management','10 Reservations','11 Front Desk','12 Folio, Cashier & Night Audit','13 Guest CRM & Marketing','14 Residential','15 Commercial','16 Land','17 Sales & Buyer Management','18 Development & Off-Plan','19 Short-Let','20 Housekeeping','21 Maintenance & Assets','22 Managers','23 Professional Services & Data Rooms','24 Support & Service Recovery','25 Reviews & Reputation','26 Analytics & AI','27 Risk, Privacy & Disputes','28 Financing & Insurance','29 Smart Access','30 Group / Corporate / Event Sales','31 Integrations & Offline Sync','_Internal','_Webhooks','_Admin')}
 error_defs={'400':('VALIDATION_ERROR','Invalid request fields.'),'401':('AUTHENTICATION_REQUIRED','Authentication required.'),'403':('PERMISSION_DENIED','Capability or scope denied.'),'404':('RESOURCE_NOT_FOUND','Resource not found.'),'409':('VERSION_CONFLICT','Version changed or idempotency conflicts.'),'429':('RATE_LIMITED','Try again later.'),'503':('SERVICE_UNAVAILABLE','Required provider is unavailable.')}
 for r in R:
  method,path=r['method'],r['path'];name=method+' '+path
@@ -410,7 +412,10 @@ for r in R:
  for code,override in r.get('success_example_overrides',{}).items():responses[str(code)]['content']['application/json']['example']['data'].update(override)
  for code,description in r.get('success_description_overrides',{}).items():responses[str(code)]['description']=description
  for code,(err,msg) in error_defs.items():responses[code]={'description':msg,'content':{'application/json':{'schema':ref('Error'),'example':{'error':{'code':err,'message':msg,'request_id':'example-request'}}}}}
- op={'operationId':re.sub('[^a-zA-Z0-9]+','_',name).strip('_'),'summary':name,'description':desc,'x-permission':r['capability'] or 'self','x-step-up':r['step_up'],'x-idempotency-key':r['idempotent'],'parameters':parameters,'responses':responses}
+ operation_id=re.sub('[^a-zA-Z0-9]+','_',name).strip('_')
+ if operation_id in USED_OPERATION_IDS:operation_id=re.sub('[^a-zA-Z0-9]+','_',r['method']+' '+r['path'].replace('-','_dash_')).strip('_')
+ USED_OPERATION_IDS.add(operation_id)
+ op={'operationId':operation_id,'summary':name,'description':desc,'x-permission':r['capability'] or 'self','x-step-up':r['step_up'],'x-idempotency-key':r['idempotent'],'parameters':parameters,'responses':responses}
  if r['public']:op['security']=[]
  if r.get('transport')=='internal':
   O['components']['securitySchemes']['ServiceBearer']={'type':'http','scheme':'bearer','bearerFormat':'Short-lived signed service JWT'}
@@ -570,6 +575,26 @@ for r in R:
  if path.startswith(('/api/v1/business/guests','/api/v1/business/corporate-customers')):folder='13 Guest CRM & Marketing'
  if path.startswith(('/api/v1/business/front-desk','/api/v1/business/room-status','/api/v1/business/room-assignments','/api/v1/business/stays','/api/v1/business/groups','/api/v1/business/events','/api/v1/business/folios','/api/v1/business/folio-close-reviews','/api/v1/business/master-folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies','/api/v1/business/hospitality-exceptions')):folder='11 Front Desk'
  if path.startswith(('/api/v1/business/folios','/api/v1/business/folio-close-reviews','/api/v1/business/master-folios','/api/v1/business/cash-','/api/v1/business/cashier-','/api/v1/business/night-audit','/api/v1/business/business-day-','/api/v1/business/hospitality-policies','/api/v1/business/hospitality-exceptions')):folder='12 Folio, Cashier & Night Audit'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/authority',))):folder='04 Authority & Verification'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/inbox','/communication-contexts','/messaging-connections','/support-cases','/service-recovery'))):folder='24 Support & Service Recovery'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/reviews','/review-responses','/review-disputes','/reputation','/quality-issues','/quality-tasks'))):folder='25 Reviews & Reputation'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/leads','/lead-sources','/lead-assignments','/segments','/campaigns','/brand','/storefront','/upsell-','/attribution','/conversion'))):folder='13 Guest CRM & Marketing'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/ai/','/action-cards','/automation-rules','/dashboards','/reports','/benchmarks','/revenue/dashboard'))):folder='26 Analytics & AI'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/cost-centres','/fiscal-periods','/budgets','/expense-requests','/financial-obligations','/payout-','/revenue-splits','/channel-settlements','/financial-exceptions','/finance/','/tax-policy'))):folder='12 Folio, Cashier & Night Audit'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/rental-applications','/tenancies'))):folder='14 Residential'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/commercial/',))):folder='15 Commercial'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/land/',))):folder='16 Land'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/sales','/data-rooms'))):folder='17 Sales & Buyer Management'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/projects',))):folder='18 Development & Off-Plan'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/housekeeping',))):folder='20 Housekeeping'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/maintenance','/work-orders','/preventive-maintenance'))):folder='21 Maintenance & Assets'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/manager-assignments',))):folder='22 Managers'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/professional-appointments',))):folder='23 Professional Services & Data Rooms'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/risk-cases','/disputes','/privacy-requests'))):folder='27 Risk, Privacy & Disputes'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/financing','/insurance/'))):folder='28 Financing & Insurance'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/access/',))):folder='29 Smart Access'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/corporate-rates',))):folder='30 Group / Corporate / Event Sales'
+ if path.startswith(tuple('/api/v1/business'+p for p in ('/integrations','/offline-sync','/reconciliation-tasks'))):folder='31 Integrations & Offline Sync'
  if path.startswith('/internal/'):folder='_Internal'
  if path.startswith('/webhooks/'):folder='_Webhooks'
  folders[folder]['item'].append({'name':name,'request':request,'response':examples,'event':[{'listen':'prerequest','script':{'type':'text/javascript','exec':prerequest}},{'listen':'test','script':{'type':'text/javascript','exec':tests}}]})

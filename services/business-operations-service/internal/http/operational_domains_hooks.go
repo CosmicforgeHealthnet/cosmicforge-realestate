@@ -576,7 +576,9 @@ func (h *Handler) listingPreview(w http.ResponseWriter, r *http.Request) { h.lis
 func (h *Handler) listingSubmitApproval(w http.ResponseWriter, r *http.Request) {
 	h.listingSubmit(w, r)
 }
-func (h *Handler) listingQualityAlias(w http.ResponseWriter, r *http.Request) { h.listingReadiness(w, r) }
+func (h *Handler) listingQualityAlias(w http.ResponseWriter, r *http.Request) {
+	h.listingReadiness(w, r)
+}
 
 // integrationHealth derives health from the integration lifecycle record and
 // its recorded history; credentials are never returned.

@@ -6,6 +6,7 @@ from business_crm_routes import register_crm,crm_queries,crm_examples
 from business_crm_merge_routes import register_crm_merge,crm_merge_queries,crm_merge_examples
 from business_reservation_quantity_routes import register_reservation_quantity,reservation_quantity_notes,reservation_quantity_queries,reservation_quantity_examples
 from business_rms_automation_routes import register_rms_automation
+from business_sections_12_24_routes import register_sections_12_24,notes as s1224_notes
 
 def register_operations(root,s,route,obj,arr,ref,typ):
  def shape(name,**fields):s[name]=obj(fields,list(fields),True)
@@ -129,6 +130,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
  data.update(register_reservation_quantity(s,obj,arr,ref,typ))
  data.update(register_pms_amendments(s,obj,arr,ref,typ))
  data.update(register_rms_automation(s,obj,arr,ref,typ))
+ data.update({k:v for k,v in register_sections_12_24(root,s,obj,arr,ref,typ).items() if k not in data})
  found=set()
  for p in sorted((root/'services/business-operations-service/internal/http').glob('operational*.go')):
   for method,path,handler in re.findall(r'r\.(Get|Post|Put|Patch|Delete)\("([^"\n]+)",\s*h\.(\w+)\)',p.read_text(encoding='utf-8')):
@@ -166,6 +168,7 @@ def register_operations(root,s,route,obj,arr,ref,typ):
    if handler.startswith('rms'):note+='Retained owned pool/calendar/reservation observations and exact source digests; missing history is not filled with zeros. Forecast estimates use fixed-point thousandths of a night and non-calibrated observed coverage. Contractual booking metrics are separate from realized stays/cash/refunds/contribution/conversion, which remain null without their owning inputs. Forecast/capture/simulation never change rates or capacity. Application and compensating rollback require a current exact recommendation, recent MFA, live rate-write authority, independent digest/amount/currency-bound approval, retained policy and stale-version checks. Mode labels alone do not authorize automatic execution. '
    note+=reservation_quantity_notes(handler)
    if handler.startswith('reservationWaitlist') and not handler.startswith('reservationWaitlistAutomation'):note+='Offers reserve real inventory and expire. Acceptance consumes the exact current offer once under the owning transaction. '
+   note+=s1224_notes(handler)
    route(method.upper(),path,cap,request,response,status,method!='Get',mfa,notes=note)
    route.__globals__['R'][-1]['handler']=handler
    if handler=='pmsFiscalReview':route.__globals__['R'][-1]['success_statuses']=[200];route.__globals__['R'][-1]['success_example_overrides']={'200':{'changed':False}};route.__globals__['R'][-1]['success_description_overrides']={'200':'Original source detail unchanged; no new version or charge.'}

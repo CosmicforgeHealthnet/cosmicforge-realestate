@@ -34,11 +34,11 @@ type opsDomain struct {
 }
 
 type opsTransition struct {
-	From                                           []string
-	To                                             string
-	Capability                                     string
-	MFA                                            bool
-	Approval                                       *opsApproval
+	From                                            []string
+	To                                              string
+	Capability                                      string
+	MFA                                             bool
+	Approval                                        *opsApproval
 	Evidence, Distinct, Assignee, Amount, Reference bool
 }
 
