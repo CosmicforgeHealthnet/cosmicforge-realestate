@@ -1,5 +1,5 @@
 {
- "total": 1004,
+ "total": 1006,
  "annex_e_required": 213,
  "annex_e_registered": 213,
  "routes": [
@@ -278,13 +278,39 @@
   },
   {
    "method": "GET",
+   "path": "/api/v1/business/partner/v1/me",
+   "group": "Partner API (credential-authenticated)",
+   "capability": "",
+   "step_up": false,
+   "idempotent": false,
+   "handler": "partnerMe",
+   "source": "internal/http/partner_api.go:68",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/business/partner/v1/reservations",
+   "group": "Partner API (credential-authenticated)",
+   "capability": "reservations:read",
+   "step_up": false,
+   "idempotent": false,
+   "handler": "partnerReservations",
+   "source": "internal/http/partner_api.go:69",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "GET",
    "path": "/api/v1/business/organisation",
    "group": "Auth/organisation/staff/roles/approvals",
    "capability": "organisation:read",
    "step_up": false,
    "idempotent": false,
    "handler": "getOrganisation",
-   "source": "internal/http/organisation.go:45",
+   "source": "internal/http/organisation.go:48",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -297,7 +323,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "getOrganisation",
-   "source": "internal/http/organisation.go:49",
+   "source": "internal/http/organisation.go:52",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -310,7 +336,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "updateOrganisation",
-   "source": "internal/http/organisation.go:50",
+   "source": "internal/http/organisation.go:53",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -323,7 +349,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "getKYB",
-   "source": "internal/http/organisation.go:51",
+   "source": "internal/http/organisation.go:54",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -336,7 +362,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "effectiveCapabilities",
-   "source": "internal/http/organisation.go:52",
+   "source": "internal/http/organisation.go:55",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -349,7 +375,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "updateOrganisation",
-   "source": "internal/http/organisation.go:46",
+   "source": "internal/http/organisation.go:49",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -362,7 +388,7 @@
    "step_up": true,
    "idempotent": false,
    "handler": "createKYB",
-   "source": "internal/http/organisation.go:53",
+   "source": "internal/http/organisation.go:56",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -375,7 +401,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "getKYB",
-   "source": "internal/http/organisation.go:54",
+   "source": "internal/http/organisation.go:57",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -388,7 +414,7 @@
    "step_up": true,
    "idempotent": false,
    "handler": "renewKYB",
-   "source": "internal/http/organisation.go:57",
+   "source": "internal/http/organisation.go:60",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -401,7 +427,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "refreshKYB",
-   "source": "internal/http/organisation.go:55",
+   "source": "internal/http/organisation.go:58",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -414,7 +440,7 @@
    "step_up": true,
    "idempotent": false,
    "handler": "submitKYB",
-   "source": "internal/http/organisation.go:56",
+   "source": "internal/http/organisation.go:59",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -427,7 +453,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "attachKYBEvidence",
-   "source": "internal/http/organisation.go:58",
+   "source": "internal/http/organisation.go:61",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -440,7 +466,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "capacities",
-   "source": "internal/http/organisation.go:59",
+   "source": "internal/http/organisation.go:62",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -9098,7 +9124,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "saleOfferDecision",
-   "source": "internal/http/operational_domains_hooks.go:338",
+   "source": "internal/http/operational_domains_hooks.go:341",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9111,7 +9137,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "projectList",
-   "source": "internal/http/operational_domains_hooks.go:339",
+   "source": "internal/http/operational_domains_hooks.go:342",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9124,7 +9150,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "projectCreate",
-   "source": "internal/http/operational_domains_hooks.go:340",
+   "source": "internal/http/operational_domains_hooks.go:343",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9137,7 +9163,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "projectPhases",
-   "source": "internal/http/operational_domains_hooks.go:341",
+   "source": "internal/http/operational_domains_hooks.go:344",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9150,7 +9176,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "projectPhaseCreate",
-   "source": "internal/http/operational_domains_hooks.go:342",
+   "source": "internal/http/operational_domains_hooks.go:345",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9163,7 +9189,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "integrationHealth",
-   "source": "internal/http/operational_domains_hooks.go:343",
+   "source": "internal/http/operational_domains_hooks.go:346",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9176,7 +9202,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "analyticsDashboard",
-   "source": "internal/http/operational_domains_hooks.go:344",
+   "source": "internal/http/operational_domains_hooks.go:347",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9189,7 +9215,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "revenueDashboard",
-   "source": "internal/http/operational_domains_hooks.go:345",
+   "source": "internal/http/operational_domains_hooks.go:348",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9202,7 +9228,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "analyticsReportCreate",
-   "source": "internal/http/operational_domains_hooks.go:346",
+   "source": "internal/http/operational_domains_hooks.go:349",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9215,7 +9241,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "analyticsReportGet",
-   "source": "internal/http/operational_domains_hooks.go:347",
+   "source": "internal/http/operational_domains_hooks.go:350",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -9228,7 +9254,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "analyticsBenchmarks",
-   "source": "internal/http/operational_domains_hooks.go:348",
+   "source": "internal/http/operational_domains_hooks.go:351",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9241,7 +9267,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "rmsForecastCreate",
-   "source": "internal/http/operational_domains_hooks.go:350",
+   "source": "internal/http/operational_domains_hooks.go:353",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9254,7 +9280,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "rmsScenarioSimulate",
-   "source": "internal/http/operational_domains_hooks.go:351",
+   "source": "internal/http/operational_domains_hooks.go:354",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9267,7 +9293,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "rmsRecommendationApprove",
-   "source": "internal/http/operational_domains_hooks.go:352",
+   "source": "internal/http/operational_domains_hooks.go:355",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9280,7 +9306,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "rmsRecommendationOverride",
-   "source": "internal/http/operational_domains_hooks.go:353",
+   "source": "internal/http/operational_domains_hooks.go:356",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9293,7 +9319,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "reservationExtend",
-   "source": "internal/http/operational_domains_hooks.go:354",
+   "source": "internal/http/operational_domains_hooks.go:357",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9306,7 +9332,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "folioEnsure",
-   "source": "internal/http/operational_domains_hooks.go:355",
+   "source": "internal/http/operational_domains_hooks.go:358",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9319,7 +9345,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "crmRecoveryCases",
-   "source": "internal/http/operational_domains_hooks.go:356",
+   "source": "internal/http/operational_domains_hooks.go:359",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9332,7 +9358,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "crmRecoveryCaseCreate",
-   "source": "internal/http/operational_domains_hooks.go:357",
+   "source": "internal/http/operational_domains_hooks.go:360",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9345,7 +9371,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "privacyRequestCreate",
-   "source": "internal/http/operational_domains_hooks.go:358",
+   "source": "internal/http/operational_domains_hooks.go:361",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9358,7 +9384,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "taxPolicyGet",
-   "source": "internal/http/operational_domains_hooks.go:359",
+   "source": "internal/http/operational_domains_hooks.go:362",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9371,7 +9397,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "taxPolicyPut",
-   "source": "internal/http/operational_domains_hooks.go:360",
+   "source": "internal/http/operational_domains_hooks.go:363",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9384,7 +9410,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "corporateRates",
-   "source": "internal/http/operational_domains_hooks.go:361",
+   "source": "internal/http/operational_domains_hooks.go:364",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9397,7 +9423,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "corporateRateSave",
-   "source": "internal/http/operational_domains_hooks.go:362",
+   "source": "internal/http/operational_domains_hooks.go:365",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9410,7 +9436,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "pmsOfflineReplay",
-   "source": "internal/http/operational_domains_hooks.go:363",
+   "source": "internal/http/operational_domains_hooks.go:366",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9423,7 +9449,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "pmsOfflineTasks",
-   "source": "internal/http/operational_domains_hooks.go:364",
+   "source": "internal/http/operational_domains_hooks.go:367",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9436,7 +9462,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "pmsOfflineResolve",
-   "source": "internal/http/operational_domains_hooks.go:365",
+   "source": "internal/http/operational_domains_hooks.go:368",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9449,7 +9475,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "authorityList",
-   "source": "internal/http/operational_domains_hooks.go:366",
+   "source": "internal/http/operational_domains_hooks.go:369",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9462,7 +9488,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "authorityCreate",
-   "source": "internal/http/operational_domains_hooks.go:367",
+   "source": "internal/http/operational_domains_hooks.go:370",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9475,7 +9501,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "authorityVerification",
-   "source": "internal/http/operational_domains_hooks.go:368",
+   "source": "internal/http/operational_domains_hooks.go:371",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9488,7 +9514,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "listingPreview",
-   "source": "internal/http/operational_domains_hooks.go:369",
+   "source": "internal/http/operational_domains_hooks.go:372",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9501,7 +9527,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "listingSubmitApproval",
-   "source": "internal/http/operational_domains_hooks.go:370",
+   "source": "internal/http/operational_domains_hooks.go:373",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9514,7 +9540,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "listingQualityAlias",
-   "source": "internal/http/operational_domains_hooks.go:371",
+   "source": "internal/http/operational_domains_hooks.go:374",
    "annex_e": true,
    "openapi": true,
    "postman": true
@@ -9527,7 +9553,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "residentialArrears",
-   "source": "internal/http/operational_domains_hooks.go:372",
+   "source": "internal/http/operational_domains_hooks.go:375",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -9540,7 +9566,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "assetServiceHistory",
-   "source": "internal/http/operational_domains_hooks.go:373",
+   "source": "internal/http/operational_domains_hooks.go:376",
    "annex_e": false,
    "openapi": true,
    "postman": true

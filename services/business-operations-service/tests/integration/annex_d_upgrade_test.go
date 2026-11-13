@@ -3,6 +3,7 @@ package integration
 import (
 	"io/fs"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -100,7 +101,15 @@ func TestAnnexDUpgradeFromPopulatedSchema37(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if v, err := migrate.Version(t.Context(), sqlDB, migrations.FS); err != nil || v != 38 {
+	// Upgrade lands on the current head (00038 plus every later additive
+	// migration, e.g. 00039 partner API).
+	head := int64(0)
+	for _, entry := range entries {
+		if n, e := strconv.ParseInt(strings.SplitN(entry.Name(), "_", 2)[0], 10, 64); e == nil && strings.HasSuffix(entry.Name(), ".sql") && n > head {
+			head = n
+		}
+	}
+	if v, err := migrate.Version(t.Context(), sqlDB, migrations.FS); err != nil || v != head || head < 38 {
 		t.Fatalf("upgraded schema %d %v", v, err)
 	}
 	var afterHistory int

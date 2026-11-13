@@ -32,7 +32,7 @@ GROUPS = [('/internal/', 'Internal (service-only)'), ('/webhooks/', 'Webhooks (p
           ('/risk', 'Risk/privacy'), ('/protection-cases', 'Risk/privacy'), ('/incidents', 'Risk/privacy'), ('/branch-incidents', 'Risk/privacy'),
           ('/access/', 'Finance/insurance/access/integrations'), ('/financing', 'Finance/insurance/access/integrations'), ('/insurance', 'Finance/insurance/access/integrations'),
           ('/integrations', 'Finance/insurance/access/integrations'), ('/fx-rates', 'Finance/insurance/access/integrations'),
-          ('/business-changes', 'Auth/organisation/staff/roles/approvals'), ('/closure-cases', 'Auth/organisation/staff/roles/approvals'), ('/organisation', 'Auth/organisation/staff/roles/approvals'), ('/guest-source-projections', 'CRM/marketing'), ('/reservations/', 'Reservations/front desk/folio/night audit'),
+          ('/business-changes', 'Auth/organisation/staff/roles/approvals'), ('/closure-cases', 'Auth/organisation/staff/roles/approvals'), ('/organisation', 'Auth/organisation/staff/roles/approvals'), ('/guest-source-projections', 'CRM/marketing'), ('/partner/v1/', 'Partner API (credential-authenticated)'), ('/reservations/', 'Reservations/front desk/folio/night audit'),
           ('/shortlet', 'Reservations/front desk/folio/night audit'), ('/hotel/', 'Inventory/rates'), ('/content-suggestions', 'Listings/content'),
           ('/revenue/', 'Revenue'), ('/market-benchmarks', 'Analytics/AI/automation')]
 out = []

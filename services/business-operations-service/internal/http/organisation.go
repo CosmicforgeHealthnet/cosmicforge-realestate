@@ -25,6 +25,9 @@ import (
 func Register(authHandler *auth.Handler, verifier verification.API, notify notification.Sender) *Handler {
 	h := &Handler{Auth: authHandler, Verification: verifier, Notification: notify}
 	authHandler.Router.Post("/staff/invitations/accept", h.acceptInvitation)
+	// Annex D.36 partner API: authenticated by partner key, never by an
+	// account session.
+	h.registerPartnerAPI(authHandler.Router)
 	authHandler.Router.Group(func(r chi.Router) {
 		r.Use(authHandler.Authenticate)
 		h.registerHierarchy(r)

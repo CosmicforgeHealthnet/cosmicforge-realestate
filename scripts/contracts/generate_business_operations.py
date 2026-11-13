@@ -159,6 +159,9 @@ route('DELETE','/devices/{id}',res='BooleanResult',notes='Revokes all sessions a
 route('GET','/memberships',res='List:Membership')
 route('POST','/auth/organisation',req='SelectOrganisation',res='TokenSelection',notes='Validates a live membership and changes only this session. Use returned access token. The signed Gateway organisation must match the account token.')
 route('POST','/staff/invitations/accept',req='AcceptInvitation',res='Acceptance',public=True,notes='Token from secure Notification delivery is single use and expires. Existing active accounts must authenticate as the invited account. New provisional accounts set a password; no credentials are reset for existing accounts.')
+# Annex D.36 partner API: partner key (X-CF-Partner-Key, SHA-256 fingerprint of a secret held in the partner secret manager), integration-client scopes, per-credential one-minute rate windows shared by every replica, and SANDBOX credentials that only ever see synthetic fixtures.
+route('GET','/partner/v1/me',res='PartnerIdentity',public=True,notes='Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.');R[-1]['transport']='partner'
+route('GET','/partner/v1/reservations','reservations:read',res='PartnerReservationList',public=True,notes='Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.');R[-1]['transport']='partner'
 route('GET','/organisation','organisation:read',res='Organisation')
 route('GET','/profile','organisation:read',res='Organisation',notes='Explicit Annex D.1 compatibility alias of GET /organisation; identical handler and security.')
 route('PATCH','/profile','organisation:write','ProfilePatch','Organisation',notes='Explicit Annex D.1 compatibility alias of PATCH /organisation; identical versioning, validation and security.')
@@ -422,6 +425,11 @@ for r in R:
  if r.get('transport')=='internal':
   O['components']['securitySchemes']['ServiceBearer']={'type':'http','scheme':'bearer','bearerFormat':'Short-lived signed service JWT'}
   op['security']=[{'ServiceBearer':[]}];op['description']='Private service network only. '+r['capability']+'. Signed organisation delegation must match the owning connection. '+r['notes']
+ if r.get('transport')=='partner':
+  O['components']['securitySchemes']['PartnerKey']={'type':'apiKey','in':'header','name':'X-CF-Partner-Key','description':'Partner API key issued through the partner secret manager. Business stores only its SHA-256 fingerprint on an api_credentials record under an ACTIVE integration client.'}
+  op['security']=[{'PartnerKey':[]}];op['x-permission']=r['capability'] or 'partner credential';op['description']='Partner API (Annex D.36). Authentication: X-CF-Partner-Key; never a business account session. Permission: integration client scope '+(r['capability'] or 'none')+'. '+r['notes']
+  if r['path'].endswith('/reservations'):parameters.extend([{'name':'property_id','in':'query','required':False,'schema':typ('ids.ID')},{'name':'updated_since','in':'query','required':False,'schema':{'type':'string','format':'date-time'}},{'name':'limit','in':'query','required':False,'schema':{'type':'integer','minimum':1,'maximum':200}}])
+  responses['429']={'description':'Client rate limit reached; Retry-After gives seconds to the next window.','content':{'application/json':{'schema':ref('Error'),'example':{'error':{'code':'RATE_LIMITED','message':'Rate limit exceeded.','request_id':'example-request'}}}}}
  if r.get('transport')=='webhook':
   O['components']['securitySchemes']['SupplyCallbackSignature']={'type':'apiKey','in':'header','name':'X-CF-Signature','description':'v1=HMAC-SHA256(timestamp + newline + canonical request path + newline + raw body), per-connection 32-byte key.'}
   op['security']=[{'SupplyCallbackSignature':[]}];op['description']='Provider callback via the configured Gateway. Per-connection signature and timestamp, certified capability and durable event/object-version dedupe required. '+r['notes'];parameters.extend([{'name':'X-CF-Timestamp','in':'header','required':True,'schema':{'type':'string','description':'Unix seconds; at most five minutes old or one minute ahead.'}}])
@@ -452,6 +460,8 @@ for r in R:
  request={'method':method,'header':headers,'url':{'raw':rawurl,'host':['{{base_url}}'],'path':rawurl.split('}}',1)[1].strip('/').split('/')},'description':desc,'auth':({'type':'noauth'} if r['public'] else {'type':'bearer','bearer':[{'key':'token','value':'{{business_access_token}}','type':'string'}]})}
  if r.get('transport')=='internal':
   rawurl=rawurl.replace('{{base_url}}','{{business_internal_url}}');request['url']['raw']=rawurl;request['url']['host']=['{{business_internal_url}}'];request['auth']={'type':'bearer','bearer':[{'key':'token','value':'{{business_service_token}}','type':'string'}]}
+ if r.get('transport')=='partner':
+  request['auth']={'type':'noauth'};headers.append({'key':'X-CF-Partner-Key','value':'{{business_partner_key}}','description':'Partner API key from the partner secret manager; never a business access token.'})
  if r.get('transport')=='webhook':
   request['auth']={'type':'noauth'};headers.extend([{'key':'X-CF-Timestamp','value':'{{business_callback_timestamp}}'},{'key':'X-CF-Signature','value':'{{business_callback_signature}}'}])
  query=[]
@@ -608,7 +618,7 @@ folders['_Internal']['description']='Signed service-only supply receipts and aut
 folders['_Webhooks']['description']='Gateway-authenticated Marketplace business-supply.v1 HMAC callbacks. Exact raw body/path/timestamp signature and configured connection required. Booking.com and Airbnb callback signature contracts remain unavailable.'
 folders['_Admin']['description']='No frontend administration bypass. Provider certification and least-privilege provisioning remain authorised operator actions.'
 existing={v['key'] for v in collection.setdefault('variable',[])}
-for key,value in {'business_access_token':'','business_refresh_token':'','business_email':'','business_password':'','business_current_password':'','business_new_password':'','business_mfa_token':'','business_code':'','business_invitation_token':'','business_idempotency_key':'','business_id':'','business_session_id':'','business_organisation_id':'','business_role_id':'','business_approval_id':'','business_policy_id':'','business_version':'','business_internal_url':'http://localhost:8080','business_service_token':'','business_key_base64':'','business_callback_timestamp':'','business_callback_signature':''}.items():
+for key,value in {'business_access_token':'','business_refresh_token':'','business_email':'','business_password':'','business_current_password':'','business_new_password':'','business_mfa_token':'','business_code':'','business_invitation_token':'','business_idempotency_key':'','business_id':'','business_session_id':'','business_organisation_id':'','business_role_id':'','business_approval_id':'','business_policy_id':'','business_version':'','business_internal_url':'http://localhost:8080','business_service_token':'','business_key_base64':'','business_callback_timestamp':'','business_callback_signature':'','business_partner_key':''}.items():
  if key not in existing:collection['variable'].append({'key':key,'value':value,'type':'string'})
 outputs={ROOT/'contracts/public/openapi/business-operations.yaml':json.dumps(O,indent=2)+'\n',collection_path:json.dumps(collection,indent=2,ensure_ascii=False)+'\n',SERVICE/'contracts/routes.json':json.dumps(R,indent=2)+'\n'}
 changed=[]

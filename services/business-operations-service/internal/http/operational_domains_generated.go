@@ -822,7 +822,7 @@ var opsDomains = map[string]*opsDomain{
 			"START_REVIEW":    {From: []string{"DRAFT"}, To: "OBLIGATIONS_REVIEW", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"APPROVE":         {From: []string{"OBLIGATIONS_REVIEW"}, To: "APPROVED", Capability: "organisation:verify", MFA: true, Approval: &opsApproval{Commercial: "COMMERCIAL_BUSINESS_CLOSURE", Capability: "organisation:verify", BindAmount: false}, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 			"ENTER_RETENTION": {From: []string{"APPROVED"}, To: "RETENTION", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
-			"CLOSE":           {From: []string{"RETENTION"}, To: "CLOSED", Capability: "", MFA: true, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
+			"CLOSE":           {From: []string{"RETENTION"}, To: "CLOSED", Capability: "organisation:verify", MFA: true, Approval: nil, Evidence: false, Distinct: true, Assignee: false, Amount: false, Reference: false},
 			"CANCEL":          {From: []string{"DRAFT", "OBLIGATIONS_REVIEW", "APPROVED"}, To: "CANCELLED", Capability: "", MFA: false, Approval: nil, Evidence: false, Distinct: false, Assignee: false, Amount: false, Reference: false},
 		},
 	},

@@ -4,11 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
 	businesshttp "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 )
 
@@ -132,6 +134,19 @@ func TestAnnexDResidentialRentalLifecycleFromOfferToDepositRelease(t *testing.T)
 	opsMove(c, c.approver, "/agreements", v2, businesshttp.OpsRecordTransition{Action: "RECORD_SIGNATURE", EvidenceRefs: evidence(), ExternalReference: "esign-2"}, 409)
 	c.must(c.owner, "POST", "/agreements", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &ten.ID, Kind: "COMMERCIAL_LEASE", Title: "Wrong kind", CounterpartyReference: "tenant:ngozi", Reason: "Mismatch"}, 400)
 	ten = opsMove(c, c.owner, "/tenancies", ten, businesshttp.OpsRecordTransition{Action: "ACTIVATE", ApprovalID: activation, EvidenceRefs: evidence()}, 200)
+	// Utility account on the let unit: counterparty required, transfer needs a
+	// provider reference to request and evidence to record.
+	c.must(c.owner, "POST", "/utility-accounts", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "ELECTRICITY", Title: "Meter 101", Reason: "No counterparty"}, 400)
+	c.must(c.owner, "POST", "/utility-accounts", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "SOLAR", Title: "Meter 101", CounterpartyReference: "disco:ikeja", Reason: "Bad kind"}, 400)
+	utility := opsRec(c, c.owner, "POST", "/utility-accounts", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "ELECTRICITY", Title: "Meter 101", CounterpartyReference: "disco:ikeja", Reason: "Unit electricity account"}, 201)
+	opsMove(c, c.owner, "/utility-accounts", utility, businesshttp.OpsRecordTransition{Action: "REQUEST_TRANSFER"}, 400)
+	utility = opsMove(c, c.owner, "/utility-accounts", utility, businesshttp.OpsRecordTransition{Action: "REQUEST_TRANSFER", ExternalReference: "disco-transfer-101"}, 200)
+	opsMove(c, c.owner, "/utility-accounts", utility, businesshttp.OpsRecordTransition{Action: "RECORD_TRANSFER"}, 400)
+	utility = opsMove(c, c.owner, "/utility-accounts", utility, businesshttp.OpsRecordTransition{Action: "RECORD_TRANSFER", EvidenceRefs: evidence()}, 200)
+	if utility.State != "TRANSFERRED" || opsState(c, "utility_accounts", utility.ID) != "TRANSFERRED" {
+		t.Fatalf("utility account %s", utility.State)
+	}
+	opsMove(c, c.owner, "/utility-accounts", utility, businesshttp.OpsRecordTransition{Action: "CLOSE"}, 409)
 	// Rent schedule generated from the activated tenancy.
 	var scheduled int
 	if err := c.db.Pool.QueryRow(t.Context(), `SELECT count(*) FROM rent_obligations WHERE subject_id=$1 AND kind='RENT' AND state='SCHEDULED' AND amount_minor=$2`, ten.ID, rent).Scan(&scheduled); err != nil || scheduled != 12 {
@@ -192,6 +207,20 @@ func TestAnnexDResidentialRentalLifecycleFromOfferToDepositRelease(t *testing.T)
 	if ren.State != "DECLINED" {
 		t.Fatalf("ren state %s", ren.State)
 	}
+	// Accepted renewal completes only against a live successor contract for
+	// the same unit.
+	ren2 := opsRec(c, c.owner, "POST", "/renewals", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &ten.ID, Kind: "RESIDENTIAL", Title: "Renewal 2028 revised", EndsAt: &decision, Reason: "Revised renewal offer"}, 201)
+	ren2 = opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "OFFER", AmountMinor: &newRent, Currency: "NGN"}, 200)
+	opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "RECORD_ACCEPTANCE"}, 400)
+	ren2 = opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "RECORD_ACCEPTANCE", EvidenceRefs: evidence()}, 200)
+	succStart, succEnd := end, end.AddDate(1, 0, 0)
+	successor := opsRec(c, c.owner, "POST", "/tenancies", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &c.unit.ID, Kind: "FIXED_TERM", Title: "Tenancy unit 101 renewal", CounterpartyReference: "tenant:ngozi", AmountMinor: &newRent, Currency: "NGN", StartsAt: &succStart, EndsAt: &succEnd, Reason: "Renewed tenancy"}, 201)
+	opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "COMPLETE", ExternalReference: ten.ID.String()}, 400)
+	opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "COMPLETE", ExternalReference: ids.New().String()}, 409)
+	ren2 = opsMove(c, c.owner, "/renewals", ren2, businesshttp.OpsRecordTransition{Action: "COMPLETE", ExternalReference: successor.ID.String()}, 200)
+	if ren2.State != "COMPLETED" || attrMap(t, ren2)["successor_contract_id"] != successor.ID.String() {
+		t.Fatalf("renewal completion %s %v", ren2.State, attrMap(t, ren2))
+	}
 	// Termination notice moves the tenancy to NOTICE_GIVEN.
 	effective := time.Now().UTC().Add(30 * 24 * time.Hour)
 	notice := opsRec(c, c.owner, "POST", "/notices", businesshttp.OpsRecordCreate{ScopeID: &c.property.ID, SubjectID: &ten.ID, Kind: "TERMINATION_BY_TENANT", Title: "Tenant notice to quit", StartsAt: &effective, Reason: "Tenant relocating"}, 201)
@@ -201,6 +230,10 @@ func TestAnnexDResidentialRentalLifecycleFromOfferToDepositRelease(t *testing.T)
 	}
 	if opsState(c, "tenancies", ten.ID) != "NOTICE_GIVEN" {
 		t.Fatal("tenancy not on notice")
+	}
+	opsMove(c, c.owner, "/notices", notice, businesshttp.OpsRecordTransition{Action: "ACKNOWLEDGE"}, 400)
+	if notice = opsMove(c, c.owner, "/notices", notice, businesshttp.OpsRecordTransition{Action: "ACKNOWLEDGE", EvidenceRefs: evidence()}, 200); notice.State != "ACKNOWLEDGED" {
+		t.Fatalf("notice acknowledgement %s", notice.State)
 	}
 	// Move-out inspection, settlement and deposit deduction.
 	moveOut := time.Now().UTC().Add(29 * 24 * time.Hour)
@@ -747,6 +780,13 @@ func TestAnnexDFXFreshnessOrganisationChangeAndClosureContinuity(t *testing.T) {
 		t.Fatalf("organisation %s %v", state, err)
 	}
 	opsMove(c, c.owner, "/closure-cases", cl, businesshttp.OpsRecordTransition{Action: "CLOSE"}, 403)
+	// A distinct authorised actor completes closure after retention starts.
+	if cl = opsMove(c, c.approver, "/closure-cases", cl, businesshttp.OpsRecordTransition{Action: "CLOSE"}, 200); cl.State != "CLOSED" {
+		t.Fatalf("closure %s", cl.State)
+	}
+	if err := c.db.Pool.QueryRow(t.Context(), `SELECT state FROM organisations WHERE id=$1`, org).Scan(&state); err != nil || state != "CLOSED" {
+		t.Fatalf("organisation after closure %s %v", state, err)
+	}
 }
 
 // Journeys 26-28 supplements: source-backed risk signals that never
@@ -872,4 +912,115 @@ func smRef(path string) string { return "secrets/partners/" + path }
 func fixtureFingerprint(seed string) string {
 	sum := sha256.Sum256([]byte("annex-d-fixture-" + seed))
 	return hex.EncodeToString(sum[:])
+}
+
+// Annex D.36 partner API: partner keys resolve only through an ACTIVE client
+// and unexpired credential fingerprint, scopes gate each route, the per-minute
+// window limits every replica, SANDBOX sees fixtures only, PRODUCTION sees
+// only its organisation, rotation honours both keys and revocation is instant.
+func TestAnnexDPartnerAPIScopesRateLimitSandboxRotationAndRevocation(t *testing.T) {
+	a := newAnnexD(t)
+	c := a.commercialHarness
+	reservationPolicyFixture(c, false)
+	in := reservationCommandFixture(c, false)
+	in.State = "INQUIRY"
+	in.SourceReference = "partner-api:" + ids.New().String()
+	booking := commercialData[reservations.Detail](t, c.must(c.owner, "POST", "/reservations", in, 201))
+	exp := time.Now().UTC().Add(90 * 24 * time.Hour)
+	partner := func(key, path string) (int, []byte) {
+		return c.call(nil, "GET", path, nil, map[string]string{businesshttp.HeaderPartnerKey: key})
+	}
+	keyFP := func(key string) string { sum := sha256.Sum256([]byte(key)); return hex.EncodeToString(sum[:]) }
+	client := func(env string, scopes []string, rate int) businesshttp.OpsRecord {
+		ic := opsRec(c, c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "PARTNER_API", Title: "Partner " + env, CounterpartyReference: "partner:" + strings.ToLower(env), Attributes: map[string]any{"scopes": scopes, "credential_reference": smRef(strings.ToLower(env)), "rate_limit_per_minute": rate, "environment": env}, Reason: "Partner API client"}, 201)
+		return opsMove(c, c.owner, "/integrations", ic, businesshttp.OpsRecordTransition{Action: "ACTIVATE", EvidenceRefs: evidence()}, 200)
+	}
+	c.must(c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "PARTNER_API", Title: "Bad env", CounterpartyReference: "partner:x", Attributes: map[string]any{"scopes": []string{"reservations:read"}, "credential_reference": smRef("x"), "rate_limit_per_minute": 5, "environment": "STAGING"}, Reason: "Bad environment"}, 400)
+	prod := client("PRODUCTION", []string{"reservations:read"}, 3)
+	sandbox := client("SANDBOX", []string{"inventory:read", "reservations:read"}, 100)
+	limited := client("PRODUCTION", []string{"inventory:read"}, 100)
+	issue := func(ic businesshttp.OpsRecord, key string) businesshttp.OpsRecord {
+		return opsRec(c, c.owner, "POST", "/integrations/"+ic.ID.String()+"/credentials", businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Partner key", EndsAt: &exp, Attributes: map[string]any{"credential_reference": smRef(ic.ID.String() + "/k1"), "fingerprint_sha256": keyFP(key)}, Reason: "Issue partner key"}, 201)
+	}
+	prodKey, sandboxKey, limitedKey := "cfp_prod_"+strings.Repeat("a", 40), "cfp_sbx_"+strings.Repeat("b", 40), "cfp_lim_"+strings.Repeat("c", 40)
+	cred := issue(prod, prodKey)
+	issue(sandbox, sandboxKey)
+	issue(limited, limitedKey)
+	// Fingerprints are globally unique among live credentials.
+	c.must(c.owner, "POST", "/integrations/"+limited.ID.String()+"/credentials", businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Duplicate key", EndsAt: &exp, Attributes: map[string]any{"credential_reference": smRef("dup"), "fingerprint_sha256": keyFP(prodKey)}, Reason: "Duplicate fingerprint"}, 409)
+
+	if s, _ := partner("", "/partner/v1/me"); s != 401 {
+		t.Fatalf("missing key %d", s)
+	}
+	if s, _ := partner("cfp_unknown_"+strings.Repeat("z", 40), "/partner/v1/me"); s != 401 {
+		t.Fatalf("unknown key %d", s)
+	}
+	// A business session is not a partner credential.
+	if s, _ := c.call(c.owner, "GET", "/partner/v1/me", nil, nil); s != 401 {
+		t.Fatalf("account session accepted on partner API: %d", s)
+	}
+	s, raw := partner(prodKey, "/partner/v1/me")
+	me := commercialData[businesshttp.PartnerIdentity](t, raw)
+	if s != 200 || me.Environment != "PRODUCTION" || me.OrganisationID != c.owner.registered.OrganisationID || me.IntegrationClient != prod.ID || me.RemainingInWindow != 2 {
+		t.Fatalf("me %d %+v", s, me)
+	}
+	s, raw = partner(prodKey, "/partner/v1/reservations")
+	list := commercialData[businesshttp.PartnerReservationList](t, raw)
+	if s != 200 || list.Environment != "PRODUCTION" || len(list.Items) != 1 || list.Items[0].ID != booking.Reservation.ID || list.Items[0].Sandbox {
+		t.Fatalf("production list %d %s", s, raw)
+	}
+	if strings.Contains(string(raw), in.Guests[0].SourceReference) {
+		t.Fatal("partner projection leaked guest identity")
+	}
+	// Third request in the window passes; the fourth is limited.
+	if s, _ = partner(prodKey, "/partner/v1/me"); s != 200 {
+		t.Fatalf("third request %d", s)
+	}
+	if s, raw = partner(prodKey, "/partner/v1/me"); s != 429 || !strings.Contains(string(raw), "RATE_LIMITED") {
+		t.Fatalf("rate limit %d %s", s, raw)
+	}
+	var charged int
+	if e := c.db.Pool.QueryRow(t.Context(), `SELECT coalesce(sum(request_count),0) FROM partner_api_rate_windows WHERE credential_id=$1`, cred.ID).Scan(&charged); e != nil || charged < 4 {
+		t.Fatalf("rate window %d %v", charged, e)
+	}
+	// Scope gate.
+	if s, _ = partner(limitedKey, "/partner/v1/reservations"); s != 403 {
+		t.Fatalf("scope gate %d", s)
+	}
+	// Sandbox never sees tenant data.
+	s, raw = partner(sandboxKey, "/partner/v1/reservations")
+	sbx := commercialData[businesshttp.PartnerReservationList](t, raw)
+	if s != 200 || sbx.Environment != "SANDBOX" || len(sbx.Items) == 0 {
+		t.Fatalf("sandbox %d %s", s, raw)
+	}
+	for _, item := range sbx.Items {
+		if !item.Sandbox || item.ID == booking.Reservation.ID || item.PropertyID == c.property.ID {
+			t.Fatalf("sandbox leaked tenant data: %+v", item)
+		}
+	}
+	// Rotation: both keys work while ROTATING, only the successor after.
+	nextKey := "cfp_next_" + strings.Repeat("d", 40)
+	limitedCred := issue(limited, "cfp_lim2_"+strings.Repeat("e", 40))
+	limitedCred = opsMove(c, c.owner, "/integrations/"+limited.ID.String()+"/credentials", limitedCred, businesshttp.OpsRecordTransition{Action: "START_ROTATION", ExternalReference: smRef("lim/k2"), Attributes: map[string]any{"next_fingerprint_sha256": keyFP(nextKey)}}, 200)
+	for _, k := range []string{"cfp_lim2_" + strings.Repeat("e", 40), nextKey} {
+		if s, _ = partner(k, "/partner/v1/me"); s != 200 {
+			t.Fatalf("rotation key %d", s)
+		}
+	}
+	opsMove(c, c.owner, "/integrations/"+limited.ID.String()+"/credentials", limitedCred, businesshttp.OpsRecordTransition{Action: "COMPLETE_ROTATION"}, 200)
+	if s, _ = partner("cfp_lim2_"+strings.Repeat("e", 40), "/partner/v1/me"); s != 401 {
+		t.Fatalf("retired key still accepted %d", s)
+	}
+	if s, _ = partner(nextKey, "/partner/v1/me"); s != 200 {
+		t.Fatalf("successor key %d", s)
+	}
+	// Suspension and revocation take effect on the next request.
+	opsMove(c, c.owner, "/integrations", sandbox, businesshttp.OpsRecordTransition{Action: "SUSPEND"}, 200)
+	if s, _ = partner(sandboxKey, "/partner/v1/me"); s != 401 {
+		t.Fatalf("suspended client accepted %d", s)
+	}
+	opsMove(c, c.owner, "/integrations", limited, businesshttp.OpsRecordTransition{Action: "REVOKE"}, 200)
+	if s, _ = partner(limitedKey, "/partner/v1/me"); s != 401 {
+		t.Fatalf("revoked client accepted %d", s)
+	}
 }

@@ -1065,6 +1065,11 @@
       "key": "admin_totp_code",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "business_partner_key",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -93625,6 +93630,1055 @@
                           "language": "json"
                         }
                       }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/business/partner/v1/me",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CF-Partner-Key",
+                    "value": "{{business_partner_key}}",
+                    "description": "Partner API key from the partner secret manager; never a business access token."
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "partner",
+                    "v1",
+                    "me"
+                  ]
+                },
+                "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"integration_client_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"credential_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"environment\": \"example\",\n    \"scopes\": [\n      \"example\"\n    ],\n    \"rate_limit_per_minute\": 1,\n    \"remaining_in_window\": 1,\n    \"credential_expires_at\": \"example\"\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Client rate limit reached; Retry-After gives seconds to the next window.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Client rate limit reached; Retry-After gives seconds to the next window.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Rate limit exceeded.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "me"
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: own account / current membership. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Returns the authenticated integration client, environment, scopes and the remaining requests in the current one-minute window. 401 for unknown, expired, revoked or suspended-client keys; 429 with Retry-After once the client rate limit is reached.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/business/partner/v1/reservations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-CF-Partner-Key",
+                    "value": "{{business_partner_key}}",
+                    "description": "Partner API key from the partner secret manager; never a business access token."
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "partner",
+                    "v1",
+                    "reservations"
+                  ],
+                  "query": [
+                    {
+                      "key": "property_id",
+                      "value": "{{business_property_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "updated_since",
+                      "value": "{{business_updated_since}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "{{business_limit}}",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"items\": [\n      {\n        \"reservation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"source\": \"example\",\n        \"state\": \"example\",\n        \"financial_state\": \"example\",\n        \"arrival\": \"example\",\n        \"departure\": \"example\",\n        \"amount_minor\": 1,\n        \"currency\": \"example\",\n        \"updated_at\": \"2026-10-30T12:00:00Z\",\n        \"sandbox\": true\n      }\n    ],\n    \"environment\": \"example\",\n    \"next_updated_since\": \"2026-10-30T12:00:00Z\"\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Client rate limit reached; Retry-After gives seconds to the next window.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
+                    }
+                  },
+                  "status": "Client rate limit reached; Retry-After gives seconds to the next window.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Rate limit exceeded.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-CF-Partner-Key",
+                        "value": "{{business_partner_key}}",
+                        "description": "Partner API key from the partner secret manager; never a business access token."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/partner/v1/reservations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "partner",
+                        "v1",
+                        "reservations"
+                      ],
+                      "query": [
+                        {
+                          "key": "property_id",
+                          "value": "{{business_property_id}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "updated_since",
+                          "value": "{{business_updated_since}}",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "{{business_limit}}",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Authentication: public account entry through authenticated Gateway. Permission: reservations:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Partner-safe reservation projection without guest identity, contact or payment data, keyset-paged by updated_at (next_updated_since). PRODUCTION credentials read the owning organisation only; SANDBOX credentials receive fixed synthetic fixtures flagged sandbox=true. Requires the reservations:read client scope.",
+                    "auth": {
+                      "type": "noauth"
                     }
                   },
                   "status": "Required provider is unavailable.",

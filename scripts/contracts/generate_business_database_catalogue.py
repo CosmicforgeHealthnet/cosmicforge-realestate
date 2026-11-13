@@ -114,7 +114,7 @@ for entry in entries:
             ('professional',('data_rooms','data_room_grants','professional_appointments')),('residential',('rental_applications','tenancies')),('commercial',('commercial_deals',)),
             ('land',('land_transactions',)),('sales',('sale_transactions','sale_offers')),('development',('construction_milestones','development_allocations','snag_items','warranty_cases')),
             ('risk',('risk_cases','disputes')),('financing',('finance_offer_refs',)),('insurance',('insurance_',)),('access',('access_devices','access_grants')),
-            ('integrations',('integration_clients','api_credentials','webhook_subscriptions')),
+            ('integrations',('integration_clients','api_credentials','webhook_subscriptions','partner_api_rate_windows')),
             ('residential',('rental_offers','agreements','rent_obligations','deposit_obligations','notices','renewal_cases','move_out_cases','utility_accounts')),
             ('commercial',('commercial_lois','commercial_terms','service_charge_budgets')),('land',('land_terms','land_allocations')),
             ('sales',('due_diligence_items','closing_milestones','sale_allocations')),('development',('progress_certifications','project_variations')),

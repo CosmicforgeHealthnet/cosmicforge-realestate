@@ -4360,6 +4360,13 @@ type Parcel struct {
 	Kind           string
 }
 
+type PartnerApiRateWindow struct {
+	OrganisationID ids.ID
+	CredentialID   ids.ID
+	WindowStart    time.Time
+	RequestCount   int32
+}
+
 type PayoutChangeRequest struct {
 	ID                ids.ID
 	OrganisationID    ids.ID

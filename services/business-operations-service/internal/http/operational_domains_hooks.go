@@ -298,8 +298,11 @@ func init() {
 		if ref := attrString(m, "credential_reference"); !credentialRef.MatchString(ref) || ref == "" {
 			return apperrors.InvalidRequest("A secret-manager credential reference name is required; secrets are never stored.")
 		}
-		if rl, ok := m["rate_limit_per_minute"].(float64); !ok || rl < 1 || rl > 6000 {
-			return apperrors.InvalidRequest("A rate limit between 1 and 6000 per minute is required.")
+		if rl, ok := m["rate_limit_per_minute"].(float64); !ok || rl < 1 || rl > 6000 || rl != float64(int(rl)) {
+			return apperrors.InvalidRequest("A whole-number rate limit between 1 and 6000 per minute is required.")
+		}
+		if env, present := m["environment"]; present && env != PartnerSandbox && env != PartnerProduction {
+			return apperrors.InvalidRequest("environment must be SANDBOX or PRODUCTION (default SANDBOX).")
 		}
 		return nil
 	}

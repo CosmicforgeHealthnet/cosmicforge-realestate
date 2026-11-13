@@ -308,7 +308,7 @@ DOMAINS_38 = [
  dict(key='closure_case', table='closure_cases', path='/closure-cases', scope='COMPANY', read='organisation:read', write='organisation:write',
   kinds=['VOLUNTARY_CLOSURE', 'DORMANCY', 'REGULATORY_CLOSURE', 'MERGED_INTO_SUCCESSOR'], initial='DRAFT', event='business.closure.updated.v1', unique_live_scope=['DRAFT', 'OBLIGATIONS_REVIEW', 'APPROVED', 'RETENTION'],
   transitions={'START_REVIEW': T(['DRAFT'], 'OBLIGATIONS_REVIEW'), 'APPROVE': T(['OBLIGATIONS_REVIEW'], 'APPROVED', cap='organisation:verify', mfa=True, approval=('COMMERCIAL', 'COMMERCIAL_BUSINESS_CLOSURE', 'organisation:verify', False)),
-   'ENTER_RETENTION': T(['APPROVED'], 'RETENTION', mfa=True), 'CLOSE': T(['RETENTION'], 'CLOSED', mfa=True, distinct=True), 'CANCEL': T(['DRAFT', 'OBLIGATIONS_REVIEW', 'APPROVED'], 'CANCELLED')}),
+   'ENTER_RETENTION': T(['APPROVED'], 'RETENTION', mfa=True), 'CLOSE': T(['RETENTION'], 'CLOSED', cap='organisation:verify', mfa=True, distinct=True), 'CANCEL': T(['DRAFT', 'OBLIGATIONS_REVIEW', 'APPROVED'], 'CANCELLED')}),
  # D.17 / D.14 / D.15 hospitality supplements
  dict(key='housekeeping_checklist', table='housekeeping_checklists', path='/housekeeping/checklists', scope='PROPERTY', read='housekeeping:read', write='housekeeping:write',
   kinds=['TURNOVER', 'STAYOVER', 'DEEP_CLEAN', 'INSPECTION_ONLY', 'REWORK'], initial='DRAFT', event='housekeeping.task.updated.v1',
