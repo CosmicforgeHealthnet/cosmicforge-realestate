@@ -12,7 +12,9 @@ import (
 
 	businessauth "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/auth"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/cfmeet"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/media"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/messaging"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/notification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/payment"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/smartaccess"
@@ -36,6 +38,8 @@ type Handler struct {
 	Notification            notification.Sender
 	Payment                 payment.API
 	AccessAdapters          map[string]smartaccess.API
+	CFMeet                  cfmeet.API
+	Messaging               map[string]messaging.Adapter
 	InvitationAcceptURL     string
 	CapacityAuthority       verification.CapacityAuthority
 	RepresentativeAuthority verification.RepresentativeAuthority

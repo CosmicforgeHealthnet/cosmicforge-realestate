@@ -41,6 +41,7 @@ func Register(authHandler *auth.Handler, verifier verification.API, notify notif
 		h.registerTemporary(r)
 		h.registerCapacities(r)
 		h.registerLifecycle(r)
+		h.registerSections1224(r)
 		r.Get("/organisation", h.getOrganisation)
 		r.Patch("/organisation", h.updateOrganisation)
 		// Annex D uses profile/verification family shorthand; these explicit aliases
