@@ -76,7 +76,7 @@ type Adapter interface {
 // Disabled is registered for providers whose partner contract is unavailable.
 type Disabled struct{ Name string }
 
-func (d Disabled) Provider() string                     { return d.Name }
+func (d Disabled) Provider() string                  { return d.Name }
 func (Disabled) Capabilities() MessagingCapabilities { return MessagingCapabilities{} }
 func (Disabled) Send(context.Context, MessagingSendCommand) (MessagingSendResult, error) {
 	return MessagingSendResult{}, ErrUnsupported

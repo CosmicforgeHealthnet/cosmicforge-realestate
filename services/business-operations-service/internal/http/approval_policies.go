@@ -60,6 +60,10 @@ func commercialApprovalCapability(action string) string {
 		return "automation:approve"
 	case "COMMERCIAL_REVIEW_RESPONSE":
 		return "reviews:moderate"
+	case "COMMERCIAL_CAMPAIGN_LAUNCH":
+		return "campaigns:approve"
+	case "COMMERCIAL_STOREFRONT_PUBLICATION":
+		return "publication:approve"
 	case "COMMERCIAL_RMS_POLICY", "COMMERCIAL_RMS_AUTOMATION_ACTIVATION":
 		return "rms:approve"
 	case "COMMERCIAL_RMS_RATE_CHANGE", "COMMERCIAL_RMS_RATE_ROLLBACK", "COMMERCIAL_RMS_AUTOMATED_RATE_CHANGE":

@@ -261,6 +261,9 @@ func (h *Handler) decideGuestNotification(ctx context.Context, tx pgx.Tx, j CRMN
 		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM waitlist_offers WHERE organisation_id=$1 AND id=$2 AND state='OFFERED' AND expires_at>$3)`, org, j.SourceID, now).Scan(&current)
 	case "ARRIVAL_NOTICE":
 		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM reservations WHERE organisation_id=$1 AND id=$2 AND state='CONFIRMED' AND date_from::text=$3)`, org, j.SourceID, fmt.Sprint(vars["date_from"])).Scan(&current)
+	case "CAMPAIGN_MESSAGE":
+		// The campaign must still be running and the member still eligible.
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM campaign_members m JOIN campaigns c ON c.organisation_id=m.organisation_id AND c.id=m.campaign_id WHERE m.organisation_id=$1 AND m.id=$2 AND m.eligibility='ELIGIBLE' AND c.state='RUNNING')`, org, j.SourceID).Scan(&current)
 	case "STAY_NOTICE":
 		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM stay_records WHERE organisation_id=$1 AND id=$2 AND state='ACTIVE')`, org, j.SourceID).Scan(&current)
 	case "RESERVATION_CHANGE", "CORPORATE_BOOKING_UPDATE":

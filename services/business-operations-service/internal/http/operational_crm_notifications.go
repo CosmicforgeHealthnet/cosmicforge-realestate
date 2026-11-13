@@ -37,6 +37,8 @@ var guestNotificationKinds = map[string]guestNotificationKind{
 	"LOYALTY_ENROLLED":         {Recipient: "GUEST", Consents: []string{"OPERATIONAL_CONTACT", "LOYALTY"}, MarketingCapable: true},
 	"LOYALTY_REWARD":           {Recipient: "GUEST", Consents: []string{"OPERATIONAL_CONTACT", "LOYALTY"}, MarketingCapable: true},
 	"CORPORATE_BOOKING_UPDATE": {Recipient: "CORPORATE"},
+	// Section 14 campaigns: marketing purpose only, explicit MARKETING consent.
+	"CAMPAIGN_MESSAGE": {Recipient: "GUEST", Consents: []string{"MARKETING"}, MarketingCapable: true},
 }
 
 type CRMNotificationTemplateCommand struct {

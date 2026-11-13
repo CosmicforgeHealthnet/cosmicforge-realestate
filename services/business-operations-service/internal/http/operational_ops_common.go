@@ -115,3 +115,13 @@ func opsNotFound(e error) error {
 	}
 	return e
 }
+
+// withServiceTx runs fn in a transaction under the explicit service identity.
+func withServiceTx(ctx context.Context, h *Handler, fn func(context.Context, pgx.Tx) error) error {
+	return database.WithTx(ctx, h.Auth.Service.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
+		if e := opsService(ctx, tx); e != nil {
+			return e
+		}
+		return fn(ctx, tx)
+	})
+}

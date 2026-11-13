@@ -7,4 +7,5 @@ import "github.com/go-chi/chi/v5"
 func (h *Handler) registerSections1224(r chi.Router) {
 	h.registerCommunications(r)
 	h.registerReputation(r)
+	h.registerMarketing(r)
 }
