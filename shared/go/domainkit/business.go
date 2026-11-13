@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -53,7 +54,16 @@ func (rt *Runtime) CallBusiness(ctx context.Context, org ids.ID, method, path, k
 	var env struct {
 		Data json.RawMessage `json:"data"`
 	}
-	if err := rt.Business.Do(ctx, httpx.Request{Method: method, Path: BusinessPrefix + path, Body: body, IdempotencyKey: key}, &env); err != nil {
+	req := httpx.Request{Method: method, Path: BusinessPrefix + path, Body: body, IdempotencyKey: key}
+	if p, raw, ok := strings.Cut(path, "?"); ok {
+		// The client escapes the path; a query must travel as Query.
+		q, err := url.ParseQuery(raw)
+		if err != nil {
+			return apperrors.InvalidRequest("Invalid Business query.")
+		}
+		req.Path, req.Query = BusinessPrefix+p, q
+	}
+	if err := rt.Business.Do(ctx, req, &env); err != nil {
 		// Business 4xx decisions propagate; outages and unknown outcomes are
 		// 503 (retry with the same Idempotency-Key replays safely).
 		return httpx.ToAppError(err)

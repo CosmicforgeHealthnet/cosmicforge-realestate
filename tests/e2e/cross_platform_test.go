@@ -8,7 +8,12 @@ package e2e
 // this file imports service code.
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/hex"
+	"io"
 	"crypto/ed25519"
 	"database/sql"
 	"encoding/base64"
@@ -90,6 +95,24 @@ func (d *paystackDouble) serve(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// webhook delivers the provider's signed charge event through the gateway.
+func (d *paystackDouble) webhook(t *testing.T, gateway string, account ids.ID, event, ref string) response {
+	t.Helper()
+	body, _ := json.Marshal(map[string]any{"event": event, "data": map[string]any{"reference": ref}})
+	mac := hmac.New(sha512.New, []byte("sk_test_cross_e2e"))
+	mac.Write(body)
+	req, _ := http.NewRequest("POST", gateway+"/webhooks/v1/paystack/"+account.String()+"/callbacks", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Paystack-Signature", hex.EncodeToString(mac.Sum(nil)))
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	raw, _ := io.ReadAll(res.Body)
+	return response{status: res.StatusCode, body: raw}
+}
+
 // pay marks the hosted checkout for an intent reference as paid.
 func (d *paystackDouble) pay(ref, status string) bool {
 	d.mu.Lock()
@@ -110,6 +133,8 @@ type crossEnv struct {
 	businessDB  string
 	paystack    *paystackDouble
 	adminMFAKey []byte
+	// providerAccount is the Payment provider account the double serves.
+	providerAccount ids.ID
 	env         map[platform.Service]map[string]string
 }
 
@@ -174,6 +199,7 @@ func startCrossPlatform(t *testing.T) *crossEnv {
 	s3srv := httptest.NewServer(gofakes3.New(s3).Server())
 	t.Cleanup(s3srv.Close)
 	p.paystack = newPaystackDouble(t)
+	p.providerAccount = ids.New()
 	p.captureFile = filepath.Join(t.TempDir(), "notifications.jsonl")
 
 	for _, s := range services[1:] {
@@ -225,7 +251,7 @@ func startCrossPlatform(t *testing.T) *crossEnv {
 		platform.VerificationService: {"MEDIA_SERVICE_URL", p.internal[platform.MediaDocumentService], "SANDBOX_KYC_CALLBACK_SECRET", "e2e-sandbox-secret", "PROVIDER_POLL_INTERVAL", "200ms"},
 		platform.NotificationService: {"NOTIFY_DEV_CAPTURE_FILE", p.captureFile},
 		platform.PaymentService: {"PAYSTACK_BASE_URL", p.paystack.server.URL, "PAYSTACK_E2E_SECRET", "sk_test_cross_e2e",
-			"PAYMENT_PROVIDER_CONFIG", fmt.Sprintf(`[{"provider_account_id":"%s","pool_id":"%s","provider":"paystack","legal_entity":"cosmicforge-ng","merchant_ref":"%d","mode":"test","countries":["NG"],"currencies":["NGN"],"categories":["HOTEL","SHORT_LET"],"capabilities":["COLLECTION"],"approved":true,"operational":true,"min_minor":100,"max_minor":100000000,"priority":0,"available_liquidity_minor":0,"policy_version":"e2e-v1","credentials_ref":"PAYSTACK_E2E_SECRET","approval_ref":"e2e-provider-approval"}]`, ids.New(), ids.New(), p.paystack.merchant)},
+			"PAYMENT_PROVIDER_CONFIG", fmt.Sprintf(`[{"provider_account_id":"%s","pool_id":"%s","provider":"paystack","legal_entity":"cosmicforge-ng","merchant_ref":"%d","mode":"test","countries":["NG"],"currencies":["NGN"],"categories":["HOTEL","SHORT_LET"],"capabilities":["COLLECTION"],"approved":true,"operational":true,"min_minor":100,"max_minor":100000000,"priority":0,"available_liquidity_minor":0,"policy_version":"e2e-v1","credentials_ref":"PAYSTACK_E2E_SECRET","approval_ref":"e2e-provider-approval"}]`, p.providerAccount, ids.New(), p.paystack.merchant)},
 		platform.BusinessOperationsService: {"BUSINESS_ACCESS_KEY_ID", bk.kid, "BUSINESS_ACCESS_PRIVATE_KEY", security.EncodeEd25519Seed(bk.priv), "BUSINESS_CODE_PEPPER", strings.Repeat("cross-e2e-pepper", 2),
 			"BUSINESS_MFA_KEY_ID", "mfa-cross", "BUSINESS_MFA_KEY", base64.StdEncoding.EncodeToString([]byte("cross-e2e-business-mfa-key-32byt")),
 			"VERIFICATION_SERVICE_URL", p.internal[platform.VerificationService], "NOTIFICATION_SERVICE_URL", p.internal[platform.NotificationService],
@@ -264,7 +290,7 @@ func startCrossPlatform(t *testing.T) *crossEnv {
 	gk := p.keys[platform.APIGateway]
 	gw := map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "HTTP_ADDR": gwAddr, "REDIS_ADDR": redisAddr, "GATEWAY_TRUSTED_ISSUERS": string(issuersJSON),
 		"SERVICE_AUTH_KEY_ID": gk.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(gk.priv),
-		"GATEWAY_RATE_LIMIT_AUTH_SENSITIVE": "1000/1m", "GATEWAY_RATE_LIMIT_PUBLIC": "5000/1m", "GATEWAY_RATE_LIMIT_AUTHENTICATED": "5000/1m"}
+		"GATEWAY_WEBHOOK_ROUTES": "paystack=payment-service", "GATEWAY_RATE_LIMIT_AUTH_SENSITIVE": "1000/1m", "GATEWAY_RATE_LIMIT_PUBLIC": "5000/1m", "GATEWAY_RATE_LIMIT_AUTHENTICATED": "5000/1m"}
 	for _, s := range services[1:] {
 		gw["GATEWAY_UPSTREAM_"+strings.ToUpper(strings.ReplaceAll(string(s), "-", "_"))+"_URL"] = p.internal[s]
 	}

@@ -170,7 +170,7 @@ func TestMarketplaceCustomerDiscoveryCheckoutPaymentReviewAndFunnel(t *testing.T
 	state = "CONFIRMED"
 	mu.Unlock()
 	g := k.Actor(cust, "GET", "/checkouts/"+cid, "", nil)
-	if g.Data()["state"] != "CONFIRMED" || g.Data()["checkout_url"] != "https://checkout.example.invalid/pay" {
+	if g.Data()["state"] != "CONFIRMED" || g.Data()["intent_id"] != pd.intent.String() {
 		t.Fatalf("reconcile %s", g.Raw)
 	}
 	mu.Lock()

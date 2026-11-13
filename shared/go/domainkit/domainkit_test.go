@@ -17,6 +17,7 @@ import (
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/domainkit"
+	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/security"
@@ -159,5 +160,29 @@ func TestDomainKitAccountsActorAuthAndIdempotentCommands(t *testing.T) {
 	}
 	if _, err := k.RT.Pool.Exec(t.Context(), `DELETE FROM audit_events`); err == nil {
 		t.Fatal("audit deleted")
+	}
+}
+
+// CallBusiness sends a query as a query string (the client escapes paths).
+func TestCallBusinessSendsQueryAsQueryString(t *testing.T) {
+	var got string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.URL.Path + "|" + r.URL.RawQuery
+		_, _ = w.Write([]byte(`{"data":{}}`))
+	}))
+	t.Cleanup(srv.Close)
+	key := testkit.SigningKey(t, "q-test")
+	signer, _ := serviceauth.NewSigner(serviceauth.SignerConfig{Service: platform.MarketplaceService, Key: key})
+	c, err := httpx.NewClient(httpx.ClientConfig{BaseURL: srv.URL, Audience: string(platform.BusinessOperationsService), Tokens: signer, MaxAttempts: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt := &domainkit.Runtime{Business: c}
+	id := ids.New()
+	if err := rt.CallBusiness(context.Background(), ids.New(), "GET", "/reservations/"+id.String()+"?connection_id=abc", "", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got != domainkit.BusinessPrefix+"/reservations/"+id.String()+"|connection_id=abc" {
+		t.Fatalf("request %s", got)
 	}
 }

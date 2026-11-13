@@ -7,8 +7,10 @@
 //   - holds and reservations are canonical Business reservations created
 //     through the signed channel-receipt contract;
 //   - money moves only in the Payment Service: Marketplace provisions the
-//     customer's own wallet there and asks Business to collect; confirmation
-//     is Business's decision after Payment verification;
+//     customer's own wallet there and asks Business to collect; the customer
+//     pays on the Payment intent's hosted checkout (read from the Payment
+//     API), the provider's signed webhook settles it in Payment, and
+//     confirmation is Business's decision after its own Payment readback;
 //   - every local checkout state is a reconciled readback of Business.
 package customer
 
@@ -95,7 +97,6 @@ func NewWith(rt *domainkit.Runtime, d Deps) domainkit.App {
 			r.Get("/checkouts/{id}", s.getCheckout)
 			r.Post("/checkouts/{id}/hold", s.hold)
 			r.Post("/checkouts/{id}/pay", s.pay)
-			r.Post("/checkouts/{id}/verify-payment", s.verifyPayment)
 			r.Post("/checkouts/{id}/cancel", s.cancel)
 			r.Post("/checkouts/{id}/review", s.review)
 		},
@@ -339,12 +340,14 @@ type Checkout struct {
 	HoldExpiresAt         *time.Time `json:"hold_expires_at"`
 	WalletID              *ids.ID    `json:"wallet_id"`
 	CollectionRequestID   *ids.ID    `json:"collection_request_id"`
-	IntentID              *ids.ID    `json:"intent_id"`
-	CheckoutURL           *string    `json:"checkout_url"`
-	LastSyncedAt          *time.Time `json:"last_synced_at"`
-	Version               int64      `json:"version"`
-	AccountID             ids.ID     `json:"-"`
-	CreatedAt             time.Time  `json:"created_at"`
+	// IntentID is the Payment Service intent; the customer opens its hosted
+	// checkout from the Payment API (GET /api/v1/payments/payment-intents/{id}).
+	IntentID     *ids.ID    `json:"intent_id"`
+	CheckoutURL  *string    `json:"-"`
+	LastSyncedAt *time.Time `json:"last_synced_at"`
+	Version      int64      `json:"version"`
+	AccountID    ids.ID     `json:"-"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 const checkoutColumns = `id,connection_id,organisation_id,property_id,product_id,date_from::text,date_to::text,adults,children,quantity,business_quote_id,product_version,pool_version,amount_minor,currency,quote_expires_at,state,business_reservation_id,business_version,business_state,financial_state,hold_expires_at,wallet_id,collection_request_id,intent_id,checkout_url,last_synced_at,version,account_id,created_at`
@@ -511,12 +514,6 @@ func (s *svc) readBusiness(ctx context.Context, c Checkout) (businessReservation
 	return b, err
 }
 
-type paymentIntent struct {
-	ID          ids.ID  `json:"intent_id"`
-	State       string  `json:"state"`
-	CheckoutURL *string `json:"checkout_url"`
-}
-
 // payment performs a signed Payment Service call and unwraps its "data"
 // envelope into out.
 func (s *svc) payment(ctx context.Context, req httpx.Request, out any) error {
@@ -532,12 +529,6 @@ func (s *svc) payment(ctx context.Context, req httpx.Request, out any) error {
 	return nil
 }
 
-// asCustomer delegates the checkout's own customer to the Payment Service
-// (wallet ownership is checked there).
-func asCustomer(ctx context.Context, account ids.ID) context.Context {
-	return requestcontext.WithActor(ctx, requestcontext.Actor{Domain: string(platform.DomainMarketplace), ID: account})
-}
-
 // reconcile maps Business's authoritative reservation state onto the local
 // journey. It never moves a journey forward on its own evidence.
 func (s *svc) reconcile(ctx context.Context, c Checkout) (Checkout, error) {
@@ -547,13 +538,6 @@ func (s *svc) reconcile(ctx context.Context, c Checkout) (Checkout, error) {
 	b, err := s.readBusiness(ctx, c)
 	if err != nil {
 		return c, err
-	}
-	var intent *paymentIntent
-	if b.Payment != nil && b.Payment.IntentID != nil && s.deps.Payment != nil {
-		var pi paymentIntent
-		if err := s.payment(asCustomer(ctx, c.AccountID), httpx.Request{Method: http.MethodGet, Path: "/internal/v1/payment-intents/" + b.Payment.IntentID.String()}, &pi); err == nil {
-			intent = &pi
-		}
 	}
 	var out Checkout
 	err = database.WithTx(ctx, s.rt.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
@@ -581,15 +565,11 @@ func (s *svc) reconcile(ctx context.Context, c Checkout) (Checkout, error) {
 			}
 		}
 		var request, intentID *ids.ID
-		var url *string
 		if b.Payment != nil {
 			request, intentID = b.Payment.CollectionRequestID, b.Payment.IntentID
 		}
-		if intent != nil {
-			url = intent.CheckoutURL
-		}
-		if _, err := tx.Exec(ctx, `UPDATE checkouts SET state=$2,business_version=$3,business_state=$4,financial_state=$5,hold_expires_at=$6,collection_request_id=COALESCE($7,collection_request_id),intent_id=COALESCE($8,intent_id),checkout_url=COALESCE($9,checkout_url),last_synced_at=now(),version=version+1,updated_at=now() WHERE id=$1`,
-			cur.ID, state, b.Version, b.State, b.FinancialState, b.HoldExpiresAt, request, intentID, url); err != nil {
+		if _, err := tx.Exec(ctx, `UPDATE checkouts SET state=$2,business_version=$3,business_state=$4,financial_state=$5,hold_expires_at=$6,collection_request_id=COALESCE($7,collection_request_id),intent_id=COALESCE($8,intent_id),last_synced_at=now(),version=version+1,updated_at=now() WHERE id=$1`,
+			cur.ID, state, b.Version, b.State, b.FinancialState, b.HoldExpiresAt, request, intentID); err != nil {
 			return err
 		}
 		if out, err = scanCheckout(tx.QueryRow(ctx, `SELECT `+checkoutColumns+` FROM checkouts WHERE id=$1`, c.ID)); err != nil {
@@ -781,32 +761,6 @@ func (s *svc) pay(w http.ResponseWriter, r *http.Request) {
 		ch.Status = http.StatusAccepted
 		return ch, err
 	})
-}
-
-// verifyPayment asks the Payment Service to verify the collection with the
-// provider (the customer returned from checkout); Business then reads the
-// verified outcome back and decides confirmation.
-func (s *svc) verifyPayment(w http.ResponseWriter, r *http.Request) {
-	id, err := pathID(r)
-	var c Checkout
-	if err == nil {
-		c, err = s.owned(r.Context(), s.rt.Pool, id, false)
-	}
-	if err == nil {
-		c, err = s.reconcile(r.Context(), c)
-	}
-	if err == nil && (c.IntentID == nil || s.deps.Payment == nil) {
-		err = apperrors.Conflict("PAYMENT_NOT_STARTED", "No payment intent exists yet for this checkout.")
-	}
-	var pi paymentIntent
-	if err == nil {
-		err = httpx.ToAppError(s.payment(r.Context(), httpx.Request{Method: http.MethodPost, Path: "/internal/v1/payment-intents/" + c.IntentID.String() + "/verify", IdempotencyKey: "mkt-verify:" + c.ID.String() + ":" + ids.New().String()}, &pi))
-	}
-	if err != nil {
-		domainkit.Fail(w, r, err)
-		return
-	}
-	domainkit.Data(w, http.StatusOK, map[string]any{"checkout": c, "payment_state": pi.State, "confirmation_authority": "business-operations-service"})
 }
 
 // cancel cancels a quote locally, or asks Business to cancel the canonical
