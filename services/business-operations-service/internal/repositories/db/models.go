@@ -42,6 +42,37 @@ type AccessDevice struct {
 	UpdatedAt             time.Time
 }
 
+type AccessEvent struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type AccessGrant struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -130,6 +161,37 @@ type AddOn struct {
 	ApprovalID     *ids.ID
 }
 
+type Agreement struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type AiKnowledgeEntry struct {
 	ID              ids.ID
 	OrganisationID  ids.ID
@@ -187,6 +249,37 @@ type AnalyticsSnapshot struct {
 	CreatedBy          *ids.ID
 	CreatedByService   string
 	CreatedAt          time.Time
+}
+
+type ApiCredential struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type ApprovalDecision struct {
@@ -346,6 +439,37 @@ type Branch struct {
 	Version        int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type BranchIncident struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type BrandProfile struct {
@@ -1059,6 +1183,68 @@ type ChannelSyncJob struct {
 	ProviderCommandKey  string
 }
 
+type ClosingMilestone struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ClosureCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type CommercialDeal struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -1103,6 +1289,68 @@ type CommercialHistory struct {
 	Snapshot       []byte
 	CreatedAt      time.Time
 	Sequence       *int64
+}
+
+type CommercialLoi struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type CommercialTerm struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type CommonArea struct {
@@ -1204,6 +1452,37 @@ type ContentQualityScore struct {
 	Score            int32
 	Issues           []byte
 	CreatedAt        time.Time
+}
+
+type ContentSuggestion struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type ConversionProjectionCursor struct {
@@ -1440,6 +1719,37 @@ type Department struct {
 	UpdatedAt      time.Time
 }
 
+type DepositObligation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type Development struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -1483,6 +1793,37 @@ type DevelopmentPhase struct {
 	Kind           string
 }
 
+type DeviceHealthSnapshot struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type DigitalTwinRef struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -1490,6 +1831,37 @@ type DigitalTwinRef struct {
 }
 
 type Dispute struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type DueDiligenceItem struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
 	ScopeKind             string
@@ -1564,6 +1936,37 @@ type ExpenseRequest struct {
 	ObligationID          *ids.ID
 	Version               int64
 	CreatedBy             ids.ID
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type Experiment struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
 }
@@ -1659,6 +2062,37 @@ type FinancialProfile struct {
 	Version                    int64
 	CreatedAt                  time.Time
 	UpdatedAt                  time.Time
+}
+
+type FinancingConsent struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type FiscalPeriod struct {
@@ -1870,6 +2304,37 @@ type FunnelObservation struct {
 	Quantity        int32
 	ObservedAt      time.Time
 	CreatedAt       time.Time
+}
+
+type FxRateRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type GroupBlock struct {
@@ -2411,6 +2876,37 @@ type HospitalityRoomCursor struct {
 	LastErrorCode       string
 }
 
+type HousekeepingChecklist struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type HousekeepingTask struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -2543,7 +3039,69 @@ type InboxThread struct {
 	UpdatedAt          time.Time
 }
 
+type IncidentCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type InsuranceClaimRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type InsuranceComplianceCheck struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
 	ScopeKind             string
@@ -2917,6 +3475,68 @@ type InventoryVerificationLink struct {
 	Version           int64
 }
 
+type LandAllocation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type LandTerm struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type LandTransaction struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -3038,6 +3658,37 @@ type LegalHold struct {
 	CreatedAt          time.Time
 }
 
+type LinenStockRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type Listing struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -3100,6 +3751,37 @@ type ListingVersion struct {
 	Reason          string
 	CreatedBy       ids.ID
 	CreatedAt       time.Time
+}
+
+type LostFoundItem struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type LoyaltyAccount struct {
@@ -3289,6 +3971,68 @@ type ManagerAssignmentRef struct {
 	UpdatedAt             time.Time
 }
 
+type ManagerPerformanceRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type MarketBenchmark struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type MasterFolio struct {
 	ID                  ids.ID
 	OrganisationID      ids.ID
@@ -3338,6 +4082,37 @@ type MessagingConnection struct {
 	SupportsReviewReplies    bool
 }
 
+type MoveOutCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type NightAudit struct {
 	ID               ids.ID
 	OrganisationID   ids.ID
@@ -3361,6 +4136,37 @@ type NightAuditException struct {
 	Quantity       int64
 	Evidence       []byte
 	CreatedAt      time.Time
+}
+
+type Notice struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type NotificationAcceptance struct {
@@ -3470,6 +4276,37 @@ type OrganisationCapacity struct {
 	Version            int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+type OrganisationChangeCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type OutboxEvent struct {
@@ -3731,6 +4568,99 @@ type ProfessionalAppointment struct {
 	UpdatedAt             time.Time
 }
 
+type ProfessionalFinding struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ProgressCertification struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ProjectVariation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type Promotion struct {
 	ID             ids.ID
 	OrganisationID ids.ID
@@ -3749,6 +4679,99 @@ type Property struct {
 	ID             ids.ID
 	OrganisationID ids.ID
 	Kind           string
+}
+
+type PropertyServiceCatalogue struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ProtectionCaseRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ProviderAssignmentRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type QualityIssue struct {
@@ -3864,7 +4887,100 @@ type Region struct {
 	UpdatedAt      time.Time
 }
 
+type RenewalCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type RentObligation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type RentalApplication struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type RentalOffer struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
 	ScopeKind             string
@@ -4688,6 +5804,37 @@ type RiskCase struct {
 	UpdatedAt             time.Time
 }
 
+type RiskSignal struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type RmsAdvancedDecision struct {
 	ID               ids.ID
 	OrganisationID   ids.ID
@@ -5022,6 +6169,37 @@ type RoomingList struct {
 	CreatedAt         time.Time
 }
 
+type SaleAllocation struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type SaleOffer struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
@@ -5172,6 +6350,68 @@ type SellableProduct struct {
 	UpdatedAt      time.Time
 }
 
+type ServiceChargeBudget struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type ServiceContractRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type ServiceRecoveryAction struct {
 	ID                ids.ID
 	OrganisationID    ids.ID
@@ -5239,6 +6479,37 @@ type ServiceRecoveryCompensationRef struct {
 	CreatedBy          ids.ID
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+type ShortletSetting struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type SnagItem struct {
@@ -5626,6 +6897,68 @@ type UpsellOffer struct {
 	UpdatedAt      time.Time
 }
 
+type UtilityAccount struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type VendorQuoteRef struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type VerificationLink struct {
 	ID                ids.ID
 	OrganisationID    ids.ID
@@ -5776,7 +7109,69 @@ type WaitlistOffer struct {
 	CreatedAt        time.Time
 }
 
+type Warranty struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
 type WarrantyCase struct {
+	ID                    ids.ID
+	OrganisationID        ids.ID
+	ScopeKind             string
+	ScopeID               ids.ID
+	PropertyID            *ids.ID
+	ParentID              *ids.ID
+	SubjectID             *ids.ID
+	Kind                  string
+	State                 string
+	Title                 string
+	CounterpartyReference string
+	ExternalReference     string
+	AmountMinor           *int64
+	Currency              *string
+	StartsAt              *time.Time
+	EndsAt                *time.Time
+	Attributes            []byte
+	EvidenceRefs          []byte
+	ApprovalID            *ids.ID
+	AssignedTo            *ids.ID
+	LastActorID           *ids.ID
+	LastAction            string
+	ClosedAt              *time.Time
+	Version               int64
+	CreatedBy             *ids.ID
+	CreatedByService      string
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+}
+
+type WebhookSubscription struct {
 	ID                    ids.ID
 	OrganisationID        ids.ID
 	ScopeKind             string
