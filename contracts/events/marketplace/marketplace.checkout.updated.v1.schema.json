@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/marketplace/marketplace.checkout.updated.v1.schema.json",
+  "title": "marketplace.checkout.updated.v1",
+  "description": "Producer: marketplace-service. Subject: realestate.marketplace.checkout.updated.v1. Aggregate: checkout.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "marketplace.checkout.updated.v1"
+    },
+    "producer": {
+      "const": "marketplace-service"
+    },
+    "aggregate_type": {
+      "const": "checkout"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "checkout_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "listing_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "property_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "business_reservation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_state": {
+          "type": "string"
+        },
+        "financial_state": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "checkout_id",
+        "state"
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/artisans/artisan.work_request.updated.v1.schema.json",
+  "title": "artisan.work_request.updated.v1",
+  "description": "Producer: artisan-service. Subject: realestate.artisan.work_request.updated.v1. Aggregate: work_request.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "artisan.work_request.updated.v1"
+    },
+    "producer": {
+      "const": "artisan-service"
+    },
+    "aggregate_type": {
+      "const": "work_request"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "work_request_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_assignment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "work_request_id",
+        "state"
+      ]
+    }
+  }
+}

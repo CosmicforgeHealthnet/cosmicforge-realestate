@@ -13,6 +13,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -68,6 +70,9 @@ func New(t *testing.T, svc platform.Service, migrations fs.FS, build func(*domai
 		t.Fatal(err)
 	}
 	t.Cleanup(rt.Close)
+	// Registered after Close so it runs first (cleanups are LIFO): every
+	// event the service produced must match its published contract schema.
+	t.Cleanup(func() { validateStoredEvents(t, rt) })
 	app := build(rt)
 	srv := httptest.NewServer(rt.Handler(app))
 	t.Cleanup(srv.Close)
@@ -227,4 +232,42 @@ func (f *FakeBusiness) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": data})
+}
+
+// eventDirs maps a domain area to its contracts/events directory.
+var eventDirs = map[string]string{"marketplace": "marketplace", "property_manager": "property-managers", "artisan": "artisans", "professional": "professionals", "admin": "admin"}
+
+func validateStoredEvents(t *testing.T, rt *domainkit.Runtime) {
+	t.Helper()
+	dir, ok := eventDirs[rt.Cfg.Area]
+	if !ok {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	rows, err := rt.Pool.Query(ctx, `SELECT event_type,jsonb_strip_nulls(jsonb_build_object('event_id',event_id,'event_type',event_type,'producer',producer,'aggregate_type',aggregate_type,'aggregate_id',aggregate_id,'occurred_at',occurred_at,'trace_id',trace_id,'actor',CASE WHEN actor_id IS NOT NULL THEN jsonb_build_object('domain',actor_domain,'id',actor_id) END,'metadata',metadata,'payload',payload)) FROM outbox_events ORDER BY occurred_at,event_id`)
+	if err != nil {
+		t.Errorf("stored events: %v", err)
+		return
+	}
+	type stored struct {
+		typ string
+		raw []byte
+	}
+	var list []stored
+	for rows.Next() {
+		var e stored
+		if err := rows.Scan(&e.typ, &e.raw); err != nil {
+			rows.Close()
+			t.Errorf("stored events: %v", err)
+			return
+		}
+		list = append(list, e)
+	}
+	rows.Close()
+	_, file, _, _ := runtime.Caller(0)
+	root := filepath.Clean(filepath.Join(filepath.Dir(file), "../../../.."))
+	for _, e := range list {
+		testkit.ValidateJSONSchema(t, filepath.Join(root, "contracts/events", dir, e.typ+".schema.json"), e.raw)
+	}
 }

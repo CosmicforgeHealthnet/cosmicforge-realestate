@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/professionals/professional.certification.updated.v1.schema.json",
+  "title": "professional.certification.updated.v1",
+  "description": "Producer: professional-services-service. Subject: realestate.professional.certification.updated.v1. Aggregate: certification_request.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "professional.certification.updated.v1"
+    },
+    "producer": {
+      "const": "professional-services-service"
+    },
+    "aggregate_type": {
+      "const": "certification_request"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "certification_request_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_certification_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "certification_request_id",
+        "state"
+      ]
+    }
+  }
+}

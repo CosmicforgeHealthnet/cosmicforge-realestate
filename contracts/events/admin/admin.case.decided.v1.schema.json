@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/admin/admin.case.decided.v1.schema.json",
+  "title": "admin.case.decided.v1",
+  "description": "Producer: admin-service. Subject: realestate.admin.case.decided.v1. Aggregate: review_case.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "admin.case.decided.v1"
+    },
+    "producer": {
+      "const": "admin-service"
+    },
+    "aggregate_type": {
+      "const": "review_case"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "source_service": {
+          "type": "string"
+        },
+        "source_reference": {
+          "type": "string"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "parent_case_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount_minor": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "execution": {
+          "const": "PENDING_PAYMENT_SERVICE"
+        }
+      },
+      "required": [
+        "case_id",
+        "kind",
+        "outcome"
+      ]
+    }
+  }
+}

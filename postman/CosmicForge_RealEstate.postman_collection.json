@@ -1030,6 +1030,41 @@
       "key": "business_callback_signature",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "marketplace_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "property_manager_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "artisan_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "professional_services_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_totp_code",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -1271,7 +1306,556 @@
     {
       "name": "01 Marketplace",
       "description": "Frontend-facing Marketplace APIs.",
-      "item": []
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an account of this domain (no privileged role is self-granted).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"display_name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in; returns access and refresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/auth/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token (reuse revokes the session).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "me"
+              ]
+            },
+            "description": "The authenticated account of this domain."
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session."
+          }
+        },
+        {
+          "name": "GET /listings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/listings",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "listings"
+              ]
+            },
+            "description": "Search published listings (query: q, date_from, date_to). Availability and totals are indicative; the canonical price is the Business quote."
+          }
+        },
+        {
+          "name": "GET /listings/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/listings/{{id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "listings",
+                "{{id}}"
+              ]
+            },
+            "description": "Listing detail with the projected availability calendar."
+          }
+        },
+        {
+          "name": "POST /listings/{id}/views",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/listings/{{id}}/views",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "listings",
+                "{{id}}",
+                "views"
+              ]
+            },
+            "description": "Record a listing view (client UUIDv7 view_id) for delivery to Business funnel analytics.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"view_id\": \"{{view_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /quotes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/quotes",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "quotes"
+              ]
+            },
+            "description": "Ask Business for the canonical quote of a stay; opens a QUOTED checkout.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listing_id\": \"{{listing_id}}\",\n  \"date_from\": \"\",\n  \"date_to\": \"\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /checkouts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts"
+              ]
+            },
+            "description": "The customer's checkouts."
+          }
+        },
+        {
+          "name": "GET /checkouts/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts/{{id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts",
+                "{{id}}"
+              ]
+            },
+            "description": "Checkout reconciled with the Business reservation readback."
+          }
+        },
+        {
+          "name": "POST /checkouts/{id}/hold",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts/{{id}}/hold",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts",
+                "{{id}}",
+                "hold"
+              ]
+            },
+            "description": "Create the canonical HOLD reservation from the quote through the signed channel-receipt contract, and assert the customer identity to Business.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /checkouts/{id}/pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts/{{id}}/pay",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts",
+                "{{id}}",
+                "pay"
+              ]
+            },
+            "description": "With explicit consent: provision the customer's own Payment wallet and ask Business to collect the held obligation (Business confirms after its own Payment readback).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consent\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /checkouts/{id}/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts/{{id}}/cancel",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts",
+                "{{id}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancel a quote locally, or ask Business to cancel the reservation under its source-cancellation policy.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /checkouts/{id}/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{marketplace_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/marketplace/checkouts/{{id}}/review",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "marketplace",
+                "checkouts",
+                "{{id}}",
+                "review"
+              ]
+            },
+            "description": "Verified-stay review, only after Business reports the stay completed; accepted into Business reputation first.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 1,\n  \"body\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "02 Individual Owner",
@@ -637496,22 +638080,2471 @@
     {
       "name": "04 Property Manager",
       "description": "Frontend-facing Property Manager APIs.",
-      "item": []
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an account of this domain (no privileged role is self-granted).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"display_name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in; returns access and refresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/auth/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token (reuse revokes the session).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "me"
+              ]
+            },
+            "description": "The authenticated account of this domain."
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session."
+          }
+        },
+        {
+          "name": "GET /mandates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates"
+              ]
+            },
+            "description": "The manager's mandates."
+          }
+        },
+        {
+          "name": "GET /mandates/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates/{{id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates",
+                "{{id}}"
+              ]
+            },
+            "description": "One mandate."
+          }
+        },
+        {
+          "name": "POST /mandates/{id}/accept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates/{{id}}/accept",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates",
+                "{{id}}",
+                "accept"
+              ]
+            },
+            "description": "Accept an offered mandate (Business readback must be ACTIVE and unexpired)."
+          }
+        },
+        {
+          "name": "POST /mandates/{id}/decline",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates/{{id}}/decline",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates",
+                "{{id}}",
+                "decline"
+              ]
+            },
+            "description": "Decline an offered mandate."
+          }
+        },
+        {
+          "name": "GET /mandates/{id}/authorization",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates/{{id}}/authorization",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates",
+                "{{id}}",
+                "authorization"
+              ]
+            },
+            "description": "Live Business capability decision (query: capability)."
+          }
+        },
+        {
+          "name": "POST /mandates/{id}/maintenance-requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{property_manager_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/property-manager/mandates/{{id}}/maintenance-requests",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "property-manager",
+                "mandates",
+                "{{id}}",
+                "maintenance-requests"
+              ]
+            },
+            "description": "Delegated maintenance request, re-validated by Business against the live delegation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"\",\n  \"title\": \"\",\n  \"subject_id\": \"{{subject_id}}\",\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "05 Artisan",
       "description": "Frontend-facing Artisan & Property Service Provider APIs.",
-      "item": []
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an account of this domain (no privileged role is self-granted).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"display_name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in; returns access and refresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/auth/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token (reuse revokes the session).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "me"
+              ]
+            },
+            "description": "The authenticated account of this domain."
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session."
+          }
+        },
+        {
+          "name": "GET /work-requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests"
+              ]
+            },
+            "description": "The artisan's work requests (query: state)."
+          }
+        },
+        {
+          "name": "GET /work-requests/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}"
+              ]
+            },
+            "description": "One work request."
+          }
+        },
+        {
+          "name": "POST /work-requests/{id}/accept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}/accept",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}",
+                "accept"
+              ]
+            },
+            "description": "Accept an offered assignment.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /work-requests/{id}/decline",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}/decline",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}",
+                "decline"
+              ]
+            },
+            "description": "Decline an offered assignment.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /work-requests/{id}/arrive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}/arrive",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}",
+                "arrive"
+              ]
+            },
+            "description": "Record arrival (BEFORE evidence required).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /work-requests/{id}/complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}/complete",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}",
+                "complete"
+              ]
+            },
+            "description": "Record completion (AFTER evidence required) with the workmanship warranty.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"warranty_days\": 1,\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /work-requests/{id}/evidence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/work-requests/{{id}}/evidence",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "work-requests",
+                "{{id}}",
+                "evidence"
+              ]
+            },
+            "description": "Attach Media evidence to a stage (BEFORE, DURING, AFTER).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stage\": \"\",\n  \"media_reference\": \"{{media_reference}}\",\n  \"note\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /quote-requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/quote-requests",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "quote-requests"
+              ]
+            },
+            "description": "The artisan's quote requests."
+          }
+        },
+        {
+          "name": "POST /quote-requests/{id}/submit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/quote-requests/{{id}}/submit",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "quote-requests",
+                "{{id}}",
+                "submit"
+              ]
+            },
+            "description": "Submit a priced quote with evidence.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount_minor\": 1,\n  \"currency\": \"\",\n  \"evidence_refs\": [],\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /warranties",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{artisan_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/artisan/warranties",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "artisan",
+                "warranties"
+              ]
+            },
+            "description": "Warranties issued for completed work."
+          }
+        }
+      ]
     },
     {
       "name": "06 Professional Services",
       "description": "Frontend-facing Professional Property Services APIs.",
-      "item": []
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an account of this domain (no privileged role is self-granted).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"display_name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in; returns access and refresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/auth/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token (reuse revokes the session).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "me"
+              ]
+            },
+            "description": "The authenticated account of this domain."
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session."
+          }
+        },
+        {
+          "name": "GET /profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/profile",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "profile"
+              ]
+            },
+            "description": "The professional profile and credential state."
+          }
+        },
+        {
+          "name": "PUT /profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/profile",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "profile"
+              ]
+            },
+            "description": "Profession and licence number.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profession\": \"\",\n  \"license_number\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /profile/verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/profile/verification",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "profile",
+                "verification"
+              ]
+            },
+            "description": "Open a PROFESSIONAL_CREDENTIAL case with the Media licence evidence, submit it and request processing.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"media_id\": \"{{media_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /profile/verification/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/profile/verification/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "profile",
+                "verification",
+                "refresh"
+              ]
+            },
+            "description": "Read the Verification Service decision back."
+          }
+        },
+        {
+          "name": "GET /appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments"
+              ]
+            },
+            "description": "The professional's appointments."
+          }
+        },
+        {
+          "name": "POST /appointments/{id}/accept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments/{{id}}/accept",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments",
+                "{{id}}",
+                "accept"
+              ]
+            },
+            "description": "Accept an appointment."
+          }
+        },
+        {
+          "name": "POST /appointments/{id}/start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments/{{id}}/start",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments",
+                "{{id}}",
+                "start"
+              ]
+            },
+            "description": "Start an appointment."
+          }
+        },
+        {
+          "name": "POST /appointments/{id}/report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments/{{id}}/report",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments",
+                "{{id}}",
+                "report"
+              ]
+            },
+            "description": "Submit the report (verified credential required).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"report_reference\": \"{{report_reference}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /appointments/{id}/findings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments/{{id}}/findings",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments",
+                "{{id}}",
+                "findings"
+              ]
+            },
+            "description": "Record a finding with Media evidence (verified credential required).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"\",\n  \"title\": \"\",\n  \"evidence_refs\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /appointments/{id}/documents/{grant}/authorization",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/appointments/{{id}}/documents/{{grant}}/authorization",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "appointments",
+                "{{id}}",
+                "documents",
+                "{{grant}}",
+                "authorization"
+              ]
+            },
+            "description": "Live Business decision on a purpose-limited data-room grant."
+          }
+        },
+        {
+          "name": "GET /certifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/certifications",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "certifications"
+              ]
+            },
+            "description": "Progress certification requests."
+          }
+        },
+        {
+          "name": "POST /certifications/{id}/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/certifications/{{id}}/review",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "certifications",
+                "{{id}}",
+                "review"
+              ]
+            },
+            "description": "Start the review (verified credential required)."
+          }
+        },
+        {
+          "name": "POST /certifications/{id}/certify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/certifications/{{id}}/certify",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "certifications",
+                "{{id}}",
+                "certify"
+              ]
+            },
+            "description": "Certify with a certificate reference and evidence (verified credential required).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"certificate_reference\": \"\",\n  \"evidence_refs\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /certifications/{id}/reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{professional_services_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/professional-services/certifications/{{id}}/reject",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "professional-services",
+                "certifications",
+                "{{id}}",
+                "reject"
+              ]
+            },
+            "description": "Reject the certification request.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "07 Admin",
       "description": "Admin product APIs. Keep privileged/internal operations clearly separated.",
-      "item": []
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an account of this domain (no privileged role is self-granted).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"display_name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in; returns access and refresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/auth/refresh",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate the refresh token (reuse revokes the session).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "me"
+              ]
+            },
+            "description": "The authenticated account of this domain."
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current session."
+          }
+        },
+        {
+          "name": "POST /mfa/enrol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/mfa/enrol",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "enrol"
+              ]
+            },
+            "description": "Enrol a TOTP factor (seed sealed at rest)."
+          }
+        },
+        {
+          "name": "POST /mfa/confirm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/mfa/confirm",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "mfa",
+                "confirm"
+              ]
+            },
+            "description": "Confirm the TOTP factor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /cases",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases"
+              ]
+            },
+            "description": "Review queue (query: state, kind)."
+          }
+        },
+        {
+          "name": "GET /cases/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}"
+              ]
+            },
+            "description": "Case with its append-only notes."
+          }
+        },
+        {
+          "name": "POST /cases/{id}/notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}/notes",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}",
+                "notes"
+              ]
+            },
+            "description": "Append a note with evidence references.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"\",\n  \"evidence_refs\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /restrictions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/restrictions",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restrictions"
+              ]
+            },
+            "description": "Account restrictions (query: state)."
+          }
+        },
+        {
+          "name": "POST /cases/{id}/claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}/claim",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}",
+                "claim"
+              ]
+            },
+            "description": "Reviewer claims an open case.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /cases/{id}/propose",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}/propose",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}",
+                "propose"
+              ]
+            },
+            "description": "Assigned reviewer proposes an outcome.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"outcome\": \"\",\n  \"rationale\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /restrictions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/restrictions",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restrictions"
+              ]
+            },
+            "description": "Reviewer proposes a restriction grounded in a decided case.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"case_id\": \"{{case_id}}\",\n  \"subject_service\": \"\",\n  \"subject_account_id\": \"{{subject_account_id}}\",\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /cases/{id}/return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}/return",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}",
+                "return"
+              ]
+            },
+            "description": "Supervisor returns a proposal for rework.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /cases/{id}/decide",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-MFA-Code",
+                "value": "{{admin_totp_code}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/cases/{{id}}/decide",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cases",
+                "{{id}}",
+                "decide"
+              ]
+            },
+            "description": "Distinct supervisor decides (X-MFA-Code).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"rationale\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /restrictions/{id}/approve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-MFA-Code",
+                "value": "{{admin_totp_code}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/restrictions/{{id}}/approve",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restrictions",
+                "{{id}}",
+                "approve"
+              ]
+            },
+            "description": "Distinct supervisor approves; the owning service suspends the account (X-MFA-Code).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /restrictions/{id}/reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/restrictions/{{id}}/reject",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restrictions",
+                "{{id}}",
+                "reject"
+              ]
+            },
+            "description": "Supervisor rejects a proposed restriction.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /restrictions/{id}/lift",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-MFA-Code",
+                "value": "{{admin_totp_code}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/restrictions/{{id}}/lift",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restrictions",
+                "{{id}}",
+                "lift"
+              ]
+            },
+            "description": "Supervisor lifts a restriction; the owning service reactivates the account (X-MFA-Code).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /accounts/{id}/roles",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-MFA-Code",
+                "value": "{{admin_totp_code}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/v1/admin/accounts/{{id}}/roles",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "accounts",
+                "{{id}}",
+                "roles"
+              ]
+            },
+            "description": "Supervisor grants REVIEWER/SUPERVISOR to another account (X-MFA-Code).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roles\": [],\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "08 Verification",

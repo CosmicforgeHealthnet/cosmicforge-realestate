@@ -24,6 +24,8 @@ jobs:
           python scripts/contracts/generate_business_database_catalogue.py --check
           python scripts/contracts/business_ops_domains.py --check
           python scripts/contracts/generate_business_api_inventory.py --check
+      - name: Domain service contracts (marketplace, managers, artisans, professionals, admin)
+        run: python scripts/contracts/generate_domain_services.py --check
       - name: OpenAPI documents are valid
         run: |
           set -euo pipefail

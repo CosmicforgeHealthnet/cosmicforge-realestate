@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/professionals/professional.appointment.updated.v1.schema.json",
+  "title": "professional.appointment.updated.v1",
+  "description": "Producer: professional-services-service. Subject: realestate.professional.appointment.updated.v1. Aggregate: appointment.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "professional.appointment.updated.v1"
+    },
+    "producer": {
+      "const": "professional-services-service"
+    },
+    "aggregate_type": {
+      "const": "appointment"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "appointment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_appointment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "appointment_id",
+        "state"
+      ]
+    }
+  }
+}

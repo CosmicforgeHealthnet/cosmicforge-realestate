@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/artisans/artisan.quote.updated.v1.schema.json",
+  "title": "artisan.quote.updated.v1",
+  "description": "Producer: artisan-service. Subject: realestate.artisan.quote.updated.v1. Aggregate: quote_request.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "artisan.quote.updated.v1"
+    },
+    "producer": {
+      "const": "artisan-service"
+    },
+    "aggregate_type": {
+      "const": "quote_request"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "quote_request_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_quote_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "amount_minor": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "quote_request_id",
+        "state"
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/admin/admin.account.registered.v1.schema.json",
+  "title": "admin.account.registered.v1",
+  "description": "Producer: admin-service. Subject: realestate.admin.account.registered.v1. Aggregate: account.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "admin.account.registered.v1"
+    },
+    "producer": {
+      "const": "admin-service"
+    },
+    "aggregate_type": {
+      "const": "account"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "account_id",
+        "roles"
+      ]
+    }
+  }
+}

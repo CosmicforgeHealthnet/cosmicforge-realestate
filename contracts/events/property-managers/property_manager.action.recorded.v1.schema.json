@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/property-managers/property_manager.action.recorded.v1.schema.json",
+  "title": "property_manager.action.recorded.v1",
+  "description": "Producer: property-manager-service. Subject: realestate.property_manager.action.recorded.v1. Aggregate: mandate.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "property_manager.action.recorded.v1"
+    },
+    "producer": {
+      "const": "property-manager-service"
+    },
+    "aggregate_type": {
+      "const": "mandate"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "mandate_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "business_assignment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "action": {
+          "type": "string"
+        },
+        "business_record_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "mandate_id",
+        "action"
+      ]
+    }
+  }
+}

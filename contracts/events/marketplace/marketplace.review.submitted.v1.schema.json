@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/marketplace/marketplace.review.submitted.v1.schema.json",
+  "title": "marketplace.review.submitted.v1",
+  "description": "Producer: marketplace-service. Subject: realestate.marketplace.review.submitted.v1. Aggregate: stay_review.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "marketplace.review.submitted.v1"
+    },
+    "producer": {
+      "const": "marketplace-service"
+    },
+    "aggregate_type": {
+      "const": "stay_review"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "review_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "checkout_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organisation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "property_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "rating": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "review_id",
+        "checkout_id",
+        "rating"
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/admin/admin.restriction.updated.v1.schema.json",
+  "title": "admin.restriction.updated.v1",
+  "description": "Producer: admin-service. Subject: realestate.admin.restriction.updated.v1. Aggregate: restriction.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "admin.restriction.updated.v1"
+    },
+    "producer": {
+      "const": "admin-service"
+    },
+    "aggregate_type": {
+      "const": "restriction"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "restriction_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "case_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "subject_service": {
+          "type": "string"
+        },
+        "subject_account_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "restriction_id",
+        "state"
+      ]
+    }
+  }
+}

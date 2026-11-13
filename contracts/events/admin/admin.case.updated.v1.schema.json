@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/admin/admin.case.updated.v1.schema.json",
+  "title": "admin.case.updated.v1",
+  "description": "Producer: admin-service. Subject: realestate.admin.case.updated.v1. Aggregate: review_case.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "admin.case.updated.v1"
+    },
+    "producer": {
+      "const": "admin-service"
+    },
+    "aggregate_type": {
+      "const": "review_case"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "source_service": {
+          "type": "string"
+        },
+        "source_reference": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "kind",
+        "state"
+      ]
+    }
+  }
+}

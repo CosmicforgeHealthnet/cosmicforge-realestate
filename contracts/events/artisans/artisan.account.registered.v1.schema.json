@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cosmicforge.realestate/events/artisans/artisan.account.registered.v1.schema.json",
+  "title": "artisan.account.registered.v1",
+  "description": "Producer: artisan-service. Subject: realestate.artisan.account.registered.v1. Aggregate: account.",
+  "allOf": [
+    {
+      "$ref": "../../schemas/event-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "artisan.account.registered.v1"
+    },
+    "producer": {
+      "const": "artisan-service"
+    },
+    "aggregate_type": {
+      "const": "account"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "account_id",
+        "roles"
+      ]
+    }
+  }
+}
