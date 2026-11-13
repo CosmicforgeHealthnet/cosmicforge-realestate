@@ -108,11 +108,43 @@ func TestUpstreamFixturesMatchProducerSchemas(t *testing.T) {
 			t.Fatalf("payment lifecycle schema now exists: add consumer fixtures and compatibility mapping: %s", entry.Name())
 		}
 	}
-	for _, dir := range []string{"property-managers", "artisans", "professionals", "marketplace"} {
-		if n := countSchemas(t, upstreamContracts+dir); n != 0 {
-			t.Fatalf("%s now publishes %d schemas: add producer-schema fixtures and update EVENT_COMPATIBILITY.md", dir, n)
+	// The manager, artisan, professional and marketplace producers now exist,
+	// but they publish their own Business-integration events, not the types
+	// this consumer accepts. Fail as soon as a consumed type is published so
+	// producer-schema fixtures and EVENT_COMPATIBILITY.md are added with it.
+	consumed := map[string][]string{
+		"property-managers": {"manager.mandate.responded.v1", "manager.activity.recorded.v1"},
+		"artisans":          {"artisan.quote.submitted.v1", "artisan.job.event_recorded.v1"},
+		"professionals":     {"professional.engagement.updated.v1"},
+		"marketplace":       {"marketplace.listing.reported.v1"},
+	}
+	for dir, types := range consumed {
+		published := publishedSchemas(t, upstreamContracts+dir)
+		if len(published) == 0 {
+			t.Fatalf("%s publishes no schemas; EVENT_COMPATIBILITY.md says it does", dir)
+		}
+		for _, typ := range types {
+			if published[typ] {
+				t.Fatalf("%s now publishes consumed type %s: add producer-schema fixtures and update EVENT_COMPATIBILITY.md", dir, typ)
+			}
 		}
 	}
+}
+
+// publishedSchemas lists the event types a producer directory publishes.
+func publishedSchemas(t *testing.T, dir string) map[string]bool {
+	t.Helper()
+	es, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := map[string]bool{}
+	for _, e := range es {
+		if name, ok := strings.CutSuffix(e.Name(), ".schema.json"); ok {
+			out[name] = true
+		}
+	}
+	return out
 }
 
 // Invalid producer identity, unknown versions, mismatched payloads,
@@ -258,21 +290,6 @@ func TestUpstreamEventsCannotCorruptState(t *testing.T) {
 			t.Fatalf("%s: rejected deliveries were recorded (%d)", f.typ, n-n0)
 		}
 	}
-}
-
-func countSchemas(t *testing.T, dir string) int {
-	t.Helper()
-	es, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
-	n := 0
-	for _, e := range es {
-		if strings.HasSuffix(e.Name(), ".json") {
-			n++
-		}
-	}
-	return n
 }
 
 func setField(t *testing.T, raw json.RawMessage, k string, v any) json.RawMessage {

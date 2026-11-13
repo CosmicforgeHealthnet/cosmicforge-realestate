@@ -17,10 +17,10 @@ consumes it (tests/e2e). Staging and production are not certified.
 | 1 | `verification.*` (`individual-owner-service--verification`) | verification-service (implemented) | `submitted`, `processing`, `manual_review_required`, `verified`, `rejected`, `expired` | `contracts/events/verification/*.v1.schema.json` | `verificationPayload` | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`verified`) |
 | 2 | `media.*` (`individual-owner-service--media`) | media-document-service (implemented) | `ready`, `rejected`, `deleted` | `contracts/events/media/*.v1.schema.json` | `ApplyMediaEvent` payload | LOCAL PASS · CONTRACT PASS · REAL-PROCESS PASS (`deleted`) |
 | 3 | canonical `finance.*`, historical `payment.*` (`individual-owner-service--payment`) | payment-service (implemented Financial Core) | 17 supported canonical v1 types; legacy `intent.updated`/`refund.updated` only for historical bindings | `contracts/events/payments/*.v1.schema.json` (34 published schemas) | Signed Core truth readback, original binding/aggregate, lease/retry, immutable resource IDs; no legacy updates to Core-bound intents | LOCAL / CONTRACT; actual process + JetStream collection/allocation/recovery evidence; provider/production gates remain |
-| 4 | `manager.*` (`individual-owner-service--property-manager`) | property-manager-service (**not implemented**) | `mandate.responded`, `activity.recorded` | none published | `ManagerResponseEvent`, `ManagerActivityEvent` | LOCAL PASS · live **BLOCKED** |
-| 5 | `artisan.*` (`individual-owner-service--artisan`) | artisan-service (**not implemented**) | `quote.submitted`, `job.event_recorded` | none published | `ArtisanQuoteEvent`, `ArtisanJobEvent` | LOCAL PASS · live **BLOCKED** |
-| 6 | `professional.*` (`individual-owner-service--professional-services`) | professional-services-service (**not implemented**) | `engagement.updated` | none published | `ProfessionalUpdateEvent` | LOCAL PASS · live **BLOCKED** |
-| 7 | `marketplace.*` (`individual-owner-service--marketplace`) | marketplace-service (**not implemented**) | `listing.reported` | none published | `ListingReportedEvent` | LOCAL PASS · live **BLOCKED** |
+| 4 | `manager.*` (`individual-owner-service--property-manager`) | property-manager-service (implemented; publishes `property_manager.{account.registered,mandate.updated,action.recorded}.v1` for Business mandates) | `mandate.responded`, `activity.recorded` | consumed types not published | `ManagerResponseEvent`, `ManagerActivityEvent` | LOCAL PASS · live **BLOCKED** |
+| 5 | `artisan.*` (`individual-owner-service--artisan`) | artisan-service (implemented; publishes `artisan.{account.registered,work_request.updated,quote.updated}.v1` for Business work requests) | `quote.submitted`, `job.event_recorded` | consumed types not published | `ArtisanQuoteEvent`, `ArtisanJobEvent` | LOCAL PASS · live **BLOCKED** |
+| 6 | `professional.*` (`individual-owner-service--professional-services`) | professional-services-service (implemented; publishes `professional.{account.registered,credential.updated,appointment.updated,certification.updated}.v1` for Business appointments) | `engagement.updated` | consumed types not published | `ProfessionalUpdateEvent` | LOCAL PASS · live **BLOCKED** |
+| 7 | `marketplace.*` (`individual-owner-service--marketplace`) | marketplace-service (implemented; publishes `marketplace.{account.registered,checkout.updated,review.submitted}.v1`) | `listing.reported` | consumed types not published | `ListingReportedEvent` | LOCAL PASS · live **BLOCKED** |
 
 The current payment consumer accepts only the canonical types documented in
 [the consolidated integration closure](SECTIONS_12_13_INTEGRATION_CLOSURE.md).
@@ -31,8 +31,14 @@ payment intent. Payout results retain original wallet/provider/pool correlation.
 Duplicate and stale events use fresh truth; confirmed refund IDs are recomputed,
 not incremented, and expired observation claims recover through the existing worker.
 
-Real source backends for manager/artisan/professional/marketplace remain absent.
-Their signed simulators and payloads certify local boundary behavior only. Real
+The manager, artisan, professional and marketplace services now exist, but
+their implemented integration is with Business Operations (mandates, work
+requests, appointments, checkouts). None of them publishes the owner-facing
+types this consumer accepts, so the owner's families 4–7 stay live **BLOCKED**:
+a producer-side owner integration (or a consumer migration to the published
+types) is still required. `TestUpstreamFixturesMatchProducerSchemas` fails as
+soon as one of the consumed types is published, forcing fixtures to be added.
+The signed simulators and payloads certify local boundary behavior only. Real
 notification/verification/media evidence is retained at its original source SHA.
 Historical generic `payment.*` payloads remain reserved; Core is not asked to
 publish invented legacy events. Unknown references retry until their source binding
@@ -64,8 +70,8 @@ exercises this path.
 
 ## Remaining to certify
 
-- Actual producer implementations and usable schemas for families 4–7. Until they exist,
-  live integration stays BLOCKED.
+- Owner-facing producer events (or a consumer migration) for families 4–7. The producers
+  exist but publish Business-integration events only; live integration stays BLOCKED.
 - Real-process coverage of the other verification and media types, such as
   `rejected` and `expired`. These have CONTRACT PASS (schema plus consumer) but
   not REAL-PROCESS evidence.
