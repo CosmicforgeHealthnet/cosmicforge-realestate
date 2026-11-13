@@ -12,7 +12,7 @@ Baseline SHA: `8088a9eb837816c5f43b7ed298b2601f86cd3190`. Branch: `staging` only
 | Architecture & boundaries | Backend → lint; Architecture structure | `check-architecture.sh`, `check-business-operations-boundaries.sh` | OK |
 | SQLC drift | Backend → sqlc | `sqlc diff -f sql/sqlc.yaml` | no diff |
 | Migrations from empty DB, re-run no-op, version 37 | Backend → test | `TestOutboxMigrationFromEmptyDatabase` and upgrade tests | PASS |
-| Unit + integration + race | Backend → test (business module) | `go test -race -json -timeout=45m ./...` | full non-race local suite PASS after fixes (see below); race executed in CI |
+| Unit + integration + race | Backend → test (business module) | `go test -race -json -timeout=45m ./...` | full non-race local suite PASS after fixes; race suite CI success on `d28c74c` (run 43395612679) |
 | End-to-end processes | Backend → e2e | `tests/e2e` | CI |
 | OpenAPI/Postman/routes drift and example validation | Contracts | `generate_business_operations.py --check --validate` | OK (812 routes) |
 | Event schema drift | Contracts | `generate_business_events.py --check` | OK (155 schemas) |
@@ -20,9 +20,9 @@ Baseline SHA: `8088a9eb837816c5f43b7ed298b2601f86cd3190`. Branch: `staging` only
 | Section 16 generator drift | local/Backend tests | `business_ops_domains.py --check` | OK |
 | OpenAPI validity | Contracts | `openapi-spec-validator` (all documents) | OK — fixed duplicate operationIds for `/access/grants` vs `/access-grants` |
 | JSON Schema metaschema | Contracts | `check-jsonschema --check-metaschema` | OK |
-| Secrets | Security | gitleaks (git + dir) | CI |
-| Vulnerabilities | Security | govulncheck | CI |
-| Images | Images | build, smoke, business container smoke, Trivy, digest | CI |
+| Secrets | Security | gitleaks (git + dir) | CI success (run 43395612724) |
+| Vulnerabilities | Security | govulncheck | GO-2026-6859 found on go1.26.10 → toolchain moved to go1.26.11; CI success (run 43395612724) |
+| Images | Images | build, smoke, business container smoke, Trivy, digest | CI success (run 43395612835); digest `sha256:cb804a4a095af49d2b35060488a3b08285569abbdf90e3195ad1c8e72894a7a1` |
 
 ## Local execution evidence
 

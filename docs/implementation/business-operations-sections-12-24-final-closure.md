@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Start SHA | `8088a9eb837816c5f43b7ed298b2601f86cd3190` |
-| Final SHA / CI | see "CI evidence" below |
+| Final code SHA | `d28c74c1c317790ea8fd460ffba50f33566aa10b` (evidence commit follows; see CI evidence) |
 | Latest migration | `00037_analytics_reports.sql` (Goose version 37) |
 | Tables | 354 in `business_operations_db` (86 added by 00031–00037); catalogue: 423 decisions, 354 implemented, 68 deferred-with-owner |
 | Registered routes | 812 (802 public, 9 internal, 1 webhook); Annex E 213/213 |
@@ -83,4 +83,16 @@ Per-requirement detail: `business-operations-sections-12-24-requirements-matrix.
 
 ## CI evidence
 
-Recorded after push in the follow-up evidence commit (see bottom of this file once filled).
+All five required workflows passed on code SHA `d28c74c1c317790ea8fd460ffba50f33566aa10b` (the Sections 12–24 implementation `237a316` plus the go1.26.11 toolchain fix):
+
+| Workflow | Run | Result |
+|---|---|---|
+| Backend (lint ×9, architecture, sqlc, test -race ×8, e2e) | https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/43395612679 | success (business module race suite 26 min) |
+| Architecture structure | https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/43395613030 | success |
+| Contracts | https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/43395612812 | success |
+| Security (govulncheck ×8, gitleaks git+dir) | https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/43395612724 | success |
+| Images (build, smoke, business container smoke, Trivy, digests) | https://github.com/CosmicforgeHealthnet/cosmicforge-realestate/actions/runs/43395612835 | success |
+
+Business Operations image: `ghcr.io/cosmicforgehealthnet/cosmicforge-realestate/business-operations-service@sha256:cb804a4a095af49d2b35060488a3b08285569abbdf90e3195ad1c8e72894a7a1` (Trivy HIGH/CRITICAL fixable: 0; container smoke: real PostgreSQL/NATS, fresh and repeated migrations, broker outage/recovery, graceful shutdown).
+
+History: on `237a316` the Security workflow failed because govulncheck newly reported GO-2026-6859 (`net/http@go1.26.10`, fixed in go1.26.11) in every Go module, including ones this delivery does not touch. It was fixed by moving the pinned toolchain to go1.26.11 (`d28c74c`), not by suppressing the finding. The commit that adds this evidence changes documentation only; its own exact-SHA workflow results are reported in the delivery summary.
