@@ -36,20 +36,19 @@ type bizUser struct {
 }
 
 type bizEnv struct {
-	p                 *crossEnv
-	t                 *testing.T
-	owner, approver   *bizUser
-	policies          map[string]bool
-	property, unit    ids.ID
-	propertyVersion   int64
-	pool, product     ids.ID
-	productVersion    int64
-	poolVersion       int64
-	rate              ids.ID
-	dateFrom, dateTo  string
-	paymentPolicy     ids.ID
-	connection        ids.ID
-	connectionVersion int64
+	p                *crossEnv
+	t                *testing.T
+	owner, approver  *bizUser
+	policies         map[string]bool
+	property, unit   ids.ID
+	propertyVersion  int64
+	pool, product    ids.ID
+	productVersion   int64
+	poolVersion      int64
+	rate             ids.ID
+	dateFrom, dateTo string
+	paymentPolicy    ids.ID
+	connection       ids.ID
 }
 
 // call performs a Business API call through the gateway.

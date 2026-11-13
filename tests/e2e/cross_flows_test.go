@@ -37,28 +37,6 @@ func (p *crossEnv) certifyProviderActivation() {
 	}
 }
 
-// dumpBusiness logs diagnostic rows from the Business database on failure.
-func (p *crossEnv) dumpBusiness(query string) { p.dump(p.businessDB, query) }
-
-func (p *crossEnv) dump(dsn, query string) {
-	db, err := sql.Open("pgx", dsn)
-	if err != nil {
-		return
-	}
-	defer db.Close()
-	rows, err := db.Query(query)
-	if err != nil {
-		p.t.Logf("diagnostic query: %v", err)
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var v string
-		_ = rows.Scan(&v)
-		p.t.Logf("business: %s", v)
-	}
-}
-
 // paymentPolicy creates the HOTEL collection policy in the Payment Service
 // with the Admin Service identity (policy authoring is an Admin authority).
 func (p *crossEnv) paymentPolicy() ids.ID {
