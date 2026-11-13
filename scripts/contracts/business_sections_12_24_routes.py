@@ -10,7 +10,7 @@ from pathlib import Path
 
 from business_ops_domains import contract_entries, domain_notes
 
-FILES = ['operational_comms.go', 'operational_comms_ai.go', 'operational_reputation.go', 'operational_marketing.go', 'operational_finance.go', 'operational_domains_hooks.go', 'operational_analytics.go']
+FILES = ['operational_comms.go', 'operational_comms_ai.go', 'operational_reputation.go', 'operational_marketing.go', 'operational_finance.go', 'operational_domains_hooks.go', 'operational_analytics.go', 'operational_domains_annex_d.go']
 
 # Reviewed overrides: compatibility aliases reuse owning schemas exactly.
 OVERRIDES = {
@@ -35,6 +35,8 @@ OVERRIDES = {
  'folioEnsure': ('folios:read', 'FolioEnsureCommand', 'S1224Object', 200, False),
  'saleOfferDecision': ('sales:approve', 'SaleOfferDecision', 'OpsRecord', 200, True),
  'integrationHealth': ('integrations:read', None, 'S1224Object', 200, False),
+ 'residentialArrears': ('residential:read', None, 'S1224List', 200, False),
+ 'assetServiceHistory': ('maintenance:read', None, 'S1224List', 200, False),
  'internalReviewReceipt': None, 'internalFunnelObservation': None, 'internalManagerAuthorization': None, 'internalDataRoomAuthorization': None,
 }
 

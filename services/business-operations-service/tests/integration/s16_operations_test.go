@@ -178,6 +178,12 @@ func TestBusinessDevelopmentAllocationMilestonesSnagsAndHandover(t *testing.T) {
 	ms = opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "START"}, 200)
 	ms = opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "REQUEST_CERTIFICATION", EvidenceRefs: []ids.ID{ids.New()}}, 200)
 	opsMove(c, c.owner, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 403)
+	// Annex D.13: certification needs a professionally certified progress
+	// certificate, never the business user's claim alone.
+	opsMove(c, c.approver, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 409)
+	cert := opsRec(c, c.owner, "POST", base+"/progress-certifications", businesshttp.OpsRecordCreate{Kind: "INTERIM", Title: "Superstructure progress certificate", Attributes: map[string]any{"milestone_id": ms.ID.String(), "percent_complete": 100}, Reason: "Contractor claim"}, 201)
+	cert = opsMove(c, c.owner, base+"/progress-certifications", cert, businesshttp.OpsRecordTransition{Action: "START_REVIEW", ExternalReference: "prof-appointment-qs-1"}, 200)
+	opsMove(c, c.approver, base+"/progress-certifications", cert, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}, ExternalReference: "qs-certificate-881"}, 200)
 	if ms = opsMove(c, c.approver, base+"/milestones", ms, businesshttp.OpsRecordTransition{Action: "CERTIFY", EvidenceRefs: []ids.ID{ids.New()}}, 200); ms.State != "CERTIFIED" {
 		t.Fatal(ms.State)
 	}
@@ -245,6 +251,7 @@ func TestBusinessRiskAppealSeparationSalesOffersAndTenancyConversion(t *testing.
 		t.Fatalf("application %s %v", state, err)
 	}
 	ten = opsMove(c, c.owner, "/tenancies", ten, businesshttp.OpsRecordTransition{Action: "SEND_FOR_SIGNATURE"}, 200)
+	signAgreement(c, ten.ID, "RESIDENTIAL_TENANCY", "tenant:bisi")
 	approval := c.approval("COMMERCIAL_TENANCY", "residential:write", "", &rent, "NGN", map[string]any{"domain": "tenancy", "record_id": ten.ID, "action": "ACTIVATE", "version": ten.Version})
 	ten = opsMove(c, c.owner, "/tenancies", ten, businesshttp.OpsRecordTransition{Action: "ACTIVATE", ApprovalID: approval, EvidenceRefs: []ids.ID{ids.New()}}, 200)
 	if ten.State != "ACTIVE" {
@@ -317,6 +324,8 @@ func TestBusinessCommercialDealAndLandTransactionApprovedLifecycles(t *testing.T
 	approval := c.approval("COMMERCIAL_DEAL", "leasing:write", "", &rent, "NGN", map[string]any{"domain": "commercial_deal", "record_id": deal.ID, "action": "APPROVE", "version": deal.Version})
 	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "APPROVE", ApprovalID: approval}, 200)
 	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "SIGN", EvidenceRefs: []ids.ID{ids.New()}}, 200)
+	opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "ACTIVATE"}, 409)
+	signAgreement(c, deal.ID, "COMMERCIAL_LEASE", "tenant:acme-ltd")
 	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "ACTIVATE"}, 200)
 	deal = opsMove(c, c.owner, "/commercial/deals", deal, businesshttp.OpsRecordTransition{Action: "CLOSE", EvidenceRefs: []ids.ID{ids.New()}}, 200)
 	if deal.State != "CLOSED" || deal.ApprovalID == nil || *deal.ApprovalID != approval || deal.AmountMinor == nil || *deal.AmountMinor != rent {

@@ -1,5 +1,5 @@
 {
-  "latest_migration": "00037_analytics_reports.sql",
+  "latest_migration": "00038_annex_d_lifecycles.sql",
   "specification": "CosmicForge_Business_Property_Operations_Full_Backend_Implementation_Spec_v1.0",
   "aliases": {
     "credentials": "business_credentials",
@@ -26,15 +26,29 @@
   "entries": [
     {
       "specified_table": "ai_recommendations",
-      "canonical_table": "ai_recommendations",
+      "canonical_table": "ai_suggestions",
       "specification": "Section 5",
       "category": "Analytics/RMS/AI",
       "owner_package": "internal/analytics",
       "owning_section": "8 / D.23 / D.30 / D.34",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00031_communications_inbox.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 14,
+        "altered_in": []
+      },
       "repository": "Planned internal/analytics repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "AI recommendations are ai_suggestions (grounded, cited, confidence, decided_by) plus pricing_recommendations/rms_advanced_recommendations and action_cards; a fourth store would duplicate provenance. Proven by: TestBusinessInboxAIGroundingInjectionActionCardsAndApprovedAutoReply; TestBusinessRMSGovernedApplicationSimulationAndCompensatingRollback.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -185,11 +199,27 @@
       "category": "Analytics/RMS/AI",
       "owner_package": "internal/analytics",
       "owning_section": "8 / D.23 / D.30 / D.34",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/analytics repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "experiments_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/analytics owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "forecast_runs",
@@ -225,13 +255,29 @@
       "canonical_table": "market_benchmarks",
       "specification": "Section 5",
       "category": "Analytics/RMS/AI",
-      "owner_package": "internal/revenue",
+      "owner_package": "internal/analytics",
       "owning_section": "8 / D.23 / D.30 / D.34",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/revenue repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "market_benchmarks_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/analytics owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "pricing_decisions",
@@ -325,10 +371,27 @@
       "category": "Annex supplement",
       "owner_package": "internal/integrations",
       "owning_section": "D.36 Integration and Partner Platform",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/integrations repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "api_credentials_parent",
+          "api_credentials_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/integrations owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -338,10 +401,26 @@
       "category": "Annex supplement",
       "owner_package": "internal/workers",
       "owning_section": "D.41 Offline Continuity and Disaster Recovery",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/workers repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "branch_incidents_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/workers owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -399,42 +478,60 @@
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
-      "specified_table": "close_exceptions",
-      "canonical_table": "close_exceptions",
-      "specification": "D.38 Night Audit, Cashier and Business-Day Close",
-      "category": "Annex supplement",
-      "owner_package": "internal/hospitality",
-      "owning_section": "D.38 Night Audit, Cashier and Business-Day Close",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/hospitality repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
-      "isolation": "Local tenant-safe FK/API/event references only."
-    },
-    {
       "specified_table": "closure_cases",
       "canonical_table": "closure_cases",
       "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
       "category": "Annex supplement",
       "owner_package": "internal/organisation",
       "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/organisation repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "closure_cases_one_live_scope",
+          "closure_cases_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
       "specified_table": "communication_context_refs",
-      "canonical_table": "communication_context_refs",
+      "canonical_table": "communication_contexts",
       "specification": "D.22 Customer Support, Communication and Notifications",
       "category": "Annex supplement",
       "owner_package": "internal/support",
       "owning_section": "D.22 Customer Support, Communication and Notifications",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00031_communications_inbox.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 3,
+        "check_constraint_count": 11,
+        "altered_in": []
+      },
       "repository": "Planned internal/support repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "CF Meet/external conversation references are communication_contexts (authority, external_conversation_ref, no message bodies). Proven by: TestBusinessInboxCFMeetAuthorityPendingThenEstablishedWithoutMessageStorage.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -444,10 +541,26 @@
       "category": "Annex supplement",
       "owner_package": "internal/content",
       "owning_section": "D.40 Content Intelligence, Digital Twin and 3D",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/content repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "content_suggestions_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/content owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -484,10 +597,27 @@
       "category": "Annex supplement",
       "owner_package": "internal/access",
       "owning_section": "D.28 Smart Access, Keys and Property Devices",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/access repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "device_health_snapshots_parent",
+          "device_health_snapshots_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/access owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -520,29 +650,62 @@
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
+      "specified_table": "financing_status_projection",
+      "canonical_table": "finance_offer_refs",
+      "specification": "D.26 Financing, Mortgage and Customer Payment Plans",
+      "category": "Annex supplement",
+      "owner_package": "internal/financing",
+      "owning_section": "D.26 Financing, Mortgage and Customer Payment Plans",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "finance_offer_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "Planned internal/financing repository with owning-section migration",
+      "dependency": "The financing status projection is the governed finance_offer_refs lifecycle (REQUESTED..APPROVED/DECLINED) updated only from partner references; consent is financing_consents (00038). Proven by: TestAnnexDFinancingConsentInsuranceComplianceAndAccessOutcomes.",
+      "isolation": "Local tenant-safe FK/API/event references only."
+    },
+    {
       "specified_table": "financing_consents",
       "canonical_table": "financing_consents",
       "specification": "D.26 Financing, Mortgage and Customer Payment Plans",
       "category": "Annex supplement",
       "owner_package": "internal/financing",
       "owning_section": "D.26 Financing, Mortgage and Customer Payment Plans",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/financing repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
-      "isolation": "Local tenant-safe FK/API/event references only."
-    },
-    {
-      "specified_table": "financing_status_projection",
-      "canonical_table": "financing_status_projection",
-      "specification": "D.26 Financing, Mortgage and Customer Payment Plans",
-      "category": "Annex supplement",
-      "owner_package": "internal/financing",
-      "owning_section": "D.26 Financing, Mortgage and Customer Payment Plans",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/financing repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "financing_consents_parent",
+          "financing_consents_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/financing owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -552,10 +715,26 @@
       "category": "Annex supplement",
       "owner_package": "internal/finance",
       "owning_section": "D.37 Enterprise Tax, Currency and Fiscal Controls",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/finance repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "fx_rate_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/finance owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -565,10 +744,26 @@
       "category": "Annex supplement",
       "owner_package": "internal/insurance",
       "owning_section": "D.27 Enterprise Insurance and Protection",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/insurance repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "insurance_compliance_checks_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/insurance owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -602,15 +797,91 @@
     },
     {
       "specified_table": "integration_health",
-      "canonical_table": "integration_health",
+      "canonical_table": "integration_clients",
       "specification": "D.36 Integration and Partner Platform",
       "category": "Annex supplement",
       "owner_package": "internal/integrations",
       "owning_section": "D.36 Integration and Partner Platform",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "integration_clients_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
       "repository": "Planned internal/integrations repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "Integration health is derived by GET /integrations/{id}/health from the governed client state and history (database_access=false); persisting a copy would drift. Proven by: TestAnnexDEquivalenceDisputeEvidenceIntegrationHealthAccounting.",
+      "isolation": "Local tenant-safe FK/API/event references only."
+    },
+    {
+      "specified_table": "migration_jobs",
+      "canonical_table": "inventory_import_jobs",
+      "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
+      "category": "Annex supplement",
+      "owner_package": "internal/organisation",
+      "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00005_enterprise_inventory_graph.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "inventory_import_work_idx"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 0,
+        "check_constraint_count": 3,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
+      },
+      "repository": "Planned internal/organisation repository with owning-section migration",
+      "dependency": "Assisted migration jobs are inventory_import_jobs: preview, validation, dedupe, leased resumable execution and checkpoints. Proven by: TestBusinessImportPreviewResumeDedupeAndSafeRecovery; TestBusinessImportStalePreviewPausesAndWorkersFenceConcurrentClaims.",
+      "isolation": "Local tenant-safe FK/API/event references only."
+    },
+    {
+      "specified_table": "migration_errors",
+      "canonical_table": "inventory_import_records",
+      "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
+      "category": "Annex supplement",
+      "owner_package": "internal/organisation",
+      "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00005_enterprise_inventory_graph.sql",
+        "primary_key": [
+          "(job_id,row_number)"
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": false,
+        "versioned": false,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": [
+          "00005_enterprise_inventory_graph.sql"
+        ]
+      },
+      "repository": "Planned internal/organisation repository with owning-section migration",
+      "dependency": "Assisted-migration row errors are inventory_import_records (validation_errors, error_code, QUARANTINED) with inventory_import_reconciliation. Proven by: TestBusinessImportCSVGroupingValidationAndExplicitPartialExecution.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -668,29 +939,30 @@
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
-      "specified_table": "migration_errors",
-      "canonical_table": "migration_errors",
-      "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
+      "specified_table": "close_exceptions",
+      "canonical_table": "night_audit_exceptions",
+      "specification": "D.38 Night Audit, Cashier and Business-Day Close",
       "category": "Annex supplement",
-      "owner_package": "internal/organisation",
-      "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/organisation repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
-      "isolation": "Local tenant-safe FK/API/event references only."
-    },
-    {
-      "specified_table": "migration_jobs",
-      "canonical_table": "migration_jobs",
-      "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
-      "category": "Annex supplement",
-      "owner_package": "internal/organisation",
-      "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/organisation repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "owner_package": "internal/hospitality",
+      "owning_section": "D.38 Night Audit, Cashier and Business-Day Close",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00014_hospitality_business_days.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 2,
+        "altered_in": []
+      },
+      "repository": "Planned internal/hospitality repository with owning-section migration",
+      "dependency": "Business-day close exceptions are night_audit_exceptions (hard_block) with financial_exception_cases for money variances; close is blocked on unresolved hard blocks. Proven by: TestBusinessPMSNightAuditSnapshotFenceSingleCloseAndImmutableReport; TestBusinessFinanceChannelRemittanceReconciliationAndCloseBlocking.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -723,29 +995,86 @@
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
+      "specified_table": "reconciliation_tasks",
+      "canonical_table": "offline_reconciliation_tasks",
+      "specification": "D.41 Offline Continuity and Disaster Recovery",
+      "category": "Annex supplement",
+      "owner_package": "internal/workers",
+      "owning_section": "D.41 Offline Continuity and Disaster Recovery",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00015_hospitality_offline.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 1,
+        "altered_in": []
+      },
+      "repository": "Planned internal/workers repository with owning-section migration",
+      "dependency": "Offline/DR reconciliation tasks are offline_reconciliation_tasks with offline_reconciliation_resolutions (deterministic classification per receipt). Proven by: TestBusinessPMSOfflineStaleAssignmentDurableTaskAndRealReplay.",
+      "isolation": "Local tenant-safe FK/API/event references only."
+    },
+    {
       "specified_table": "organisation_change_cases",
       "canonical_table": "organisation_change_cases",
       "specification": "D.25 Accessibility, Assisted Migration and Business Closure",
       "category": "Annex supplement",
       "owner_package": "internal/organisation",
       "owning_section": "D.25 Accessibility, Assisted Migration and Business Closure",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/organisation repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "organisation_change_cases_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/organisation owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
       "specified_table": "promotion_codes",
-      "canonical_table": "promotion_codes",
+      "canonical_table": "promotions",
       "specification": "D.35 Direct Commerce and Brand Control",
       "category": "Annex supplement",
       "owner_package": "internal/commerce",
       "owning_section": "D.35 Direct Commerce and Brand Control",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00006_commercial_inventory_distribution.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
       "repository": "Planned internal/commerce repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "Promotion codes are promotions(code UNIQUE per property, definition eligibility, approval, state) applied by the canonical quote engine. Proven by: TestBusinessCommercialApprovedPromotionPackageAddOnPolicyPrecedence.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -755,10 +1084,26 @@
       "category": "Annex supplement",
       "owner_package": "internal/portfolio",
       "owning_section": "D.15 Hotel and Resort Property Structure",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/portfolio repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "property_service_catalogue_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -768,23 +1113,27 @@
       "category": "Annex supplement",
       "owner_package": "internal/risk",
       "owning_section": "D.42 Trust, Reservation Risk and Protection",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
-      "isolation": "Local tenant-safe FK/API/event references only."
-    },
-    {
-      "specified_table": "reconciliation_tasks",
-      "canonical_table": "reconciliation_tasks",
-      "specification": "D.41 Offline Continuity and Disaster Recovery",
-      "category": "Annex supplement",
-      "owner_package": "internal/workers",
-      "owning_section": "D.41 Offline Continuity and Disaster Recovery",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/workers repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "protection_case_refs_parent",
+          "protection_case_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/risk owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -936,15 +1285,29 @@
     },
     {
       "specified_table": "tax_rules",
-      "canonical_table": "tax_rules",
+      "canonical_table": "tax_profiles",
       "specification": "D.37 Enterprise Tax, Currency and Fiscal Controls",
       "category": "Annex supplement",
       "owner_package": "internal/finance",
       "owning_section": "D.37 Enterprise Tax, Currency and Fiscal Controls",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00006_commercial_inventory_distribution.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": true,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
       "repository": "Planned internal/finance repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "dependency": "Jurisdictional tax rules are versioned, source-referenced, approved tax_profiles (policy_key + version, effective window); FX references are fx_rate_refs (00038). Proven by: TestBusinessCommercialApprovedPromotionPackageAddOnPolicyPrecedence; TestAnnexDFXFreshnessOrganisationChangeAndClosureContinuity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -954,10 +1317,27 @@
       "category": "Annex supplement",
       "owner_package": "internal/integrations",
       "owning_section": "D.36 Integration and Partner Platform",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/integrations repository with owning-section migration",
-      "dependency": "Deferred with owning annex workflow; not required for executable Sections 6\u20137.",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "webhook_subscriptions_parent",
+          "webhook_subscriptions_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/integrations owning command/query interfaces",
+      "dependency": "Mapped to existing canonical table; no duplicate identity.",
       "isolation": "Local tenant-safe FK/API/event references only."
     },
     {
@@ -1914,19 +2294,6 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
-      "specified_table": "accounting_connection_refs",
-      "canonical_table": "accounting_connection_refs",
-      "specification": "Section 5",
-      "category": "Finance & coding",
-      "owner_package": "internal/finance",
-      "owning_section": "15 / D.4 / D.37",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/finance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
       "specified_table": "budget_lines",
       "canonical_table": "budget_lines",
       "specification": "Section 5",
@@ -2093,6 +2460,35 @@
       "repository": "internal/repositories/db (SQLC); internal/finance owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
       "isolation": "Organisation-safe local references; no cross-service SQL."
+    },
+    {
+      "specified_table": "accounting_connection_refs",
+      "canonical_table": "integration_clients",
+      "specification": "Section 5",
+      "category": "Finance & coding",
+      "owner_package": "internal/finance",
+      "owning_section": "15 / D.4 / D.37",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 5,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "integration_clients_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "Planned internal/finance repository with owning-section migration",
+      "dependency": "Accounting connections are integration_clients kind ACCOUNTING with scoped permissions, secret-manager references and api_credentials (00038). Proven by: TestAnnexDEquivalenceDisputeEvidenceIntegrationHealthAccounting; TestAnnexDPartnerCredentialsWebhooksRotationAndRevocation.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
       "specified_table": "payout_change_requests",
@@ -2554,29 +2950,35 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
-      "specified_table": "asset_service_history",
-      "canonical_table": "asset_service_history",
-      "specification": "Section 5",
-      "category": "Maintenance/vendors",
-      "owner_package": "internal/maintenance",
-      "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
       "specified_table": "maintenance_approvals",
-      "canonical_table": "maintenance_approvals",
+      "canonical_table": "approval_requests",
       "specification": "Section 5",
       "category": "Maintenance/vendors",
       "owner_package": "internal/maintenance",
       "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00002_section3.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "approval_requests_pending_idx",
+          "approvals_expiry_idx"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 4,
+        "altered_in": [
+          "00004_workforce_delivery.sql"
+        ]
+      },
       "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Maintenance approvals are independent approval_requests (COMMERCIAL_WORK_ORDER) bound to the accepted vendor quote amount and record version. Proven by: TestAnnexDMaintenanceQuotesProviderWarrantyAndAssetHistory; TestBusinessWorkOrderQuoteApprovalEvidenceVerificationAndWarrantyRework.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -2607,6 +3009,35 @@
       "repository": "internal/repositories/db (SQLC); internal/maintenance owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
       "isolation": "Organisation-safe local references; no cross-service SQL."
+    },
+    {
+      "specified_table": "asset_service_history",
+      "canonical_table": "operations_history",
+      "specification": "Section 5",
+      "category": "Maintenance/vendors",
+      "owner_package": "internal/maintenance",
+      "owning_section": "D.20",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00031_communications_inbox.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": false,
+        "lifecycle": false,
+        "indexes": [
+          "operations_history_entity"
+        ],
+        "immutable": true,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 6,
+        "altered_in": []
+      },
+      "repository": "Planned internal/maintenance repository with owning-section migration",
+      "dependency": "Asset service history is the derived projection GET /assets/{id}/service-history over work_orders, warranties, preventive_schedules and their immutable operations_history. Proven by: TestAnnexDMaintenanceQuotesProviderWarrantyAndAssetHistory.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
       "specified_table": "preventive_schedules",
@@ -2644,11 +3075,29 @@
       "category": "Maintenance/vendors",
       "owner_package": "internal/maintenance",
       "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "provider_assignment_refs_one_live_parent",
+          "provider_assignment_refs_parent",
+          "provider_assignment_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/maintenance owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "service_contract_refs",
@@ -2657,11 +3106,27 @@
       "category": "Maintenance/vendors",
       "owner_package": "internal/maintenance",
       "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "service_contract_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/maintenance owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "vendor_quote_refs",
@@ -2670,11 +3135,29 @@
       "category": "Maintenance/vendors",
       "owner_package": "internal/maintenance",
       "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "vendor_quote_refs_one_live_parent",
+          "vendor_quote_refs_parent",
+          "vendor_quote_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/maintenance owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "warranties",
@@ -2683,24 +3166,27 @@
       "category": "Maintenance/vendors",
       "owner_package": "internal/maintenance",
       "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "work_evidence_refs",
-      "canonical_table": "work_evidence_refs",
-      "specification": "Section 5",
-      "category": "Maintenance/vendors",
-      "owner_package": "internal/maintenance",
-      "owning_section": "D.20",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/maintenance repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "warranties_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 19,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/maintenance owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "work_orders",
@@ -2732,6 +3218,64 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
+      "specified_table": "work_evidence_refs",
+      "canonical_table": "work_orders",
+      "specification": "Section 5",
+      "category": "Maintenance/vendors",
+      "owner_package": "internal/maintenance",
+      "owning_section": "D.20",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "work_orders_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "Planned internal/maintenance repository with owning-section migration",
+      "dependency": "Work evidence is the append-only Media reference list on work_orders/provider_assignment_refs with each submission recorded in operations_history. Proven by: TestBusinessWorkOrderQuoteApprovalEvidenceVerificationAndWarrantyRework.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
+      "specified_table": "professional_access_grants",
+      "canonical_table": "data_room_grants",
+      "specification": "Section 5",
+      "category": "Managers/professionals",
+      "owner_package": "internal/delegation",
+      "owning_section": "D.19 / D.21",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "data_room_grants_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "Planned internal/delegation repository with owning-section migration",
+      "dependency": "Professional access grants are purpose- and time-limited data_room_grants tied to an active appointment and enforced for Media downloads. Proven by: TestBusinessProfessionalDataRoomGrantPurposeExpiryApprovalAndRevocation.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
       "specified_table": "manager_assignment_refs",
       "canonical_table": "manager_assignment_refs",
       "specification": "Section 5",
@@ -2761,43 +3305,63 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
+      "specified_table": "manager_permissions",
+      "canonical_table": "manager_assignment_refs",
+      "specification": "Section 5",
+      "category": "Managers/professionals",
+      "owner_package": "internal/delegation",
+      "owning_section": "D.19 / D.21",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "manager_assignment_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "Planned internal/delegation repository with owning-section migration",
+      "dependency": "Manager permissions are the delegable capability list on manager_assignment_refs enforced by the signed internal authorization endpoint; revocation/expiry deny immediately. Proven by: TestBusinessManagerDelegationScopedExpiringRevocableAndEnforced.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
       "specified_table": "manager_performance_refs",
       "canonical_table": "manager_performance_refs",
       "specification": "Section 5",
       "category": "Managers/professionals",
       "owner_package": "internal/delegation",
       "owning_section": "D.19 / D.21",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/delegation repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "manager_permissions",
-      "canonical_table": "manager_permissions",
-      "specification": "Section 5",
-      "category": "Managers/professionals",
-      "owner_package": "internal/delegation",
-      "owning_section": "D.19 / D.21",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/delegation repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "professional_access_grants",
-      "canonical_table": "professional_access_grants",
-      "specification": "Section 5",
-      "category": "Managers/professionals",
-      "owner_package": "internal/delegation",
-      "owning_section": "D.19 / D.21",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/delegation repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "manager_performance_refs_parent",
+          "manager_performance_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/delegation owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "professional_appointments",
@@ -2833,13 +3397,30 @@
       "canonical_table": "professional_findings",
       "specification": "Section 5",
       "category": "Managers/professionals",
-      "owner_package": "internal/delegation",
+      "owner_package": "internal/professional",
       "owning_section": "D.19 / D.21",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/delegation repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "professional_findings_parent",
+          "professional_findings_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/professional owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "approval_policies",
@@ -3531,45 +4112,6 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
-      "specified_table": "authority_documents",
-      "canonical_table": "authority_documents",
-      "specification": "Section 5",
-      "category": "Portfolio & authority",
-      "owner_package": "internal/portfolio",
-      "owning_section": "4 / D.6",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/portfolio repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "authority_parties",
-      "canonical_table": "authority_parties",
-      "specification": "Section 5",
-      "category": "Portfolio & authority",
-      "owner_package": "internal/portfolio",
-      "owning_section": "4 / D.6",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/portfolio repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "authority_records",
-      "canonical_table": "authority_records",
-      "specification": "Section 5",
-      "category": "Portfolio & authority",
-      "owner_package": "internal/portfolio",
-      "owning_section": "4 / D.6",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/portfolio repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
       "specified_table": "blocks",
       "canonical_table": "blocks",
       "specification": "Section 5",
@@ -3817,6 +4359,87 @@
       "repository": "internal/repositories/db (SQLC); internal/portfolio owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
       "isolation": "Organisation-safe local references; no cross-service SQL."
+    },
+    {
+      "specified_table": "authority_records",
+      "canonical_table": "inventory_verification_links",
+      "specification": "Section 5",
+      "category": "Portfolio & authority",
+      "owner_package": "internal/portfolio",
+      "owning_section": "4 / D.6",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00005_enterprise_inventory_graph.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "Planned internal/portfolio repository with owning-section migration",
+      "dependency": "Property authority records are the Verification-owned decision projected into inventory_verification_links with verification_link_history. Proven by: TestBusinessInventoryAuthoritativeVerificationActivationAndExpiry.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
+      "specified_table": "authority_parties",
+      "canonical_table": "inventory_verification_links",
+      "specification": "Section 5",
+      "category": "Portfolio & authority",
+      "owner_package": "internal/portfolio",
+      "owning_section": "4 / D.6",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00005_enterprise_inventory_graph.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "Planned internal/portfolio repository with owning-section migration",
+      "dependency": "Authority parties are Verification-owned; Business projects the signed verification outcome per node. Proven by: TestBusinessInventoryAuthoritativeVerificationActivationAndExpiry.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
+      "specified_table": "authority_documents",
+      "canonical_table": "inventory_verification_links",
+      "specification": "Section 5",
+      "category": "Portfolio & authority",
+      "owner_package": "internal/portfolio",
+      "owning_section": "4 / D.6",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00005_enterprise_inventory_graph.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 1,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": false,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 0,
+        "altered_in": []
+      },
+      "repository": "Planned internal/portfolio repository with owning-section migration",
+      "dependency": "Authority documents are owned by Verification; Business stores only verification links/history and Media references, never authority evidence bytes. Proven by: TestBusinessInventoryAuthoritativeVerificationActivationAndExpiry.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
       "specified_table": "parcels",
@@ -4570,37 +5193,91 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "agreements_one_live",
+          "agreements_scope",
+          "agreements_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "commercial_lois",
       "canonical_table": "commercial_lois",
       "specification": "Section 5",
       "category": "Residential/commercial/land",
-      "owner_package": "internal/residential",
+      "owner_package": "internal/commercial",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "commercial_lois_one_live_parent",
+          "commercial_lois_parent",
+          "commercial_lois_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/commercial owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "commercial_terms",
       "canonical_table": "commercial_terms",
       "specification": "Section 5",
       "category": "Residential/commercial/land",
-      "owner_package": "internal/residential",
+      "owner_package": "internal/commercial",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "commercial_terms_one_live_parent",
+          "commercial_terms_parent",
+          "commercial_terms_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/commercial owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "deposit_obligations",
@@ -4609,37 +5286,89 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "deposit_obligations_scope",
+          "deposit_obligations_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "land_allocations",
       "canonical_table": "land_allocations",
       "specification": "Section 5",
       "category": "Residential/commercial/land",
-      "owner_package": "internal/residential",
+      "owner_package": "internal/land",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "land_allocations_one_live_scope",
+          "land_allocations_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/land owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "land_terms",
       "canonical_table": "land_terms",
       "specification": "Section 5",
       "category": "Residential/commercial/land",
-      "owner_package": "internal/residential",
+      "owner_package": "internal/land",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "land_terms_one_live_parent",
+          "land_terms_parent",
+          "land_terms_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/land owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "move_out_cases",
@@ -4648,11 +5377,29 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "move_out_cases_one_live",
+          "move_out_cases_scope",
+          "move_out_cases_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "notices",
@@ -4661,11 +5408,28 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "notices_scope",
+          "notices_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "renewal_cases",
@@ -4674,11 +5438,29 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "renewal_cases_one_live",
+          "renewal_cases_scope",
+          "renewal_cases_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "rent_obligations",
@@ -4687,11 +5469,28 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "rent_obligations_scope",
+          "rent_obligations_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 19,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "rental_applications",
@@ -4729,24 +5528,58 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "rental_offers_one_live_parent",
+          "rental_offers_parent",
+          "rental_offers_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "service_charge_budgets",
       "canonical_table": "service_charge_budgets",
       "specification": "Section 5",
       "category": "Residential/commercial/land",
-      "owner_package": "internal/residential",
+      "owner_package": "internal/commercial",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "service_charge_budgets_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 18,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/commercial owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "tenancies",
@@ -4785,11 +5618,28 @@
       "category": "Residential/commercial/land",
       "owner_package": "internal/residential",
       "owning_section": "D.9 / D.10 / D.11",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/residential repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "utility_accounts_one_live",
+          "utility_accounts_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/residential owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "quality_issues",
@@ -4968,13 +5818,30 @@
       "canonical_table": "access_events",
       "specification": "Section 5",
       "category": "Risk/privacy/access",
-      "owner_package": "internal/risk",
+      "owner_package": "internal/access",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "access_events_parent",
+          "access_events_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/access owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "access_grants",
@@ -5035,19 +5902,6 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
-      "specified_table": "dispute_evidence_refs",
-      "canonical_table": "dispute_evidence_refs",
-      "specification": "Section 5",
-      "category": "Risk/privacy/access",
-      "owner_package": "internal/risk",
-      "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
       "specified_table": "disputes",
       "canonical_table": "disputes",
       "specification": "Section 5",
@@ -5075,6 +5929,35 @@
       "repository": "internal/repositories/db (SQLC); internal/risk owning command/query interfaces",
       "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
       "isolation": "Organisation-safe local references; no cross-service SQL."
+    },
+    {
+      "specified_table": "dispute_evidence_refs",
+      "canonical_table": "disputes",
+      "specification": "Section 5",
+      "category": "Risk/privacy/access",
+      "owner_package": "internal/risk",
+      "owning_section": "D.24 / D.26 / D.27 / D.28",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "disputes_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "Planned internal/risk repository with owning-section migration",
+      "dependency": "Dispute evidence is the append-only Media reference list on disputes, guarded against rewrite, with immutable history. Proven by: TestAnnexDEquivalenceDisputeEvidenceIntegrationHealthAccounting.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
       "specified_table": "finance_offer_refs",
@@ -5257,24 +6140,27 @@
       "category": "Risk/privacy/access",
       "owner_package": "internal/risk",
       "owning_section": "D.24 / D.26 / D.27 / D.28",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/risk repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "buyer_allocations",
-      "canonical_table": "buyer_allocations",
-      "specification": "Section 5",
-      "category": "Sales/development",
-      "owner_package": "internal/sales",
-      "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "risk_signals_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/risk owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "closing_milestones",
@@ -5283,11 +6169,28 @@
       "category": "Sales/development",
       "owner_package": "internal/sales",
       "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "closing_milestones_scope",
+          "closing_milestones_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 17,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/sales owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "construction_milestones",
@@ -5377,43 +6280,122 @@
       "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
+      "specified_table": "buyer_allocations",
+      "canonical_table": "development_allocations",
+      "specification": "Section 5",
+      "category": "Sales/development",
+      "owner_package": "internal/sales",
+      "owning_section": "D.12 / D.13",
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "development_allocations_one_live",
+          "development_allocations_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 19,
+        "altered_in": []
+      },
+      "repository": "Planned internal/sales repository with owning-section migration",
+      "dependency": "Buyer allocations are development_allocations (buyer counterparty, one live allocation per unit, frozen milestone schedule, approval) with sale_allocations (00038) for completed-unit holds and cross-domain conservation. Proven by: TestBusinessDevelopmentAllocationMilestonesSnagsAndHandover; TestAnnexDOffPlanProgressCertificationVariationAndConservation.",
+      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+    },
+    {
       "specified_table": "due_diligence_items",
       "canonical_table": "due_diligence_items",
       "specification": "Section 5",
       "category": "Sales/development",
       "owner_package": "internal/sales",
       "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "due_diligence_items_scope",
+          "due_diligence_items_subject"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/sales owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "progress_certifications",
       "canonical_table": "progress_certifications",
       "specification": "Section 5",
       "category": "Sales/development",
-      "owner_package": "internal/sales",
+      "owner_package": "internal/development",
       "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "progress_certifications_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/development owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "project_variations",
       "canonical_table": "project_variations",
       "specification": "Section 5",
       "category": "Sales/development",
-      "owner_package": "internal/sales",
+      "owner_package": "internal/development",
       "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "project_variations_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/development owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "sale_allocations",
@@ -5422,11 +6404,29 @@
       "category": "Sales/development",
       "owner_package": "internal/sales",
       "owning_section": "D.12 / D.13",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/sales repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 7,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "sale_allocations_one_live",
+          "sale_allocations_parent",
+          "sale_allocations_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 19,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/sales owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "sale_offers",
@@ -5550,12 +6550,58 @@
       "canonical_table": "housekeeping_checklists",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
+      "owner_package": "internal/housekeeping",
+      "owning_section": "D.14 / D.17",
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "housekeeping_checklists_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/housekeeping owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
+    },
+    {
+      "specified_table": "turnover_jobs",
+      "canonical_table": "housekeeping_tasks",
+      "specification": "Section 5",
+      "category": "Short-let/housekeeping",
       "owner_package": "internal/shortlet",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00036_property_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "housekeeping_tasks_one_live",
+          "housekeeping_tasks_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
       "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Turnover jobs are housekeeping_tasks kind TURNOVER scheduled by the worker from VACANT_DIRTY room status, with checklists (00038). Proven by: TestJourneyJ24CheckoutTurnoverInspectionReadyRoom; TestAnnexDHospitalityChecklistsLostFoundLinenSettingsServicesExperiments.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -5593,51 +6639,114 @@
       "canonical_table": "incident_cases",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
-      "owner_package": "internal/shortlet",
+      "owner_package": "internal/risk",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "incident_cases_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/risk owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "linen_stock_refs",
       "canonical_table": "linen_stock_refs",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
-      "owner_package": "internal/shortlet",
+      "owner_package": "internal/housekeeping",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "linen_stock_refs_one_live",
+          "linen_stock_refs_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 16,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/housekeeping owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "lost_found_items",
       "canonical_table": "lost_found_items",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
-      "owner_package": "internal/shortlet",
+      "owner_package": "internal/housekeeping",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "lost_found_items_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/housekeeping owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "room_status_history",
-      "canonical_table": "room_status_history",
+      "canonical_table": "room_status_current",
       "specification": "Section 5",
       "category": "Short-let/housekeeping",
       "owner_package": "internal/hospitality",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
+      "decision": "EQUIVALENT_IMPLEMENTATION_VERIFIED",
+      "schema": {
+        "migration": "00013_hospitality_operations.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 3,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [],
+        "immutable": false,
+        "unique_constraint_count": 2,
+        "check_constraint_count": 3,
+        "altered_in": []
+      },
       "repository": "Planned internal/hospitality repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
+      "dependency": "Room status history is every room_status_current change committed with hospitality history/audit and the room.status.changed.v1 outbox event. Proven by: TestJourneyJ24CheckoutTurnoverInspectionReadyRoom.",
       "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
     },
     {
@@ -5647,24 +6756,28 @@
       "category": "Short-let/housekeeping",
       "owner_package": "internal/shortlet",
       "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
-    },
-    {
-      "specified_table": "turnover_jobs",
-      "canonical_table": "turnover_jobs",
-      "specification": "Section 5",
-      "category": "Short-let/housekeeping",
-      "owner_package": "internal/shortlet",
-      "owning_section": "D.14 / D.17",
-      "decision": "DEFERRED_FUTURE_DOMAIN",
-      "schema": null,
-      "repository": "Planned internal/shortlet repository with owning-section migration",
-      "dependency": "Create in the owning future-section migration with its real lifecycle/repository/tests; no empty placeholder table.",
-      "isolation": "Planned organisation-scoped references only; external services remain ID/API/event references."
+      "decision": "SCHEMA_PRESENT",
+      "schema": {
+        "migration": "00038_annex_d_lifecycles.sql",
+        "primary_key": [
+          ""
+        ],
+        "foreign_key_count": 6,
+        "organisation_column": true,
+        "versioned": true,
+        "lifecycle": true,
+        "indexes": [
+          "shortlet_settings_one_live_scope",
+          "shortlet_settings_scope"
+        ],
+        "immutable": false,
+        "unique_constraint_count": 1,
+        "check_constraint_count": 15,
+        "altered_in": []
+      },
+      "repository": "internal/repositories/db (SQLC); internal/shortlet owning command/query interfaces",
+      "dependency": "Existing owned schema; transactional domain workflows are certified separately.",
+      "isolation": "Organisation-safe local references; no cross-service SQL."
     },
     {
       "specified_table": "(supporting table)",

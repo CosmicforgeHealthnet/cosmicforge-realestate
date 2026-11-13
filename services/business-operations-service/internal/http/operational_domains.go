@@ -159,11 +159,18 @@ func (h *Handler) opsScope(ctx context.Context, q interface {
 			return "", ids.Nil, nil, nil, apperrors.InvalidRequest("parent_id is required.")
 		}
 		pd := opsDomains[d.Parent]
-		var property ids.ID
-		if e := q.QueryRow(ctx, `SELECT property_id FROM `+pd.Table+` WHERE organisation_id=$1 AND id=$2`, t.Organisation, *pid).Scan(&property); e != nil {
+		// A child inherits its parent's authorization scope (property,
+		// parcel or company); the parent row is tenant-bound.
+		var kind string
+		var scopeID ids.ID
+		var property *ids.ID
+		if e := q.QueryRow(ctx, `SELECT scope_kind,scope_id,property_id FROM `+pd.Table+` WHERE organisation_id=$1 AND id=$2`, t.Organisation, *pid).Scan(&kind, &scopeID, &property); e != nil {
 			return "", ids.Nil, nil, nil, opsNotFound(e)
 		}
-		return "PROPERTY", property, &property, pid, nil
+		if kind != d.Scope {
+			return "", ids.Nil, nil, nil, apperrors.Conflict("PARENT_SCOPE_MISMATCH", "The parent record is not in a supported scope.")
+		}
+		return kind, scopeID, property, pid, nil
 	case d.Scope == "COMPANY":
 		return "COMPANY", t.Organisation, nil, nil, nil
 	}
@@ -172,6 +179,21 @@ func (h *Handler) opsScope(ctx context.Context, q interface {
 	}
 	if d.Scope == "PROPERTY" {
 		return "PROPERTY", *scope, scope, nil, nil
+	}
+	if d.Scope == "NODE" {
+		// Property- or parcel-scoped records (sales and land share the
+		// due-diligence, closing and agreement lifecycles).
+		var kind string
+		if e := q.QueryRow(ctx, `SELECT kind FROM inventory_nodes WHERE organisation_id=$1 AND id=$2`, t.Organisation, *scope).Scan(&kind); e != nil {
+			return "", ids.Nil, nil, nil, opsNotFound(e)
+		}
+		switch kind {
+		case "PROPERTY":
+			return "PROPERTY", *scope, scope, nil, nil
+		case "PARCEL":
+			return "PARCEL", *scope, nil, nil, nil
+		}
+		return "", ids.Nil, nil, nil, apperrors.InvalidRequest("scope_id must be a property or parcel.")
 	}
 	return d.Scope, *scope, nil, nil, nil
 }
@@ -256,6 +278,12 @@ func opsSubject(ctx context.Context, tx pgx.Tx, org ids.ID, d *opsDomain, scopeK
 	case "":
 		return apperrors.InvalidRequest("This domain does not accept a subject.")
 	}
+	if tables, ok := strings.CutPrefix(d.Subject, "RECORD:"); ok {
+		if _, e := opsSubjectTable(ctx, tx, org, tables, scope, subject); e != nil {
+			return e
+		}
+		return nil
+	}
 	n, e := portfolio.Get(ctx, tx, org, subject)
 	if e != nil {
 		return apperrors.NotFound("SUBJECT_NOT_FOUND", "The subject inventory node was not found.")
@@ -274,6 +302,26 @@ func opsSubject(ctx context.Context, tx pgx.Tx, org ids.ID, d *opsDomain, scopeK
 		}
 	}
 	return apperrors.PermissionDenied("The subject is not inside the authorised " + strings.ToLower(scopeKind) + " scope.")
+}
+
+// opsSubjectTable resolves a polymorphic record subject to its owning table
+// inside the same tenant and authorised scope.
+func opsSubjectTable(ctx context.Context, q interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}, org ids.ID, tables string, scope, subject ids.ID) (string, error) {
+	for _, table := range strings.Split(tables, "|") {
+		if !opsTables[table] {
+			return "", apperrors.Internal(errors.New("unregistered subject table " + table))
+		}
+		var ok bool
+		if e := q.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM `+table+` WHERE organisation_id=$1 AND scope_id=$2 AND id=$3)`, org, scope, subject).Scan(&ok); e != nil {
+			return "", e
+		}
+		if ok {
+			return table, nil
+		}
+	}
+	return "", apperrors.NotFound("SUBJECT_NOT_FOUND", "The subject record was not found in the authorised scope.")
 }
 
 func validEvidence(list []ids.ID) bool {
@@ -351,6 +399,10 @@ func (h *Handler) opsDomainCreate(w http.ResponseWriter, r *http.Request, d *ops
 		rec := OpsRecord{ID: id, ScopeKind: kind, ScopeID: scope, PropertyID: property, SubjectID: in.SubjectID, Kind: in.Kind, State: d.Initial, Title: in.Title, CounterpartyReference: in.CounterpartyReference, ExternalReference: in.ExternalReference, AmountMinor: in.AmountMinor, StartsAt: in.StartsAt, EndsAt: in.EndsAt, Attributes: marshalCommercial(in.Attributes)}
 		if parentRef != nil {
 			rec.ParentID = parent
+		}
+		if in.AmountMinor != nil {
+			cur := in.Currency
+			rec.Currency = &cur
 		}
 		if hook := opsHooks[d.Key]; hook != nil {
 			if e = hook(ctx, tx, h, t, d, &rec, "create", &OpsRecordTransition{Attributes: in.Attributes, EvidenceRefs: in.EvidenceRefs}); e != nil {
@@ -503,17 +555,22 @@ func (h *Handler) opsDomainTransition(w http.ResponseWriter, r *http.Request, d 
 			}
 			assignee = in.AssigneeID
 		}
+		if hook := opsHooks[d.Key]; hook != nil {
+			if e = hook(ctx, tx, h, t, d, &rec, "before:"+in.Action, &in); e != nil {
+				return 0, nil, e
+			}
+		}
+		// Computed after the domain rule so a rule can bind the amount to an
+		// authoritative source (accepted quote, verified refund).
 		amount, currency := rec.AmountMinor, ""
 		if rec.Currency != nil {
 			currency = *rec.Currency
 		}
 		if in.AmountMinor != nil {
-			amount, currency = in.AmountMinor, in.Currency
-		}
-		if hook := opsHooks[d.Key]; hook != nil {
-			if e = hook(ctx, tx, h, t, d, &rec, "before:"+in.Action, &in); e != nil {
-				return 0, nil, e
+			if !validCurrency(in.Currency) || *in.AmountMinor < 0 {
+				return 0, nil, apperrors.InvalidRequest("A valid amount and currency are required.")
 			}
+			amount, currency = in.AmountMinor, in.Currency
 		}
 		var approval any
 		if rule.Approval != nil {

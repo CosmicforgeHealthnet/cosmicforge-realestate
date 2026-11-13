@@ -303,6 +303,7 @@ func init() {
 		}
 		return nil
 	}
+	registerAnnexDRules()
 }
 
 type SaleOfferDecision struct {
@@ -368,6 +369,8 @@ func (h *Handler) registerOpsDomainExtras(r chi.Router) {
 	r.Post("/listings/{id}/preview", h.listingPreview)
 	r.Post("/listings/{id}/submit-approval", h.listingSubmitApproval)
 	r.Get("/listings/{id}/quality", h.listingQualityAlias)
+	r.Get("/residential/arrears", h.residentialArrears)
+	r.Get("/assets/{id}/service-history", h.assetServiceHistory)
 }
 
 // withURLParam rebinds a chi route parameter for a delegated owning handler.
@@ -650,13 +653,16 @@ func (h *Handler) internalDataRoomAuthorization(w http.ResponseWriter, r *http.R
 	reply(w, r, 200, map[string]any{"grant_id": rec.ID, "allowed": allowed, "download_policy": rec.Kind, "purpose": attr(&rec)["purpose"], "expires_at": rec.EndsAt, "watermark": rec.Kind == "WATERMARKED_DOWNLOAD"}, nil)
 }
 
+// opsSweep is one date-driven system transition applied by the worker.
+type opsSweep struct {
+	domain, query, to, action string
+}
+
 // ProcessOperations runs Section 16/19 domain workers: expiries, hold
 // release, housekeeping turnover scheduling and preventive maintenance.
 func (h *Handler) ProcessOperations(ctx context.Context, limit int) error {
 	now := h.Auth.Service.Now().UTC()
-	type sweep struct {
-		domain, query, to, action string
-	}
+	type sweep = opsSweep
 	sweeps := []sweep{
 		{"manager_assignment", `SELECT organisation_id,id FROM manager_assignment_refs WHERE state IN ('ACTIVE','EXPIRING','SUSPENDED') AND ends_at<=$1 LIMIT $2`, "EXPIRED", "DELEGATION_EXPIRED"},
 		{"manager_assignment", `SELECT organisation_id,id FROM manager_assignment_refs WHERE state='ACTIVE' AND ends_at<=$1::timestamptz+interval '7 days' AND ends_at>$1 LIMIT $2`, "EXPIRING", "DELEGATION_EXPIRING"},
@@ -666,6 +672,7 @@ func (h *Handler) ProcessOperations(ctx context.Context, limit int) error {
 		{"insurance_policy", `SELECT organisation_id,id FROM insurance_policy_refs WHERE state='ACTIVE' AND ends_at<=$1::timestamptz+interval '30 days' AND ends_at>$1 LIMIT $2`, "EXPIRING", "POLICY_EXPIRING"},
 		{"development_allocation", `SELECT organisation_id,id FROM development_allocations WHERE state='HELD' AND ends_at<=$1 LIMIT $2`, "RELEASED", "HOLD_EXPIRED"},
 	}
+	sweeps = append(sweeps, opsGeneratedSweeps...)
 	var failures []error
 	for _, s := range sweeps {
 		rows, e := h.Auth.Service.Pool.Query(ctx, s.query, now, limit)
@@ -692,7 +699,7 @@ func (h *Handler) ProcessOperations(ctx context.Context, limit int) error {
 			}
 		}
 	}
-	failures = append(failures, h.scheduleTurnovers(ctx, limit), h.schedulePreventive(ctx, limit))
+	failures = append(failures, h.scheduleTurnovers(ctx, limit), h.schedulePreventive(ctx, limit), h.scheduleRentObligations(ctx, limit))
 	return errors.Join(failures...)
 }
 

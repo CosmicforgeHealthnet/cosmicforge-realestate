@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -27,6 +28,7 @@ func TestBusinessCompleteCatalogueMatchesActualPostgreSQL(t *testing.T) {
 		Entries []struct {
 			Canonical string `json:"canonical_table"`
 			Decision  string `json:"decision"`
+			Depends   string `json:"dependency"`
 			Schema    *struct {
 				Organisation bool     `json:"organisation_column"`
 				ForeignKeys  int      `json:"foreign_key_count"`
@@ -43,8 +45,13 @@ func TestBusinessCompleteCatalogueMatchesActualPostgreSQL(t *testing.T) {
 	present, future, required := 0, 0, 0
 	declared := map[string]bool{}
 	for _, entry := range catalogue.Entries {
-		if entry.Decision != "SCHEMA_PRESENT" && entry.Decision != "DEFERRED_FUTURE_DOMAIN" && entry.Decision != "REQUIRED_CURRENT_WORK" {
+		if entry.Decision != "SCHEMA_PRESENT" && entry.Decision != "DEFERRED_FUTURE_DOMAIN" && entry.Decision != "REQUIRED_CURRENT_WORK" && entry.Decision != "EQUIVALENT_IMPLEMENTATION_VERIFIED" {
 			t.Fatalf("unknown catalogue decision %s for %s", entry.Decision, entry.Canonical)
+		}
+		// An equivalence must map to an existing canonical table and name the
+		// executable test that proves the required behaviour.
+		if entry.Decision == "EQUIVALENT_IMPLEMENTATION_VERIFIED" && !strings.Contains(entry.Depends, "Proven by: Test") {
+			t.Fatalf("equivalence without a proving test: %s", entry.Canonical)
 		}
 		var exists bool
 		if err = db.Pool.QueryRow(t.Context(), `SELECT to_regclass('public.'||$1) IS NOT NULL`, entry.Canonical).Scan(&exists); err != nil {

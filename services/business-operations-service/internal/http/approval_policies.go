@@ -72,6 +72,16 @@ func commercialApprovalCapability(action string) string {
 		return "land:write"
 	case "COMMERCIAL_DEVELOPMENT_ALLOCATION":
 		return "sales:approve"
+	case "COMMERCIAL_DEPOSIT_RELEASE", "COMMERCIAL_SERVICE_CHARGE_BUDGET":
+		return "finance:approve"
+	case "COMMERCIAL_LEASE_TERMS":
+		return "leasing:write"
+	case "COMMERCIAL_LAND_ALLOCATION":
+		return "land:write"
+	case "COMMERCIAL_PROJECT_VARIATION":
+		return "projects:write"
+	case "COMMERCIAL_ORGANISATION_CHANGE", "COMMERCIAL_BUSINESS_CLOSURE":
+		return "organisation:verify"
 	case "COMMERCIAL_BUDGET_ACTIVATION", "COMMERCIAL_EXPENSE_APPROVAL", "COMMERCIAL_FINANCIAL_OBLIGATION", "COMMERCIAL_REVENUE_SPLIT":
 		return "finance:approve"
 	case "COMMERCIAL_STOREFRONT_PUBLICATION":
