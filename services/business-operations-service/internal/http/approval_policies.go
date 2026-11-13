@@ -62,6 +62,8 @@ func commercialApprovalCapability(action string) string {
 		return "reviews:moderate"
 	case "COMMERCIAL_CAMPAIGN_LAUNCH":
 		return "campaigns:approve"
+	case "COMMERCIAL_BUDGET_ACTIVATION", "COMMERCIAL_EXPENSE_APPROVAL", "COMMERCIAL_FINANCIAL_OBLIGATION", "COMMERCIAL_REVENUE_SPLIT":
+		return "finance:approve"
 	case "COMMERCIAL_STOREFRONT_PUBLICATION":
 		return "publication:approve"
 	case "COMMERCIAL_RMS_POLICY", "COMMERCIAL_RMS_AUTOMATION_ACTIVATION":

@@ -140,3 +140,29 @@ func (c *Client) Receipt(ctx context.Context, id ids.ID) (Receipt, error) {
 	e := c.c.Do(ctx, httpx.Request{Method: http.MethodGet, Path: "/internal/v1/locked-quotes/" + url.PathEscape(id.String()) + "/receipt"}, &out)
 	return out.Data, e
 }
+
+// AuthorityStatus is Payment Service's beneficiary authority readback
+// (GET /internal/v1/beneficiary-authorities/{id}). Only Payment Service
+// validates beneficiaries; Business Operations stores the reference only.
+type AuthorityStatus struct {
+	AuthorityID  ids.ID    `json:"authority_id"`
+	Domain       string    `json:"domain"`
+	BusinessRef  string    `json:"business_ref"`
+	Role         string    `json:"role"`
+	Currency     string    `json:"currency"`
+	OwnershipBPS int64     `json:"ownership_bps"`
+	MaxMinor     int64     `json:"max_minor"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	Active       bool      `json:"active"`
+}
+
+// BeneficiaryReader is implemented by the authenticated Payment client.
+type BeneficiaryReader interface {
+	BeneficiaryAuthority(context.Context, ids.ID) (AuthorityStatus, error)
+}
+
+func (c *Client) BeneficiaryAuthority(ctx context.Context, id ids.ID) (AuthorityStatus, error) {
+	var out envelope[AuthorityStatus]
+	err := c.c.Do(ctx, httpx.Request{Method: http.MethodGet, Path: "/internal/v1/beneficiary-authorities/" + id.String()}, &out)
+	return out.Data, err
+}

@@ -8,4 +8,5 @@ func (h *Handler) registerSections1224(r chi.Router) {
 	h.registerCommunications(r)
 	h.registerReputation(r)
 	h.registerMarketing(r)
+	h.registerFinance(r)
 }
