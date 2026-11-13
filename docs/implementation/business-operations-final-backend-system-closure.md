@@ -1,12 +1,14 @@
-# Business Operations — final backend system closure (this pass)
+# Business Operations — final backend system closure (earlier pass, superseded)
 
-**Verdict: `BACKEND_ENGINEERING_PARTIAL — INTERNAL_BLOCKERS_REMAIN`**
+> **Superseded.** This document records an earlier pass. Its verdict
+> (`BACKEND_ENGINEERING_PARTIAL — INTERNAL_BLOCKERS_REMAIN`) and the
+> cross-service blockers listed below were addressed by the cross-service
+> mission; see [`cross-service-backend-final-closure.md`](cross-service-backend-final-closure.md)
+> for the current state, the remaining items and the final CI evidence.
 
-The Business Operations service's own scope is now implemented across Sections 1–27
-and Annex D.1–D.42. The verdict stays partial because some CosmicForge-owned
-cross-service work required by the brief is still missing (listed below). External
-provider activation and live deployment are reported separately and do not drive
-this verdict.
+At the time of this pass the Business Operations service's own scope was
+implemented across Sections 1–27 and Annex D.1–D.42, and the verdict stayed
+partial because CosmicForge-owned cross-service work was still missing.
 
 ## Baseline and scope of this pass
 

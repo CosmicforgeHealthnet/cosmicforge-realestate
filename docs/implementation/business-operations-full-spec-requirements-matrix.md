@@ -7,6 +7,8 @@ Detailed per-feature evidence: `business-operations-annex-d-01-42-closure.md`
 `business-operations-cross-service-integration-report.md` (integrations),
 `business-operations-section-16-api-inventory.md` (every route with handler and source).
 
+Current cross-service state: `cross-service-backend-final-closure.md`.
+
 Owning service is `business-operations-service` unless stated. "Prior" means
 implemented before this pass and re-run in this pass's full suite.
 
@@ -17,14 +19,14 @@ implemented before this pass and re-run in this pass's full suite.
 | S1–S2 | Architecture, bounded contexts, DB isolation, outbox, JetStream, workers, health | PASS_VERIFIED (prior) | `internal/app`, `internal/outbox`, `cmd/worker`; boundary scripts | `outbox_test.go`, `check-business-operations-boundaries.sh` | — |
 | S3 | Identity, MFA, organisation, RBAC, approvals, delegation, termination, ownership changes, closure | PASS_VERIFIED | prior + `organisation_change_cases`, `closure_cases` (00038) | auth/staff/approval tests; `TestAnnexDFXFreshnessOrganisationChangeAndClosureContinuity` | KYB partner activation |
 | S4 | Enterprise inventory graph | PASS_VERIFIED (prior) | `internal/portfolio` | inventory suites | — |
-| S5 | Database catalogue | PASS_VERIFIED | 399 tables; 0 deferred; 23 proven equivalences | `TestBusinessCompleteCatalogueMatchesActualPostgreSQL` | — |
+| S5 | Database catalogue | PASS_VERIFIED | 400 tables (00039 adds `partner_api_rate_windows`); 0 deferred; 23 proven equivalences | `TestBusinessCompleteCatalogueMatchesActualPostgreSQL` | — |
 | S6 | Channel Manager, Marketplace first | PASS_VERIFIED internal; Marketplace receiver implemented | `commercial_channel_*`; `services/marketplace-service` | channel suites; marketplace tests | OTA partner approval |
 | S7 | Inventory and pricing | PASS_VERIFIED (prior) | `internal/inventory`, `internal/revenue` | commercial suites | — |
 | S8–S11 | RMS, reservations, PMS, CRM | PASS_VERIFIED (prior) | see Sections 8–11 closure | journeys and suites | — |
-| S12 | Communications and AI | PASS_VERIFIED (prior); CF Meet external | inbox, AI suggestions | s12 tests | CF Meet owning-repo contract |
+| S12 | Communications and AI | PASS_VERIFIED internal; CF Meet EXTERNAL_ACTIVATION_PENDING | inbox, AI suggestions; authenticated client for CF Meet public Messaging contract v1.16.0 (configuration-gated, fails closed) | s12 tests; `TestClientSpeaksPinnedCFMeetMessagingContract` (contract double, not process E2E) | CF Meet Platform Access credential, service principal and account principals |
 | S13–S15 | Reputation, marketing, finance | PASS_VERIFIED (prior) | sections 13–15 | s13–s15 tests | Provider activation |
-| S16 | Operational domains / API | PASS_VERIFIED | 71 governed domains; 995 routes | domain suites; parity gates | — |
-| S17 | Integrations | PARTIAL | Category A connected; Marketplace receiver built; four Category B owning services not built | cross-service report | NEEDS_INTEGRATION: property-manager, artisan, professional-services, admin |
+| S16 | Operational domains / API | PASS_VERIFIED | 71 governed domains; 1006 routes (incl. 2 partner API routes) | domain suites; parity gates | — |
+| S17 | Integrations | PASS_VERIFIED internal (process E2E); external activation pending | Marketplace, Payment, Verification, Notification, Media, property-manager, artisan, professional-services and admin connected through signed contracts; CF Meet client implemented | `tests/e2e` `TestCrossServiceCertificationFlows` (8 real-process flows) | See `cross-service-backend-final-closure.md` (Individual Owner families 4–7 remain BLOCKED) |
 | S18 | Events | PASS_VERIFIED | 193 schemas (was 155); generator drift gate | harness validates every outbox event against its schema | — |
 | S19 | Workers | PASS_VERIFIED | `ProcessOperations` + 17 generated date sweeps + rent schedule top-up | Annex D journeys invoke the worker and assert transitions | — |
 | S20 | State machines | PASS_VERIFIED | DB guards = generated edges for all 71 domains | `TestAnnexDDatabaseGuardsMatchEveryGeneratedDomain` | — |
@@ -34,7 +36,7 @@ implemented before this pass and re-run in this pass's full suite.
 | S24 | Certification | See final closure | — | — | — |
 | S25 | Deployment readiness | LIVE_DEPLOYMENT_DEFERRED | images build in CI | Images workflow | Staging deployment |
 | S26 | Implementation workstreams | See BO table | — | — | — |
-| S27 | Competitive acceptance | PASS_VERIFIED for repository capability; competitor comparison evidence incomplete | `business-operations-section-27-competitive-acceptance.md` | — | Competitor benchmarking |
+| S27 | Competitive acceptance | PASS_VERIFIED for repository capability; objective coverage sourced; superiority unproven | `business-operations-section-27-competitive-acceptance.md` (14 sources accessed 2026-11-13) | — | Outcome benchmarking needs live data |
 
 ## BO-1 to BO-18
 
