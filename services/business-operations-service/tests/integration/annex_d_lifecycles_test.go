@@ -1,6 +1,8 @@
 package integration
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"testing"
 	"time"
@@ -651,24 +653,24 @@ func TestAnnexDFinancingConsentInsuranceComplianceAndAccessOutcomes(t *testing.T
 func TestAnnexDPartnerCredentialsWebhooksRotationAndRevocation(t *testing.T) {
 	a := newAnnexD(t)
 	c := a.commercialHarness
-	ic := opsRec(c, c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "ACCOUNTING", Title: "Ledger sync", CounterpartyReference: "partner:ledgerco", Attributes: map[string]any{"scopes": []string{"finance:read"}, "credential_reference": "secrets/partners/ledgerco", "rate_limit_per_minute": 120}, Reason: "Accounting connection"}, 201)
+	ic := opsRec(c, c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "ACCOUNTING", Title: "Ledger sync", CounterpartyReference: "partner:ledgerco", Attributes: map[string]any{"scopes": []string{"finance:read"}, "credential_reference": smRef("ledgerco"), "rate_limit_per_minute": 120}, Reason: "Accounting connection"}, 201)
 	ic = opsMove(c, c.owner, "/integrations", ic, businesshttp.OpsRecordTransition{Action: "ACTIVATE", EvidenceRefs: evidence()}, 200)
 	credPath := "/integrations/" + ic.ID.String() + "/credentials"
 	exp := time.Now().UTC().Add(180 * 24 * time.Hour)
-	fp := "a3f1c2d4e5b60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
-	c.must(c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Raw secret", EndsAt: &exp, Attributes: map[string]any{"credential_reference": "secrets/partners/ledgerco/key1", "fingerprint_sha256": fp, "api_key": "sk_live_xxx"}, Reason: "Secret leak"}, 400)
-	cred := opsRec(c, c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Ledger API key", EndsAt: &exp, Attributes: map[string]any{"credential_reference": "secrets/partners/ledgerco/key1", "fingerprint_sha256": fp}, Reason: "Issue credential"}, 201)
-	next := "b3f1c2d4e5b60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
-	cred = opsMove(c, c.owner, credPath, cred, businesshttp.OpsRecordTransition{Action: "START_ROTATION", ExternalReference: "secrets/partners/ledgerco/key2", Attributes: map[string]any{"next_fingerprint_sha256": next}}, 200)
+	fp := fixtureFingerprint("a")
+	c.must(c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Raw secret", EndsAt: &exp, Attributes: map[string]any{"credential_reference": smRef("ledgerco/key1"), "fingerprint_sha256": fp, "api_key": "raw-value"}, Reason: "Secret leak"}, 400)
+	cred := opsRec(c, c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "Ledger API key", EndsAt: &exp, Attributes: map[string]any{"credential_reference": smRef("ledgerco/key1"), "fingerprint_sha256": fp}, Reason: "Issue credential"}, 201)
+	next := fixtureFingerprint("b")
+	cred = opsMove(c, c.owner, credPath, cred, businesshttp.OpsRecordTransition{Action: "START_ROTATION", ExternalReference: smRef("ledgerco/key2"), Attributes: map[string]any{"next_fingerprint_sha256": next}}, 200)
 	cred = opsMove(c, c.owner, credPath, cred, businesshttp.OpsRecordTransition{Action: "COMPLETE_ROTATION"}, 200)
-	if m := attrMap(t, cred); m["credential_reference"] != "secrets/partners/ledgerco/key2" || m["fingerprint_sha256"] != next {
+	if m := attrMap(t, cred); m["credential_reference"] != smRef("ledgerco/key2") || m["fingerprint_sha256"] != next {
 		t.Fatalf("rotation %v", m)
 	}
 	whPath := "/integrations/" + ic.ID.String() + "/webhooks"
 	for _, bad := range []string{"http://partner.example.com/hook", "https://127.0.0.1/hook", "https://10.0.0.5/hook", "https://localhost/hook", "https://user:pw@partner.example.com/hook"} {
-		c.must(c.owner, "POST", whPath, businesshttp.OpsRecordCreate{Kind: "RESERVATION_EVENTS", Title: "Bad webhook", Attributes: map[string]any{"url": bad, "signing_secret_reference": "secrets/partners/ledgerco/hmac", "event_types": []string{"reservation.created.v1"}}, Reason: "Unsafe URL"}, 400)
+		c.must(c.owner, "POST", whPath, businesshttp.OpsRecordCreate{Kind: "RESERVATION_EVENTS", Title: "Bad webhook", Attributes: map[string]any{"url": bad, "signing_secret_reference": smRef("ledgerco/hmac"), "event_types": []string{"reservation.created.v1"}}, Reason: "Unsafe URL"}, 400)
 	}
-	wh := opsRec(c, c.owner, "POST", whPath, businesshttp.OpsRecordCreate{Kind: "RESERVATION_EVENTS", Title: "Reservation webhook", Attributes: map[string]any{"url": "https://hooks.partner.example.com/cf", "signing_secret_reference": "secrets/partners/ledgerco/hmac", "event_types": []string{"reservation.created.v1"}}, Reason: "Subscribe"}, 201)
+	wh := opsRec(c, c.owner, "POST", whPath, businesshttp.OpsRecordCreate{Kind: "RESERVATION_EVENTS", Title: "Reservation webhook", Attributes: map[string]any{"url": "https://hooks.partner.example.com/cf", "signing_secret_reference": smRef("ledgerco/hmac"), "event_types": []string{"reservation.created.v1"}}, Reason: "Subscribe"}, 201)
 	wh = opsMove(c, c.owner, whPath, wh, businesshttp.OpsRecordTransition{Action: "VERIFY", ExternalReference: "challenge-ok-1"}, 200)
 	ic = opsMove(c, c.owner, "/integrations", ic, businesshttp.OpsRecordTransition{Action: "SUSPEND"}, 200)
 	if opsState(c, "webhook_subscriptions", wh.ID) != "PAUSED" {
@@ -678,7 +680,7 @@ func TestAnnexDPartnerCredentialsWebhooksRotationAndRevocation(t *testing.T) {
 	if opsState(c, "api_credentials", cred.ID) != "REVOKED" || opsState(c, "webhook_subscriptions", wh.ID) != "REVOKED" {
 		t.Fatal("revocation did not cascade")
 	}
-	c.must(c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "After revoke", EndsAt: &exp, Attributes: map[string]any{"credential_reference": "secrets/partners/ledgerco/key3", "fingerprint_sha256": fp}, Reason: "Too late"}, 409)
+	c.must(c.owner, "POST", credPath, businesshttp.OpsRecordCreate{Kind: "API_KEY_REF", Title: "After revoke", EndsAt: &exp, Attributes: map[string]any{"credential_reference": smRef("ledgerco/key3"), "fingerprint_sha256": fp}, Reason: "Too late"}, 409)
 }
 
 // Journeys 25 and 30: source-backed FX freshness, verified organisation
@@ -851,7 +853,7 @@ func TestAnnexDEquivalenceDisputeEvidenceIntegrationHealthAccounting(t *testing.
 	if _, err := c.db.Pool.Exec(t.Context(), `UPDATE disputes SET evidence_refs='[]',version=version+1,state='OPEN' WHERE id=$1`, d.ID); err == nil {
 		t.Fatal("dispute evidence rewritten")
 	}
-	ic := opsRec(c, c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "ACCOUNTING", Title: "Accounting connection", CounterpartyReference: "partner:books", Attributes: map[string]any{"scopes": []string{"finance:read"}, "credential_reference": "secrets/partners/books", "rate_limit_per_minute": 60}, Reason: "Accounting connection reference"}, 201)
+	ic := opsRec(c, c.owner, "POST", "/integrations", businesshttp.OpsRecordCreate{Kind: "ACCOUNTING", Title: "Accounting connection", CounterpartyReference: "partner:books", Attributes: map[string]any{"scopes": []string{"finance:read"}, "credential_reference": smRef("books"), "rate_limit_per_minute": 60}, Reason: "Accounting connection reference"}, 201)
 	health := commercialData[map[string]any](t, c.must(c.owner, "GET", "/integrations/"+ic.ID.String()+"/health", nil, 200))
 	if health["status"] != "NOT_ACTIVATED" || health["database_access"] != false {
 		t.Fatalf("health %v", health)
@@ -861,4 +863,13 @@ func TestAnnexDEquivalenceDisputeEvidenceIntegrationHealthAccounting(t *testing.
 	if health["status"] != "HEALTHY" {
 		t.Fatalf("health %v", health)
 	}
+}
+
+// smRef names a secret-manager entry (a reference, never a secret value).
+func smRef(path string) string { return "secrets/partners/" + path }
+
+// fixtureFingerprint is a deterministic 64-hex SHA-256-shaped fixture.
+func fixtureFingerprint(seed string) string {
+	sum := sha256.Sum256([]byte("annex-d-fixture-" + seed))
+	return hex.EncodeToString(sum[:])
 }

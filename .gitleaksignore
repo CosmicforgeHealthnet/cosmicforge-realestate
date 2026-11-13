@@ -9,3 +9,13 @@
 # Both lines were reworded in the working tree afterwards.
 31ef5fcb94b2809d81d0c5e51925d5655e8c0f4b:services/individual-owner-service/migrations/00002_account_security.sql:generic-api-key:115
 31ef5fcb94b2809d81d0c5e51925d5655e8c0f4b:services/individual-owner-service/tests/integration/auth_test.go:generic-api-key:152
+# business-operations-service Annex D partner-platform test (reviewed 2026-11-13):
+# secret-manager reference names (credential_reference / signing_secret_reference,
+# e.g. secrets/partners/<name>) and SHA-256-shaped fingerprint fixtures proving
+# that raw secrets are refused. No secret values. Reworded in the working tree
+# afterwards (references and fingerprints are built at runtime).
+73581b4079d9f39e0bb9a8e3851dddd6ac849af5:services/business-operations-service/tests/integration/annex_d_lifecycles_test.go:generic-api-key:659
+73581b4079d9f39e0bb9a8e3851dddd6ac849af5:services/business-operations-service/tests/integration/annex_d_lifecycles_test.go:generic-api-key:660
+73581b4079d9f39e0bb9a8e3851dddd6ac849af5:services/business-operations-service/tests/integration/annex_d_lifecycles_test.go:generic-api-key:669
+73581b4079d9f39e0bb9a8e3851dddd6ac849af5:services/business-operations-service/tests/integration/annex_d_lifecycles_test.go:generic-api-key:671
+73581b4079d9f39e0bb9a8e3851dddd6ac849af5:services/business-operations-service/tests/integration/annex_d_lifecycles_test.go:generic-api-key:681
