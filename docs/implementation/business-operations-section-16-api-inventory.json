@@ -1,5 +1,5 @@
 {
- "total": 999,
+ "total": 1002,
  "annex_e_required": 213,
  "annex_e_registered": 213,
  "routes": [
@@ -453,7 +453,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "declareCapacity",
-   "source": "internal/http/capacities.go:20",
+   "source": "internal/http/capacities.go:23",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -466,7 +466,20 @@
    "step_up": true,
    "idempotent": true,
    "handler": "restrictCapacity",
-   "source": "internal/http/capacities.go:21",
+   "source": "internal/http/capacities.go:24",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "POST",
+   "path": "/api/v1/business/organisation/capacities/{id}/verification-case",
+   "group": "Auth/organisation/staff/roles/approvals",
+   "capability": "capacity:write",
+   "step_up": true,
+   "idempotent": false,
+   "handler": "startCapacityVerification",
+   "source": "internal/http/capacities.go:25",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -479,7 +492,7 @@
    "step_up": true,
    "idempotent": false,
    "handler": "refreshCapacity",
-   "source": "internal/http/capacities.go:22",
+   "source": "internal/http/capacities.go:26",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -492,7 +505,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "listPacks",
-   "source": "internal/http/capacities.go:23",
+   "source": "internal/http/capacities.go:27",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -505,7 +518,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "writePack",
-   "source": "internal/http/capacities.go:24",
+   "source": "internal/http/capacities.go:28",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -518,7 +531,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "evaluatePack",
-   "source": "internal/http/capacities.go:25",
+   "source": "internal/http/capacities.go:29",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2208,7 +2221,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "inventoryMap",
-   "source": "internal/http/inventory_references.go:65",
+   "source": "internal/http/inventory_references.go:69",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2221,7 +2234,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "inventoryVerificationGet",
-   "source": "internal/http/inventory_references.go:66",
+   "source": "internal/http/inventory_references.go:70",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2234,7 +2247,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "inventoryVerificationLink",
-   "source": "internal/http/inventory_references.go:67",
+   "source": "internal/http/inventory_references.go:71",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2260,7 +2273,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "inventoryMediaLink",
-   "source": "internal/http/inventory_references.go:69",
+   "source": "internal/http/inventory_references.go:73",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2273,7 +2286,7 @@
    "step_up": true,
    "idempotent": false,
    "handler": "inventoryMediaAccess",
-   "source": "internal/http/inventory_references.go:70",
+   "source": "internal/http/inventory_references.go:74",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2299,7 +2312,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "inventorySpaceGraph",
-   "source": "internal/http/inventory_references.go:72",
+   "source": "internal/http/inventory_references.go:76",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2773,6 +2786,32 @@
    "postman": true
   },
   {
+   "method": "POST",
+   "path": "/internal/v1/business-supply/channel-quotes",
+   "group": "Internal (service-only)",
+   "capability": "signed:marketplace-service",
+   "step_up": false,
+   "idempotent": false,
+   "handler": "internalMarketplaceQuote",
+   "source": "internal/http/commercial_channel_intake.go:37",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "POST",
+   "path": "/internal/v1/business-supply/reservations/{id}/collections",
+   "group": "Internal (service-only)",
+   "capability": "signed:marketplace-service",
+   "step_up": false,
+   "idempotent": false,
+   "handler": "internalMarketplaceCollection",
+   "source": "internal/http/commercial_channel_intake.go:38",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
    "method": "GET",
    "path": "/internal/v1/business-supply/manager-authorizations/{id}",
    "group": "Internal (service-only)",
@@ -2780,7 +2819,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "internalManagerAuthorization",
-   "source": "internal/http/commercial_channel_intake.go:40",
+   "source": "internal/http/commercial_channel_intake.go:42",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2793,7 +2832,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "internalDataRoomAuthorization",
-   "source": "internal/http/commercial_channel_intake.go:44",
+   "source": "internal/http/commercial_channel_intake.go:46",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2806,7 +2845,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "internalChannelFinancialInput",
-   "source": "internal/http/commercial_channel_intake.go:49",
+   "source": "internal/http/commercial_channel_intake.go:51",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -2819,7 +2858,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "internalPMSCashAttestation",
-   "source": "internal/http/commercial_channel_intake.go:50",
+   "source": "internal/http/commercial_channel_intake.go:52",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -12088,7 +12127,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "reservationCollectionRequest",
-   "source": "internal/http/operational_reservation_payment.go:79",
+   "source": "internal/http/operational_reservation_payment.go:80",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -12101,7 +12140,7 @@
    "step_up": false,
    "idempotent": false,
    "handler": "reservationPaymentRequests",
-   "source": "internal/http/operational_reservation_payment.go:80",
+   "source": "internal/http/operational_reservation_payment.go:81",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -12114,7 +12153,7 @@
    "step_up": false,
    "idempotent": true,
    "handler": "reservationPaymentReadback",
-   "source": "internal/http/operational_reservation_payment.go:81",
+   "source": "internal/http/operational_reservation_payment.go:82",
    "annex_e": false,
    "openapi": true,
    "postman": true
@@ -12127,7 +12166,7 @@
    "step_up": true,
    "idempotent": true,
    "handler": "reservationFinancialRetry",
-   "source": "internal/http/operational_reservation_payment.go:82",
+   "source": "internal/http/operational_reservation_payment.go:83",
    "annex_e": false,
    "openapi": true,
    "postman": true

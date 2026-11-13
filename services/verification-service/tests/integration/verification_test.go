@@ -609,3 +609,38 @@ func TestHealthReadyVersion(t *testing.T) {
 		t.Fatalf("ready with closed pool: %d", r.status)
 	}
 }
+
+// Operating-capacity eligibility is a business-subject type initiated only by
+// Business Operations and bound to one capacity code by its caller reference.
+func TestOperatingCapacityTypeBoundToCapacityCode(t *testing.T) {
+	h := newHarness(t)
+	org := ids.New()
+	create := func(as platform.Service, domain, ref string) result {
+		return h.do(call{method: "POST", path: "/internal/v1/verifications", as: as, key: ids.New().String(),
+			body: map[string]any{"verification_type": "OPERATING_CAPACITY", "caller_reference": ref, "subject": map[string]any{"subject_type": "BUSINESS", "subject_domain": domain, "subject_id": org}}})
+	}
+	if r := create(platform.BusinessOperationsService, "business-operations", ""); r.status != 400 {
+		t.Fatalf("missing capacity reference %d %s", r.status, r.body)
+	}
+	if r := create(platform.BusinessOperationsService, "business-operations", "capacity:hospitality"); r.status != 400 {
+		t.Fatalf("malformed capacity code %d", r.status)
+	}
+	if r := create(platform.PropertyManagerService, "property-manager", "capacity:MANAGEMENT"); r.status != 403 {
+		t.Fatalf("non-business initiator %d", r.status)
+	}
+	r := create(platform.BusinessOperationsService, "business-operations", "capacity:HOSPITALITY")
+	if r.status != 201 {
+		t.Fatalf("create %d %s", r.status, r.body)
+	}
+	var c struct {
+		ID        ids.ID `json:"verification_id"`
+		Type      string `json:"verification_type"`
+		Reference string `json:"caller_reference"`
+	}
+	r.data(t, &c)
+	got := h.do(call{method: "GET", path: "/internal/v1/verifications/" + c.ID.String(), as: platform.BusinessOperationsService})
+	r.data(t, &c)
+	if got.status != 200 || c.Type != "OPERATING_CAPACITY" || c.Reference != "capacity:HOSPITALITY" {
+		t.Fatalf("readback %d %s", got.status, got.body)
+	}
+}

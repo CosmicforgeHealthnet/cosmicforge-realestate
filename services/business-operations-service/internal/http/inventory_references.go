@@ -39,6 +39,10 @@ type InventoryVerification struct {
 	Version        int64  `json:"version"`
 	VerificationID ids.ID `json:"verification_id,omitempty"`
 	CreateCase     bool   `json:"create_case"`
+	// EvidenceMediaID, with create_case, attaches the Media evidence, submits
+	// the case and requests processing by the Verification Service.
+	EvidenceMediaID *ids.ID `json:"evidence_media_id,omitempty"`
+	EvidenceType    string  `json:"evidence_type,omitempty"`
 }
 type InventoryMedia struct {
 	Version int64  `json:"version"`
@@ -226,6 +230,17 @@ func (h *Handler) inventoryVerificationLink(w http.ResponseWriter, r *http.Reque
 		digest := sha256.Sum256([]byte(n.ID.String() + ":" + key))
 		reference := "business-property:" + hex.EncodeToString(digest[:])
 		c, e := h.Verification.Create(r.Context(), verification.TypePropertyAuthority, verification.Subject{Type: verification.SubjectProperty, Domain: string(platform.DomainBusinessOperations), ID: n.ID}, reference, reference)
+		if e == nil && in.EvidenceMediaID != nil {
+			if in.EvidenceMediaID.ValidateV7() != nil || len(in.EvidenceType) < 1 || len(in.EvidenceType) > 100 {
+				reply(w, r, 0, nil, apperrors.InvalidRequest("A Media evidence reference and evidence type are required."))
+				return
+			}
+			if _, e = h.Verification.AttachEvidence(r.Context(), c.VerificationID, *in.EvidenceMediaID, in.EvidenceType, reference+":evidence:"+in.EvidenceMediaID.String()); e == nil {
+				if _, e = h.Verification.Submit(r.Context(), c.VerificationID, reference+":submit"); e == nil {
+					_, e = h.Verification.Process(r.Context(), c.VerificationID, reference+":process")
+				}
+			}
+		}
 		if e != nil {
 			reply(w, r, 0, nil, apperrors.Unavailable("Property verification case creation unavailable."))
 			return

@@ -22,6 +22,7 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     BI=github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/buildinfo && \
     LDFLAGS="-s -w -X ${BI}.Version=${VERSION} -X ${BI}.Commit=${COMMIT} -X ${BI}.BuildTime=${BUILD_TIME}" && \
     go build -ldflags "$LDFLAGS" -o /out/api ./cmd/api && \
+    go build -ldflags "$LDFLAGS" -o /out/worker ./cmd/worker && \
     go build -ldflags "$LDFLAGS" -o /out/migrate ./cmd/migrate
 
 FROM gcr.io/distroless/static-debian12:nonroot

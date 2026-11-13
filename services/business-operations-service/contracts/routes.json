@@ -433,6 +433,18 @@
   },
   {
     "method": "POST",
+    "path": "/api/v1/business/organisation/capacities/{id}/verification-case",
+    "capability": "capacity:write",
+    "request": "CapacityCase",
+    "response": "Case",
+    "status": 202,
+    "idempotent": false,
+    "step_up": true,
+    "public": false,
+    "notes": "Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back."
+  },
+  {
+    "method": "POST",
     "path": "/api/v1/business/organisation/capacities/{id}/verification",
     "capability": "capacity:write",
     "request": "CapacityRefresh",
@@ -441,7 +453,7 @@
     "idempotent": false,
     "step_up": true,
     "public": false,
-    "notes": "503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility."
+    "notes": "Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility."
   },
   {
     "method": "GET",
@@ -2061,7 +2073,7 @@
     "idempotent": true,
     "step_up": true,
     "public": false,
-    "notes": "Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version."
+    "notes": "Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version."
   },
   {
     "method": "GET",
@@ -2586,6 +2598,34 @@
     "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. ",
     "transport": "internal",
     "handler": "internalFunnelObservation"
+  },
+  {
+    "method": "POST",
+    "path": "/internal/v1/business-supply/channel-quotes",
+    "capability": "signed:marketplace-service",
+    "request": "MarketplaceQuoteCommand",
+    "response": "QuoteSnapshot",
+    "status": 201,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+    "transport": "internal",
+    "handler": "internalMarketplaceQuote"
+  },
+  {
+    "method": "POST",
+    "path": "/internal/v1/business-supply/reservations/{id}/collections",
+    "capability": "signed:marketplace-service",
+    "request": "MarketplaceCollectionCommand",
+    "response": "S1224Object",
+    "status": 202,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+    "transport": "internal",
+    "handler": "internalMarketplaceCollection"
   },
   {
     "method": "GET",

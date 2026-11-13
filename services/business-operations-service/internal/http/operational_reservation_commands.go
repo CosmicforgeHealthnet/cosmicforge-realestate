@@ -95,7 +95,14 @@ func (h *Handler) reservationCommand(w http.ResponseWriter, r *http.Request, act
 	})
 }
 func (h *Handler) reservationConfirm(w http.ResponseWriter, r *http.Request) {
-	h.reservationCommand(w, r, "CONFIRMED", "reservations:confirm", false, func(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, in reservations.Command) (string, error) {
+	h.reservationCommand(w, r, "CONFIRMED", "reservations:confirm", false, h.confirmReservationTx)
+}
+
+// confirmReservationTx applies every confirmation gate (lifecycle, commercial
+// authority, risk, approval policy, CRM, product/channel, restrictions,
+// verified financial eligibility, stock authority) and commits the holds.
+func (h *Handler) confirmReservationTx(ctx context.Context, tx pgx.Tx, t tenant, v reservations.Reservation, in reservations.Command) (string, error) {
+	{
 		if !reservations.Transition(v.State, "CONFIRMED") {
 			return "", apperrors.Conflict("RESERVATION_TRANSITION_DENIED", "Only a pending held reservation can be confirmed.")
 		}
@@ -168,7 +175,7 @@ func (h *Handler) reservationConfirm(w http.ResponseWriter, r *http.Request) {
 		}
 		_, e = tx.Exec(ctx, `UPDATE reservations SET state='CONFIRMED',financial_state=$5,confirmed_at=$3,hold_expires_at=NULL,version=version+1,updated_at=$3,reason=$4 WHERE organisation_id=$1 AND id=$2`, t.Organisation, v.ID, h.Auth.Service.Now().UTC(), in.Reason, financial)
 		return "reservation.modified.v1", e
-	})
+	}
 }
 func (h *Handler) reservationRiskGate(ctx context.Context, q database.Querier, org ids.ID, v reservations.Reservation) error {
 	var denied, clear bool

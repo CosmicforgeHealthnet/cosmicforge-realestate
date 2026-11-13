@@ -78,3 +78,43 @@ func TestAuthenticatedBusinessContract(t *testing.T) {
 		t.Fatal("provider outage accepted")
 	}
 }
+
+// Capacity binds only this organisation's OPERATING_CAPACITY case for exactly
+// the requested capacity code, and maps Verification status to an assertion.
+func TestCapacityAssertionBinding(t *testing.T) {
+	key := testkit.SigningKey(t, "business-cap")
+	signer, _ := serviceauth.NewSigner(serviceauth.SignerConfig{Service: platform.BusinessOperationsService, Key: key})
+	org, caseID := ids.New(), ids.New()
+	status, ref, typ := "PROCESSING", "capacity:HOSPITALITY", "OPERATING_CAPACITY"
+	exp := time.Now().Add(time.Hour)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"verification_id": caseID, "verification_type": typ, "status": status, "caller_reference": ref, "expires_at": exp, "updated_at": time.Now(),
+			"subject": map[string]any{"subject_type": "BUSINESS", "subject_domain": "business-operations", "subject_id": org}}})
+	}))
+	t.Cleanup(srv.Close)
+	c, err := New(srv.URL, signer, time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !c.SupportsCapacity("HOSPITALITY") || c.SupportsCapacity("hospitality") {
+		t.Fatal("capacity code support")
+	}
+	a, err := c.Capacity(context.Background(), org, "HOSPITALITY", caseID)
+	if err != nil || a.Status != "PENDING" || a.OrganisationID != org || a.CaseID != caseID {
+		t.Fatalf("pending %+v %v", a, err)
+	}
+	status = "VERIFIED"
+	if a, err = c.Capacity(context.Background(), org, "HOSPITALITY", caseID); err != nil || a.Status != "VERIFIED" {
+		t.Fatalf("verified %+v %v", a, err)
+	}
+	if _, err = c.Capacity(context.Background(), org, "MANAGEMENT", caseID); err == nil {
+		t.Fatal("case bound to another capacity accepted")
+	}
+	if _, err = c.Capacity(context.Background(), ids.New(), "HOSPITALITY", caseID); err == nil {
+		t.Fatal("another organisation's case accepted")
+	}
+	typ = "BUSINESS"
+	if _, err = c.Capacity(context.Background(), org, "HOSPITALITY", caseID); err == nil {
+		t.Fatal("generic KYB accepted as capacity")
+	}
+}

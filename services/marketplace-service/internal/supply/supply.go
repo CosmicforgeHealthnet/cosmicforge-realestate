@@ -31,7 +31,7 @@ import (
 const ContractVersion = "business-supply.v1"
 
 // Capabilities granted to a validated first-party connection.
-var Capabilities = []string{"ARI", "CONTENT", "PROPERTY_MAPPING", "PRODUCT_MAPPING", "RATE_MAPPING", "READBACK", "PAUSE", "WITHDRAW", "POLLING", "RESERVATION_INGEST"}
+var Capabilities = []string{"ARI", "CONTENT", "PROPERTY_MAPPING", "PRODUCT_MAPPING", "RATE_MAPPING", "READBACK", "PAUSE", "WITHDRAW", "POLLING", "RESERVATION_INGEST", "WEBHOOK"}
 
 // Connection mirrors distribution.Connection on the Business side.
 type Connection struct {

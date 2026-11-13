@@ -200,5 +200,10 @@ func (h *Handler) internalReservationStatus(w http.ResponseWriter, r *http.Reque
 		reply(w, r, 0, nil, e)
 		return
 	}
-	reply(w, r, 200, map[string]any{"reservation_id": v.ID, "version": v.Version, "state": v.State, "allocation_state": v.AllocationState, "financial_state": v.FinancialState, "amount_minor": v.AmountMinor, "currency": v.Currency, "canonical_reservation_accepted": true, "lineage_reconciliation_required": lineage, "confirmed": !lineage && v.AllocationState == "ACTIVE" && (v.State == "CONFIRMED" || v.State == "CHECKED_IN" || v.State == "CHECKED_OUT" || v.State == "COMPLETED")}, nil)
+	payment, e := h.marketplaceReservationPayment(r.Context(), h.Auth.Service.Pool, c.OrganisationID, v)
+	if e != nil {
+		reply(w, r, 0, nil, e)
+		return
+	}
+	reply(w, r, 200, map[string]any{"reservation_id": v.ID, "version": v.Version, "state": v.State, "allocation_state": v.AllocationState, "financial_state": v.FinancialState, "amount_minor": v.AmountMinor, "currency": v.Currency, "hold_expires_at": v.HoldExpiresAt, "canonical_reservation_accepted": true, "lineage_reconciliation_required": lineage, "confirmed": !lineage && v.AllocationState == "ACTIVE" && (v.State == "CONFIRMED" || v.State == "CHECKED_IN" || v.State == "CHECKED_OUT" || v.State == "COMPLETED"), "stay_completed": !lineage && (v.State == "CHECKED_OUT" || v.State == "COMPLETED"), "payment": payment}, nil)
 }

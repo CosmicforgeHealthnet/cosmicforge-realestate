@@ -237,6 +237,11 @@ func (s *svc) startVerification(w http.ResponseWriter, r *http.Request) {
 		if err = s.verify.Do(ctx, httpx.Request{Method: http.MethodPost, Path: "/internal/v1/verifications/" + caseID.String() + "/submit", IdempotencyKey: key + ":submit"}, nil); err != nil {
 			return httpx.ToAppError(err)
 		}
+		// Verification dispatches a submitted case to its provider only on
+		// an explicit processing request.
+		if err = s.verify.Do(ctx, httpx.Request{Method: http.MethodPost, Path: "/internal/v1/verifications/" + caseID.String() + "/process", IdempotencyKey: key + ":process"}, nil); err != nil {
+			return httpx.ToAppError(err)
+		}
 		return nil
 	}
 	s.rt.CommandWithPre(w, r, "profile.verification", &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {

@@ -21,11 +21,15 @@ const (
 	TypeBusiness               Type = "BUSINESS"
 	TypePropertyAuthority      Type = "PROPERTY_AUTHORITY"
 	TypeProfessionalCredential Type = "PROFESSIONAL_CREDENTIAL"
+	// TypeOperatingCapacity verifies that a business is eligible to operate
+	// in a named capacity (e.g. HOSPITALITY). The capacity code is bound by
+	// the caller reference "capacity:<CODE>" and returned on readback.
+	TypeOperatingCapacity Type = "OPERATING_CAPACITY"
 )
 
 // Types lists the supported verification types.
 func Types() []Type {
-	return []Type{TypeIdentity, TypeBusiness, TypePropertyAuthority, TypeProfessionalCredential}
+	return []Type{TypeIdentity, TypeBusiness, TypePropertyAuthority, TypeProfessionalCredential, TypeOperatingCapacity}
 }
 
 // SubjectType classifies what is verified.
@@ -117,6 +121,7 @@ var typeSubjects = map[Type][]SubjectType{
 	TypeBusiness:               {SubjectBusiness},
 	TypePropertyAuthority:      {SubjectProperty},
 	TypeProfessionalCredential: {SubjectProfessional, SubjectUser},
+	TypeOperatingCapacity:      {SubjectBusiness},
 }
 
 // typeDomains defines which user domains may initiate each type. A domain
@@ -134,6 +139,9 @@ var typeDomains = map[Type][]platform.Domain{
 	},
 	TypeProfessionalCredential: {
 		platform.DomainProfessionalServices, platform.DomainArtisan,
+	},
+	TypeOperatingCapacity: {
+		platform.DomainBusinessOperations,
 	},
 }
 
@@ -187,6 +195,7 @@ var DefaultValidity = Validity{
 	TypeBusiness:               365 * 24 * time.Hour,
 	TypePropertyAuthority:      730 * 24 * time.Hour,
 	TypeProfessionalCredential: 365 * 24 * time.Hour,
+	TypeOperatingCapacity:      365 * 24 * time.Hour,
 }
 
 // Error codes owned by verification-service.

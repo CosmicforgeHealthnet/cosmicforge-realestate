@@ -37,15 +37,22 @@ type RouterConfig struct {
 
 // NewRouter builds the marketplace-service HTTP handler.
 func NewRouter(cfg RouterConfig) http.Handler {
-	h := &handler{svc: cfg.Service}
 	r := chi.NewRouter()
 	r.Use(observability.HTTPMiddleware("marketplace-service"), requestcontext.Middleware, httpx.WithLogger(cfg.Logger),
 		httpx.Recoverer, httpx.AccessLog, security.Headers(security.HeadersConfig{}))
 	r.NotFound(httpx.NotFoundHandler().ServeHTTP)
 	r.MethodNotAllowed(httpx.MethodNotAllowedHandler().ServeHTTP)
 	cfg.Health.Register(r)
+	Mount(r, cfg.Service, cfg.Verifier)
+	return r
+}
+
+// Mount adds the business-supply.v1 contract routes (their own signed
+// Business-only authentication) to r.
+func Mount(r chi.Router, svc *Service, verifier *serviceauth.Verifier) {
+	h := &handler{svc: svc}
 	r.Route("/internal/v1/business-supply", func(r chi.Router) {
-		r.Use(serviceauth.Authenticate(cfg.Verifier, serviceauth.HeaderAuthorization), serviceauth.Require(Policy(), CapSupply), httpx.MaxBody(maxBody))
+		r.Use(serviceauth.Authenticate(verifier, serviceauth.HeaderAuthorization), serviceauth.Require(Policy(), CapSupply), httpx.MaxBody(maxBody))
 		r.Post("/connections/validate", h.validate)
 		r.Post("/commands", h.apply)
 		r.Get("/commands/{key}", h.readback)
@@ -53,7 +60,6 @@ func NewRouter(cfg RouterConfig) http.Handler {
 		r.Post("/connections/{id}/mapping-inspection", h.inspect)
 		r.Get("/connections/{id}/listing", h.listing)
 	})
-	return r
 }
 
 type handler struct{ svc *Service }

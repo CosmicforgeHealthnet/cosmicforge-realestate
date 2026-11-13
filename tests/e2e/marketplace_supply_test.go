@@ -55,8 +55,10 @@ func TestMarketplaceBusinessSupplyContractRealProcess(t *testing.T) {
 	p.run("marketplace-service-migrate", map[string]string{"DATABASE_URL": db}, "up")
 	mk := keys[platform.MarketplaceService]
 	addr := freeAddr(t)
+	userKey := newKey("marketplace-user-tokens")
 	env := map[string]string{"APP_ENV": "test", "LOG_LEVEL": "warn", "DATABASE_URL": db, "HTTP_ADDR": addr,
-		"SERVICE_AUTH_KEY_ID": mk.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(mk.priv), "SERVICE_AUTH_TRUSTED_KEYS": string(trusted)}
+		"SERVICE_AUTH_KEY_ID": mk.kid, "SERVICE_AUTH_PRIVATE_KEY": security.EncodeEd25519Seed(mk.priv), "SERVICE_AUTH_TRUSTED_KEYS": string(trusted),
+		"USER_TOKEN_KEY_ID": userKey.kid, "USER_TOKEN_PRIVATE_KEY": security.EncodeEd25519Seed(userKey.priv)}
 	p.start("marketplace api", "marketplace-service-api", env)
 	base := "http://" + addr
 	waitReady(t, base)

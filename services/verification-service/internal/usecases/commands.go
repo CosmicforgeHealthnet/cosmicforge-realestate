@@ -31,6 +31,9 @@ type CreateInput struct {
 
 var metaKey = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
 
+// capacityReference binds an OPERATING_CAPACITY case to one capacity code.
+var capacityReference = regexp.MustCompile(`^capacity:[A-Z][A-Z0-9_]{1,63}$`)
+
 // ValidateCreate checks input shape and the caller allow-list.
 func (s *Service) ValidateCreate(caller platform.Service, in CreateInput) error {
 	if !domain.ValidType(in.Type) {
@@ -38,6 +41,9 @@ func (s *Service) ValidateCreate(caller platform.Service, in CreateInput) error 
 	}
 	if !domain.SupportsSubject(in.Type, in.Subject.Type) {
 		return apperrors.Unprocessable(domain.CodeUnsupportedSubject, "subject_type is not supported for this verification type.")
+	}
+	if in.Type == domain.TypeOperatingCapacity && !capacityReference.MatchString(in.CallerReference) {
+		return apperrors.InvalidRequest("An operating-capacity verification needs caller_reference capacity:<CODE>.")
 	}
 	if len(in.ProviderMetadata) > 16 {
 		return apperrors.InvalidRequest("provider_metadata has too many entries.")

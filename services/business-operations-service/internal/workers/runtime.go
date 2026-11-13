@@ -77,6 +77,11 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 	inventory := &businesshttp.Handler{Auth: &businessauth.Handler{Service: &businessauth.Service{Pool: pool, Outbox: outbox.NewStore(pool, prefix), Sealer: sealer, Now: time.Now}}}
 	// Guest CRM notifications reuse the same signed Notification client.
 	inventory.Notification = sender
+	// Commercial gates in channel sync and collections re-check the same
+	// Verification-owned operating-capacity assertion as the API.
+	if verify != nil {
+		inventory.CapacityAuthority = verify
+	}
 	if endpoint := l.String("PAYMENT_SERVICE_URL", ""); endpoint != "" {
 		client, e := payment.New(endpoint, identity.Signer, 8*time.Second)
 		if e != nil {

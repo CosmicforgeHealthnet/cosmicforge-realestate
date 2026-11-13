@@ -52,7 +52,13 @@ var components = []component{
 	{"media-document-service", "../../services/media-document-service", []string{"api", "worker", "migrate"}},
 	{"notification-service", "../../services/notification-service", []string{"api", "worker", "migrate"}},
 	{"individual-owner-service", "../../services/individual-owner-service", []string{"api", "worker", "migrate"}},
-	{"marketplace-service", "../../services/marketplace-service", []string{"api", "migrate"}},
+	{"marketplace-service", "../../services/marketplace-service", []string{"api", "worker", "migrate"}},
+	{"business-operations-service", "../../services/business-operations-service", []string{"api", "worker", "migrate"}},
+	{"payment-service", "../../services/payment-service", []string{"api", "worker", "migrate"}},
+	{"property-manager-service", "../../services/property-manager-service", []string{"api", "worker", "migrate"}},
+	{"artisan-service", "../../services/artisan-service", []string{"api", "worker", "migrate"}},
+	{"professional-services-service", "../../services/professional-services-service", []string{"api", "worker", "migrate"}},
+	{"admin-service", "../../services/admin-service", []string{"api", "worker", "migrate"}},
 }
 
 var binDir string

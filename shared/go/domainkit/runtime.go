@@ -99,6 +99,10 @@ func (rt *Runtime) Router() chi.Router {
 // other routes require a delegated actor of this domain with an ACTIVE local
 // account, which is placed in the context for handlers.
 func (rt *Runtime) ActorRoutes(r chi.Router, mount func(r chi.Router)) {
+	rt.actorRoutes(r, nil, mount)
+}
+
+func (rt *Runtime) actorRoutes(r chi.Router, public, mount func(r chi.Router)) {
 	r.Route("/api/v1/"+string(rt.Cfg.Domain), func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(rt.Cfg.Identity.Verifier, serviceauth.HeaderServiceAuthorization),
 			serviceauth.RequireCaller(platform.APIGateway), httpx.MaxBody(MaxBody))
@@ -106,6 +110,9 @@ func (rt *Runtime) ActorRoutes(r chi.Router, mount func(r chi.Router)) {
 			r.Post("/auth/register", rt.Accounts.register)
 			r.Post("/auth/login", rt.Accounts.login)
 			r.Post("/auth/refresh", rt.Accounts.refresh)
+		}
+		if public != nil {
+			r.Group(public)
 		}
 		r.Group(func(r chi.Router) {
 			r.Use(rt.requireAccount)

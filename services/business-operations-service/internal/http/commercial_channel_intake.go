@@ -34,6 +34,8 @@ func (h *Handler) InternalDistributionRouter(verifier *serviceauth.Verifier) htt
 		r.Post("/guest-assertions", h.internalCRMSourceAssertion)
 		r.Post("/reviews", h.internalReviewReceipt)
 		r.Post("/funnel-observations", h.internalFunnelObservation)
+		r.Post("/channel-quotes", h.internalMarketplaceQuote)
+		r.Post("/reservations/{id}/collections", h.internalMarketplaceCollection)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.PropertyManagerService))

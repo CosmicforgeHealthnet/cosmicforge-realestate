@@ -6821,11 +6821,214 @@
         }
       }
     },
+    "/api/v1/business/organisation/capacities/{id}/verification-case": {
+      "post": {
+        "operationId": "POST_api_v1_business_organisation_capacities_id_verification_case",
+        "summary": "POST /api/v1/business/organisation/capacities/{id}/verification-case",
+        "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+        "x-permission": "capacity:write",
+        "x-step-up": true,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Case"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "verification_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "verification_type": "example",
+                    "subject": {
+                      "subject_type": "example",
+                      "subject_domain": "example",
+                      "subject_id": "019a5fb0-0000-7000-8000-000000000001"
+                    },
+                    "status": "example",
+                    "reason_code": "example",
+                    "decided_at": "example",
+                    "expires_at": "example",
+                    "updated_at": "2026-10-30T12:00:00Z",
+                    "supersedes_verification_id": "019a5fb0-0000-7000-8000-000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapacityCase"
+              },
+              "example": {
+                "media_id": "019a5fb0-0000-7000-8000-000000000001",
+                "evidence_type": "example"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/business/organisation/capacities/{id}/verification": {
       "post": {
         "operationId": "POST_api_v1_business_organisation_capacities_id_verification",
         "summary": "POST /api/v1/business/organisation/capacities/{id}/verification",
-        "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+        "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
         "x-permission": "capacity:write",
         "x-step-up": true,
         "x-idempotency-key": false,
@@ -37119,7 +37322,7 @@
       "post": {
         "operationId": "POST_api_v1_business_inventory_nodes_id_verification",
         "summary": "POST /api/v1/business/inventory-nodes/{id}/verification",
-        "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+        "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
         "x-permission": "inventory:verify",
         "x-step-up": true,
         "x-idempotency-key": true,
@@ -46263,6 +46466,480 @@
                 "source_reference": "example",
                 "quantity": 1,
                 "observed_at": "2026-10-30T12:00:00Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/business-supply/channel-quotes": {
+      "post": {
+        "operationId": "POST_internal_v1_business_supply_channel_quotes",
+        "summary": "POST /internal/v1/business-supply/channel-quotes",
+        "description": "Private service network only. signed:marketplace-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+        "x-permission": "signed:marketplace-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/QuoteSnapshot"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "quote_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "pool_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "product_version": 1,
+                    "pool_version": 1,
+                    "rate_plan_id": "019a5fb0-0000-7000-8000-000000000001",
+                    "rate_plan_version": 1,
+                    "date_from": "example",
+                    "date_to": "example",
+                    "adults": 1,
+                    "children": 1,
+                    "quantity": 1,
+                    "channel": "example",
+                    "nights": [
+                      {
+                        "calendar_version": 1,
+                        "tax_profile_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "cancellation_reference": "example",
+                        "prepayment_reference": "example",
+                        "day": "example",
+                        "rate_version_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "parent_version_ids": [
+                          "019a5fb0-0000-7000-8000-000000000001"
+                        ],
+                        "amount_minor": 1
+                      }
+                    ],
+                    "base_amount_minor": 1,
+                    "discount_minor": 1,
+                    "add_ons_minor": 1,
+                    "components": [
+                      {
+                        "code": "example",
+                        "amount_minor": 1,
+                        "included": true
+                      }
+                    ],
+                    "amount_minor": 1,
+                    "currency": "example",
+                    "currency_precision": 1,
+                    "rounding": "example",
+                    "restrictions": [
+                      {
+                        "id": "019a5fb0-0000-7000-8000-000000000001",
+                        "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "property_id": "019a5fb0-0000-7000-8000-000000000001",
+                        "channel": "example",
+                        "date_from": "example",
+                        "date_to": "example",
+                        "definition": {
+                          "stop_sell": true,
+                          "closed_to_arrival": true,
+                          "closed_to_departure": true,
+                          "min_nights": 1,
+                          "max_nights": 1,
+                          "min_advance_days": 1,
+                          "max_advance_days": 1,
+                          "cutoff_local": "example",
+                          "min_guests": 1,
+                          "max_guests": 1,
+                          "weekdays": [
+                            1
+                          ]
+                        },
+                        "state": "example",
+                        "version": 1
+                      }
+                    ],
+                    "cancellation_reference": "example",
+                    "prepayment_reference": "example",
+                    "policy_code": "example",
+                    "policy_version": 1,
+                    "tax_profile_ids": [
+                      "019a5fb0-0000-7000-8000-000000000001"
+                    ],
+                    "promotion_versions": {},
+                    "add_on_versions": {},
+                    "expires_at": "2026-10-30T12:00:00Z",
+                    "calculated_at": "2026-10-30T12:00:00Z",
+                    "is_reservation": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketplaceQuoteCommand"
+              },
+              "example": {
+                "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                "connection_id": "019a5fb0-0000-7000-8000-000000000001",
+                "product_id": "019a5fb0-0000-7000-8000-000000000001",
+                "date_from": "example",
+                "date_to": "example",
+                "adults": 1,
+                "children": 1,
+                "quantity": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/business-supply/reservations/{id}/collections": {
+      "post": {
+        "operationId": "POST_internal_v1_business_supply_reservations_id_collections",
+        "summary": "POST /internal/v1/business-supply/reservations/{id}/collections",
+        "description": "Private service network only. signed:marketplace-service. Signed organisation delegation must match the owning connection. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+        "x-permission": "signed:marketplace-service",
+        "x-step-up": false,
+        "x-idempotency-key": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "example": "019a5fb0-0000-7000-8000-000000000001"
+            }
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Committed success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/S1224Object"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid request fields.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "AUTHENTICATION_REQUIRED",
+                    "message": "Authentication required.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Capability or scope denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "PERMISSION_DENIED",
+                    "message": "Capability or scope denied.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": "Resource not found.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version changed or idempotency conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "VERSION_CONFLICT",
+                    "message": "Version changed or idempotency conflicts.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Try again later.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required provider is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SERVICE_UNAVAILABLE",
+                    "message": "Required provider is unavailable.",
+                    "request_id": "example-request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ServiceBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketplaceCollectionCommand"
+              },
+              "example": {
+                "organisation_id": "019a5fb0-0000-7000-8000-000000000001",
+                "connection_id": "019a5fb0-0000-7000-8000-000000000001",
+                "version": 1,
+                "payment_policy_id": "019a5fb0-0000-7000-8000-000000000001",
+                "payment_policy_version": "example",
+                "payment_policy_family": "example",
+                "payer_wallet_id": "019a5fb0-0000-7000-8000-000000000001",
+                "consent_reference": "example",
+                "legal_party_reference": "example",
+                "email": "example",
+                "schedule": "example"
               }
             }
           }
@@ -220123,6 +220800,25 @@
         },
         "additionalProperties": true
       },
+      "CapacityCase": {
+        "type": "object",
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "evidence_type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "media_id",
+          "evidence_type"
+        ]
+      },
       "CapacityDeclare": {
         "type": "object",
         "properties": {
@@ -226450,6 +227146,15 @@
           },
           "create_case": {
             "type": "boolean"
+          },
+          "evidence_media_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "evidence_type": {
+            "type": "string"
           }
         },
         "additionalProperties": false,
@@ -227663,6 +228368,123 @@
           "guest_segment_key",
           "name",
           "reason"
+        ]
+      },
+      "MarketplaceCollectionCommand": {
+        "type": "object",
+        "properties": {
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "connection_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "payment_policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "payment_policy_version": {
+            "type": "string"
+          },
+          "payment_policy_family": {
+            "type": "string"
+          },
+          "payer_wallet_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "consent_reference": {
+            "type": "string"
+          },
+          "legal_party_reference": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "organisation_id",
+          "connection_id",
+          "version",
+          "payment_policy_id",
+          "payment_policy_version",
+          "payment_policy_family",
+          "payer_wallet_id",
+          "consent_reference",
+          "legal_party_reference",
+          "email",
+          "schedule"
+        ]
+      },
+      "MarketplaceQuoteCommand": {
+        "type": "object",
+        "properties": {
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "connection_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "019a5fb0-0000-7000-8000-000000000001"
+          },
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "adults": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "children": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "organisation_id",
+          "connection_id",
+          "product_id",
+          "date_from",
+          "date_to",
+          "adults",
+          "children",
+          "quantity"
         ]
       },
       "MediaLink": {

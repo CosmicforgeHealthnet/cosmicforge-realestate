@@ -55,6 +55,7 @@ type reservationFinancialJob struct {
 	FinancialGroupID  ids.ID          `json:"financial_group_id"`
 	SessionID         *ids.ID         `json:"session_id"`
 	CreatedBy         ids.ID          `json:"created_by"`
+	CreatedByService  string          `json:"created_by_service"`
 	Kind              string          `json:"kind"`
 	State             string          `json:"state"`
 	Request           json.RawMessage `json:"request"`
@@ -292,12 +293,41 @@ func (h *Handler) runReservationFinancialJob(ctx context.Context, job reservatio
 			return out, readErr
 		}
 	}
-	if job.SessionID == nil {
-		return out, apperrors.PermissionDenied("Original collection session unavailable.")
+	var callCtx context.Context
+	if job.channelCollection() {
+		// Marketplace checkout: no staff session exists; the live source
+		// connection and reservation are the authority, re-checked now.
+		callCtx = requestcontext.WithRequestID(call, "reservation-finance:"+job.ID.String())
+		e = database.WithTx(callCtx, h.Auth.Service.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
+			if _, e := tx.Exec(ctx, `SELECT id FROM organisations WHERE id=$1 FOR UPDATE`, job.OrganisationID); e != nil {
+				return e
+			}
+			if e := h.reservationFinancialFence(ctx, tx, job); e != nil {
+				return e
+			}
+			return h.marketplaceCollectionAuthority(ctx, tx, job, in)
+		})
+	} else {
+		if job.SessionID == nil {
+			return out, apperrors.PermissionDenied("Original collection session unavailable.")
+		}
+		callCtx = businessauth.StoredJobContext(call, job.CreatedBy, job.OrganisationID, *job.SessionID, job.ID)
+		callCtx = requestcontext.WithRequestID(callCtx, "reservation-finance:"+job.ID.String())
+		e = h.staffCollectionAuthority(callCtx, job, in)
 	}
-	callCtx := businessauth.StoredJobContext(call, job.CreatedBy, job.OrganisationID, *job.SessionID, job.ID)
-	callCtx = requestcontext.WithRequestID(callCtx, "reservation-finance:"+job.ID.String())
-	e = database.WithTx(callCtx, h.Auth.Service.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
+	if e != nil {
+		return out, e
+	}
+	return h.collectReservation(call, callCtx, job, group, payload)
+}
+
+// channelCollection reports a Marketplace-initiated checkout collection.
+func (j reservationFinancialJob) channelCollection() bool {
+	return j.CreatedBy.IsZero() && j.CreatedByService == string(platform.MarketplaceService) && j.Kind == "COLLECTION" && j.FolioAgreementID == nil
+}
+
+func (h *Handler) staffCollectionAuthority(callCtx context.Context, job reservationFinancialJob, in ReservationCollectionCommand) error {
+	return database.WithTx(callCtx, h.Auth.Service.Pool, database.TxOptions{}, func(ctx context.Context, tx pgx.Tx) error {
 		if _, e := tx.Exec(ctx, `SELECT id FROM organisations WHERE id=$1 FOR UPDATE`, job.OrganisationID); e != nil {
 			return e
 		}
@@ -340,9 +370,11 @@ func (h *Handler) runReservationFinancialJob(ctx context.Context, job reservatio
 		}
 		return h.commercialGate(ctx, tx, t, v.PropertyID)
 	})
-	if e != nil {
-		return out, e
-	}
+}
+
+func (h *Handler) collectReservation(call, callCtx context.Context, job reservationFinancialJob, group reservationFinancialGroup, payload reservationCollectionPayload) (reservationFinancialObservation, error) {
+	var out reservationFinancialObservation
+	in := payload.Command
 	policy, e := h.Payment.Policy(callCtx, in.PaymentPolicyID)
 	if e != nil {
 		return out, e
@@ -437,10 +469,13 @@ func (h *Handler) finishReservationFinancialJob(ctx context.Context, job reserva
 			return e
 		}
 		if job.CreatedBy.IsZero() {
-			if job.Kind != "READBACK" {
+			actor := "business-operations-service"
+			if job.channelCollection() {
+				actor = "marketplace-service"
+			} else if job.Kind != "READBACK" {
 				return apperrors.PermissionDenied("Service maintenance can only read an existing Payment binding.")
 			}
-			if _, e := tx.Exec(ctx, `SELECT set_config('business.actor_service','business-operations-service',true)`); e != nil {
+			if _, e := tx.Exec(ctx, `SELECT set_config('business.actor_service',$1,true)`, actor); e != nil {
 				return e
 			}
 		}
@@ -504,6 +539,11 @@ func (h *Handler) finishReservationFinancialJob(ctx context.Context, job reserva
 		}
 		if e = h.reconcileReservationRefundReviews(ctx, tx, job); e != nil {
 			return e
+		}
+		if financial == "VERIFIED" && job.channelCollection() {
+			if e = h.autoConfirmMarketplaceReservation(ctx, tx, job); e != nil {
+				return e
+			}
 		}
 		state := "SUCCEEDED"
 		if financial == "PENDING" || financial == "UNKNOWN" {

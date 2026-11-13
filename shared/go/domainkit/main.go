@@ -28,6 +28,12 @@ import (
 type App struct {
 	// Actor mounts gateway-authenticated actor routes (/api/v1/<domain>).
 	Actor func(r chi.Router)
+	// Public mounts gateway-authenticated routes under /api/v1/<domain>
+	// that need no account (anonymous discovery).
+	Public func(r chi.Router)
+	// Raw mounts routes on the root router that carry their own
+	// authentication (e.g. an existing signed contract surface).
+	Raw func(r chi.Router)
 	// InternalCallers may call Internal routes (/internal/v1).
 	InternalCallers []platform.Service
 	Internal        func(r chi.Router)
@@ -41,12 +47,15 @@ type App struct {
 // Handler builds the API handler for app.
 func (rt *Runtime) Handler(app App) http.Handler {
 	r := rt.Router()
-	if app.Actor != nil || rt.Accounts != nil {
-		rt.ActorRoutes(r, func(r chi.Router) {
+	if app.Actor != nil || app.Public != nil || rt.Accounts != nil {
+		rt.actorRoutes(r, app.Public, func(r chi.Router) {
 			if app.Actor != nil {
 				app.Actor(r)
 			}
 		})
+	}
+	if app.Raw != nil {
+		app.Raw(r)
 	}
 	if app.Internal != nil {
 		rt.InternalRoutes(r, app.InternalCallers, app.Internal)

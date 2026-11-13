@@ -114,7 +114,7 @@ func TestProfessionalVerifiedCredentialAppointmentFindingsCertificationAndDocume
 	if r := k.Actor(pro, "POST", "/profile/verification/refresh", "v3", nil); r.Status != 200 || r.Data()["profile"].(map[string]any)["state"] != "VERIFIED" {
 		t.Fatalf("refresh verified %d %s", r.Status, r.Raw)
 	}
-	if got := strings.Join(vd.paths, ","); !strings.Contains(got, "/evidence") || !strings.Contains(got, "/submit") {
+	if got := strings.Join(vd.paths, ","); !strings.Contains(got, "/evidence") || !strings.Contains(got, "/submit") || !strings.Contains(got, "/process") {
 		t.Fatalf("verification calls %s", got)
 	}
 	bizFinding := ids.New()

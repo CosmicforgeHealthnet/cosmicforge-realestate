@@ -100763,6 +100763,563 @@
               ]
             },
             {
+              "name": "POST /api/v1/business/organisation/capacities/{id}/verification-case",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "organisation",
+                    "capacities",
+                    "{{business_id}}",
+                    "verification-case"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 202,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"verification_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"verification_type\": \"example\",\n    \"subject\": {\n      \"subject_type\": \"example\",\n      \"subject_domain\": \"example\",\n      \"subject_id\": \"019a5fb0-0000-7000-8000-000000000001\"\n    },\n    \"status\": \"example\",\n    \"reason_code\": \"example\",\n    \"decided_at\": \"example\",\n    \"expires_at\": \"example\",\n    \"updated_at\": \"2026-10-30T12:00:00Z\",\n    \"supersedes_verification_id\": \"019a5fb0-0000-7000-8000-000000000001\"\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/organisation/capacities/{{business_id}}/verification-case",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "organisation",
+                        "capacities",
+                        "{{business_id}}",
+                        "verification-case"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Opens the organisation's OPERATING_CAPACITY case in the Verification Service (caller_reference capacity:<CODE>), attaches the Media evidence, submits it and requests processing. The decision belongs to Verification; refresh reads it back.",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"media_id\": \"{{business_media_id}}\",\n  \"evidence_type\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));",
+                      "if (pm.environment.get(\"business_capacity_id\")) pm.variables.set(\"business_id\",pm.environment.get(\"business_capacity_id\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([202,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "POST /api/v1/business/organisation/capacities/{id}/verification",
               "request": {
                 "method": "POST",
@@ -100791,7 +101348,7 @@
                     "verification"
                   ]
                 },
-                "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                 "auth": {
                   "type": "bearer",
                   "bearer": [
@@ -100842,7 +101399,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -100902,7 +101459,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -100962,7 +101519,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -101022,7 +101579,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -101082,7 +101639,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -101142,7 +101699,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -101202,7 +101759,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -101262,7 +101819,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. 503 until a capacity-specific authenticated provider assertion adapter is available. Generic KYB does not establish capacity eligibility.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: capacity:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Optimistic version, token single-use or documented provider key protects applicable retries. Reads the authoritative OPERATING_CAPACITY case back from the Verification Service and binds it only if it is this organisation's case for exactly this capacity code. Generic KYB does not establish capacity eligibility.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255057,7 +255614,7 @@
                     "verification"
                   ]
                 },
-                "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                 "auth": {
                   "type": "bearer",
                   "bearer": [
@@ -255112,7 +255669,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255176,7 +255733,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255240,7 +255797,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255304,7 +255861,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255368,7 +255925,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255432,7 +255989,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255496,7 +256053,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -255560,7 +256117,7 @@
                         "verification"
                       ]
                     },
-                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; stale projection cannot authorize a newer structural version.",
+                    "description": "Authentication: business access JWT plus live account/session. Permission: inventory:verify. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Authenticated owning Verification case read-back. Property/parcel subject and domain must match. create_case uses a stable provider key; with evidence_media_id it attaches that Media evidence, submits the case and requests processing. Stale projection cannot authorize a newer structural version.",
                     "auth": {
                       "type": "bearer",
                       "bearer": [
@@ -629618,6 +630175,1084 @@
                     "type": "text/javascript",
                     "exec": [
                       "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([202,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /internal/v1/business-supply/channel-quotes",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                  "host": [
+                    "{{business_internal_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "business-supply",
+                    "channel-quotes"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_service_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {\n    \"quote_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"product_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"pool_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"product_version\": 1,\n    \"pool_version\": 1,\n    \"rate_plan_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n    \"rate_plan_version\": 1,\n    \"date_from\": \"example\",\n    \"date_to\": \"example\",\n    \"adults\": 1,\n    \"children\": 1,\n    \"quantity\": 1,\n    \"channel\": \"example\",\n    \"nights\": [\n      {\n        \"calendar_version\": 1,\n        \"tax_profile_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"cancellation_reference\": \"example\",\n        \"prepayment_reference\": \"example\",\n        \"day\": \"example\",\n        \"rate_version_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"parent_version_ids\": [\n          \"019a5fb0-0000-7000-8000-000000000001\"\n        ],\n        \"amount_minor\": 1\n      }\n    ],\n    \"base_amount_minor\": 1,\n    \"discount_minor\": 1,\n    \"add_ons_minor\": 1,\n    \"components\": [\n      {\n        \"code\": \"example\",\n        \"amount_minor\": 1,\n        \"included\": true\n      }\n    ],\n    \"amount_minor\": 1,\n    \"currency\": \"example\",\n    \"currency_precision\": 1,\n    \"rounding\": \"example\",\n    \"restrictions\": [\n      {\n        \"id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"organisation_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"property_id\": \"019a5fb0-0000-7000-8000-000000000001\",\n        \"channel\": \"example\",\n        \"date_from\": \"example\",\n        \"date_to\": \"example\",\n        \"definition\": {\n          \"stop_sell\": true,\n          \"closed_to_arrival\": true,\n          \"closed_to_departure\": true,\n          \"min_nights\": 1,\n          \"max_nights\": 1,\n          \"min_advance_days\": 1,\n          \"max_advance_days\": 1,\n          \"cutoff_local\": \"example\",\n          \"min_guests\": 1,\n          \"max_guests\": 1,\n          \"weekdays\": [\n            1\n          ]\n        },\n        \"state\": \"example\",\n        \"version\": 1\n      }\n    ],\n    \"cancellation_reference\": \"example\",\n    \"prepayment_reference\": \"example\",\n    \"policy_code\": \"example\",\n    \"policy_version\": 1,\n    \"tax_profile_ids\": [\n      \"019a5fb0-0000-7000-8000-000000000001\"\n    ],\n    \"promotion_versions\": {},\n    \"add_on_versions\": {},\n    \"expires_at\": \"2026-10-30T12:00:00Z\",\n    \"calculated_at\": \"2026-10-30T12:00:00Z\",\n    \"is_reservation\": false\n  }\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/channel-quotes",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "channel-quotes"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"product_id\": \"{{business_product_id}}\",\n  \"date_from\": \"example\",\n  \"date_to\": \"example\",\n  \"adults\": 1,\n  \"children\": 1,\n  \"quantity\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([201,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }",
+                      "if(pm.response.code<300){pm.environment.set(\"business_quote_id\",body.data.quote_id);pm.test(\"Quote is not a reservation\",()=>pm.expect(body.data.is_reservation).to.eql(false));}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /internal/v1/business-supply/reservations/{id}/collections",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                  "host": [
+                    "{{business_internal_url}}"
+                  ],
+                  "path": [
+                    "internal",
+                    "v1",
+                    "business-supply",
+                    "reservations",
+                    "{{business_id}}",
+                    "collections"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_service_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 202,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {}\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{business_internal_url}}/internal/v1/business-supply/reservations/{{business_id}}/collections",
+                      "host": [
+                        "{{business_internal_url}}"
+                      ],
+                      "path": [
+                        "internal",
+                        "v1",
+                        "business-supply",
+                        "reservations",
+                        "{{business_id}}",
+                        "collections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: signed:marketplace-service. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_service_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"organisation_id\": \"{{business_organisation_id}}\",\n  \"connection_id\": \"{{business_connection_id}}\",\n  \"version\": 1,\n  \"payment_policy_id\": \"{{business_payment_policy_id}}\",\n  \"payment_policy_version\": \"example\",\n  \"payment_policy_family\": \"example\",\n  \"payer_wallet_id\": \"{{business_payer_wallet_id}}\",\n  \"consent_reference\": \"example\",\n  \"legal_party_reference\": \"example\",\n  \"email\": \"{{business_email}}\",\n  \"schedule\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));",
+                      "if (pm.environment.get(\"business_reservation_id\")) pm.variables.set(\"business_id\",pm.environment.get(\"business_reservation_id\"));"
                     ]
                   }
                 },

@@ -8,17 +8,15 @@ work="$(mktemp -d)"
 cid=""
 trap 'test -z "$cid" || docker rm "$cid" >/dev/null; rm -rf "$work"' EXIT
 cid="$(docker create "$image")"
-# marketplace-service currently serves only synchronous internal contracts
-# (no background worker); every other service ships api, worker and migrate.
+# Every service ships api, worker and migrate; the gateway ships only api.
 binaries=(api)
-if [ "$component" = marketplace-service ]; then binaries+=(migrate)
-elif [ "$component" != api-gateway ]; then binaries+=(worker migrate); fi
+if [ "$component" != api-gateway ]; then binaries+=(worker migrate); fi
 for binary in "${binaries[@]}"; do
   docker cp "$cid:/app/$binary" "$work/$binary"
   test -s "$work/$binary"
 done
 for binary in api worker; do
-  if { [ "$component" = api-gateway ] || [ "$component" = marketplace-service ]; } && [ "$binary" = worker ]; then continue; fi
+  if [ "$component" = api-gateway ] && [ "$binary" = worker ]; then continue; fi
   # A server is deliberately absent. Success is a broken probe; Docker errors
   # 125/126/127 must also fail, rather than masquerading as the expected exit 1.
   rc=0

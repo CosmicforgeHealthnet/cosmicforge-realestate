@@ -271,7 +271,7 @@ components:
     UUIDv7: {type: string, format: uuid, pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}
     Domain: {enum: [marketplace, individual-owner, business-operations, property-manager, artisan, professional-services, admin]}
     SubjectType: {enum: [USER, BUSINESS, PROPERTY, PROFESSIONAL]}
-    VerificationType: {enum: [IDENTITY, BUSINESS, PROPERTY_AUTHORITY, PROFESSIONAL_CREDENTIAL]}
+    VerificationType: {enum: [IDENTITY, BUSINESS, PROPERTY_AUTHORITY, PROFESSIONAL_CREDENTIAL, OPERATING_CAPACITY]}
     Status: {enum: [DRAFT, SUBMITTED, PROCESSING, MANUAL_REVIEW, VERIFIED, REJECTED, EXPIRED]}
     Subject:
       type: object

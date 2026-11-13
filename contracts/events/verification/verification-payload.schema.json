@@ -7,7 +7,7 @@
   "required": ["verification_id", "verification_type", "subject", "status", "requested_by_service"],
   "properties": {
     "verification_id": {"$ref": "../../schemas/event-envelope.schema.json#/$defs/uuidv7"},
-    "verification_type": {"enum": ["IDENTITY", "BUSINESS", "PROPERTY_AUTHORITY", "PROFESSIONAL_CREDENTIAL"]},
+    "verification_type": {"enum": ["IDENTITY", "BUSINESS", "PROPERTY_AUTHORITY", "PROFESSIONAL_CREDENTIAL", "OPERATING_CAPACITY"]},
     "subject": {
       "type": "object",
       "required": ["subject_type", "subject_domain", "subject_id"],

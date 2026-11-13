@@ -3,10 +3,13 @@ package businesshttp
 import (
 	"context"
 	"encoding/json"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/verification"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/organisation"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
+	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/platform"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"net/http"
@@ -19,6 +22,7 @@ var capacityCode = regexp.MustCompile(`^[A-Z][A-Z0-9_]{1,63}$`)
 func (h *Handler) registerCapacities(r chi.Router) {
 	r.Post("/organisation/capacities", h.declareCapacity)
 	r.Patch("/organisation/capacities/{id}", h.restrictCapacity)
+	r.Post("/organisation/capacities/{id}/verification-case", h.startCapacityVerification)
 	r.Post("/organisation/capacities/{id}/verification", h.refreshCapacity)
 	r.Get("/organisation/capability-packs", h.listPacks)
 	r.Post("/organisation/capability-packs", h.writePack)
@@ -316,4 +320,64 @@ func (h *Handler) effectiveCapabilities(w http.ResponseWriter, r *http.Request) 
 		items = append(items, map[string]any{"code": c.Code, "status": c.Status, "supported": supported, "authorizes": supported && c.Authorizes(c.Code, organisation.State(t.State), h.Auth.Service.Now().UTC()), "expires_at": c.ExpiresAt})
 	}
 	reply(w, r, 200, map[string]any{"items": items, "limit": limit, "offset": offset}, rows.Err())
+}
+
+// startCapacityVerification opens this organisation's OPERATING_CAPACITY case
+// in the Verification Service for the declared capacity, attaches the Media
+// evidence, submits it and requests processing. The outcome is Verification's
+// and is bound only by a later refresh (read back).
+func (h *Handler) startCapacityVerification(w http.ResponseWriter, r *http.Request) {
+	id, err := ids.ParseV7(chi.URLParam(r, "id"))
+	if err != nil {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("Invalid capacity ID."))
+		return
+	}
+	var in struct {
+		MediaID      ids.ID `json:"media_id"`
+		EvidenceType string `json:"evidence_type"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	if in.MediaID.ValidateV7() != nil || len(in.EvidenceType) < 1 || len(in.EvidenceType) > 100 {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("A Media evidence reference and evidence type are required."))
+		return
+	}
+	t, _, err := h.authorize(r.Context(), h.Auth.Service.Pool, "capacity:write", "COMPANY", ids.Nil, true)
+	if err != nil {
+		reply(w, r, 0, nil, err)
+		return
+	}
+	if h.Verification == nil {
+		reply(w, r, 0, nil, apperrors.Unavailable("Verification Service is unavailable."))
+		return
+	}
+	var code string
+	if err = h.Auth.Service.Pool.QueryRow(r.Context(), `SELECT code FROM organisation_capacities WHERE organisation_id=$1 AND id=$2`, t.Organisation, id).Scan(&code); err != nil {
+		reply(w, r, 0, nil, apperrors.NotFound("CAPACITY_NOT_FOUND", "Capacity not found."))
+		return
+	}
+	key := "business-capacity:" + t.Organisation.String() + ":" + id.String()
+	c, err := h.Verification.Create(r.Context(), verification.TypeOperatingCapacity, verification.Subject{Type: verification.SubjectBusiness, Domain: string(platform.DomainBusinessOperations), ID: t.Organisation}, verification.CapacityReference(code), key)
+	if err == nil {
+		_, err = h.Verification.AttachEvidence(r.Context(), c.VerificationID, in.MediaID, in.EvidenceType, key+":evidence:"+in.MediaID.String())
+	}
+	if err == nil {
+		_, err = h.Verification.Submit(r.Context(), c.VerificationID, key+":submit")
+	}
+	if err == nil {
+		_, err = h.Verification.Process(r.Context(), c.VerificationID, key+":process")
+	}
+	if err == nil {
+		c, err = h.Verification.Get(r.Context(), c.VerificationID)
+	}
+	if err != nil {
+		reply(w, r, 0, nil, httpx.ToAppError(err))
+		return
+	}
+	if err = audit(r.Context(), h.Auth.Service.Pool, t, "CAPACITY_VERIFICATION_REQUESTED", "capacity", id, map[string]any{"code": code, "verification_id": c.VerificationID}); err != nil {
+		reply(w, r, 0, nil, err)
+		return
+	}
+	reply(w, r, 202, c, nil)
 }

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"regexp"
 	"time"
 
 	httpx "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/http"
@@ -23,6 +24,7 @@ const (
 	SubjectBusiness       = "BUSINESS"
 	TypeIdentity          = "IDENTITY"
 	TypePropertyAuthority = "PROPERTY_AUTHORITY"
+	TypeOperatingCapacity = "OPERATING_CAPACITY"
 	SubjectUser           = "USER"
 	SubjectProperty       = "PROPERTY"
 )
@@ -42,6 +44,7 @@ type Case struct {
 	Subject        Subject    `json:"subject"`
 	Status         string     `json:"status"`
 	ReasonCode     string     `json:"reason_code"`
+	CallerRef      string     `json:"caller_reference"`
 	DecidedAt      *time.Time `json:"decided_at"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
@@ -134,4 +137,38 @@ func (c *Client) Get(ctx context.Context, id ids.ID) (Case, error) {
 	var out envelope[Case]
 	err := c.c.Do(ctx, httpx.Request{Method: http.MethodGet, Path: "/internal/v1/verifications/" + url.PathEscape(id.String())}, &out)
 	return out.Data, err
+}
+
+var capacityCode = regexp.MustCompile(`^[A-Z][A-Z0-9_]{1,63}$`)
+
+// SupportsCapacity implements CapacityAuthority: the Verification Service
+// verifies any well-formed capacity code as an OPERATING_CAPACITY case.
+func (c *Client) SupportsCapacity(code string) bool { return capacityCode.MatchString(code) }
+
+// CapacityReference binds an OPERATING_CAPACITY case to one capacity code.
+func CapacityReference(code string) string { return "capacity:" + code }
+
+// Capacity implements CapacityAuthority by reading the authoritative case and
+// checking that it is this organisation's case for exactly this capacity.
+func (c *Client) Capacity(ctx context.Context, org ids.ID, code string, caseID ids.ID) (CapacityAssertion, error) {
+	v, err := c.Get(ctx, caseID)
+	if err != nil {
+		return CapacityAssertion{}, err
+	}
+	if v.VerificationID != caseID || v.Type != TypeOperatingCapacity || v.Subject.Type != SubjectBusiness || v.Subject.Domain != string(platform.DomainBusinessOperations) || v.Subject.ID != org || v.CallerRef != CapacityReference(code) {
+		return CapacityAssertion{}, errors.New("verification: case is not this organisation's capacity case")
+	}
+	status := "PENDING"
+	switch v.Status {
+	case "VERIFIED":
+		status = "VERIFIED"
+		if v.ExpiresAt != nil && !time.Now().Before(*v.ExpiresAt) {
+			status = "EXPIRED"
+		}
+	case "REJECTED":
+		status = "REJECTED"
+	case "EXPIRED":
+		status = "EXPIRED"
+	}
+	return CapacityAssertion{OrganisationID: org, Code: code, CaseID: caseID, Status: status, ExpiresAt: v.ExpiresAt, UpdatedAt: v.UpdatedAt}, nil
 }

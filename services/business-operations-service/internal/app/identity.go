@@ -39,6 +39,9 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		return err
 	}
 	domain := businesshttp.Register(handler, verify, notify)
+	// Operating-capacity eligibility is asserted by the Verification Service
+	// (OPERATING_CAPACITY cases), read back on every refresh.
+	domain.CapacityAuthority = verify
 	if endpoint := loader.String("PAYMENT_SERVICE_URL", ""); endpoint != "" {
 		client, e := payment.New(endpoint, identity.Signer, 8*time.Second)
 		if e != nil {

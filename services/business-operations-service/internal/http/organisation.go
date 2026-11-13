@@ -199,6 +199,11 @@ func (h *Handler) submitKYB(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, err = h.Verification.Submit(r.Context(), id, "business-kyb:"+t.Organisation.String()+":case:"+id.String()+":submit")
+	if err == nil {
+		// Verification dispatches a submitted case to its provider only on
+		// an explicit processing request.
+		_, err = h.Verification.Process(r.Context(), id, "business-kyb:"+t.Organisation.String()+":case:"+id.String()+":process")
+	}
 	if err != nil {
 		reply(w, r, 0, nil, apperrors.Unavailable("Verification submission is unavailable."))
 		return

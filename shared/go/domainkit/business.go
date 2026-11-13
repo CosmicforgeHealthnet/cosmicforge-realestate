@@ -45,7 +45,11 @@ func (rt *Runtime) CallBusiness(ctx context.Context, org ids.ID, method, path, k
 	if rt.Business == nil {
 		return apperrors.Unavailable("Business Operations is not configured.")
 	}
-	ctx = requestcontext.WithOrganization(ctx, org)
+	// Partner contracts name the acting account in the body; the end-user
+	// actor of this domain is not delegated to Business.
+	v := requestcontext.From(ctx)
+	v.Actor, v.OrganizationID = requestcontext.Actor{}, org
+	ctx = requestcontext.With(ctx, v)
 	var env struct {
 		Data json.RawMessage `json:"data"`
 	}
