@@ -39,6 +39,10 @@ jobs:
           - {component: payment-service, dockerfile: services/payment-service/Dockerfile}
           - {component: business-operations-service, dockerfile: services/business-operations-service/Dockerfile}
           - {component: marketplace-service, dockerfile: services/marketplace-service/Dockerfile}
+          - {component: property-manager-service, dockerfile: services/property-manager-service/Dockerfile}
+          - {component: artisan-service, dockerfile: services/artisan-service/Dockerfile}
+          - {component: professional-services-service, dockerfile: services/professional-services-service/Dockerfile}
+          - {component: admin-service, dockerfile: services/admin-service/Dockerfile}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3

@@ -113,7 +113,7 @@ func (rt *Runtime) ActorRoutes(r chi.Router, mount func(r chi.Router)) {
 				r.Get("/me", rt.Accounts.me)
 				r.Post("/auth/logout", rt.Accounts.logout)
 			}
-			mount(r)
+			r.Group(mount)
 		})
 	})
 }
@@ -124,7 +124,7 @@ func (rt *Runtime) InternalRoutes(r chi.Router, callers []platform.Service, moun
 	r.Route("/internal/v1", func(r chi.Router) {
 		r.Use(serviceauth.Authenticate(rt.Cfg.Identity.Verifier, serviceauth.HeaderAuthorization),
 			serviceauth.RequireCaller(callers...), httpx.MaxBody(MaxBody))
-		mount(r)
+		r.Group(mount)
 	})
 }
 
@@ -202,9 +202,9 @@ type Change struct {
 // Idempotency-Key (replaying the stored response), committing state, audit
 // and outbox events atomically.
 func (rt *Runtime) Command(w http.ResponseWriter, r *http.Request, scope string, in any, fn func(ctx context.Context, tx pgx.Tx) (Change, error)) {
-	body, err := io.ReadAll(r.Body)
+	body, err := readBody(r)
 	if err != nil {
-		httpx.WriteError(w, r, apperrors.InvalidRequest("Unreadable request body."))
+		httpx.WriteError(w, r, err)
 		return
 	}
 	if in != nil {
@@ -287,4 +287,15 @@ func JSON(raw json.RawMessage) map[string]any {
 	m := map[string]any{}
 	_ = json.Unmarshal(raw, &m)
 	return m
+}
+
+func readBody(r *http.Request) ([]byte, error) {
+	if r.Body == nil {
+		return nil, nil
+	}
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, apperrors.InvalidRequest("Unreadable request body.")
+	}
+	return b, nil
 }

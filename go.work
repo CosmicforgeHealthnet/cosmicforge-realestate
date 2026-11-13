@@ -7,6 +7,10 @@ use (
 	./services/individual-owner-service
 	./services/marketplace-service
 	./services/payment-service
+	./services/professional-services-service
+	./services/property-manager-service
+	./services/admin-service
+	./services/artisan-service
 	./services/business-operations-service
 	./services/media-document-service
 	./services/notification-service
