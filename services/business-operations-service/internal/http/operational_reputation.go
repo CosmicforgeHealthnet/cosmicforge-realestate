@@ -108,6 +108,7 @@ type ReviewResponse struct {
 	ApprovalID         *ids.ID    `json:"approval_id"`
 	ProviderResponseID *string    `json:"provider_response_id"`
 	Attempts           int        `json:"attempts"`
+	NextAttemptAt      time.Time  `json:"next_attempt_at"`
 	LeaseGeneration    int64      `json:"lease_generation"`
 	OutcomeReason      string     `json:"outcome_reason"`
 	PublishedAt        *time.Time `json:"published_at"`

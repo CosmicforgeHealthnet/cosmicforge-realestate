@@ -166,6 +166,9 @@ func (h *Handler) dispatchReviewResponse(ctx context.Context, org, id ids.ID, ow
 		if e = tx.QueryRow(ctx, `SELECT coalesce(lease_expires_at<$2,false) FROM review_responses WHERE id=$1`, id, now).Scan(&expired); e != nil {
 			return e
 		}
+		if resp.State != "SUBMITTING" && resp.NextAttemptAt.After(now) {
+			return nil // backoff honoured under the row lock
+		}
 		switch {
 		case resp.State == "APPROVED":
 			kind = "SUBMIT"

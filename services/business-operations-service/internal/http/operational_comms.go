@@ -170,6 +170,7 @@ type ScheduledReply struct {
 	State             string     `json:"state"`
 	Attempts          int        `json:"attempts"`
 	MaxAttempts       int        `json:"max_attempts"`
+	NextAttemptAt     time.Time  `json:"next_attempt_at"`
 	LeaseGeneration   int64      `json:"lease_generation"`
 	ProviderMessageID *string    `json:"provider_message_id"`
 	OutcomeReason     string     `json:"outcome_reason"`

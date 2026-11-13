@@ -36,6 +36,14 @@ func (h *Handler) InternalDistributionRouter(verifier *serviceauth.Verifier) htt
 		r.Post("/funnel-observations", h.internalFunnelObservation)
 	})
 	r.Group(func(r chi.Router) {
+		r.Use(serviceauth.RequireCaller(platform.PropertyManagerService))
+		r.Get("/manager-authorizations/{id}", h.internalManagerAuthorization)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(serviceauth.RequireCaller(platform.MediaDocumentService))
+		r.Get("/data-room-grants/{id}/authorization", h.internalDataRoomAuthorization)
+	})
+	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.PaymentService, platform.AdminService))
 		r.Post("/channel-financial-inputs", h.internalChannelFinancialInput)
 		r.Post("/cashier-attestations", h.internalPMSCashAttestation)

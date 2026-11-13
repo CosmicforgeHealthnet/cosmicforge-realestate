@@ -367,7 +367,9 @@ func (h *Handler) dispatchReply(ctx context.Context, org, id ids.ID, owner strin
 			return e
 		}
 		now := h.Auth.Service.Now().UTC()
-		claimable := (s.State == "SCHEDULED" || s.State == "UNKNOWN_PENDING_READBACK") && !s.SendAt.After(now)
+		// Backoff is honoured under the row lock, so concurrent dispatchers
+		// never retry or read back early.
+		claimable := (s.State == "SCHEDULED" || s.State == "UNKNOWN_PENDING_READBACK") && !s.SendAt.After(now) && !s.NextAttemptAt.After(now)
 		var expired bool
 		if s.State == "DISPATCHING" {
 			if e = tx.QueryRow(ctx, `SELECT lease_expires_at<$2 FROM scheduled_replies WHERE id=$1`, id, now).Scan(&expired); e != nil {

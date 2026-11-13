@@ -337,7 +337,7 @@ func TestBusinessInboxAIGroundingInjectionActionCardsAndApprovedAutoReply(t *tes
 	// Auto-reply needs an exact independent approval and MFA to enable.
 	rule := commercialData[businesshttp.AutomationRule](t, f.must(f.owner, "POST", "/automation-rules", businesshttp.AutomationRuleCreate{PropertyID: f.property.ID, Kind: "AI_FACTUAL_AUTOREPLY", Config: map[string]any{"minimum_confidence_bps": 8000}, Reason: "Answer factual questions automatically"}, 201))
 	f.must(f.owner, "POST", "/automation-rules/"+rule.ID.String()+"/enable", businesshttp.AutomationRuleEnable{Version: rule.Version, Reason: "Enable without approval"}, 403)
-	f.join(f.approver, f.owner, []string{"automation:approve"})
+	f.grant(f.approver, "automation:approve")
 	approval := f.approval("COMMERCIAL_AI_AUTOREPLY_ACTIVATION", "automation:approve", "", nil, "", map[string]any{"rule_id": rule.ID, "config": map[string]any{"minimum_confidence_bps": 8000}})
 	rule = commercialData[businesshttp.AutomationRule](t, f.must(f.owner, "POST", "/automation-rules/"+rule.ID.String()+"/enable", businesshttp.AutomationRuleEnable{Version: rule.Version, ApprovalID: approval, Reason: "Independently approved automation"}, 200))
 	if _, err := f.db.Pool.Exec(t.Context(), `UPDATE inbox_sync_cursors SET next_poll_at=now()-interval '1 second'`); err != nil {
