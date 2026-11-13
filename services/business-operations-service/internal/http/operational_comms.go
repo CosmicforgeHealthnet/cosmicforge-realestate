@@ -37,6 +37,8 @@ type MessagingConnection struct {
 	SupportsReadState        bool       `json:"supports_read_state"`
 	SupportsPreview          bool       `json:"supports_preview"`
 	SupportsAttachments      bool       `json:"supports_attachments"`
+	SupportsReviews          bool       `json:"supports_reviews"`
+	SupportsReviewReplies    bool       `json:"supports_review_replies"`
 	RetentionDays            int        `json:"retention_days"`
 	CredentialReference      string     `json:"credential_reference"`
 	ProviderAccountReference string     `json:"provider_account_reference"`
@@ -56,6 +58,8 @@ type MessagingConnectionCreate struct {
 	SupportsReadState        bool   `json:"supports_read_state"`
 	SupportsPreview          bool   `json:"supports_preview"`
 	SupportsAttachments      bool   `json:"supports_attachments"`
+	SupportsReviews          bool   `json:"supports_reviews"`
+	SupportsReviewReplies    bool   `json:"supports_review_replies"`
 	Reason                   string `json:"reason"`
 }
 
@@ -286,7 +290,7 @@ func (h *Handler) commsConnectionCreate(w http.ResponseWriter, r *http.Request) 
 	if !decode(w, r, &in) {
 		return
 	}
-	if in.PropertyID.ValidateV7() != nil || !slices.Contains(commsProviders, in.Provider) || !opsText(in.ProviderAccountReference, 1, 200) || !credentialRef.MatchString(in.CredentialReference) || in.RetentionDays < 0 || in.RetentionDays > 3650 || !validStaffReason(in.Reason) || in.Provider == "CF_MEET" && in.SupportsPreview {
+	if in.PropertyID.ValidateV7() != nil || !slices.Contains(commsProviders, in.Provider) || !opsText(in.ProviderAccountReference, 1, 200) || !credentialRef.MatchString(in.CredentialReference) || in.RetentionDays < 0 || in.RetentionDays > 3650 || !validStaffReason(in.Reason) || in.Provider == "CF_MEET" && (in.SupportsPreview || in.SupportsReviews) || in.SupportsReviewReplies && !in.SupportsReviews {
 		reply(w, r, 0, nil, apperrors.InvalidRequest("Property, supported provider, account reference, secret reference name, retention and reason required. CF Meet message content is never previewed."))
 		return
 	}
@@ -300,7 +304,7 @@ func (h *Handler) commsConnectionCreate(w http.ResponseWriter, r *http.Request) 
 			authority = "CF_MEET"
 		}
 		id := ids.New()
-		if _, e = tx.Exec(ctx, `INSERT INTO messaging_connections(id,organisation_id,property_id,provider,authority,supports_reply,supports_read_state,supports_preview,supports_attachments,retention_days,credential_reference,provider_account_reference,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, id, t.Organisation, in.PropertyID, in.Provider, authority, in.SupportsReply, in.SupportsReadState, in.SupportsPreview, in.SupportsAttachments, in.RetentionDays, in.CredentialReference, in.ProviderAccountReference, t.Account); e != nil {
+		if _, e = tx.Exec(ctx, `INSERT INTO messaging_connections(id,organisation_id,property_id,provider,authority,supports_reply,supports_read_state,supports_preview,supports_attachments,retention_days,credential_reference,provider_account_reference,created_by,supports_reviews,supports_review_replies) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`, id, t.Organisation, in.PropertyID, in.Provider, authority, in.SupportsReply, in.SupportsReadState, in.SupportsPreview, in.SupportsAttachments, in.RetentionDays, in.CredentialReference, in.ProviderAccountReference, t.Account, in.SupportsReviews, in.SupportsReviewReplies); e != nil {
 			return 0, nil, e
 		}
 		if _, e = tx.Exec(ctx, `INSERT INTO inbox_sync_cursors(organisation_id,connection_id) VALUES($1,$2)`, t.Organisation, id); e != nil {
@@ -349,6 +353,11 @@ func (h *Handler) commsConnectionState(w http.ResponseWriter, r *http.Request) {
 				}
 			} else {
 				caps := h.messagingAdapter(c.Provider).Capabilities()
+				if c.SupportsReviews {
+					if _, disabled := h.reviewAdapter(reviewSourceForProvider(c.Provider)).(messaging.DisabledReviews); disabled {
+						return 0, nil, apperrors.Unavailable("No approved review adapter exists for this provider; the connection stays inactive.")
+					}
+				}
 				if !caps.Poll && !caps.Reply || c.SupportsReply && !caps.Reply || c.SupportsReadState && !caps.ReadState || c.SupportsPreview && !caps.Preview || c.SupportsAttachments && !caps.Attachments {
 					return 0, nil, apperrors.Unavailable("No approved provider adapter supports the configured capabilities; the connection stays inactive.")
 				}

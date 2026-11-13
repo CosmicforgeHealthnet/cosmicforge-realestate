@@ -3,6 +3,7 @@ package businesshttp
 import (
 	"context"
 	"errors"
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
@@ -35,6 +36,9 @@ func (h *Handler) openOverbookingRecoveryCase(ctx context.Context, tx pgx.Tx, t 
 		return nil, e
 	}
 	if e = h.recoveryCommit(ctx, tx, t, c, 1, "OPENED", "OPEN", "OPEN", evidence, map[string]any{"issue_type": "OVERBOOKING", "severity": "HIGH", "source": "APPROVED_OVERBOOKING_PERMIT", "permit_id": permit, "reason": reason}); e != nil {
+		return nil, e
+	}
+	if e = businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, v.PropertyID, id, "service_recovery_case", "SERVICE_RECOVERY_CREATED", businessEvents.ServiceRecoveryCreated, 1, map[string]any{"case_id": id, "guest_id": guest, "issue_type": "OVERBOOKING", "severity": "HIGH", "state": "OPEN"}); e != nil {
 		return nil, e
 	}
 	return &id, nil

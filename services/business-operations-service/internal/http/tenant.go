@@ -40,6 +40,7 @@ type Handler struct {
 	AccessAdapters          map[string]smartaccess.API
 	CFMeet                  cfmeet.API
 	Messaging               map[string]messaging.Adapter
+	ReviewAdapters          map[string]messaging.ReviewAdapter
 	InvitationAcceptURL     string
 	CapacityAuthority       verification.CapacityAuthority
 	RepresentativeAuthority verification.RepresentativeAuthority

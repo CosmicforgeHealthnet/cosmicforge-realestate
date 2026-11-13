@@ -6,4 +6,5 @@ import "github.com/go-chi/chi/v5"
 // common account authentication middleware.
 func (h *Handler) registerSections1224(r chi.Router) {
 	h.registerCommunications(r)
+	h.registerReputation(r)
 }

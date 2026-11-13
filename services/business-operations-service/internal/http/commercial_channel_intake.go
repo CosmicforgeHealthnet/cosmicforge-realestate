@@ -32,6 +32,7 @@ func (h *Handler) InternalDistributionRouter(verifier *serviceauth.Verifier) htt
 		r.Post("/channel-receipts", h.internalChannelReceipt)
 		r.Get("/reservations/{id}", h.internalReservationStatus)
 		r.Post("/guest-assertions", h.internalCRMSourceAssertion)
+		r.Post("/reviews", h.internalReviewReceipt)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(serviceauth.RequireCaller(platform.PaymentService, platform.AdminService))

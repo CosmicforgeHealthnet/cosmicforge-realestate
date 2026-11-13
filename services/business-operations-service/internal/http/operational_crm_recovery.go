@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/crm"
+	businessEvents "github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/events"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/database"
 	apperrors "github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/errors"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/shared/go/ids"
@@ -210,6 +211,10 @@ func (h *Handler) crmRecoveryCaseCreate(w http.ResponseWriter, r *http.Request) 
 			return 0, nil, e
 		}
 		if e = h.recoveryCommit(ctx, tx, t, c, 1, "OPENED", "OPEN", "OPEN", in.EvidenceReference, map[string]any{"issue_type": in.IssueType, "severity": in.Severity, "reason": in.Reason}); e != nil {
+			return 0, nil, e
+		}
+		// Section 18 canonical creation event alongside the compatibility event.
+		if e = businessEvents.PublishCommercial(ctx, tx, h.Auth.Service.Outbox, t.Organisation, in.PropertyID, id, "service_recovery_case", "SERVICE_RECOVERY_CREATED", businessEvents.ServiceRecoveryCreated, 1, map[string]any{"case_id": id, "guest_id": in.GuestID, "issue_type": in.IssueType, "severity": in.Severity, "state": "OPEN"}); e != nil {
 			return 0, nil, e
 		}
 		return 201, c, nil
