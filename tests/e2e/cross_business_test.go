@@ -267,7 +267,9 @@ func onboardBusiness(t *testing.T, p *crossEnv) *bizEnv {
 	}
 	b.approver = &bizUser{email: "approver-" + ids.New().String()[24:] + "@biz.cross", password: "correct horse battery", org: b.owner.org}
 	grants := []map[string]any{}
-	for _, c := range []string{"approvals:decide", "rates:approve", "pricing:approve", "publication:approve", "channels:approve", "reservations:approve"} {
+	for _, c := range []string{"approvals:decide", "rates:approve", "pricing:approve", "publication:approve", "channels:approve", "reservations:approve",
+		"maintenance:read", "maintenance:write", "maintenance:approve", "managers:read", "managers:write", "professional:read", "professional:write",
+		"projects:read", "projects:write", "disputes:read", "disputes:write", "pms:approve", "folios:approve", "finance:approve"} {
 		grants = append(grants, map[string]any{"capability": c, "scope_kind": "COMPANY", "scope_id": b.owner.org, "inherit": true})
 	}
 	b.must(b.owner, "POST", "/staff", map[string]any{"email": b.approver.email, "role_id": role, "grants": grants, "reason": "Independent approver for commercial controls"}, 201)
@@ -467,4 +469,35 @@ func TestCrossBusinessOnboardingThroughOwningServices(t *testing.T) {
 	p := startCrossPlatform(t)
 	b := onboardBusiness(t, p)
 	b.supplyBusiness()
+}
+
+type opsRecord struct {
+	ID      ids.ID `json:"id"`
+	Version int64  `json:"version"`
+	State   string `json:"state"`
+}
+
+func (b *bizEnv) opsCreate(u *bizUser, path string, body map[string]any) opsRecord {
+	b.t.Helper()
+	if body["reason"] == nil {
+		body["reason"] = "Governed operational record"
+	}
+	return dataOf[opsRecord](b.t, b.must(u, "POST", path, body, 201))
+}
+
+// opsMove applies one governed transition at the record's current version.
+func (b *bizEnv) opsMove(u *bizUser, path string, rec opsRecord, cmd map[string]any) opsRecord {
+	b.t.Helper()
+	cmd["version"] = rec.Version
+	if cmd["reason"] == nil {
+		cmd["reason"] = "Governed operational transition"
+	}
+	return dataOf[opsRecord](b.t, b.must(u, "POST", path+"/"+rec.ID.String()+"/transitions", cmd, 200))
+}
+
+func (b *bizEnv) opsGet(path string) opsRecord {
+	b.t.Helper()
+	return dataOf[struct {
+		Record opsRecord `json:"record"`
+	}](b.t, b.must(b.owner, "GET", path, nil, 200)).Record
 }

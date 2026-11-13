@@ -271,4 +271,179 @@ func TestCrossServiceCertificationFlows(t *testing.T) {
 			t.Fatalf("confirmation %+v", checkout)
 		}
 	})
+	t.Run("4 maintenance artisan work verified and resolved by Business", func(t *testing.T) {
+		p.t, b.t = t, t
+		artisan, artisanID := p.domainUser(platform.DomainArtisan, "tunde@artisan.cross")
+		evidence := []ids.ID{p.upload(b.owner.access, "DOCUMENT", "report.pdf", "application/pdf", pdf("maintenance report"), map[string]any{"document_type": "MAINTENANCE_REPORT"})}
+		wo := b.opsCreate(b.owner, "/work-orders", map[string]any{"scope_id": b.property, "subject_id": b.unit, "kind": "REPAIR", "title": "Fix bathroom leak", "reason": "Guest report"})
+		approval := b.approval("COMMERCIAL_WORK_ORDER", "maintenance:approve", "", nil, "", map[string]any{"domain": "work_order", "record_id": wo.ID, "action": "APPROVE", "version": wo.Version}, "PROPERTY", b.property)
+		wo = dataOf[opsRecord](t, b.must(b.owner, "POST", "/work-orders/"+wo.ID.String()+"/approve", map[string]any{"version": wo.Version, "approval_id": approval, "reason": "Approve repair"}, 200))
+		wo = b.opsMove(b.owner, "/work-orders", wo, map[string]any{"action": "ASSIGN", "external_reference": "artisan-job-1"})
+		pa := b.opsCreate(b.owner, "/work-orders/"+wo.ID.String()+"/provider-assignments", map[string]any{"kind": "ARTISAN", "title": "Bathroom leak repair",
+			"counterparty_reference": "artisan-service:account:" + artisanID.String(), "attributes": map[string]any{"scope_of_work": "Replace the shower valve"}, "reason": "Assign artisan"})
+		// The Artisan Service projects the Business assignment from JetStream.
+		var work struct {
+			ID ids.ID `json:"id"`
+		}
+		eventually(t, 60*time.Second, "artisan work request projected from Business", func() bool {
+			r := p.as(artisan, "GET", "/api/v1/artisan/work-requests", nil)
+			var list struct {
+				Items []struct {
+					ID ids.ID `json:"id"`
+				} `json:"items"`
+			}
+			r.data(t, &list)
+			if len(list.Items) == 1 {
+				work.ID = list.Items[0].ID
+			}
+			return !work.ID.IsZero()
+		})
+		path := "/api/v1/artisan/work-requests/" + work.ID.String()
+		mustStatus(t, p.as(artisan, "POST", path+"/accept", map[string]any{}), 200)
+		mustStatus(t, p.as(artisan, "POST", path+"/arrive", map[string]any{}), 400) // BEFORE evidence first
+		jpeg := append([]byte{0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 'J', 'F', 'I', 'F', 0x00}, bytes.Repeat([]byte{0x24}, 1024)...)
+		before := p.upload(artisan, "IMAGE", "before.jpg", "image/jpeg", jpeg, nil)
+		mustStatus(t, p.as(artisan, "POST", path+"/evidence", map[string]any{"stage": "BEFORE", "media_reference": before}), 201)
+		mustStatus(t, p.as(artisan, "POST", path+"/arrive", map[string]any{}), 200)
+		after := p.upload(artisan, "IMAGE", "after.jpg", "image/jpeg", append(jpeg, 1), nil)
+		mustStatus(t, p.as(artisan, "POST", path+"/evidence", map[string]any{"stage": "AFTER", "media_reference": after}), 201)
+		mustStatus(t, p.as(artisan, "POST", path+"/complete", map[string]any{"warranty_days": 90}), 200)
+		// Business holds the authoritative assignment outcome and verifies the work.
+		if got := b.opsGet("/work-orders/" + wo.ID.String() + "/provider-assignments/" + pa.ID.String()); got.State != "COMPLETED" {
+			t.Fatalf("business assignment %+v", got)
+		}
+		wo = b.opsMove(b.owner, "/work-orders", wo, map[string]any{"action": "START"})
+		wo = b.opsMove(b.owner, "/work-orders", wo, map[string]any{"action": "COMPLETE", "evidence_refs": evidence})
+		wo = b.opsMove(b.approver, "/work-orders", wo, map[string]any{"action": "VERIFY", "evidence_refs": evidence})
+		if wo.State != "VERIFIED" {
+			t.Fatalf("work order %+v", wo)
+		}
+		if r := p.as(artisan, "GET", "/api/v1/artisan/warranties", nil); !strings.Contains(string(r.body), `"ACTIVE"`) {
+			t.Fatalf("warranty %s", r.body)
+		}
+	})
+
+	t.Run("5 manager mandate permission delegated action and revocation", func(t *testing.T) {
+		p.t, b.t = t, t
+		manager, managerID := p.domainUser(platform.DomainPropertyManager, "kemi@manager.cross")
+		evidence := []ids.ID{p.upload(b.owner.access, "DOCUMENT", "mandate.pdf", "application/pdf", pdf("management agreement"), map[string]any{"document_type": "MANAGEMENT_AGREEMENT"})}
+		ends := time.Now().UTC().Add(30 * 24 * time.Hour)
+		as := b.opsCreate(b.owner, "/manager-assignments", map[string]any{"scope_id": b.property, "kind": "PROPERTY_MANAGER", "title": "Lekki Suites management",
+			"counterparty_reference": "property-manager-service:account:" + managerID.String(), "ends_at": ends, "attributes": map[string]any{"capabilities": []string{"maintenance:write"}, "mandate_reference": "mandate-lekki-1"}})
+		approval := b.approval("EXTERNAL_MANAGER_ACCESS", "approvals:decide", "", nil, "", map[string]any{"domain": "manager_assignment", "record_id": as.ID, "action": "ACTIVATE", "version": as.Version}, "PROPERTY", b.property)
+		as = b.opsMove(b.owner, "/manager-assignments", as, map[string]any{"action": "ACTIVATE", "approval_id": approval, "evidence_refs": evidence})
+		var mandate struct {
+			ID ids.ID `json:"id"`
+		}
+		eventually(t, 60*time.Second, "mandate projected by the Property Manager Service", func() bool {
+			var list struct {
+				Items []struct {
+					ID ids.ID `json:"id"`
+				} `json:"items"`
+			}
+			p.as(manager, "GET", "/api/v1/property-manager/mandates", nil).data(t, &list)
+			if len(list.Items) == 1 {
+				mandate.ID = list.Items[0].ID
+			}
+			return !mandate.ID.IsZero()
+		})
+		path := "/api/v1/property-manager/mandates/" + mandate.ID.String()
+		mustStatus(t, p.as(manager, "POST", path+"/accept", map[string]any{}), 200)
+		var auth struct {
+			Allowed bool `json:"allowed"`
+		}
+		mustStatus(t, p.as(manager, "GET", path+"/authorization?capability=maintenance:write", nil), 200).data(t, &auth)
+		if !auth.Allowed {
+			t.Fatal("live Business authorization refused an active mandate")
+		}
+		mustStatus(t, p.as(manager, "GET", path+"/authorization?capability=finance:write", nil), 200).data(t, &auth)
+		if auth.Allowed {
+			t.Fatal("capability outside the mandate allowed")
+		}
+		req := mustStatus(t, p.as(manager, "POST", path+"/maintenance-requests", map[string]any{"kind": "CORRECTIVE", "title": "Broken balcony door", "reason": "Reported by the on-site manager"}), 201)
+		if !strings.Contains(string(req.body), "business_request_id") && !strings.Contains(string(req.body), "OPEN") {
+			t.Fatalf("delegated action %s", req.body)
+		}
+		// Business revokes; the next delegated action is refused by Business
+		// and the projection follows the Business event.
+		cur := b.opsGet("/manager-assignments/" + as.ID.String())
+		b.must(b.owner, "POST", "/manager-assignments/"+as.ID.String()+"/revoke", map[string]any{"version": cur.Version, "reason": "Mandate ended by the owner"}, 200)
+		if r := p.as(manager, "POST", path+"/maintenance-requests", map[string]any{"kind": "CORRECTIVE", "title": "Another request", "reason": "After revocation"}); r.status != 403 && r.status != 409 {
+			t.Fatalf("revoked mandate acted %d %s", r.status, r.body)
+		}
+		eventually(t, 60*time.Second, "revocation projected", func() bool {
+			r := p.as(manager, "GET", path, nil)
+			return strings.Contains(string(r.body), `"REVOKED"`)
+		})
+		mustStatus(t, p.as(manager, "GET", path+"/authorization?capability=maintenance:write", nil), 200).data(t, &auth)
+		if auth.Allowed {
+			t.Fatal("revoked mandate still authorized")
+		}
+	})
+
+	t.Run("6 professional appointment certification evidence and Business milestone approval", func(t *testing.T) {
+		p.t, b.t = t, t
+		pro, proID := p.domainUser(platform.DomainProfessionalServices, "ngozi@qs.cross")
+		const base = "/api/v1/professional-services"
+		mustStatus(t, p.as(pro, "PUT", base+"/profile", map[string]any{"profession": "QUANTITY_SURVEYOR", "license_number": "QS-NG-4471"}), 200)
+		// Credential decided by the Verification Service from Media evidence.
+		licence := p.upload(pro, "VERIFICATION_DOCUMENT", "qs-licence.pdf", "application/pdf", pdf("quantity surveyor licence"), map[string]any{"document_type": "PROFESSIONAL_LICENSE"})
+		mustStatus(t, p.as(pro, "POST", base+"/profile/verification", map[string]any{"media_id": licence}), 202)
+		eventually(t, 60*time.Second, "professional credential VERIFIED by Verification", func() bool {
+			r := p.as(pro, "POST", base+"/profile/verification/refresh", nil)
+			return strings.Contains(string(r.body), `"VERIFIED"`)
+		})
+		ref := "professional-services-service:account:" + proID.String()
+		appt := b.opsCreate(b.owner, "/professional-appointments", map[string]any{"scope_id": b.property, "kind": "SURVEYOR", "title": "Structural survey", "counterparty_reference": ref, "attributes": map[string]any{"purpose": "Pre-expansion survey"}})
+		branch := dataOf[struct {
+			ID ids.ID `json:"id"`
+		}](t, b.must(b.owner, "POST", "/branches", map[string]any{"name": "Development branch", "timezone": "Africa/Lagos", "currency": "NGN"}, 201))
+		dev := dataOf[bizNode](t, b.must(b.owner, "POST", "/projects", map[string]any{"branch_id": branch.ID, "code": "LEKKI-ANNEX", "name": "Lekki Suites annex"}, 201))
+		projectBase := "/projects/" + dev.ID.String()
+		evidence := []ids.ID{p.upload(b.owner.access, "DOCUMENT", "progress.pdf", "application/pdf", pdf("site progress"), map[string]any{"document_type": "PROGRESS_REPORT"})}
+		due := time.Now().UTC().Add(30 * 24 * time.Hour)
+		ms := b.opsCreate(b.owner, projectBase+"/milestones", map[string]any{"kind": "STRUCTURE", "title": "Structure complete", "ends_at": due})
+		ms = b.opsMove(b.owner, projectBase+"/milestones", ms, map[string]any{"action": "START"})
+		ms = b.opsMove(b.owner, projectBase+"/milestones", ms, map[string]any{"action": "REQUEST_CERTIFICATION", "evidence_refs": evidence})
+		b.opsCreate(b.owner, projectBase+"/progress-certifications", map[string]any{"kind": "INTERIM", "title": "Structure certificate", "counterparty_reference": ref, "attributes": map[string]any{"milestone_id": ms.ID.String(), "percent_complete": 100}})
+		// The Professional Services Service projects both Business records.
+		var apptID, certID string
+		eventually(t, 60*time.Second, "appointment and certification projected", func() bool {
+			var a, c struct {
+				Items []struct {
+					ID string `json:"id"`
+				} `json:"items"`
+			}
+			p.as(pro, "GET", base+"/appointments", nil).data(t, &a)
+			p.as(pro, "GET", base+"/certifications", nil).data(t, &c)
+			if len(a.Items) == 1 && len(c.Items) == 1 {
+				apptID, certID = a.Items[0].ID, c.Items[0].ID
+			}
+			return apptID != "" && certID != ""
+		})
+		proEvidence := []ids.ID{p.upload(pro, "DOCUMENT", "survey.pdf", "application/pdf", pdf("survey findings"), map[string]any{"document_type": "SURVEY_REPORT"})}
+		for _, step := range []string{"accept", "start"} {
+			mustStatus(t, p.as(pro, "POST", base+"/appointments/"+apptID+"/"+step, map[string]any{}), 200)
+		}
+		mustStatus(t, p.as(pro, "POST", base+"/appointments/"+apptID+"/findings", map[string]any{"kind": "DEFECT", "title": "Hairline crack on east wall", "evidence_refs": proEvidence}), 201)
+		mustStatus(t, p.as(pro, "POST", base+"/appointments/"+apptID+"/report", map[string]any{"report_reference": proEvidence[0]}), 200)
+		if got := b.opsGet("/professional-appointments/" + appt.ID.String()); got.State != "REPORT_SUBMITTED" {
+			t.Fatalf("business appointment %+v", got)
+		}
+		mustStatus(t, p.as(pro, "POST", base+"/certifications/"+certID+"/review", map[string]any{}), 200)
+		mustStatus(t, p.as(pro, "POST", base+"/certifications/"+certID+"/certify", map[string]any{"certificate_reference": "QS-CERT-2026-118", "evidence_refs": proEvidence}), 200)
+		// Business approves the milestone on the certified evidence.
+		ms = b.opsMove(b.approver, projectBase+"/milestones", ms, map[string]any{"action": "CERTIFY", "evidence_refs": evidence})
+		if ms.State != "CERTIFIED" {
+			t.Fatalf("milestone %+v", ms)
+		}
+	})
+}
+
+func mustStatus(t *testing.T, r response, status int) response {
+	t.Helper()
+	if r.status != status {
+		t.Fatalf("got %d want %d: %s", r.status, status, r.body)
+	}
+	return r
 }

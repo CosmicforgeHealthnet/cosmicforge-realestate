@@ -202,7 +202,7 @@ func (s *svc) accept(w http.ResponseWriter, r *http.Request) {
 		return nil
 	}
 	s.rt.CommandWithPre(w, r, "mandate.accept", &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {
-		st, err := domainkit.Move(ctx, tx, "mandates", m.ID, m.Version, []string{"OFFERED"}, "ACTIVE")
+		st, err := domainkit.Move(ctx, tx, "mandates", m.ID, 0, []string{"OFFERED"}, "ACTIVE")
 		if err != nil {
 			return domainkit.Change{}, err
 		}
@@ -227,7 +227,7 @@ func (s *svc) decline(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return domainkit.Change{}, err
 		}
-		st, err := domainkit.Move(ctx, tx, "mandates", m.ID, m.Version, []string{"OFFERED"}, "DECLINED")
+		st, err := domainkit.Move(ctx, tx, "mandates", m.ID, 0, []string{"OFFERED"}, "DECLINED")
 		if err != nil {
 			return domainkit.Change{}, err
 		}

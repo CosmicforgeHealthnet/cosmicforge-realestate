@@ -297,7 +297,9 @@ func (s *svc) action(name string) http.HandlerFunc {
 			return err
 		}
 		s.rt.CommandWithPre(w, r, "work."+strings.ToLower(name), &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {
-			st, err := domainkit.Move(ctx, tx, "work_requests", wr.ID, wr.Version, a.from, a.to)
+			// The Business call above emits an event this service also consumes, so
+			// the row may have advanced; move under the row lock by state.
+			st, err := domainkit.Move(ctx, tx, "work_requests", wr.ID, 0, a.from, a.to)
 			if err != nil {
 				return domainkit.Change{}, err
 			}
@@ -390,7 +392,7 @@ func (s *svc) submitQuote(w http.ResponseWriter, r *http.Request) {
 		return err
 	}
 	s.rt.CommandWithPre(w, r, "quote.submit", &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {
-		tag, err := tx.Exec(ctx, `UPDATE quote_requests SET state='SUBMITTED',amount_minor=$3,currency=$4,version=version+1,updated_at=now() WHERE id=$1 AND version=$2 AND state='REQUESTED'`, q.ID, q.Version, in.AmountMinor, in.Currency)
+		tag, err := tx.Exec(ctx, `UPDATE quote_requests SET state='SUBMITTED',amount_minor=$2,currency=$3,version=version+1,updated_at=now() WHERE id=$1 AND state='REQUESTED'`, q.ID, in.AmountMinor, in.Currency)
 		if err != nil {
 			return domainkit.Change{}, err
 		}

@@ -411,7 +411,9 @@ func (s *svc) appointmentAction(action string) http.HandlerFunc {
 			return err
 		}
 		s.rt.CommandWithPre(w, r, "appointment."+strings.ToLower(action), &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {
-			st, err := domainkit.Move(ctx, tx, "appointments", a.ID, a.Version, []string{spec.from}, spec.to)
+			// The Business call above emits an event this service also consumes, so
+			// the row may have advanced; move under the row lock by state.
+			st, err := domainkit.Move(ctx, tx, "appointments", a.ID, 0, []string{spec.from}, spec.to)
 			if err != nil {
 				return domainkit.Change{}, err
 			}
@@ -609,7 +611,7 @@ func (s *svc) certificationAction(action string) http.HandlerFunc {
 			if action == "CERTIFY" {
 				ref = in.CertificateReference
 			}
-			tag, err := tx.Exec(ctx, `UPDATE certification_requests SET state=$3,certificate_reference=coalesce($4,certificate_reference),version=version+1,updated_at=now() WHERE id=$1 AND version=$2`, c.ID, c.Version, spec.to, ref)
+			tag, err := tx.Exec(ctx, `UPDATE certification_requests SET state=$3,certificate_reference=coalesce($4,certificate_reference),version=version+1,updated_at=now() WHERE id=$1 AND state=ANY($2)`, c.ID, spec.from, spec.to, ref)
 			if err != nil {
 				return domainkit.Change{}, err
 			}
