@@ -275,6 +275,103 @@ func TestCrossServiceCertificationFlows(t *testing.T) {
 			t.Fatalf("confirmation %+v", checkout)
 		}
 	})
+	t.Run("3 completed stay verified review and Business reputation", func(t *testing.T) {
+		p.t, b.t = t, t
+		if checkout.BusinessReservationID == nil || checkout.State != "CONFIRMED" {
+			t.Skip("depends on flow 2")
+		}
+		rid := checkout.BusinessReservationID.String()
+		type resDetail struct {
+			Reservation struct {
+				Version int64 `json:"version"`
+			} `json:"reservation"`
+			Rooms []struct {
+				ID ids.ID `json:"id"`
+			} `json:"rooms"`
+		}
+		reservation := func() resDetail { return dataOf[resDetail](t, b.must(b.owner, "GET", "/reservations/"+rid, nil, 200)) }
+		// Before arrival the stay cannot be reviewed.
+		if r := p.as(customer, "POST", "/api/v1/marketplace/checkouts/"+checkout.ID.String()+"/review", map[string]any{"rating": 5}); r.status != 409 {
+			t.Fatalf("review before stay %d %s", r.status, r.body)
+		}
+		// Front desk: canonical guest, approved link to the Marketplace
+		// customer's authenticated assertion, registration on the booking.
+		var g struct {
+			Guest struct {
+				ID      ids.ID `json:"id"`
+				Version int64  `json:"version"`
+			} `json:"guest"`
+		}
+		b.must(b.owner, "POST", "/guests", map[string]any{"property_id": b.property, "profile": map[string]any{"display_name": "Ada Customer", "language": "en"}, "source_kind": "DIRECT",
+			"registration_reference": "front-desk-registration:" + ids.New().String(), "reason": "Record the arriving guest's registration"}, 201).data(t, &g)
+		var customerAccount struct {
+			ID ids.ID `json:"id"`
+		}
+		mustStatus(t, p.as(customer, "GET", "/api/v1/marketplace/me", nil), 200).data(t, &customerAccount)
+		sourceRef := "marketplace-customer:" + customerAccount.ID.String()
+		projection := dataOf[struct {
+			ID ids.ID `json:"id"`
+		}](t, b.must(b.owner, "GET", "/guest-source-projections?property_id="+b.property.String()+"&source_kind=MARKETPLACE&source_reference="+sourceRef, nil, 200))
+		link := map[string]any{"guest_version": g.Guest.Version, "source_kind": "MARKETPLACE", "source_reference": sourceRef, "projection_id": projection.ID, "evidence_reference": "front-desk-id-check:" + ids.New().String(), "reason": "Link the arriving guest to the Marketplace booking identity"}
+		link["approval_id"] = b.approval("COMMERCIAL_GUEST_IDENTITY_LINK", "guest_privacy:write", "", nil, "", map[string]any{"guest_id": g.Guest.ID, "property_id": b.property, "command": withoutApproval(link)}, "PROPERTY", b.property)
+		b.must(b.owner, "POST", "/guests/"+g.Guest.ID.String()+"/identity-links", link, 201)
+		v := reservation()
+		b.must(b.owner, "POST", "/reservations/"+rid+"/guest-registrations", map[string]any{"version": v.Reservation.Version, "source_kind": "MARKETPLACE", "source_reference": sourceRef, "guest_id": g.Guest.ID,
+			"registration_reference": "front-desk-registration-card-0042", "reason": "Register the arriving Marketplace guest"}, 200)
+		// Room readiness, assignment, (early) check-in and departure.
+		var status struct {
+			Version int64 `json:"version"`
+		}
+		for i, state := range []string{"VACANT_DIRTY", "VACANT_CLEAN", "INSPECTED"} {
+			b.must(b.owner, "PUT", "/room-status/"+b.unit.String(), map[string]any{"property_id": b.property, "room_id": b.unit, "expected_version": i, "state": state, "evidence_reference": "housekeeping-inspection-0042", "reason": "Record the physical room readiness observation"}, 200).data(t, &status)
+		}
+		v = reservation()
+		var a struct {
+			ID      ids.ID `json:"id"`
+			Version int64  `json:"version"`
+		}
+		b.must(b.owner, "POST", "/room-assignments", map[string]any{"reservation_id": rid, "reservation_version": v.Reservation.Version, "reservation_room_id": v.Rooms[0].ID, "room_id": b.unit, "room_status_version": status.Version, "slot": 1, "reason": "Assign the inspected room"}, 201).data(t, &a)
+		v = reservation()
+		checkIn := map[string]any{"assignment_id": a.ID, "assignment_version": a.Version, "reservation_version": v.Reservation.Version, "room_status_version": status.Version, "guest_id": g.Guest.ID, "registration_reference": "front-desk-registration-card-0042", "reason": "Check in the registered guest"}
+		checkIn["approval_id"] = b.approval("COMMERCIAL_PMS_EARLY_CHECK_IN", "pms:approve", "", nil, "", map[string]any{"command": withoutApproval(checkIn)}, "PROPERTY", b.property)
+		var stay struct {
+			StayID             ids.ID `json:"stay_id"`
+			ReservationVersion int64  `json:"reservation_version"`
+		}
+		b.must(b.owner, "POST", "/reservations/"+rid+"/check-in", checkIn, 201).data(t, &stay)
+		var detail struct {
+			Stay struct {
+				Version int64 `json:"version"`
+			} `json:"stay"`
+			Folio struct {
+				Version  int64  `json:"version"`
+				Currency string `json:"currency"`
+			} `json:"folio"`
+			BalanceMinor int64 `json:"balance_minor"`
+		}
+		b.must(b.owner, "GET", "/stays/"+stay.StayID.String(), nil, 200).data(t, &detail)
+		v = reservation()
+		out := map[string]any{"stay_id": stay.StayID, "version": detail.Stay.Version, "reservation_version": v.Reservation.Version, "folio_version": detail.Folio.Version, "reason": "Guest departed"}
+		if detail.BalanceMinor != 0 {
+			exposure := detail.BalanceMinor
+			if exposure < 0 {
+				exposure = -exposure
+			}
+			out["approval_id"] = b.approval("COMMERCIAL_PMS_DEPARTURE_DEBT", "pms:approve", "", &exposure, detail.Folio.Currency, map[string]any{"stay_id": stay.StayID, "command": withoutApproval(out)}, "PROPERTY", b.property)
+		}
+		b.must(b.owner, "POST", "/reservations/"+rid+"/check-out", out, 200)
+		// Marketplace reconciles the completed stay and accepts a verified review.
+		eventually(t, 60*time.Second, "completed stay reconciled", func() bool {
+			r := p.as(customer, "GET", "/api/v1/marketplace/checkouts/"+checkout.ID.String(), nil)
+			r.data(t, &checkout)
+			return checkout.State == "COMPLETED"
+		})
+		mustStatus(t, p.as(customer, "POST", "/api/v1/marketplace/checkouts/"+checkout.ID.String()+"/review", map[string]any{"rating": 5, "body": "Spotless suite, quiet balcony and fast check-in."}), 201)
+		reviews := b.must(b.owner, "GET", "/reviews?property_id="+b.property.String()+"&source=MARKETPLACE_VERIFIED_STAY", nil, 200)
+		if !strings.Contains(string(reviews.body), "MARKETPLACE_VERIFIED_STAY") || !strings.Contains(string(reviews.body), rid) {
+			t.Fatalf("Business reputation %s", reviews.body)
+		}
+	})
 	var artisan string
 	var artisanID ids.ID
 	t.Run("4 maintenance artisan work verified and resolved by Business", func(t *testing.T) {

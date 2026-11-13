@@ -1,5 +1,5 @@
 {
- "total": 1002,
+ "total": 1004,
  "annex_e_required": 213,
  "annex_e_registered": 213,
  "routes": [
@@ -3392,6 +3392,32 @@
    "idempotent": false,
    "handler": "listingPublication",
    "source": "internal/http/commercial_content.go:146",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/business/guest-source-projections",
+   "group": "CRM/marketing",
+   "capability": "guests:read",
+   "step_up": false,
+   "idempotent": false,
+   "handler": "guestSourceProjection",
+   "source": "internal/http/commercial_marketplace_checkout.go:367",
+   "annex_e": false,
+   "openapi": true,
+   "postman": true
+  },
+  {
+   "method": "POST",
+   "path": "/api/v1/business/reservations/{id}/guest-registrations",
+   "group": "Reservations/front desk/folio/night audit",
+   "capability": "pms:write",
+   "step_up": true,
+   "idempotent": true,
+   "handler": "reservationGuestRegistration",
+   "source": "internal/http/commercial_marketplace_checkout.go:368",
    "annex_e": false,
    "openapi": true,
    "postman": true

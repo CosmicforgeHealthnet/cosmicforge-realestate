@@ -3219,6 +3219,32 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/business/guest-source-projections",
+    "capability": "guests:read",
+    "request": null,
+    "response": "S1224Object",
+    "status": 200,
+    "idempotent": false,
+    "step_up": false,
+    "public": false,
+    "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+    "handler": "guestSourceProjection"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/business/reservations/{id}/guest-registrations",
+    "capability": "pms:write",
+    "request": "MarketplaceGuestRegistration",
+    "response": "S1224Object",
+    "status": 200,
+    "idempotent": true,
+    "step_up": true,
+    "public": false,
+    "notes": "Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+    "handler": "reservationGuestRegistration"
+  },
+  {
+    "method": "GET",
     "path": "/internal/v1/business-supply/partner-records/{domain}/{id}",
     "capability": "signed:artisan-service|professional-services-service|admin-service|property-manager-service",
     "request": null,

@@ -269,7 +269,7 @@ func onboardBusiness(t *testing.T, p *crossEnv) *bizEnv {
 	grants := []map[string]any{}
 	for _, c := range []string{"approvals:decide", "rates:approve", "pricing:approve", "publication:approve", "channels:approve", "reservations:approve",
 		"maintenance:read", "maintenance:write", "maintenance:approve", "managers:read", "managers:write", "professional:read", "professional:write",
-		"projects:read", "projects:write", "disputes:read", "disputes:write", "pms:approve", "folios:approve", "finance:approve"} {
+		"projects:read", "projects:write", "disputes:read", "disputes:write", "pms:approve", "folios:approve", "finance:approve", "guest_privacy:write"} {
 		grants = append(grants, map[string]any{"capability": c, "scope_kind": "COMPANY", "scope_id": b.owner.org, "inherit": true})
 	}
 	b.must(b.owner, "POST", "/staff", map[string]any{"email": b.approver.email, "role_id": role, "grants": grants, "reason": "Independent approver for commercial controls"}, 201)
@@ -411,7 +411,7 @@ func (b *bizEnv) supplyBusiness() {
 		ID ids.ID `json:"id"`
 	}](t, b.must(b.owner, "POST", "/tax-profiles", fiscal, 201))
 	loc, _ := time.LoadLocation(prop.Timezone)
-	arrival := time.Now().In(loc).AddDate(0, 0, 3)
+	arrival := time.Now().In(loc) // arrival today: the front desk checks the guest in during flow 3
 	b.dateFrom, b.dateTo = arrival.Format(time.DateOnly), arrival.AddDate(0, 0, 2).Format(time.DateOnly)
 	definition := map[string]any{"currency": "NGN", "amount_minor": 2500000, "included_adults": 2, "min_guests": 1, "max_guests": 2, "min_nights": 1, "max_nights": 30, "cancellation_reference": "FLEXIBLE-24H:v1",
 		"prepayment_reference": "PAYMENT-SERVICE-REFERENCE:v1", "policy_code": "E2E-BASE", "policy_version": 1, "floor_minor": 100000, "ceiling_minor": 5000000, "max_change_bps": 1000, "tax_profile_id": tax.ID}
@@ -465,11 +465,6 @@ func dataRaw(r response) []byte {
 	return env.Data
 }
 
-func TestCrossBusinessOnboardingThroughOwningServices(t *testing.T) {
-	p := startCrossPlatform(t)
-	b := onboardBusiness(t, p)
-	b.supplyBusiness()
-}
 
 type opsRecord struct {
 	ID      ids.ID `json:"id"`

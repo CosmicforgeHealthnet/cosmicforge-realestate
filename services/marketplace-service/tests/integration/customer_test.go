@@ -125,6 +125,8 @@ func TestMarketplaceCustomerDiscoveryCheckoutPaymentReviewAndFunnel(t *testing.T
 			return 202, map[string]any{"id": ids.New(), "state": "QUEUED"}
 		case strings.HasSuffix(c.Path, "/reviews"):
 			return 202, map[string]any{"review_id": ids.New(), "state": "ACCEPTED"}
+		case strings.HasSuffix(c.Path, "/guest-assertions"):
+			return 201, map[string]any{"id": ids.New(), "state": "ACTIVE"}
 		case strings.HasSuffix(c.Path, "/funnel-observations"):
 			return 202, map[string]any{"accepted": true}
 		}

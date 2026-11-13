@@ -141,6 +141,8 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
       'internalManagerMaintenanceRequest':('signed:property-manager-service','ManagerActionRequest','OpsRecord',201,False),
       'internalProfessionalFinding':('signed:professional-services-service','ProfessionalFindingCreate','OpsRecord',201,False),
       'internalChannelReceipt':('signed:marketplace-service','CommercialReceiptCommand','CommercialReceiptResult',202,False),
+      'guestSourceProjection':('guests:read',None,'S1224Object',200,False),
+      'reservationGuestRegistration':('pms:write','MarketplaceGuestRegistration','S1224Object',200,True),
       'internalMarketplaceQuote':('signed:marketplace-service','MarketplaceQuoteCommand','QuoteSnapshot',201,False),
       'internalMarketplaceCollection':('signed:marketplace-service','MarketplaceCollectionCommand','S1224Object',202,False),
       'internalChannelFinancialInput':('signed:financial-owner','CommercialFinancialInputCommand','CommercialInputResult',201,False),
@@ -166,6 +168,8 @@ def register_commercial(root, schemas, route, obj, arr, ref, typ):
             if handler in ('listingPublish','listingPause','listingWithdraw','channelResync'):note+='202 means durable desired state/job only. Provider sellability remains pending/unknown until acknowledgement AND matching readback. '
             if handler in ('bulkRateApply','bulkRateRollback'):note+='Apply queues the exact approved preview; rollback first creates a new preview requiring its own independent approval. Workers recheck initiating authority and canonical versions. '
             if handler=='channelWebhookKeySet':note+='32-byte callback secret is encrypted with connection/tenant AAD and is never echoed, audited or cached. Approval operation uses secret_fingerprint SHA-256 instead of key_base64. '
+            if handler=='guestSourceProjection':note+='Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service\'s current authenticated identity assertion, used to approve an identity link. '
+            if handler=='reservationGuestRegistration':note+='Binds an individual reservation\'s source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source\'s current assertion (groups use rooming). '
             if handler=='internalMarketplaceQuote':note+='Canonical Business price for a product published on the signed Marketplace connection with confirmed mappings; the quote is an offer, not a reservation. '
             if handler=='internalMarketplaceCollection':note+='Queues a Payment Service collection from the Marketplace customer wallet for a reservation accepted from this connection; re-validated by the worker; a verified collection may auto-confirm only when the accepted policy needs no approval. '
             if handler in ('internalChannelReceipt','channelProviderWebhook'):note+='Durable replay/object-version dedupe; eligible complete reservation events create canonical pending bookings atomically; unresolved mappings, changed contracts, source authority or missing details remain durably quarantined. Canonical acceptance is distinct from confirmation.'

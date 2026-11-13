@@ -42,6 +42,7 @@ func (h *Handler) registerCommercial(r chi.Router) {
 	h.registerRates(r)
 	h.registerCommercialContent(r)
 	h.registerDistribution(r)
+	h.registerMarketplaceArrivals(r)
 }
 func pathCommercialID(r *http.Request) (ids.ID, error) {
 	id, e := ids.ParseV7(chi.URLParam(r, "id"))

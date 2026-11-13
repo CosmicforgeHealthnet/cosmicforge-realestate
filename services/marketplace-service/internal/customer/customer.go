@@ -628,6 +628,18 @@ type actionInput struct {
 	Version int64 `json:"version"`
 }
 
+// assertGuest tells Business, as the owning source, that the booking's
+// guest reference is this Marketplace's authenticated customer (a short-
+// lived, versioned assertion Business requires before front-desk staff may
+// link the reference to a canonical guest at arrival).
+func (s *svc) assertGuest(ctx context.Context, c Checkout) error {
+	now := time.Now().UTC()
+	version := now.Unix() / 60
+	return s.rt.CallBusiness(ctx, c.OrganisationID, http.MethodPost, "/guest-assertions", "mkt-assert:"+c.ID.String()+":"+itoa(version), map[string]any{
+		"organisation_id": c.OrganisationID, "connection_id": c.ListingID, "property_id": c.PropertyID, "source_reference": "marketplace-customer:" + c.AccountID.String(),
+		"source_version": version, "state": "ACTIVE", "expires_at": now.Add(23 * time.Hour), "evidence_reference": "marketplace-authenticated-account:" + c.AccountID.String()}, nil)
+}
+
 // hold creates the canonical HOLD reservation from the accepted quote.
 func (s *svc) hold(w http.ResponseWriter, r *http.Request) {
 	id, err := pathID(r)
@@ -660,11 +672,13 @@ func (s *svc) hold(w http.ResponseWriter, r *http.Request) {
 			return apperrors.Unavailable("Business accepted the hold without a reservation reference.")
 		}
 		c.BusinessReservationID = res.ReservationID
-		b, err = s.readBusiness(ctx, c)
-		return err
+		if b, err = s.readBusiness(ctx, c); err != nil {
+			return err
+		}
+		return s.assertGuest(ctx, c)
 	}
 	s.rt.CommandWithPre(w, r, "checkout.hold", &in, pre, func(ctx context.Context, tx pgx.Tx) (domainkit.Change, error) {
-		if _, err := tx.Exec(ctx, `UPDATE checkouts SET state='HELD',business_reservation_id=$2,business_version=$3,business_state=$4,financial_state=$5,hold_expires_at=$6,last_synced_at=now(),version=version+1,updated_at=now() WHERE id=$1 AND state='QUOTED'`, c.ID, b.ReservationID, b.Version, b.State, b.FinancialState, b.HoldExpiresAt); err != nil {
+		if _, err := tx.Exec(ctx, `UPDATE checkouts SET state='HELD',business_reservation_id=$2,business_version=$3,business_state=$4,financial_state=$5,hold_expires_at=$6,guest_asserted_at=now(),last_synced_at=now(),version=version+1,updated_at=now() WHERE id=$1 AND state='QUOTED'`, c.ID, b.ReservationID, b.Version, b.State, b.FinancialState, b.HoldExpiresAt); err != nil {
 			return domainkit.Change{}, err
 		}
 		return s.change(ctx, tx, c.ID, "checkout.held")
@@ -902,7 +916,32 @@ func (s *svc) sweep(ctx context.Context) error {
 	if err != nil {
 		errs = append(errs, err)
 	}
+	errs = append(errs, s.refreshGuestAssertions(ctx))
 	errs = append(errs, s.deliverFunnel(ctx))
+	return errors.Join(errs...)
+}
+
+// refreshGuestAssertions re-asserts the customer identity of live bookings
+// so it stays current through arrival.
+func (s *svc) refreshGuestAssertions(ctx context.Context) error {
+	rows, err := s.rt.Pool.Query(ctx, `SELECT `+checkoutColumns+` FROM checkouts WHERE state IN ('HELD','PAYMENT_PENDING','CONFIRMED') AND business_reservation_id IS NOT NULL AND (guest_asserted_at IS NULL OR guest_asserted_at<now()-interval '12 hours') ORDER BY guest_asserted_at NULLS FIRST LIMIT 50`)
+	if err != nil {
+		return err
+	}
+	list, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Checkout, error) { return scanCheckout(row) })
+	if err != nil {
+		return err
+	}
+	var errs []error
+	for _, c := range list {
+		if err := s.assertGuest(ctx, c); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		if _, err := s.rt.Pool.Exec(ctx, `UPDATE checkouts SET guest_asserted_at=now(),version=version+1,updated_at=now() WHERE id=$1`, c.ID); err != nil {
+			errs = append(errs, err)
+		}
+	}
 	return errors.Join(errs...)
 }
 

@@ -120115,6 +120115,454 @@
               ]
             },
             {
+              "name": "GET /api/v1/business/guest-source-projections",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "guest-source-projections"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {}\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/guest-source-projections",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "guest-source-projections"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: guests:read. Scope: trusted organisation and resolved resource hierarchy. Optimistic version, token single-use or documented provider key protects applicable retries. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Front desk lookup (query: property_id, source_kind, source_reference) of the owning source service's current authenticated identity assertion, used to approve an identity link. ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "GET /api/v1/business/loyalty/programs",
               "request": {
                 "method": "GET",
@@ -346004,6 +346452,599 @@
         {
           "name": "10 Reservations",
           "item": [
+            {
+              "name": "POST /api/v1/business/reservations/{id}/guest-registrations",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Request-ID",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "{{business_idempotency_key}}",
+                    "description": "Set a new stable value per intended command; reuse only for exact retries."
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "business",
+                    "reservations",
+                    "{{business_id}}",
+                    "guest-registrations"
+                  ]
+                },
+                "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{business_access_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "Committed success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Committed success",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"data\": {}\n}"
+                },
+                {
+                  "name": "Invalid request fields.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Invalid request fields.",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Invalid request fields.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication required.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Authentication required.",
+                  "code": 401,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"AUTHENTICATION_REQUIRED\",\n    \"message\": \"Authentication required.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Capability or scope denied.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Capability or scope denied.",
+                  "code": 403,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"PERMISSION_DENIED\",\n    \"message\": \"Capability or scope denied.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Resource not found.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Resource not found.",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RESOURCE_NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Version changed or idempotency conflicts.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Version changed or idempotency conflicts.",
+                  "code": 409,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"VERSION_CONFLICT\",\n    \"message\": \"Version changed or idempotency conflicts.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Try again later.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Try again later.",
+                  "code": 429,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Try again later.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                },
+                {
+                  "name": "Required provider is unavailable.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Request-ID",
+                        "value": "{{$guid}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "{{business_idempotency_key}}",
+                        "description": "Set a new stable value per intended command; reuse only for exact retries."
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/business/reservations/{{business_id}}/guest-registrations",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "business",
+                        "reservations",
+                        "{{business_id}}",
+                        "guest-registrations"
+                      ]
+                    },
+                    "description": "Authentication: business access JWT plus live account/session. Permission: pms:write. Scope: trusted organisation and resolved resource hierarchy. Recent MFA (under five minutes) required where configured; see operation-specific rules. Idempotency-Key is required; replay returns the original committed result, changed payload conflicts. Current canonical graph, tenant scope and policy versions are revalidated. Exact minor-unit money; no implicit FX or future-domain execution. Binds an individual reservation's source-typed guest to a canonical guest only through an ACTIVE approved identity link backed by the owning source's current assertion (groups use rooming). ",
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{business_access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"version\": 1,\n  \"source_kind\": \"example\",\n  \"source_reference\": \"example\",\n  \"guest_id\": \"{{business_guest_id}}\",\n  \"registration_reference\": \"example\",\n  \"reason\": \"example\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Required provider is unavailable.",
+                  "code": 503,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Required provider is unavailable.\",\n    \"request_id\": \"example-request\"\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get(\"business_idempotency_key\")) pm.environment.set(\"business_idempotency_key\", pm.variables.replaceIn(\"{{$guid}}\"));",
+                      "if (pm.environment.get(\"business_reservation_id\")) pm.variables.set(\"business_id\",pm.environment.get(\"business_reservation_id\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Documented status\", () => pm.expect([200,400,401,403,404,409,429,503]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Consistent envelope\", () => pm.expect(body).to.have.property(pm.response.code < 300 ? \"data\" : \"error\"));",
+                      "if (pm.response.code < 300) { const d = body.data; const tokens = d.tokens || d; if (tokens.access_token) pm.environment.set(\"business_access_token\", tokens.access_token); if (tokens.refresh_token) pm.environment.set(\"business_refresh_token\", tokens.refresh_token); for (const k of [\"account_id\",\"organisation_id\",\"session_id\",\"device_id\",\"method_id\",\"role_id\",\"staff_id\",\"invitation_id\",\"capacity_id\",\"capability_pack_id\",\"delegation_id\",\"break_glass_id\",\"mfa_token\",\"verification_id\",\"handover_id\",\"import_id\",\"mapping_id\",\"media_link_id\",\"space_graph_id\"]) if (d[k]) pm.environment.set(\"business_\"+k,d[k]); if (d.handover_id) pm.environment.set(\"business_handover_id\",d.handover_id); if (d.id) pm.environment.set(\"business_id\",d.id); if (d.approval) pm.environment.set(\"business_approval_id\",d.approval.approval_id || d.approval.id); if (d.policy) pm.environment.set(\"business_policy_id\",d.policy.policy_id || d.policy.id); if (d.version) pm.environment.set(\"business_version\",d.version); }"
+                    ]
+                  }
+                }
+              ]
+            },
             {
               "name": "POST /api/v1/business/waitlist/{id}/guest-binding",
               "request": {

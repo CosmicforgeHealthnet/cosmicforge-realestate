@@ -18,8 +18,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/crm"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/distribution"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/inventory"
 	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/reservations"
@@ -345,4 +347,102 @@ func (h *Handler) marketplaceReservationPayment(ctx context.Context, q database.
 		out.AllowedPaymentPolicies = []ids.ID{}
 	}
 	return &out, e
+}
+
+// MarketplaceGuestRegistration binds an individual reservation's source-typed
+// guest (e.g. the Marketplace customer reference) to a canonical guest at
+// arrival. It requires the same approved identity link as group rooming: an
+// ACTIVE guest_identity_links row backed by the owning source's current
+// authenticated assertion.
+type MarketplaceGuestRegistration struct {
+	Version               int64  `json:"version"`
+	SourceKind            string `json:"source_kind"`
+	SourceReference       string `json:"source_reference"`
+	GuestID               ids.ID `json:"guest_id"`
+	RegistrationReference string `json:"registration_reference"`
+	Reason                string `json:"reason"`
+}
+
+func (h *Handler) registerMarketplaceArrivals(r chi.Router) {
+	r.Get("/guest-source-projections", h.guestSourceProjection)
+	r.Post("/reservations/{id}/guest-registrations", h.reservationGuestRegistration)
+}
+
+// guestSourceProjection returns the current authenticated source assertion
+// for a source guest reference (front desk identity linking).
+func (h *Handler) guestSourceProjection(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	property, e := ids.ParseV7(q.Get("property_id"))
+	kind, reference := q.Get("source_kind"), q.Get("source_reference")
+	if e != nil || kind != "MARKETPLACE" && kind != "OTA" || !crm.OpaqueReference(reference) {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("Property, external source kind and opaque source reference required."))
+		return
+	}
+	t, e := h.commercialScope(r, "guests:read", property, false)
+	if e != nil {
+		reply(w, r, 0, nil, e)
+		return
+	}
+	out, e := commercialJSONRows(r.Context(), h.Auth.Service.Pool, `SELECT to_jsonb(x) FROM (SELECT id,connection_id,source_kind,source_service,source_version,state,expires_at,evidence_reference FROM customer_accounts_projection WHERE organisation_id=$1 AND property_id=$2 AND source_kind=$3 AND source_reference_hash=$4 ORDER BY source_version DESC LIMIT 1) x`, t.Organisation, property, kind, h.crmSourceHash(t.Organisation, kind, reference))
+	if e == nil && len(out) == 0 {
+		e = apperrors.NotFound("SOURCE_PROJECTION_NOT_FOUND", "No authenticated source assertion exists for this reference.")
+	}
+	var first any
+	if e == nil {
+		first = out[0]
+	}
+	reply(w, r, 200, first, e)
+}
+
+func (h *Handler) reservationGuestRegistration(w http.ResponseWriter, r *http.Request) {
+	var in MarketplaceGuestRegistration
+	if !decode(w, r, &in) {
+		return
+	}
+	if in.Version < 1 || in.GuestID.ValidateV7() != nil || in.SourceKind != "MARKETPLACE" && in.SourceKind != "OTA" || !crm.OpaqueReference(in.SourceReference) || !crm.Text(in.RegistrationReference, 5, 300) || !validStaffReason(in.Reason) {
+		reply(w, r, 0, nil, apperrors.InvalidRequest("Current reservation version, the booking's source guest, the canonical guest and actual registration evidence are required."))
+		return
+	}
+	_, pre, e := h.reservationTarget(r, "pms:write", true)
+	if e != nil {
+		reply(w, r, 0, nil, e)
+		return
+	}
+	h.execute(w, r, "reservation:guest-registration:"+pre.ID.String(), in, "pms:write", "PROPERTY", pre.PropertyID, true, func(ctx context.Context, tx pgx.Tx) (int, any, error) {
+		t, _, e := h.authorize(ctx, tx, "pms:write", "PROPERTY", pre.PropertyID, true)
+		if e != nil {
+			return 0, nil, e
+		}
+		v, e := reservations.Get(ctx, tx, t.Organisation, pre.ID)
+		if e != nil {
+			return 0, nil, e
+		}
+		if v.Version != in.Version || v.AllocationState != "ACTIVE" || v.GroupID != nil || !slices.Contains([]string{"HOLD", "PENDING_PAYMENT", "PENDING_APPROVAL", "CONFIRMED"}, v.State) {
+			return 0, nil, apperrors.Conflict("GUEST_REGISTRATION_STATE", "A current active individual reservation before check-in is required (groups use rooming).")
+		}
+		if e = crm.RequireIdentityLink(ctx, tx, t.Organisation, v.PropertyID, in.GuestID, in.SourceKind, h.crmSourceHash(t.Organisation, in.SourceKind, in.SourceReference), h.Auth.Service.Now()); e != nil {
+			return 0, nil, e
+		}
+		var row ids.ID
+		var bound *ids.ID
+		e = tx.QueryRow(ctx, `SELECT id,guest_id FROM reservation_guests WHERE organisation_id=$1 AND reservation_id=$2 AND source_kind=$3 AND source_reference=$4 FOR UPDATE`, t.Organisation, v.ID, in.SourceKind, in.SourceReference).Scan(&row, &bound)
+		if errors.Is(e, pgx.ErrNoRows) {
+			return 0, nil, apperrors.NotFound("RESERVATION_GUEST_NOT_FOUND", "The reservation has no such source guest.")
+		}
+		if e != nil {
+			return 0, nil, e
+		}
+		if bound != nil && *bound != in.GuestID {
+			return 0, nil, apperrors.Conflict("RESERVATION_GUEST_BOUND", "The source guest is already registered to another canonical guest.")
+		}
+		if bound == nil {
+			if _, e = tx.Exec(ctx, `UPDATE reservation_guests SET guest_id=$3,registration_reference=$4,version=version+1,updated_at=now() WHERE organisation_id=$1 AND id=$2`, t.Organisation, row, in.GuestID, in.RegistrationReference); e != nil {
+				return 0, nil, e
+			}
+		}
+		if e = audit(ctx, tx, t, "RESERVATION_GUEST_REGISTERED", "reservation", v.ID, map[string]any{"reservation_guest_id": row, "guest_id": in.GuestID, "source_kind": in.SourceKind, "reason": in.Reason}); e != nil {
+			return 0, nil, e
+		}
+		return 200, map[string]any{"reservation_id": v.ID, "reservation_guest_id": row, "guest_id": in.GuestID}, nil
+	})
 }
