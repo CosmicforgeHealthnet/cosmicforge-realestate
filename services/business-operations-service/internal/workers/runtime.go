@@ -2,6 +2,7 @@ package workers
 
 import (
 	"context"
+	"github.com/CosmicforgeHealthnet/cosmicforge-realestate/services/business-operations-service/internal/integrations/cfmeet"
 	"log/slog"
 	"time"
 
@@ -89,6 +90,12 @@ func Start(ctx context.Context, pool *pgxpool.Pool, conn *jetstream.Conn, prefix
 		}
 		inventory.Payment = client
 	}
+	meet, err := cfmeet.Load(l)
+	if err != nil {
+		consumer.Stop()
+		return nil, err
+	}
+	inventory.CFMeet = meet
 	inventory.ChannelAdapters = map[string]distribution.Adapter{"BOOKING_COM": distribution.DisabledAdapter{Provider: "BOOKING_COM"}, "AIRBNB": distribution.DisabledAdapter{Provider: "AIRBNB"}}
 	if endpoint := l.String("MARKETPLACE_SERVICE_URL", ""); endpoint != "" {
 		adapter, e := distribution.NewMarketplace(endpoint, identity.Signer)

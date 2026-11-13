@@ -65,9 +65,14 @@ func (a *App) EnableIdentity(loader *config.Loader) error {
 		domain.Media = client
 	}
 	domain.InvitationAcceptURL = loader.String("BUSINESS_INVITATION_ACCEPT_URL", "")
-	// No CF Meet or external messaging/review partner contract is deployed:
-	// these boundaries fail closed until an authenticated adapter is added.
-	domain.CFMeet = cfmeet.Unavailable{}
+	// CF Meet speaks its published Messaging contract once a Platform Access
+	// credential is configured; otherwise contexts stay PENDING_AUTHORITY.
+	// External messaging/review partners fail closed until adapters exist.
+	meet, err := cfmeet.Load(loader)
+	if err != nil {
+		return err
+	}
+	domain.CFMeet = meet
 	domain.Messaging = map[string]messaging.Adapter{"MARKETPLACE": messaging.Disabled{Name: "MARKETPLACE"}, "BOOKING_COM": messaging.Disabled{Name: "BOOKING_COM"}, "AIRBNB": messaging.Disabled{Name: "AIRBNB"}, "DIRECT_WEB": messaging.Disabled{Name: "DIRECT_WEB"}}
 	domain.ReviewAdapters = map[string]messaging.ReviewAdapter{"MARKETPLACE_VERIFIED_STAY": messaging.DisabledReviews{}, "BOOKING_COM": messaging.DisabledReviews{}, "AIRBNB": messaging.DisabledReviews{}}
 	a.Router = NewRouter(a.Health, handler.Router, domain.InternalDistributionRouter(identity.Verifier), domain.DistributionWebhookRouter(identity.Verifier))

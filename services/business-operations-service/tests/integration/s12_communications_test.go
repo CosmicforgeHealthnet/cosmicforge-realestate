@@ -37,12 +37,17 @@ func (d *cfMeetDouble) EnsureContext(_ context.Context, in cfmeet.CFMeetContextR
 	d.contexts[in.ContextID] = c
 	return c, nil
 }
-func (d *cfMeetDouble) ReadContext(_ context.Context, id ids.ID) (cfmeet.CFMeetContext, error) {
+func (d *cfMeetDouble) ReadContext(_ context.Context, ref string) (cfmeet.CFMeetContext, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	return d.contexts[id], nil
+	for _, c := range d.contexts {
+		if c.ConversationRef == ref {
+			return c, nil
+		}
+	}
+	return cfmeet.CFMeetContext{}, cfmeet.ErrRejected
 }
-func (d *cfMeetDouble) RevokeParticipant(context.Context, ids.ID, ids.ID) error { return nil }
+func (d *cfMeetDouble) RevokeParticipant(context.Context, string, ids.ID) error { return nil }
 
 // messagingDouble records provider calls and supports ambiguous outcomes.
 type messagingDouble struct {

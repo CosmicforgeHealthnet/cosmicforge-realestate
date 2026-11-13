@@ -1,0 +1,423 @@
+{
+  "note": "Pinned subset of the CF Meet public Messaging contract used by business-operations-service internal/integrations/cfmeet. Regenerate from the source file; do not edit by hand.",
+  "operations": {
+    "addMember": {
+      "method": "POST",
+      "parameters": [
+        {
+          "in": "header",
+          "name": "CF-Acting-Principal",
+          "required": false,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "path",
+          "name": "conversationId",
+          "required": true,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      ],
+      "path": "/v1/conversations/{conversationId}/members",
+      "requestBody": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "not": {
+              "required": [
+                "cfMeetId"
+              ]
+            },
+            "required": [
+              "principalId"
+            ]
+          },
+          {
+            "not": {
+              "required": [
+                "principalId"
+              ]
+            },
+            "required": [
+              "cfMeetId"
+            ]
+          }
+        ],
+        "properties": {
+          "cfMeetId": {
+            "pattern": "^CF-[A-Z2-7]{26}$",
+            "type": "string"
+          },
+          "invite": {
+            "type": "boolean"
+          },
+          "principalId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "MEMBER",
+              "ADMIN",
+              "MODERATOR",
+              "READ_ONLY",
+              "BOT_SERVICE"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "responseRequired": [
+        "principalId",
+        "role",
+        "state",
+        "joinedAt",
+        "sendRestrictedUntil",
+        "version",
+        "authoritySource",
+        "invitedByPrincipalId",
+        "invitationExpiresAt"
+      ],
+      "security": [
+        "customerCredential"
+      ],
+      "successStatus": [
+        "201",
+        "200"
+      ]
+    },
+    "createConversation": {
+      "method": "POST",
+      "parameters": [
+        {
+          "in": "header",
+          "name": "CF-Acting-Principal",
+          "required": true,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "header",
+          "name": "Idempotency-Key",
+          "required": true,
+          "schema": {
+            "pattern": "^[A-Za-z0-9._:-]{8,128}$",
+            "type": "string"
+          }
+        }
+      ],
+      "path": "/v1/conversations",
+      "requestBody": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "counterpartCfMeetId"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "counterpartPrincipalId"
+                    ]
+                  }
+                ]
+              }
+            },
+            "if": {
+              "properties": {
+                "contextClass": {
+                  "const": "DIRECT"
+                }
+              },
+              "required": [
+                "contextClass"
+              ]
+            },
+            "then": {
+              "oneOf": [
+                {
+                  "not": {
+                    "required": [
+                      "counterpartCfMeetId"
+                    ]
+                  },
+                  "required": [
+                    "counterpartPrincipalId"
+                  ]
+                },
+                {
+                  "not": {
+                    "required": [
+                      "counterpartPrincipalId"
+                    ]
+                  },
+                  "required": [
+                    "counterpartCfMeetId"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "avatarRef": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$",
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": false,
+            "properties": {
+              "namespace": {
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "type": "string"
+              },
+              "reference": {
+                "pattern": "^[A-Za-z0-9._:/-]{1,256}$",
+                "type": "string"
+              },
+              "version": {
+                "maximum": 2147483647,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "namespace",
+              "reference"
+            ],
+            "type": "object"
+          },
+          "contextClass": {
+            "enum": [
+              "DIRECT",
+              "GROUP",
+              "MEETING",
+              "TRANSACTION",
+              "CONSULTATION",
+              "SUPPORT",
+              "ENTERPRISE",
+              "DEVELOPER_DEFINED"
+            ],
+            "type": "string"
+          },
+          "counterpartCfMeetId": {
+            "pattern": "^CF-[A-Z2-7]{26}$",
+            "type": "string"
+          },
+          "counterpartPrincipalId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "expectedPolicyVersion": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiryGraceSeconds": {
+            "maximum": 2592000,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "managedDisclosureAcknowledged": {
+            "type": "boolean"
+          },
+          "predecessorConversationId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "profileChangeDisclosureAcknowledged": {
+            "type": "boolean"
+          },
+          "readReceipts": {
+            "type": "boolean"
+          },
+          "retentionSeconds": {
+            "maximum": 3153600000,
+            "minimum": 60,
+            "type": "integer"
+          },
+          "securityProfile": {
+            "enum": [
+              "PRIVATE_E2EE",
+              "MANAGED"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "contextClass"
+        ],
+        "type": "object"
+      },
+      "responseRequired": [
+        "conversationId",
+        "contextClass",
+        "context",
+        "securityProfile",
+        "encryption",
+        "lifecycleState",
+        "lifecycleReason",
+        "policy",
+        "version",
+        "createdByPrincipalId",
+        "ownerPrincipalId",
+        "members",
+        "createdAt",
+        "updatedAt",
+        "stateChangedAt",
+        "expiresAt",
+        "memberCount",
+        "membersTruncated",
+        "expiryGraceSeconds",
+        "retentionSeconds",
+        "predecessorConversationId",
+        "successorConversationId",
+        "readReceipts"
+      ],
+      "security": [
+        "customerCredential"
+      ],
+      "successStatus": [
+        "201"
+      ]
+    },
+    "getConversation": {
+      "method": "GET",
+      "parameters": [
+        {
+          "in": "header",
+          "name": "CF-Acting-Principal",
+          "required": false,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "path",
+          "name": "conversationId",
+          "required": true,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      ],
+      "path": "/v1/conversations/{conversationId}",
+      "responseRequired": [
+        "conversationId",
+        "contextClass",
+        "context",
+        "securityProfile",
+        "encryption",
+        "lifecycleState",
+        "lifecycleReason",
+        "policy",
+        "version",
+        "createdByPrincipalId",
+        "ownerPrincipalId",
+        "members",
+        "createdAt",
+        "updatedAt",
+        "stateChangedAt",
+        "expiresAt",
+        "memberCount",
+        "membersTruncated",
+        "expiryGraceSeconds",
+        "retentionSeconds",
+        "predecessorConversationId",
+        "successorConversationId",
+        "readReceipts"
+      ],
+      "security": [
+        "customerCredential",
+        "clientToken"
+      ],
+      "successStatus": [
+        "200"
+      ]
+    },
+    "removeMember": {
+      "method": "DELETE",
+      "parameters": [
+        {
+          "in": "header",
+          "name": "CF-Acting-Principal",
+          "required": false,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "path",
+          "name": "conversationId",
+          "required": true,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "path",
+          "name": "principalId",
+          "required": true,
+          "schema": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        {
+          "in": "query",
+          "name": "reason",
+          "required": false,
+          "schema": {
+            "pattern": "^[A-Z][A-Z0-9_]{1,47}$",
+            "type": "string"
+          }
+        }
+      ],
+      "path": "/v1/conversations/{conversationId}/members/{principalId}",
+      "responseRequired": null,
+      "security": [
+        "customerCredential"
+      ],
+      "successStatus": [
+        "200"
+      ]
+    }
+  },
+  "securitySchemes": {
+    "customerCredential": {
+      "scheme": "bearer",
+      "type": "http"
+    }
+  },
+  "source": {
+    "commit": "b9dc15be072107b79bac8c49ca6b4b9ed65d12ca",
+    "file": "packages/contracts/bundled/public/messaging/v1.openapi.json",
+    "repository": "CosmicforgeHealthnet/cfmeet",
+    "server": "https://api.cfmeet.com",
+    "title": "CF Meet public API \u2014 messaging",
+    "version": "1.16.0"
+  }
+}
